@@ -33,11 +33,8 @@ const (
 	Fill
 )
 
-var (
-	// NoHintSize is a convenience for passing to layouts when you don't have any particular
-	// size constraints in mind. Should be treated as read-only.
-	NoHintSize = geom.Size{Width: NoHint, Height: NoHint}
-)
+// Alignment specifies how to align an object within its available space.
+type Alignment int
 
 // The Layoutable interface should be implemented by objects that want to participate in layout.
 type Layoutable interface {
@@ -68,6 +65,12 @@ type Layout interface {
 	// Layout is called to layout the target and its children.
 	Layout(target Layoutable)
 }
+
+var (
+	// NoHintSize is a convenience for passing to layouts when you don't have any particular
+	// size constraints in mind. Should be treated as read-only.
+	NoHintSize = geom.Size{Width: NoHint, Height: NoHint}
+)
 
 // DefaultMaxSize returns the size that is at least as large as DefaultMax in both dimensions, but
 // larger if the preferred size that is passed in is larger.

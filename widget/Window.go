@@ -41,7 +41,7 @@ const (
 // WindowStyleMask controls the look and capabilities of a window.
 type WindowStyleMask int
 
-// Represents a window on the display.
+// Window represents a window on the display.
 type Window struct {
 	window         C.uiWindow
 	ShouldClose    func() bool // Called to ask if closing the window is permitted. Return true if it is.

@@ -29,19 +29,32 @@ const (
 	TerminateLater
 )
 
+// TerminationResponse is used to determine what will occur when AttemptQuit() is called.
 type TerminationResponse int
 
 var (
-	Name                                 string
-	WillFinishStartup                    func()
-	DidFinishStartup                     func()
-	ShouldTerminate                      func() TerminationResponse
+	// Name of the application.
+	Name string
+	// WillFinishStartup is called prior to the app finishing its startup sequence.
+	WillFinishStartup func()
+	// DidFinishStartup is called after the app has finished its startup sequence.
+	DidFinishStartup func()
+	// ShouldTerminate is called to determine whether it is permitted to quit at this point in
+	// time.
+	ShouldTerminate func() TerminationResponse
+	// ShouldTerminateAfterLastWindowClosed is called when the last open window is closed to
+	// determine if the app should attempt to quit.
 	ShouldTerminateAfterLastWindowClosed func() bool
-	WillTerminate                        func()
-	WillBecomeActive                     func()
-	DidBecomeActive                      func()
-	WillResignActive                     func()
-	DidResignActive                      func()
+	// WillTerminate is called just prior to the application's termination.
+	WillTerminate func()
+	// WillBecomeActive is called prior to the application transitioning to the foreground.
+	WillBecomeActive func()
+	// DidBecomeActive is called after the application has transitioned to the foreground.
+	DidBecomeActive func()
+	// WillResignActive is called prior to the applicaton transitioning to the background.
+	WillResignActive func()
+	// DidResignActive is called after the application has transitioned to the background.
+	DidResignActive func()
 )
 
 func init() {

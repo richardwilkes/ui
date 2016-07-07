@@ -15,6 +15,7 @@ import (
 	"math"
 )
 
+// Precision lays out the children of its target based on the PrecisionData assigned to each child.
 type Precision struct {
 	rows                int
 	Columns             int

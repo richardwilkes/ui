@@ -14,14 +14,22 @@ package color
 import "C"
 
 var (
-	Background             Color
-	KeyboardFocus          Color
-	SelectedControl        Color
-	SelectedControlText    Color
+	// Background is the system color used for the window background.
+	Background Color
+	// KeyboardFocus is the system color used to highlight controls that have the keyboard focus.
+	KeyboardFocus Color
+	// SelectedControl is the system color used to highlight controls that have a selection.
+	SelectedControl Color
+	// SelectedControlText is the system color used for text in the selected portion of a control.
+	SelectedControlText Color
+	// SelectedTextBackground is the system color used for the background of selected text.
 	SelectedTextBackground Color
-	SelectedText           Color
-	TextBackground         Color
-	Text                   Color
+	// SelectedText is the system color used for selected text.
+	SelectedText Color
+	// TextBackground is the system color used for the background of editable text areas.
+	TextBackground Color
+	// Text is the system color used for the text in editable text areas.
+	Text Color
 )
 
 func init() {

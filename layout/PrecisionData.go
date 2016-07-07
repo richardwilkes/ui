@@ -13,8 +13,7 @@ import (
 	"github.com/richardwilkes/go-ui/geom"
 )
 
-type Alignment int
-
+// PrecisionData is used to control how an object is laid out by the Precision layout.
 type PrecisionData struct {
 	cacheMinWidth       float32
 	cacheSize           geom.Size
