@@ -25,8 +25,49 @@ type Precision struct {
 	EqualColumns        bool
 }
 
+// NewPrecision creates a new Precision Layout.
 func NewPrecision() *Precision {
 	return &Precision{Columns: 1, HorizontalSpacing: 4, VerticalSpacing: 2, HorizontalAlignment: Beginning, VerticalAlignment: Beginning}
+}
+
+// SetColumns is a convenience for setting the number of columns while chaining calls together.
+func (p *Precision) SetColumns(columns int) *Precision {
+	p.Columns = columns
+	return p
+}
+
+// SetEqualColumns is a convenience for setting equal columns while chaining calls together.
+func (p *Precision) SetEqualColumns(equal bool) *Precision {
+	p.EqualColumns = equal
+	return p
+}
+
+// SetHorizontalSpacing is a convenience for setting the horizontal spacing while chaining calls
+// together.
+func (p *Precision) SetHorizontalSpacing(spacing float32) *Precision {
+	p.HorizontalSpacing = spacing
+	return p
+}
+
+// SetVerticalSpacing is a convenience for setting the vertical spacing while chaining calls
+// together.
+func (p *Precision) SetVerticalSpacing(spacing float32) *Precision {
+	p.VerticalSpacing = spacing
+	return p
+}
+
+// SetHorizontalAlignment is a convenience for setting the horizontal alignment while chaining
+// calls together.
+func (p *Precision) SetHorizontalAlignment(alignment Alignment) *Precision {
+	p.HorizontalAlignment = alignment
+	return p
+}
+
+// SetVerticalAlignment is a convenience for setting the vertical alignment while chaining calls
+// together.
+func (p *Precision) SetVerticalAlignment(alignment Alignment) *Precision {
+	p.VerticalAlignment = alignment
+	return p
 }
 
 // ComputeSizes implements the Layout interface

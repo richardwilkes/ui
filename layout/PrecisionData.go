@@ -28,8 +28,85 @@ type PrecisionData struct {
 	VerticalGrab        bool
 }
 
+// NewPrecisionData creates a new PrecisionData.
 func NewPrecisionData() *PrecisionData {
 	return &PrecisionData{HorizontalAlignment: Beginning, VerticalAlignment: Middle, SizeHint: NoHintSize, MinSize: NoHintSize}
+}
+
+// SetHorizontalAlignment is a convenience for setting the horizontal alignment while chaining
+// calls together.
+func (pd *PrecisionData) SetHorizontalAlignment(alignment Alignment) *PrecisionData {
+	pd.HorizontalAlignment = alignment
+	return pd
+}
+
+// SetVerticalAlignment is a convenience for setting the vertical alignment while chaining calls
+// together.
+func (pd *PrecisionData) SetVerticalAlignment(alignment Alignment) *PrecisionData {
+	pd.VerticalAlignment = alignment
+	return pd
+}
+
+// SetSizeHint is a convenience for setting the size hint while chaining calls together.
+func (pd *PrecisionData) SetSizeHint(size geom.Size) *PrecisionData {
+	pd.SizeHint = size
+	return pd
+}
+
+// SetWidthHint is a convenience for setting the width hint while chaining calls together.
+func (pd *PrecisionData) SetWidthHint(width float32) *PrecisionData {
+	pd.SizeHint.Width = width
+	return pd
+}
+
+// SetHeightHint is a convenience for setting the height hint while chaining calls together.
+func (pd *PrecisionData) SetHeightHint(height float32) *PrecisionData {
+	pd.SizeHint.Height = height
+	return pd
+}
+
+// SetHorizontalSpan is a convenience for setting the horizontal span while chaining calls
+// together.
+func (pd *PrecisionData) SetHorizontalSpan(span int) *PrecisionData {
+	pd.HorizontalSpan = span
+	return pd
+}
+
+// SetVerticalSpan is a convenience for setting the vertical span while chaining calls together.
+func (pd *PrecisionData) SetVerticalSpan(span int) *PrecisionData {
+	pd.VerticalSpan = span
+	return pd
+}
+
+// SetMinSize is a convenience for setting the minimum size while chaining calls together.
+func (pd *PrecisionData) SetMinSize(size geom.Size) *PrecisionData {
+	pd.MinSize = size
+	return pd
+}
+
+// SetMinWidth is a convenience for setting the minimum width while chaining calls together.
+func (pd *PrecisionData) SetMinWidth(width float32) *PrecisionData {
+	pd.MinSize.Width = width
+	return pd
+}
+
+// SetMinHeight is a convenience for setting the minimum height while chaining calls together.
+func (pd *PrecisionData) SetMinHeight(height float32) *PrecisionData {
+	pd.MinSize.Height = height
+	return pd
+}
+
+// SetHorizontalGrab is a convenience for setting the horizontal grab while chaining calls
+// together.
+func (pd *PrecisionData) SetHorizontalGrab(grab bool) *PrecisionData {
+	pd.HorizontalGrab = grab
+	return pd
+}
+
+// SetVerticalGrab is a convenience for setting the vertical grab while chaining calls together.
+func (pd *PrecisionData) SetVerticalGrab(grab bool) *PrecisionData {
+	pd.VerticalGrab = grab
+	return pd
 }
 
 func (pd *PrecisionData) computeCacheSize(target Layoutable, hint geom.Size, useMinimumSize bool) {
