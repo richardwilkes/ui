@@ -7,8 +7,8 @@
 // This Source Code Form is "Incompatible With Secondary Licenses", as
 // defined by the Mozilla Public License, version 2.0.
 
-#ifndef __TROLLWORKS_SYSTEM_COLORS__
-#define __TROLLWORKS_SYSTEM_COLORS__
+#ifndef __RW_GOUI_SYSTEM_COLORS__
+#define __RW_GOUI_SYSTEM_COLORS__
 
 typedef enum {
 	backgroundColor,
@@ -24,4 +24,4 @@ typedef enum {
 // The returned color is in the format 0xAARRGGBB
 unsigned int uiGetSystemColor(SystemColorId id);
 
-#endif // __TROLLWORKS_SYSTEM_COLORS__
+#endif // __RW_GOUI_SYSTEM_COLORS__
