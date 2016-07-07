@@ -103,6 +103,16 @@ func extractPercentage(buffer string) float32 {
 	return 0
 }
 
+// Invisible returns true if the color is fully transparent.
+func (c Color) Invisible() bool {
+	return c.Alpha() == 0
+}
+
+// Opaque returns true if the color is fully opaque.
+func (c Color) Opaque() bool {
+	return c.Alpha() == 255
+}
+
 // HasAlpha returns true if the color is not fully opaque.
 func (c Color) HasAlpha() bool {
 	return (c & 0xFF000000) != 0xFF000000
