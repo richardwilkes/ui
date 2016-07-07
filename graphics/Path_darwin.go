@@ -29,6 +29,10 @@ func (p *Path) toPlatform() C.CGPathRef {
 			C.CGPathAddCurveToPoint(path, nil, C.CGFloat(t.cp1x), C.CGFloat(t.cp1y), C.CGFloat(t.cp2x), C.CGFloat(t.cp2y), C.CGFloat(t.x), C.CGFloat(t.y))
 		case *quadCurveToPathNode:
 			C.CGPathAddQuadCurveToPoint(path, nil, C.CGFloat(t.cpx), C.CGFloat(t.cpy), C.CGFloat(t.x), C.CGFloat(t.y))
+		case *rectPathNode:
+			C.CGPathAddRect(path, nil, toCGRect(t.bounds))
+		case *ellipsePathNode:
+			C.CGPathAddEllipseInRect(path, nil, toCGRect(t.bounds))
 		case *closePathNode:
 			C.CGPathCloseSubpath(path)
 		default:

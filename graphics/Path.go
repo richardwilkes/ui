@@ -9,6 +9,10 @@
 
 package graphics
 
+import (
+	"github.com/richardwilkes/go-ui/geom"
+)
+
 type moveToPathNode struct {
 	x, y float32
 }
@@ -32,6 +36,14 @@ type curveToPathNode struct {
 
 type quadCurveToPathNode struct {
 	cpx, cpy, x, y float32
+}
+
+type rectPathNode struct {
+	bounds geom.Rect
+}
+
+type ellipsePathNode struct {
+	bounds geom.Rect
 }
 
 type closePathNode struct {
@@ -82,6 +94,18 @@ func (p *Path) CurveTo(cp1x, cp1y, cp2x, cp2y, x, y float32) {
 // an end point.
 func (p *Path) QuadCurveTo(cpx, cpy, x, y float32) {
 	p.data = append(p.data, &quadCurveToPathNode{cpx: cpx, cpy: cpy, x: x, y: y})
+}
+
+// Rect adds a rectangle to the path. The rectangle is a complete subpath, i.e. it starts with a
+// MoveTo and ends with a ClosePath operation.
+func (p *Path) Rect(bounds geom.Rect) {
+	p.data = append(p.data, &rectPathNode{bounds: bounds})
+}
+
+// Ellipse adds an ellipse to the path. The ellipse is a complete subpath, i.e. it starts with a
+// MoveTo and ends with a ClosePath operation.
+func (p *Path) Ellipse(bounds geom.Rect) {
+	p.data = append(p.data, &ellipsePathNode{bounds: bounds})
 }
 
 // ClosePath closes and terminates the current path’s subpath.
