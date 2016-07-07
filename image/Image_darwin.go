@@ -22,6 +22,10 @@ import (
 // #include <ImageIO/ImageIO.h>
 import "C"
 
+var (
+	imgToPixels = make(map[unsafe.Pointer]unsafe.Pointer)
+)
+
 func newImageFromBytes(buffer []byte) *Image {
 	data := C.CFDataCreate(nil, (*C.UInt8)(&buffer[0]), C.CFIndex(len(buffer)))
 	defer C.CFRelease(data)
@@ -53,8 +57,10 @@ func newImageFromData(data *Data) *Image {
 	defer C.CGColorSpaceRelease(colorspace)
 
 	length := len(data.Pixels)
-	pixels := make([]color.Color, length)
-	copy(pixels, data.Pixels)
+	size := C.size_t(length * 4)
+	buffer := C.malloc(size)
+	C.memcpy(buffer, unsafe.Pointer(&data.Pixels[0]), size)
+	pixels := (*[1 << 30]color.Color)(buffer)
 
 	// Perform alpha pre-multiplication, since macOS requires it
 	for i := 0; i < length; i++ {
@@ -67,11 +73,13 @@ func newImageFromData(data *Data) *Image {
 		pixels[i] = a | r | g | b
 	}
 
-	dataProvider := C.CGDataProviderCreateWithData(nil, unsafe.Pointer(&pixels[0]), C.size_t(length*4), nil)
+	dataProvider := C.CGDataProviderCreateWithData(nil, buffer, size, nil)
 	defer C.CGDataProviderRelease(dataProvider)
 	if image := C.CGImageCreate(C.size_t(data.Width), C.size_t(data.Height), 8, 32, C.size_t(data.Width*4), colorspace, C.kCGBitmapByteOrder32Host|C.kCGImageAlphaPremultipliedFirst, dataProvider, nil, false, C.kCGRenderingIntentDefault); image != nil {
+		imgToPixels[unsafe.Pointer(image)] = buffer
 		return createImage(image)
 	}
+	C.free(buffer)
 	return nil
 }
 
@@ -87,6 +95,10 @@ func createImage(img C.CGImageRef) *Image {
 }
 
 func (img *Image) dispose() {
+	if buffer, ok := imgToPixels[img.img]; ok {
+		delete(imgToPixels, img.img)
+		C.free(buffer)
+	}
 	C.CGImageRelease(img.img)
 	img.img = nil
 }
