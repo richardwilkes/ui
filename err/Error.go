@@ -25,9 +25,11 @@ type Error struct {
 
 var (
 	sigpanic *runtime.Func
-	// Detailed should be set to true to enable detailed output that contains a stack trace as well as chained errors. Defaults to true.
+	// Detailed should be set to true to enable detailed output that contains a stack trace as well
+	// as chained errors. Defaults to true.
 	Detailed = true
-	// TrimRuntime should be set to true to enable removal of code from the stack trace that is in one of the golang the runtime packages.
+	// TrimRuntime should be set to true to enable removal of code from the stack trace that is in
+	// one of the golang the runtime packages. Defaults to true.
 	TrimRuntime = true
 )
 
@@ -51,7 +53,8 @@ func init() {
 	}()
 }
 
-// Wrap an error and turn it into a detailed error. If error is already a detailed error, then it will be returned as-is.
+// Wrap an error and turn it into a detailed error. If error is already a detailed error, then it
+// will be returned as-is.
 func Wrap(cause error) error {
 	if cause == nil {
 		return nil
@@ -93,7 +96,8 @@ func (err *Error) Error() string {
 	return err.message
 }
 
-// Detail returns the fully detailed error message, which includes the primary message, the call stack, and potentially one or more chained causes.
+// Detail returns the fully detailed error message, which includes the primary message, the call
+// stack, and potentially one or more chained causes.
 func (err *Error) Detail() string {
 	var buffer bytes.Buffer
 	err.detail(&buffer)
