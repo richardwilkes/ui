@@ -11,6 +11,7 @@ Widgets that have been implemented:
 - ImageButton
 - Label
 - Menu (including a global menu bar)
+- RadioButton
 - Separator
 - Window
 
@@ -22,7 +23,6 @@ Widgets that still need to be implemented:
 - List
 - PopupMenu
 - ProgressBar
-- RadioButton
 - ScrollBar
 - Slider
 - SplitPanel

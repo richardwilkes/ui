@@ -67,6 +67,14 @@ func createButtonsWindow() {
 	checkBoxPanel.SetLayoutData(layout.NewPrecisionData().SetHorizontalGrab(true))
 	root.AddChild(checkBoxPanel)
 
+	sep = widget.NewSeparator(true)
+	sep.SetLayoutData(layout.NewPrecisionData().SetHorizontalAlignment(layout.Fill))
+	root.AddChild(&sep.Block)
+
+	radioButtonsPanel := createRadioButtonsPanel()
+	radioButtonsPanel.SetLayoutData(layout.NewPrecisionData().SetHorizontalGrab(true))
+	root.AddChild(radioButtonsPanel)
+
 	wnd.Pack()
 	wnd.ToFront()
 }
@@ -75,54 +83,22 @@ func createButtonsPanel() *widget.Block {
 	panel := widget.NewBlock()
 	panel.Layout = &layout.Flow{HGap: 5, VGap: 5}
 
-	button := widget.NewButton("Press Me")
-	button.OnClick = func() { fmt.Println("The button 'Press Me' was clicked.") }
-	button.OnToolTip = func(where geom.Point) string { return "This is the tooltip for the 'Press Me' button." }
-	panel.AddChild(&button.Block)
-
-	button = widget.NewButton("Default")
-	button.OnClick = func() { fmt.Println("The button 'Default' was clicked.") }
-	button.OnToolTip = func(where geom.Point) string { return "This is the tooltip for the 'Default' button." }
-	button.SetFocused(true)
-	panel.AddChild(&button.Block)
-
-	button = widget.NewButton("Disabled")
-	button.OnToolTip = func(where geom.Point) string { return "This is the tooltip for the 'Disabled' button." }
-	button.SetDisabled(true)
-	panel.AddChild(&button.Block)
+	createButton("Press Me", panel)
+	createButton("Default", panel).SetFocused(true)
+	createButton("Disabled", panel).SetDisabled(true)
 
 	img, err := image.AcquireFromFile(images.FS, "/home.png")
 	if err == nil {
-		size := img.Size()
-		size.Width /= 2
-		size.Height /= 2
-		imgButton := widget.NewImageButtonWithImageSize(img, size)
-		imgButton.OnClick = func() { fmt.Println("The button 'Home' was clicked.") }
-		imgButton.OnToolTip = func(where geom.Point) string { return "Home" }
-		panel.AddChild(&imgButton.Block)
-
-		imgButton = widget.NewImageButtonWithImageSize(img, size)
-		imgButton.OnToolTip = func(where geom.Point) string { return "Disabled Home" }
-		imgButton.SetDisabled(true)
-		panel.AddChild(&imgButton.Block)
+		createImageButton(img, "Home", panel)
+		createImageButton(img, "Home (disabled)", panel).SetDisabled(true)
 	} else {
 		fmt.Println(err)
 	}
 
 	img, err = image.AcquireFromFile(images.FS, "/classic-apple-logo.png")
 	if err == nil {
-		size := img.Size()
-		size.Width /= 2
-		size.Height /= 2
-		imgButton := widget.NewImageButtonWithImageSize(img, size)
-		imgButton.OnClick = func() { fmt.Println("The button 'Classic Apple Logo' was clicked.") }
-		imgButton.OnToolTip = func(where geom.Point) string { return "Classic Apple Logo" }
-		panel.AddChild(&imgButton.Block)
-
-		imgButton = widget.NewImageButtonWithImageSize(img, size)
-		imgButton.OnToolTip = func(where geom.Point) string { return "Disabled Classic Apple Logo" }
-		imgButton.SetDisabled(true)
-		panel.AddChild(&imgButton.Block)
+		createImageButton(img, "Classic Apple Logo", panel)
+		createImageButton(img, "Classic Apple Logo (disabled)", panel).SetDisabled(true)
 	} else {
 		fmt.Println(err)
 	}
@@ -130,33 +106,72 @@ func createButtonsPanel() *widget.Block {
 	return panel
 }
 
+func createButton(title string, panel *widget.Block) *widget.Button {
+	button := widget.NewButton(title)
+	button.OnClick = func() { fmt.Printf("The button '%s' was clicked.\n", title) }
+	button.OnToolTip = func(where geom.Point) string {
+		return fmt.Sprintf("This is the tooltip for the '%s' button.", title)
+	}
+	panel.AddChild(&button.Block)
+	return button
+}
+
+func createImageButton(img *image.Image, name string, panel *widget.Block) *widget.ImageButton {
+	size := img.Size()
+	size.Width /= 2
+	size.Height /= 2
+	button := widget.NewImageButtonWithImageSize(img, size)
+	button.OnClick = func() { fmt.Printf("The button '%s' was clicked.\n", name) }
+	button.OnToolTip = func(where geom.Point) string { return name }
+	panel.AddChild(&button.Block)
+	return button
+}
+
 func createCheckBoxPanel() *widget.Block {
 	panel := widget.NewBlock()
 	panel.Layout = layout.NewPrecision()
-
-	checkbox := widget.NewCheckBox("Press Me")
-	checkbox.OnClick = func() { fmt.Println("The checkbox 'Press Me' was clicked.") }
-	checkbox.OnToolTip = func(where geom.Point) string { return "This is the tooltip for the 'Press Me' checkbox." }
-	panel.AddChild(&checkbox.Block)
-
-	checkbox = widget.NewCheckBox("Initially Mixed")
-	checkbox.OnClick = func() { fmt.Println("The checkbox 'Initially Mixed' was clicked.") }
-	checkbox.OnToolTip = func(where geom.Point) string { return "This is the tooltip for the 'Initially Mixed' checkbox." }
-	checkbox.SetState(widget.Mixed)
-	panel.AddChild(&checkbox.Block)
-
-	checkbox = widget.NewCheckBox("Disabled")
-	checkbox.OnToolTip = func(where geom.Point) string { return "This is the tooltip for the 'Disabled' checkbox." }
-	checkbox.SetDisabled(true)
-	panel.AddChild(&checkbox.Block)
-
-	checkbox = widget.NewCheckBox("Disabled w/Check")
-	checkbox.OnToolTip = func(where geom.Point) string { return "This is the tooltip for the 'Disabled w/Check' checkbox." }
+	createCheckBox("Press Me", panel)
+	createCheckBox("Initially Mixed", panel).SetState(widget.Mixed)
+	createCheckBox("Disabled", panel).SetDisabled(true)
+	checkbox := createCheckBox("Disabled w/Check", panel)
 	checkbox.SetDisabled(true)
 	checkbox.SetState(widget.Checked)
+	return panel
+}
+
+func createCheckBox(title string, panel *widget.Block) *widget.CheckBox {
+	checkbox := widget.NewCheckBox(title)
+	checkbox.OnClick = func() { fmt.Printf("The checkbox '%s' was clicked.\n", title) }
+	checkbox.OnToolTip = func(where geom.Point) string {
+		return fmt.Sprintf("This is the tooltip for the '%s' checkbox.", title)
+	}
 	panel.AddChild(&checkbox.Block)
+	return checkbox
+}
+
+func createRadioButtonsPanel() *widget.Block {
+	panel := widget.NewBlock()
+	panel.Layout = layout.NewPrecision()
+
+	group := widget.NewRadioButtonGroup()
+	first := createRadioButton("First", panel, group)
+	createRadioButton("Second", panel, group)
+	createRadioButton("Third (disabled)", panel, group).SetDisabled(true)
+	createRadioButton("Fourth", panel, group)
+	group.Select(first)
 
 	return panel
+}
+
+func createRadioButton(title string, panel *widget.Block, group *widget.RadioButtonGroup) *widget.RadioButton {
+	rb := widget.NewRadioButton(title)
+	rb.OnClick = func() { fmt.Printf("The radio button '%s' was clicked.\n", title) }
+	rb.OnToolTip = func(where geom.Point) string {
+		return fmt.Sprintf("This is the tooltip for the '%s' radio button.", title)
+	}
+	panel.AddChild(&rb.Block)
+	group.Add(rb)
+	return rb
 }
 
 func createAboutWindow(item *menu.Item) {
