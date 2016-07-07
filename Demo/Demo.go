@@ -53,12 +53,19 @@ func createButtonsWindow() {
 
 	root := wnd.RootBlock()
 	root.Border = border.NewEmpty(geom.Insets{Top: 10, Left: 10, Bottom: 10, Right: 10})
-	pl := layout.NewPrecision()
-	pl.Columns = 2
-	root.Layout = pl
+	root.Layout = layout.NewPrecision().SetVerticalSpacing(10)
 
-	root.AddChild(createButtonsPanel())
-	root.AddChild(createCheckBoxPanel())
+	buttonsPanel := createButtonsPanel()
+	buttonsPanel.SetLayoutData(layout.NewPrecisionData().SetHorizontalGrab(true))
+	root.AddChild(buttonsPanel)
+
+	sep := widget.NewSeparator(true)
+	sep.SetLayoutData(layout.NewPrecisionData().SetHorizontalAlignment(layout.Fill))
+	root.AddChild(&sep.Block)
+
+	checkBoxPanel := createCheckBoxPanel()
+	checkBoxPanel.SetLayoutData(layout.NewPrecisionData().SetHorizontalGrab(true))
+	root.AddChild(checkBoxPanel)
 
 	wnd.Pack()
 	wnd.ToFront()
