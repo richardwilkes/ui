@@ -32,12 +32,14 @@ type Validator func(item *Item) bool
 
 // Menu represents a set of menu items.
 type Menu struct {
-	menu C.uiMenu
+	menu  C.uiMenu
+	title string
 }
 
 // Item represents individual actions that can be issued from a Menu.
 type Item struct {
 	item      C.uiMenuItem
+	title     string
 	action    Action
 	validator Validator
 }
@@ -55,7 +57,7 @@ func Bar() *Menu {
 // New creates a new Menu.
 func New(title string) *Menu {
 	cTitle := C.CString(title)
-	menu := &Menu{menu: C.uiNewMenu(cTitle)}
+	menu := &Menu{menu: C.uiNewMenu(cTitle), title: title}
 	C.free(unsafe.Pointer(cTitle))
 	menuMap[menu.menu] = menu
 	return menu
@@ -76,6 +78,11 @@ func SetHelpMenu(menu *Menu) {
 	C.uiSetHelpMenu(menu.menu)
 }
 
+// Title returns the title of this Menu.
+func (menu *Menu) Title() string {
+	return menu.title
+}
+
 // Count of Items in this Menu.
 func (menu *Menu) Count() int {
 	return int(C.uiMenuItemCount(menu.menu))
@@ -93,7 +100,7 @@ func (menu *Menu) Item(index int) *Item {
 func (menu *Menu) AddItem(title string, key string, action Action, validator Validator) *Item {
 	cTitle := C.CString(title)
 	cKey := C.CString(key)
-	item := &Item{item: C.uiAddMenuItem(menu.menu, cTitle, cKey), action: action, validator: validator}
+	item := &Item{item: C.uiAddMenuItem(menu.menu, cTitle, cKey), title: title, action: action, validator: validator}
 	C.free(unsafe.Pointer(cTitle))
 	C.free(unsafe.Pointer(cKey))
 	itemMap[item.item] = item
@@ -112,6 +119,11 @@ func (menu *Menu) AddMenu(title string) *Menu {
 func (menu *Menu) AddSeparator() {
 	item := &Item{item: C.uiAddSeparator(menu.menu)}
 	itemMap[item.item] = item
+}
+
+// Title returns this item's title.
+func (item *Item) Title() string {
+	return item.title
 }
 
 // SetKeyModifiers sets the Item's key equivalent modifiers. By default, a Item's modifier is set
