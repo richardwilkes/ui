@@ -36,15 +36,15 @@ func main() {
 }
 
 func createMenuBar() {
-	menu.AddAppMenu(createAboutWindow, nil)
+	app.AddAppMenu(createAboutWindow, nil)
 
 	fileMenu := menu.Bar().AddMenu("File")
 	fileMenu.AddItem("Open", "o", nil, nil)
 
 	menu.Bar().AddMenu("Edit")
 
-	menu.AddWindowMenu()
-	menu.AddHelpMenu()
+	app.AddWindowMenu()
+	app.AddHelpMenu()
 }
 
 func createButtonsWindow() {
