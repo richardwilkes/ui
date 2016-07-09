@@ -64,6 +64,7 @@ func (pm *PopupMenu) Init() {
 	pm.OnMouseDown = func(where geom.Point, keyModifiers int, which int, clickCount int) bool {
 		hasItem := false
 		menu := NewMenu("")
+		defer menu.Dispose()
 		for i := range pm.items {
 			if pm.addItemToMenu(menu, i) {
 				hasItem = true
