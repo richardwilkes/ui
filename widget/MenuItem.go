@@ -9,10 +9,6 @@
 
 package widget
 
-import (
-	"github.com/richardwilkes/go-ui/event"
-)
-
 // #cgo darwin LDFLAGS: -framework Cocoa
 // #include "Menu.h"
 import "C"
@@ -38,7 +34,7 @@ func (item *MenuItem) Title() string {
 
 // SetKeyModifiers sets the MenuItem's key equivalent modifiers. By default, a MenuItem's modifier is set
 // to event.CommandKeyMask.
-func (item *MenuItem) SetKeyModifiers(modifierMask event.KeyMask) {
+func (item *MenuItem) SetKeyModifiers(modifierMask KeyMask) {
 	C.uiSetKeyModifierMask(item.item, C.int(modifierMask))
 }
 

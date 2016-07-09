@@ -10,7 +10,6 @@
 package app
 
 import (
-	"github.com/richardwilkes/go-ui/event"
 	"github.com/richardwilkes/go-ui/widget"
 )
 
@@ -25,7 +24,7 @@ func AddAppMenu(aboutAction, preferencesAction widget.MenuAction) *widget.Menu {
 	widget.SetServicesMenu(appMenu.AddMenu("Services"))
 	appMenu.AddSeparator()
 	appMenu.AddItem("Hide "+Name, "h", func(item *widget.MenuItem) { Hide() }, nil)
-	appMenu.AddItem("Hide Others", "h", func(item *widget.MenuItem) { HideOthers() }, nil).SetKeyModifiers(event.OptionKeyMask | event.CommandKeyMask)
+	appMenu.AddItem("Hide Others", "h", func(item *widget.MenuItem) { HideOthers() }, nil).SetKeyModifiers(widget.OptionKeyMask | widget.CommandKeyMask)
 	appMenu.AddItem("Show All", "", func(item *widget.MenuItem) { ShowAll() }, nil)
 	appMenu.AddSeparator()
 	appMenu.AddItem("Quit "+Name, "q", func(item *widget.MenuItem) { AttemptQuit() }, nil)
