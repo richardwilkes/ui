@@ -19,7 +19,6 @@ import (
 	"github.com/richardwilkes/go-ui/image"
 	"github.com/richardwilkes/go-ui/layout"
 	"github.com/richardwilkes/go-ui/widget"
-	"github.com/richardwilkes/go-ui/widget/menu"
 )
 
 var (
@@ -38,10 +37,10 @@ func main() {
 func createMenuBar() {
 	app.AddAppMenu(createAboutWindow, nil)
 
-	fileMenu := menu.Bar().AddMenu("File")
+	fileMenu := widget.MenuBar().AddMenu("File")
 	fileMenu.AddItem("Open", "o", nil, nil)
 
-	menu.Bar().AddMenu("Edit")
+	widget.MenuBar().AddMenu("Edit")
 
 	app.AddWindowMenu()
 	app.AddHelpMenu()
@@ -59,24 +58,32 @@ func createButtonsWindow() {
 	buttonsPanel.SetLayoutData(layout.NewPrecisionData().SetHorizontalGrab(true))
 	root.AddChild(buttonsPanel)
 
-	sep := widget.NewSeparator(true)
-	sep.SetLayoutData(layout.NewPrecisionData().SetHorizontalAlignment(layout.Fill))
-	root.AddChild(&sep.Block)
+	addSeparator(root)
 
 	checkBoxPanel := createCheckBoxPanel()
 	checkBoxPanel.SetLayoutData(layout.NewPrecisionData().SetHorizontalGrab(true))
 	root.AddChild(checkBoxPanel)
 
-	sep = widget.NewSeparator(true)
-	sep.SetLayoutData(layout.NewPrecisionData().SetHorizontalAlignment(layout.Fill))
-	root.AddChild(&sep.Block)
+	addSeparator(root)
 
 	radioButtonsPanel := createRadioButtonsPanel()
 	radioButtonsPanel.SetLayoutData(layout.NewPrecisionData().SetHorizontalGrab(true))
 	root.AddChild(radioButtonsPanel)
 
+	addSeparator(root)
+
+	popupMenusPanel := createPopupMenusPanel()
+	popupMenusPanel.SetLayoutData(layout.NewPrecisionData().SetHorizontalGrab(true))
+	root.AddChild(popupMenusPanel)
+
 	wnd.Pack()
 	wnd.ToFront()
+}
+
+func addSeparator(root *widget.Block) {
+	sep := widget.NewSeparator(true)
+	sep.SetLayoutData(layout.NewPrecisionData().SetHorizontalAlignment(layout.Fill))
+	root.AddChild(&sep.Block)
 }
 
 func createButtonsPanel() *widget.Block {
@@ -174,7 +181,37 @@ func createRadioButton(title string, panel *widget.Block, group *widget.RadioBut
 	return rb
 }
 
-func createAboutWindow(item *menu.Item) {
+func createPopupMenusPanel() *widget.Block {
+	panel := widget.NewBlock()
+	panel.Layout = layout.NewPrecision()
+
+	createPopupMenu(panel, 1, "One", "Two", "Three", "", "Four", "Five", "Six")
+	createPopupMenu(panel, 2, "Red", "Blue", "Green").SetDisabled(true)
+
+	return panel
+}
+
+func createPopupMenu(panel *widget.Block, selection int, titles ...string) *widget.PopupMenu {
+	p := widget.NewPopupMenu()
+	p.OnToolTip = func(where geom.Point) string {
+		return fmt.Sprintf("This is the tooltip for the PopupMenu with %d items.", len(titles))
+	}
+	for _, title := range titles {
+		if title == "" {
+			p.AddSeparator()
+		} else {
+			p.AddItem(title)
+		}
+	}
+	p.SelectIndex(selection)
+	p.OnSelection = func() {
+		fmt.Printf("The '%v' item was selected from the PopupMenu.\n", p.Selected())
+	}
+	panel.AddChild(&p.Block)
+	return p
+}
+
+func createAboutWindow(item *widget.MenuItem) {
 	if aboutWindow == nil {
 		aboutWindow = widget.NewWindow(geom.Point{}, widget.TitledWindowMask|widget.ClosableWindowMask)
 		aboutWindow.DidClose = func() { aboutWindow = nil }

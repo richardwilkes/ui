@@ -10,7 +10,8 @@ Widgets that have been implemented:
 - CheckBox
 - ImageButton
 - Label
-- Menu (including a global menu bar)
+- Menu + MenuItem (including a global menu bar)
+- PopupMenu
 - RadioButton
 - Separator
 - Window
@@ -21,7 +22,6 @@ Widgets that still need to be implemented:
 - Dialog
 - FileChooser
 - List
-- PopupMenu
 - ProgressBar
 - ScrollBar
 - Slider

@@ -59,9 +59,10 @@ func (button *Button) Init(title string) {
 		size.AddInsets(insets)
 		return size, size, layout.DefaultMaxSize(size)
 	}
-	button.OnMouseDown = func(where geom.Point, keyModifiers int, which int, clickCount int) {
+	button.OnMouseDown = func(where geom.Point, keyModifiers int, which int, clickCount int) bool {
 		button.pressed = true
 		button.Repaint()
+		return false
 	}
 	button.OnMouseDragged = func(where geom.Point, keyModifiers int) {
 		bounds := button.LocalInsetBounds()

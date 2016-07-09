@@ -10,6 +10,8 @@
 #ifndef __RW_GOUI_MENU__
 #define __RW_GOUI_MENU__
 
+#include "Window.h"
+
 typedef void *uiMenu;
 typedef void *uiMenuItem;
 
@@ -27,5 +29,6 @@ void uiSetSubMenu(uiMenuItem item, uiMenu subMenu);
 void uiSetServicesMenu(uiMenu menu);
 void uiSetWindowMenu(uiMenu menu);
 void uiSetHelpMenu(uiMenu menu);
+void uiPopupMenu(uiWindow window, uiMenu menu, float x, float y, uiMenuItem itemAtLocation);
 
 #endif // __RW_GOUI_MENU__

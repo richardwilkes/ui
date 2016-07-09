@@ -91,6 +91,7 @@ func windowResized(cWindow C.uiWindow) {
 //export handleMouseEvent
 func handleMouseEvent(cWindow C.uiWindow, eventType, keyModifiers, button, clickCount int, x, y float32) {
 	if window, ok := windowMap[cWindow]; ok {
+		discardMouseDown := false
 		where := geom.Point{X: x, Y: y}
 		var block *Block
 		if window.inMouseDown {
@@ -110,7 +111,7 @@ func handleMouseEvent(cWindow C.uiWindow, eventType, keyModifiers, button, click
 		switch eventType {
 		case C.uiMouseDown:
 			if block.OnMouseDown != nil && block.Enabled() {
-				block.OnMouseDown(block.FromWindow(where), keyModifiers, button, clickCount)
+				discardMouseDown = block.OnMouseDown(block.FromWindow(where), keyModifiers, button, clickCount)
 			}
 		case C.uiMouseDragged:
 			if block.OnMouseDragged != nil && block.Enabled() {
@@ -141,7 +142,9 @@ func handleMouseEvent(cWindow C.uiWindow, eventType, keyModifiers, button, click
 		}
 		window.lastMouseBlock = block
 		if eventType == C.uiMouseDown {
-			window.inMouseDown = true
+			if !discardMouseDown {
+				window.inMouseDown = true
+			}
 		} else if window.inMouseDown && eventType == C.uiMouseUp {
 			window.inMouseDown = false
 		}

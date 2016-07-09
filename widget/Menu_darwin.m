@@ -9,7 +9,7 @@
 
 #include <Cocoa/Cocoa.h>
 #include "_cgo_export.h"
-#include "menu.h"
+#include "Menu.h"
 
 @interface menuDelegate : NSObject
 @end
@@ -91,4 +91,8 @@ void uiSetWindowMenu(uiMenu menu) {
 
 void uiSetHelpMenu(uiMenu menu) {
 	[NSApp setHelpMenu:(NSMenu *)menu];
+}
+
+void uiPopupMenu(uiWindow window, uiMenu menu, float x, float y, uiMenuItem itemAtLocation) {
+	[((NSMenu *)menu) popUpMenuPositioningItem:itemAtLocation atLocation:NSMakePoint(x,y) inView:[((NSWindow *)window) contentView]];
 }

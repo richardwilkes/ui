@@ -10,55 +10,53 @@
 package app
 
 import (
-	//"github.com/richardwilkes/go-ui/app"
 	"github.com/richardwilkes/go-ui/event"
 	"github.com/richardwilkes/go-ui/widget"
-	"github.com/richardwilkes/go-ui/widget/menu"
 )
 
 // AddAppMenu adds a standard 'application' menu to the menu bar, attaching the aboutAction to the
 // About menu item and the preferencesAction to the Preferences menu item.
-func AddAppMenu(aboutAction, preferencesAction menu.Action) *menu.Menu {
-	appMenu := menu.Bar().AddMenu(Name)
+func AddAppMenu(aboutAction, preferencesAction widget.MenuAction) *widget.Menu {
+	appMenu := widget.MenuBar().AddMenu(Name)
 	appMenu.AddItem("About "+Name, "", aboutAction, nil)
 	appMenu.AddSeparator()
 	appMenu.AddItem("Preferences…", ",", preferencesAction, nil)
 	appMenu.AddSeparator()
-	menu.SetServicesMenu(appMenu.AddMenu("Services"))
+	widget.SetServicesMenu(appMenu.AddMenu("Services"))
 	appMenu.AddSeparator()
-	appMenu.AddItem("Hide "+Name, "h", func(item *menu.Item) { Hide() }, nil)
-	appMenu.AddItem("Hide Others", "h", func(item *menu.Item) { HideOthers() }, nil).SetKeyModifiers(event.OptionKeyMask | event.CommandKeyMask)
-	appMenu.AddItem("Show All", "", func(item *menu.Item) { ShowAll() }, nil)
+	appMenu.AddItem("Hide "+Name, "h", func(item *widget.MenuItem) { Hide() }, nil)
+	appMenu.AddItem("Hide Others", "h", func(item *widget.MenuItem) { HideOthers() }, nil).SetKeyModifiers(event.OptionKeyMask | event.CommandKeyMask)
+	appMenu.AddItem("Show All", "", func(item *widget.MenuItem) { ShowAll() }, nil)
 	appMenu.AddSeparator()
-	appMenu.AddItem("Quit "+Name, "q", func(item *menu.Item) { AttemptQuit() }, nil)
+	appMenu.AddItem("Quit "+Name, "q", func(item *widget.MenuItem) { AttemptQuit() }, nil)
 	return appMenu
 }
 
 // AddWindowMenu adds a standard 'Window' menu to the menu bar.
-func AddWindowMenu() *menu.Menu {
-	windowMenu := menu.Bar().AddMenu("Window")
-	windowMenu.AddItem("Minimize", "m", func(item *menu.Item) {
+func AddWindowMenu() *widget.Menu {
+	windowMenu := widget.MenuBar().AddMenu("Window")
+	windowMenu.AddItem("Minimize", "m", func(item *widget.MenuItem) {
 		window := widget.KeyWindow()
 		if window != nil {
 			window.Minimize()
 		}
-	}, func(item *menu.Item) bool { return widget.KeyWindow() != nil })
-	menu.SetWindowMenu(windowMenu)
-	windowMenu.AddItem("Zoom", "\\", func(item *menu.Item) {
+	}, func(item *widget.MenuItem) bool { return widget.KeyWindow() != nil })
+	widget.SetWindowMenu(windowMenu)
+	windowMenu.AddItem("Zoom", "\\", func(item *widget.MenuItem) {
 		window := widget.KeyWindow()
 		if window != nil {
 			window.Zoom()
 		}
-	}, func(item *menu.Item) bool { return widget.KeyWindow() != nil })
-	menu.SetWindowMenu(windowMenu)
+	}, func(item *widget.MenuItem) bool { return widget.KeyWindow() != nil })
+	widget.SetWindowMenu(windowMenu)
 	windowMenu.AddSeparator()
-	windowMenu.AddItem("Bring All to Front", "", func(item *menu.Item) { widget.AllWindowsToFront() }, nil)
+	windowMenu.AddItem("Bring All to Front", "", func(item *widget.MenuItem) { widget.AllWindowsToFront() }, nil)
 	return windowMenu
 }
 
 // AddHelpMenu adds a standard 'Help' menu to the menu bar.
-func AddHelpMenu() *menu.Menu {
-	helpMenu := menu.Bar().AddMenu("Help")
-	menu.SetHelpMenu(helpMenu)
+func AddHelpMenu() *widget.Menu {
+	helpMenu := widget.MenuBar().AddMenu("Help")
+	widget.SetHelpMenu(helpMenu)
 	return helpMenu
 }

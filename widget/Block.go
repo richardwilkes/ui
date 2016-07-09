@@ -24,25 +24,34 @@ type Block struct {
 	// Called when no layout has been set for this block. Returns the minimum, preferred, and
 	// maximum sizes of the block. The hint's values will be either NoHint or a specific value
 	// if that particular dimension has already been determined.
-	Sizes          func(hint geom.Size) (min, pref, max geom.Size)
-	OnMouseDown    func(where geom.Point, keyModifiers int, which int, clickCount int) // Called to handle mouse down events on this block.
-	OnMouseDragged func(where geom.Point, keyModifiers int)                            // Called to handle mouse dragged events on this block.
-	OnMouseUp      func(where geom.Point, keyModifiers int)                            // Called to handle mouse up events on this block.
-	OnMouseEntered func(where geom.Point, keyModifiers int)                            // Called to handle mouse entered events on this block.
-	OnMouseMoved   func(where geom.Point, keyModifiers int)                            // Called to handle mouse moved events on this block.
-	OnMouseExited  func(where geom.Point, keyModifiers int)                            // Called to handle mouse exited events on this block.
-	OnToolTip      func(where geom.Point) string                                       // Called when a tooltip is being requested for the block at the specified position.
-	OnPaint        func(gc graphics.Context, dirty geom.Rect, inLiveResize bool)       // Called to draw the block's contents.
-	id             int
-	bounds         geom.Rect
-	window         *Window
-	parent         *Block
-	children       []*Block
-	background     color.Color
-	layoutData     interface{}
-	NeedLayout     bool
-	focused        bool
-	disabled       bool
+	Sizes func(hint geom.Size) (min, pref, max geom.Size)
+	// Called to handle mouse down events on this block. Return true if the mouse down event was
+	// passed off to a popup menu.
+	OnMouseDown func(where geom.Point, keyModifiers int, which int, clickCount int) bool
+	// Called to handle mouse dragged events on this block.
+	OnMouseDragged func(where geom.Point, keyModifiers int)
+	// Called to handle mouse up events on this block.
+	OnMouseUp func(where geom.Point, keyModifiers int)
+	// Called to handle mouse entered events on this block.
+	OnMouseEntered func(where geom.Point, keyModifiers int)
+	// Called to handle mouse moved events on this block.
+	OnMouseMoved func(where geom.Point, keyModifiers int)
+	// Called to handle mouse exited events on this block.
+	OnMouseExited func(where geom.Point, keyModifiers int)
+	// Called when a tooltip is being requested for the block at the specified position.
+	OnToolTip func(where geom.Point) string
+	// Called to draw the block's contents.
+	OnPaint    func(gc graphics.Context, dirty geom.Rect, inLiveResize bool)
+	id         int
+	bounds     geom.Rect
+	window     *Window
+	parent     *Block
+	children   []*Block
+	background color.Color
+	layoutData interface{}
+	NeedLayout bool
+	focused    bool
+	disabled   bool
 }
 
 var (
@@ -334,6 +343,17 @@ func (b *Block) FromWindow(pt geom.Point) geom.Point {
 		parent = parent.parent
 	}
 	return pt
+}
+
+// Window returns the containing window, or nil.
+func (b *Block) Window() *Window {
+	if b.window != nil {
+		return b.window
+	}
+	if b.parent != nil {
+		return b.parent.Window()
+	}
+	return nil
 }
 
 // Opaque returns true if this block's background is fully opaque.

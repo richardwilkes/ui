@@ -76,9 +76,10 @@ func (checkbox *CheckBox) Init(title string) {
 		size.AddInsets(insets)
 		return size, size, layout.DefaultMaxSize(size)
 	}
-	checkbox.OnMouseDown = func(where geom.Point, keyModifiers int, which int, clickCount int) {
+	checkbox.OnMouseDown = func(where geom.Point, keyModifiers int, which int, clickCount int) bool {
 		checkbox.pressed = true
 		checkbox.Repaint()
+		return false
 	}
 	checkbox.OnMouseDragged = func(where geom.Point, keyModifiers int) {
 		bounds := checkbox.LocalInsetBounds()
