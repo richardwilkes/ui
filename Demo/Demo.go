@@ -35,7 +35,7 @@ func main() {
 }
 
 func createMenuBar() {
-	app.AddAppMenu(createAboutWindow, nil)
+	app.AddAppMenu(createAboutWindow, createPreferencesWindow)
 
 	fileMenu := widget.MenuBar().AddMenu("File")
 	fileMenu.AddItem("Open", "o", nil, nil)
@@ -229,4 +229,8 @@ func createAboutWindow(item *widget.MenuItem) {
 		aboutWindow.Pack()
 	}
 	aboutWindow.ToFront()
+}
+
+func createPreferencesWindow(item *widget.MenuItem) {
+	fmt.Println("Preferences...")
 }
