@@ -15,14 +15,14 @@ import (
 
 // PrecisionData is used to control how an object is laid out by the Precision layout.
 type PrecisionData struct {
-	cacheMinWidth       float32
-	cacheSize           geom.Size
+	HorizontalSpan      int
+	VerticalSpan        int
 	HorizontalAlignment Alignment
 	VerticalAlignment   Alignment
 	SizeHint            geom.Size
-	HorizontalSpan      int
-	VerticalSpan        int
 	MinSize             geom.Size
+	cacheSize           geom.Size
+	cacheMinWidth       float32
 	HorizontalGrab      bool
 	VerticalGrab        bool
 }

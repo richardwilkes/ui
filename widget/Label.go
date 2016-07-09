@@ -20,8 +20,8 @@ import (
 type Label struct {
 	Block
 	text       string
-	foreground color.Color
 	font       *font.Font
+	foreground color.Color
 	alignment  uint8
 }
 

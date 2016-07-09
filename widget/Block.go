@@ -47,8 +47,8 @@ type Block struct {
 	window     *Window
 	parent     *Block
 	children   []*Block
-	background color.Color
 	layoutData interface{}
+	background color.Color
 	NeedLayout bool
 	focused    bool
 	disabled   bool
