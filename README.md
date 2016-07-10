@@ -13,6 +13,7 @@ Widgets that have been implemented:
 - Menus
 - PopupMenu
 - RadioButton
+- ScrollBar
 - Separator
 - Window
 
@@ -23,7 +24,7 @@ Widgets that still need to be implemented:
 - FileChooser
 - List
 - ProgressBar
-- ScrollBar
+- ScrollArea
 - Slider
 - SplitPanel
 - Table

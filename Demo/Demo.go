@@ -70,6 +70,17 @@ func createButtonsWindow() {
 	popupMenusPanel.SetLayoutData(ui.NewPrecisionData().SetHorizontalGrab(true))
 	root.AddChild(popupMenusPanel)
 
+	addSeparator(root)
+
+	target := &scrollTarget{}
+	scrollbar := ui.NewScrollBar(false, target)
+	scrollbar.SetLayoutData(ui.NewPrecisionData().SetMinSize(ui.Size{Width: ui.NoLayoutHint, Height: 200}))
+	root.AddChild(&scrollbar.Block)
+
+	scrollbar = ui.NewScrollBar(true, target)
+	scrollbar.SetLayoutData(ui.NewPrecisionData().SetHorizontalAlignment(ui.AlignFill))
+	root.AddChild(&scrollbar.Block)
+
 	wnd.Pack()
 	wnd.ToFront()
 }
@@ -227,4 +238,46 @@ func createAboutWindow(item *ui.MenuItem) {
 
 func createPreferencesWindow(item *ui.MenuItem) {
 	fmt.Println("Preferences...")
+}
+
+type scrollTarget struct {
+	hpos float32
+	vpos float32
+}
+
+// LineScrollAmount implements ui.Scrollable.
+func (st *scrollTarget) LineScrollAmount(horizontal, towardsStart bool) float32 {
+	return 1
+}
+
+// PageScrollAmount implements ui.Scrollable.
+func (st *scrollTarget) PageScrollAmount(horizontal, towardsStart bool) float32 {
+	return 10
+}
+
+// ScrolledPosition implements ui.Scrollable.
+func (st *scrollTarget) ScrolledPosition(horizontal bool) float32 {
+	if horizontal {
+		return st.hpos
+	}
+	return st.vpos
+}
+
+// SetScrolledPosition implements ui.Scrollable.
+func (st *scrollTarget) SetScrolledPosition(horizontal bool, position float32) {
+	if horizontal {
+		st.hpos = position
+	} else {
+		st.vpos = position
+	}
+}
+
+// VisibleSize implements ui.Scrollable.
+func (st *scrollTarget) VisibleSize(horizontal bool) float32 {
+	return 10
+}
+
+// ContentSize implements ui.Scrollable.
+func (st *scrollTarget) ContentSize(horizontal bool) float32 {
+	return 1000
 }
