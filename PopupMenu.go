@@ -74,7 +74,7 @@ func (pm *PopupMenu) Init() {
 		return hasItem
 
 	}
-	pm.OnPaint = func(g Graphics, dirty Rect, inLiveResize bool) {
+	pm.OnPaint = func(g Graphics, dirty Rect) {
 		var hSpace = pm.Theme.HorizontalMargin*2 + 2
 		var vSpace = pm.Theme.VerticalMargin*2 + 2
 		bounds := pm.LocalInsetBounds()

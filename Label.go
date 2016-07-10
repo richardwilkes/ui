@@ -37,7 +37,7 @@ func (label *Label) Init(text string, foreground Color, font *Font, alignment Al
 	label.foreground = foreground
 	label.font = font
 	label.alignment = alignment
-	label.OnPaint = func(g Graphics, dirty Rect, inLiveResize bool) {
+	label.OnPaint = func(g Graphics, dirty Rect) {
 		g.DrawAttributedTextConstrained(label.LocalInsetBounds(), label.attributedString(), TextModeFill)
 	}
 	label.Sizes = func(hint Size) (min, pref, max Size) {

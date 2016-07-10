@@ -56,7 +56,7 @@ func (sep *Separator) Init(horizontal bool) {
 		max.AddInsets(insets)
 		return min, pref, max
 	}
-	sep.OnPaint = func(g Graphics, dirty Rect, inLiveResize bool) {
+	sep.OnPaint = func(g Graphics, dirty Rect) {
 		bounds := sep.LocalInsetBounds()
 		if sep.horizontal {
 			if bounds.Height > 1 {

@@ -84,7 +84,7 @@ func (button *RadioButton) Init(title string) {
 			}
 		}
 	}
-	button.OnPaint = func(g Graphics, dirty Rect, inLiveResize bool) {
+	button.OnPaint = func(g Graphics, dirty Rect) {
 		box := button.Theme.Font.Ascent()
 		bounds := button.LocalInsetBounds()
 		bounds.Width = box

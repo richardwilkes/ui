@@ -33,7 +33,7 @@ type Block struct {
 	// Called when a tooltip is being requested for the block at the specified position.
 	OnToolTip func(where Point) string
 	// Called to draw the block's contents.
-	OnPaint    func(g Graphics, dirty Rect, inLiveResize bool)
+	OnPaint    func(g Graphics, dirty Rect)
 	id         int
 	bounds     Rect
 	window     *Window
@@ -209,21 +209,21 @@ func (b *Block) ComputeSizes(hint Size) (min, pref, max Size) {
 	return DefaultMinSize, DefaultPrefSize, DefaultLayoutMaxSize(DefaultPrefSize)
 }
 
-func (b *Block) paint(g Graphics, dirty Rect, inLiveResize bool) {
+func (b *Block) paint(g Graphics, dirty Rect) {
 	dirty.Intersect(b.LocalBounds())
 	if !dirty.IsEmpty() {
-		b.paintSelf(g, dirty, inLiveResize)
+		b.paintSelf(g, dirty)
 		for _, child := range b.children {
 			adjusted := dirty
 			adjusted.Intersect(child.bounds)
 			if !adjusted.IsEmpty() {
-				b.paintChild(child, g, adjusted, inLiveResize)
+				b.paintChild(child, g, adjusted)
 			}
 		}
 	}
 }
 
-func (b *Block) paintSelf(g Graphics, dirty Rect, inLiveResize bool) {
+func (b *Block) paintSelf(g Graphics, dirty Rect) {
 	g.Save()
 	defer g.Restore()
 	g.ClipRect(dirty)
@@ -233,7 +233,7 @@ func (b *Block) paintSelf(g Graphics, dirty Rect, inLiveResize bool) {
 	}
 	b.paintBorder(g)
 	if b.OnPaint != nil {
-		b.OnPaint(g, dirty, inLiveResize)
+		b.OnPaint(g, dirty)
 	}
 }
 
@@ -245,13 +245,13 @@ func (b *Block) paintBorder(g Graphics) {
 	}
 }
 
-func (b *Block) paintChild(child *Block, g Graphics, dirty Rect, inLiveResize bool) {
+func (b *Block) paintChild(child *Block, g Graphics, dirty Rect) {
 	g.Save()
 	defer g.Restore()
 	g.Translate(child.bounds.X, child.bounds.Y)
 	dirty.X -= child.bounds.X
 	dirty.Y -= child.bounds.Y
-	child.paint(g, dirty, inLiveResize)
+	child.paint(g, dirty)
 }
 
 // Background returns the current background color of this block.
@@ -343,6 +343,17 @@ func (b *Block) Window() *Window {
 		return b.parent.Window()
 	}
 	return nil
+}
+
+// InLiveResize returns true if the window is being actively resized by the user at this point in
+// time. If it is, expensive painting operations should be deferred if possible to give a smooth
+// resizing experience.
+func (b *Block) InLiveResize() bool {
+	w := b.Window()
+	if w != nil {
+		return w.inLiveResize
+	}
+	return false
 }
 
 // Opaque returns true if this block's background is fully opaque.

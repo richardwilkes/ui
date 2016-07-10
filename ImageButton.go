@@ -83,7 +83,7 @@ func (button *ImageButton) Init(img *Image) {
 			}
 		}
 	}
-	button.OnPaint = func(g Graphics, dirty Rect, inLiveResize bool) {
+	button.OnPaint = func(g Graphics, dirty Rect) {
 		var hSpace = button.Theme.HorizontalMargin*2 + 2
 		var vSpace = button.Theme.VerticalMargin*2 + 2
 		bounds := button.LocalInsetBounds()

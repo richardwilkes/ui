@@ -45,6 +45,7 @@ type Window struct {
 	lastMouseBlock *Block
 	lastToolTip    string
 	inMouseDown    bool
+	inLiveResize   bool
 }
 
 var (
@@ -72,8 +73,17 @@ func NewWindowWithContentSize(where Point, contentSize Size, styleMask WindowSty
 func drawWindow(cWindow C.uiWindow, g unsafe.Pointer, bounds C.uiRect, inLiveResize bool) {
 	if window, ok := windowMap[cWindow]; ok {
 		window.rootBlock.ValidateLayout()
-		window.rootBlock.paint(NewGraphics(g), toRect(bounds), inLiveResize)
+		window.inLiveResize = inLiveResize
+		window.rootBlock.paint(NewGraphics(g), toRect(bounds))
+		window.inLiveResize = false
 	}
+}
+
+// InLiveResize returns true if the window is being actively resized by the user at this point in
+// time. If it is, expensive painting operations should be deferred if possible to give a smooth
+// resizing experience.
+func (window *Window) InLiveResize() bool {
+	return window.inLiveResize
 }
 
 //export windowResized

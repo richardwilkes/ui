@@ -97,7 +97,7 @@ func (checkbox *CheckBox) Init(title string) {
 			}
 		}
 	}
-	checkbox.OnPaint = func(g Graphics, dirty Rect, inLiveResize bool) {
+	checkbox.OnPaint = func(g Graphics, dirty Rect) {
 		box := checkbox.Theme.Font.Ascent()
 		bounds := checkbox.LocalInsetBounds()
 		bounds.Width = box
