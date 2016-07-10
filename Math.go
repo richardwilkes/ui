@@ -9,6 +9,28 @@
 
 package ui
 
+import (
+	"math"
+)
+
+const (
+	// DegreesToRadians converts a value in degrees to radians when multiplied with the value.
+	DegreesToRadians = math.Pi / 180
+	// RadiansToDegrees converts a value in radians to degrees when multiplied with the value.
+	RadiansToDegrees = 180 / math.Pi
+)
+
+// AbsFloat32 returns the absolute value of x.
+func AbsFloat32(x float32) float32 {
+	if x < 0 {
+		return -x
+	}
+	if x == 0 {
+		return 0 // Removes negative sign from potential -0
+	}
+	return x
+}
+
 // MinFloat32 returns the smaller of a or b. Note that there is no special handling for Inf, NaN,
 // or +0 vs -0. If you want/need that, up-cast to float64 and use math.Min().
 func MinFloat32(a, b float32) float32 {
