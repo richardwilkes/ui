@@ -50,8 +50,7 @@ type graphicsState struct {
 	font        *Font
 }
 
-// NewGraphics creates a new graphics context to draw with.
-func NewGraphics(gc unsafe.Pointer) Graphics {
+func newGraphics(gc unsafe.Pointer) Graphics {
 	c := &graphics{gc: gc}
 	c.stack = append(c.stack, &graphicsState{opacity: 1, fillColor: WhiteColor, strokeColor: BlackColor, strokeWidth: 1})
 	return c

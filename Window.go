@@ -74,7 +74,7 @@ func drawWindow(cWindow C.uiWindow, g unsafe.Pointer, bounds C.uiRect, inLiveRes
 	if window, ok := windowMap[cWindow]; ok {
 		window.rootBlock.ValidateLayout()
 		window.inLiveResize = inLiveResize
-		window.rootBlock.paint(NewGraphics(g), toRect(bounds))
+		window.rootBlock.paint(newGraphics(g), toRect(bounds))
 		window.inLiveResize = false
 	}
 }
