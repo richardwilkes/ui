@@ -10,7 +10,7 @@ Widgets that have been implemented:
 - CheckBox
 - ImageButton
 - Label
-- Menu + MenuItem (including a global menu bar)
+- Menus
 - PopupMenu
 - RadioButton
 - Separator
