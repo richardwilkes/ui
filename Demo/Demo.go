@@ -11,90 +11,84 @@ package main
 
 import (
 	"fmt"
-	"github.com/richardwilkes/go-ui/Demo/images"
-	"github.com/richardwilkes/go-ui/app"
-	"github.com/richardwilkes/go-ui/border"
-	"github.com/richardwilkes/go-ui/font"
-	"github.com/richardwilkes/go-ui/geom"
-	"github.com/richardwilkes/go-ui/image"
-	"github.com/richardwilkes/go-ui/layout"
-	"github.com/richardwilkes/go-ui/widget"
+	"github.com/richardwilkes/ui"
+	"github.com/richardwilkes/ui/Demo/images"
 )
 
 var (
-	aboutWindow *widget.Window
+	aboutWindow *ui.Window
 )
 
 func main() {
-	app.WillFinishStartup = func() {
+	ui.AppWillFinishStartup = func() {
 		createMenuBar()
 		createButtonsWindow()
 	}
-	app.ShouldTerminateAfterLastWindowClosed = func() bool { return true }
-	app.Start()
+	ui.AppShouldTerminateAfterLastWindowClosed = func() bool { return true }
+	ui.Start()
 }
 
 func createMenuBar() {
-	app.AddAppMenu(createAboutWindow, createPreferencesWindow)
+	ui.AddAppMenu(createAboutWindow, createPreferencesWindow)
 
-	fileMenu := widget.MenuBar().AddMenu("File")
+	fileMenu := ui.MenuBar().AddMenu("File")
 	fileMenu.AddItem("Open", "o", nil, nil)
 
-	widget.MenuBar().AddMenu("Edit")
+	ui.MenuBar().AddMenu("Edit")
 
-	app.AddWindowMenu()
-	app.AddHelpMenu()
+	ui.AddWindowMenu()
+	ui.AddHelpMenu()
 }
 
 func createButtonsWindow() {
-	wnd := widget.NewWindow(geom.Point{}, widget.StdWindowMask)
+	wnd := ui.NewWindow(ui.Point{}, ui.StdWindowMask)
 	wnd.SetTitle("Buttons")
 
 	root := wnd.RootBlock()
-	root.Border = border.NewEmpty(geom.Insets{Top: 10, Left: 10, Bottom: 10, Right: 10})
-	root.Layout = layout.NewPrecision().SetVerticalSpacing(10)
+	root.Border = ui.NewEmptyBorder(ui.Insets{Top: 10, Left: 10, Bottom: 10, Right: 10})
+	root.Layout = ui.NewPrecisionLayout().SetVerticalSpacing(10)
 
 	buttonsPanel := createButtonsPanel()
-	buttonsPanel.SetLayoutData(layout.NewPrecisionData().SetHorizontalGrab(true))
+	buttonsPanel.SetLayoutData(ui.NewPrecisionData().SetHorizontalGrab(true))
 	root.AddChild(buttonsPanel)
 
 	addSeparator(root)
 
 	checkBoxPanel := createCheckBoxPanel()
-	checkBoxPanel.SetLayoutData(layout.NewPrecisionData().SetHorizontalGrab(true))
+	checkBoxPanel.SetLayoutData(ui.NewPrecisionData().SetHorizontalGrab(true))
 	root.AddChild(checkBoxPanel)
 
 	addSeparator(root)
 
 	radioButtonsPanel := createRadioButtonsPanel()
-	radioButtonsPanel.SetLayoutData(layout.NewPrecisionData().SetHorizontalGrab(true))
+	radioButtonsPanel.SetLayoutData(ui.NewPrecisionData().SetHorizontalGrab(true))
 	root.AddChild(radioButtonsPanel)
 
 	addSeparator(root)
 
 	popupMenusPanel := createPopupMenusPanel()
-	popupMenusPanel.SetLayoutData(layout.NewPrecisionData().SetHorizontalGrab(true))
+	popupMenusPanel.SetLayoutData(ui.NewPrecisionData().SetHorizontalGrab(true))
 	root.AddChild(popupMenusPanel)
 
 	wnd.Pack()
 	wnd.ToFront()
 }
 
-func addSeparator(root *widget.Block) {
-	sep := widget.NewSeparator(true)
-	sep.SetLayoutData(layout.NewPrecisionData().SetHorizontalAlignment(layout.Fill))
+func addSeparator(root *ui.Block) {
+	sep := ui.NewSeparator(true)
+	sep.SetLayoutData(ui.NewPrecisionData().SetHorizontalAlignment(ui.AlignFill))
 	root.AddChild(&sep.Block)
 }
 
-func createButtonsPanel() *widget.Block {
-	panel := widget.NewBlock()
-	panel.Layout = &layout.Flow{HGap: 5, VGap: 5}
+func createButtonsPanel() *ui.Block {
+	panel := ui.NewBlock()
+	panel.Layout = &ui.FlowLayout{HGap: 5, VGap: 5}
 
 	createButton("Press Me", panel)
 	createButton("Default", panel).SetFocused(true)
 	createButton("Disabled", panel).SetDisabled(true)
 
-	img, err := image.AcquireFromFile(images.FS, "/home.png")
+	img, err := ui.AcquireImageFromFile(images.FS, "/home.png")
 	if err == nil {
 		createImageButton(img, "Home", panel)
 		createImageButton(img, "Home (disabled)", panel).SetDisabled(true)
@@ -102,7 +96,7 @@ func createButtonsPanel() *widget.Block {
 		fmt.Println(err)
 	}
 
-	img, err = image.AcquireFromFile(images.FS, "/classic-apple-logo.png")
+	img, err = ui.AcquireImageFromFile(images.FS, "/classic-apple-logo.png")
 	if err == nil {
 		createImageButton(img, "Classic Apple Logo", panel)
 		createImageButton(img, "Classic Apple Logo (disabled)", panel).SetDisabled(true)
@@ -113,54 +107,54 @@ func createButtonsPanel() *widget.Block {
 	return panel
 }
 
-func createButton(title string, panel *widget.Block) *widget.Button {
-	button := widget.NewButton(title)
+func createButton(title string, panel *ui.Block) *ui.Button {
+	button := ui.NewButton(title)
 	button.OnClick = func() { fmt.Printf("The button '%s' was clicked.\n", title) }
-	button.OnToolTip = func(where geom.Point) string {
+	button.OnToolTip = func(where ui.Point) string {
 		return fmt.Sprintf("This is the tooltip for the '%s' button.", title)
 	}
 	panel.AddChild(&button.Block)
 	return button
 }
 
-func createImageButton(img *image.Image, name string, panel *widget.Block) *widget.ImageButton {
+func createImageButton(img *ui.Image, name string, panel *ui.Block) *ui.ImageButton {
 	size := img.Size()
 	size.Width /= 2
 	size.Height /= 2
-	button := widget.NewImageButtonWithImageSize(img, size)
+	button := ui.NewImageButtonWithImageSize(img, size)
 	button.OnClick = func() { fmt.Printf("The button '%s' was clicked.\n", name) }
-	button.OnToolTip = func(where geom.Point) string { return name }
+	button.OnToolTip = func(where ui.Point) string { return name }
 	panel.AddChild(&button.Block)
 	return button
 }
 
-func createCheckBoxPanel() *widget.Block {
-	panel := widget.NewBlock()
-	panel.Layout = layout.NewPrecision()
+func createCheckBoxPanel() *ui.Block {
+	panel := ui.NewBlock()
+	panel.Layout = ui.NewPrecisionLayout()
 	createCheckBox("Press Me", panel)
-	createCheckBox("Initially Mixed", panel).SetState(widget.Mixed)
+	createCheckBox("Initially Mixed", panel).SetState(ui.Mixed)
 	createCheckBox("Disabled", panel).SetDisabled(true)
 	checkbox := createCheckBox("Disabled w/Check", panel)
 	checkbox.SetDisabled(true)
-	checkbox.SetState(widget.Checked)
+	checkbox.SetState(ui.Checked)
 	return panel
 }
 
-func createCheckBox(title string, panel *widget.Block) *widget.CheckBox {
-	checkbox := widget.NewCheckBox(title)
+func createCheckBox(title string, panel *ui.Block) *ui.CheckBox {
+	checkbox := ui.NewCheckBox(title)
 	checkbox.OnClick = func() { fmt.Printf("The checkbox '%s' was clicked.\n", title) }
-	checkbox.OnToolTip = func(where geom.Point) string {
+	checkbox.OnToolTip = func(where ui.Point) string {
 		return fmt.Sprintf("This is the tooltip for the '%s' checkbox.", title)
 	}
 	panel.AddChild(&checkbox.Block)
 	return checkbox
 }
 
-func createRadioButtonsPanel() *widget.Block {
-	panel := widget.NewBlock()
-	panel.Layout = layout.NewPrecision()
+func createRadioButtonsPanel() *ui.Block {
+	panel := ui.NewBlock()
+	panel.Layout = ui.NewPrecisionLayout()
 
-	group := widget.NewRadioButtonGroup()
+	group := ui.NewRadioButtonGroup()
 	first := createRadioButton("First", panel, group)
 	createRadioButton("Second", panel, group)
 	createRadioButton("Third (disabled)", panel, group).SetDisabled(true)
@@ -170,10 +164,10 @@ func createRadioButtonsPanel() *widget.Block {
 	return panel
 }
 
-func createRadioButton(title string, panel *widget.Block, group *widget.RadioButtonGroup) *widget.RadioButton {
-	rb := widget.NewRadioButton(title)
+func createRadioButton(title string, panel *ui.Block, group *ui.RadioButtonGroup) *ui.RadioButton {
+	rb := ui.NewRadioButton(title)
 	rb.OnClick = func() { fmt.Printf("The radio button '%s' was clicked.\n", title) }
-	rb.OnToolTip = func(where geom.Point) string {
+	rb.OnToolTip = func(where ui.Point) string {
 		return fmt.Sprintf("This is the tooltip for the '%s' radio button.", title)
 	}
 	panel.AddChild(&rb.Block)
@@ -181,9 +175,9 @@ func createRadioButton(title string, panel *widget.Block, group *widget.RadioBut
 	return rb
 }
 
-func createPopupMenusPanel() *widget.Block {
-	panel := widget.NewBlock()
-	panel.Layout = layout.NewPrecision()
+func createPopupMenusPanel() *ui.Block {
+	panel := ui.NewBlock()
+	panel.Layout = ui.NewPrecisionLayout()
 
 	createPopupMenu(panel, 1, "One", "Two", "Three", "", "Four", "Five", "Six")
 	createPopupMenu(panel, 2, "Red", "Blue", "Green").SetDisabled(true)
@@ -191,9 +185,9 @@ func createPopupMenusPanel() *widget.Block {
 	return panel
 }
 
-func createPopupMenu(panel *widget.Block, selection int, titles ...string) *widget.PopupMenu {
-	p := widget.NewPopupMenu()
-	p.OnToolTip = func(where geom.Point) string {
+func createPopupMenu(panel *ui.Block, selection int, titles ...string) *ui.PopupMenu {
+	p := ui.NewPopupMenu()
+	p.OnToolTip = func(where ui.Point) string {
 		return fmt.Sprintf("This is the tooltip for the PopupMenu with %d items.", len(titles))
 	}
 	for _, title := range titles {
@@ -211,26 +205,26 @@ func createPopupMenu(panel *widget.Block, selection int, titles ...string) *widg
 	return p
 }
 
-func createAboutWindow(item *widget.MenuItem) {
+func createAboutWindow(item *ui.MenuItem) {
 	if aboutWindow == nil {
-		aboutWindow = widget.NewWindow(geom.Point{}, widget.TitledWindowMask|widget.ClosableWindowMask)
+		aboutWindow = ui.NewWindow(ui.Point{}, ui.TitledWindowMask|ui.ClosableWindowMask)
 		aboutWindow.DidClose = func() { aboutWindow = nil }
-		aboutWindow.SetTitle("About " + app.Name)
+		aboutWindow.SetTitle("About " + ui.AppName())
 		root := aboutWindow.RootBlock()
-		root.Border = border.NewEmpty(geom.Insets{Top: 10, Left: 10, Bottom: 10, Right: 10})
-		root.Layout = layout.NewPrecision()
-		title := widget.NewLabelWithFont(app.Name, font.Acquire(font.EmphasizedSystem))
-		ld := layout.NewPrecisionData()
-		ld.HorizontalAlignment = layout.Middle
+		root.Border = ui.NewEmptyBorder(ui.Insets{Top: 10, Left: 10, Bottom: 10, Right: 10})
+		root.Layout = ui.NewPrecisionLayout()
+		title := ui.NewLabelWithFont(ui.AppName(), ui.AcquireFont(ui.EmphasizedSystemFontDesc))
+		ld := ui.NewPrecisionData()
+		ld.HorizontalAlignment = ui.AlignMiddle
 		title.SetLayoutData(ld)
 		root.AddChild(&title.Block)
-		desc := widget.NewLabel("Simple app to demonstrate the\ncapabilities of the ui framework.")
+		desc := ui.NewLabel("Simple app to demonstrate the\ncapabilities of the ui framework.")
 		root.AddChild(&desc.Block)
 		aboutWindow.Pack()
 	}
 	aboutWindow.ToFront()
 }
 
-func createPreferencesWindow(item *widget.MenuItem) {
+func createPreferencesWindow(item *ui.MenuItem) {
 	fmt.Println("Preferences...")
 }
