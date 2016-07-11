@@ -110,6 +110,24 @@ func (b *Block) AddChild(child *Block) {
 	b.NeedLayout = true
 }
 
+// AddChildAtIndex adds the specified block as a child of this block at the specified index,
+// removing it from any previous parent it may have had.
+func (b *Block) AddChildAtIndex(child *Block, index int) {
+	child.RemoveFromParent()
+	child.parent = b
+	if index < 0 {
+		index = 0
+	}
+	if index >= len(b.children) {
+		b.children = append(b.children, child)
+	} else {
+		b.children = append(b.children, nil)
+		copy(b.children[index+1:], b.children[index:])
+		b.children[index] = child
+	}
+	b.NeedLayout = true
+}
+
 // RemoveFromParent removes this block from its parent, if any.
 func (b *Block) RemoveFromParent() {
 	if b.parent != nil {
