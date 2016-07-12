@@ -11,107 +11,143 @@ package ui
 
 // PrecisionData is used to control how an object is laid out by the Precision layout.
 type PrecisionData struct {
-	HorizontalSpan      int
-	VerticalSpan        int
-	HorizontalAlignment Alignment
-	VerticalAlignment   Alignment
-	SizeHint            Size
-	MinSize             Size
-	cacheSize           Size
-	cacheMinWidth       float32
-	HorizontalGrab      bool
-	VerticalGrab        bool
+	hSpan         int
+	vSpan         int
+	hAlign        Alignment
+	vAlign        Alignment
+	sizeHint      Size
+	minSize       Size
+	cacheSize     Size
+	cacheMinWidth float32
+	hGrab         bool
+	vGrab         bool
 }
 
 // NewPrecisionData creates a new PrecisionData.
 func NewPrecisionData() *PrecisionData {
-	return &PrecisionData{HorizontalAlignment: AlignStart, VerticalAlignment: AlignMiddle, SizeHint: NoLayoutHintSize, MinSize: NoLayoutHintSize}
+	return &PrecisionData{hSpan: 1, vSpan: 1, hAlign: AlignStart, vAlign: AlignMiddle, sizeHint: NoLayoutHintSize, minSize: NoLayoutHintSize}
 }
 
-// SetHorizontalAlignment is a convenience for setting the horizontal alignment while chaining
-// calls together.
+// HorizontalAlignment returns the horizontal alignment of the widget within its space.
+func (pd *PrecisionData) HorizontalAlignment() Alignment {
+	return pd.hAlign
+}
+
+// SetHorizontalAlignment sets the horizontal alignment of the widget within its space.
 func (pd *PrecisionData) SetHorizontalAlignment(alignment Alignment) *PrecisionData {
-	pd.HorizontalAlignment = alignment
+	pd.hAlign = alignment
 	return pd
 }
 
-// SetVerticalAlignment is a convenience for setting the vertical alignment while chaining calls
-// together.
+// VerticalAlignment returns the vertical alignment of the widget within its space.
+func (pd *PrecisionData) VerticalAlignment() Alignment {
+	return pd.vAlign
+}
+
+// SetVerticalAlignment sets the vertical alignment of the widget within its space.
 func (pd *PrecisionData) SetVerticalAlignment(alignment Alignment) *PrecisionData {
-	pd.VerticalAlignment = alignment
+	pd.vAlign = alignment
 	return pd
 }
 
-// SetSizeHint is a convenience for setting the size hint while chaining calls together.
+// SizeHint returns a hint requesting a particular size of the widget.
+func (pd *PrecisionData) SizeHint() Size {
+	return pd.sizeHint
+}
+
+// SetSizeHint sets a hint requesting a particular size of the widget.
 func (pd *PrecisionData) SetSizeHint(size Size) *PrecisionData {
-	pd.SizeHint = size
+	pd.sizeHint = size
 	return pd
 }
 
-// SetWidthHint is a convenience for setting the width hint while chaining calls together.
+// SetWidthHint sets a hint requesting a particular width of the widget.
 func (pd *PrecisionData) SetWidthHint(width float32) *PrecisionData {
-	pd.SizeHint.Width = width
+	pd.sizeHint.Width = width
 	return pd
 }
 
-// SetHeightHint is a convenience for setting the height hint while chaining calls together.
+// SetHeightHint sets a hint requesting a particular height of the widget.
 func (pd *PrecisionData) SetHeightHint(height float32) *PrecisionData {
-	pd.SizeHint.Height = height
+	pd.sizeHint.Height = height
 	return pd
 }
 
-// SetHorizontalSpan is a convenience for setting the horizontal span while chaining calls
-// together.
+// HorizontalSpan returns the number of columns the widget should span.
+func (pd *PrecisionData) HorizontalSpan() int {
+	return pd.hSpan
+}
+
+// SetHorizontalSpan sets the number of columns the widget should span.
 func (pd *PrecisionData) SetHorizontalSpan(span int) *PrecisionData {
-	pd.HorizontalSpan = span
+	pd.hSpan = span
 	return pd
 }
 
-// SetVerticalSpan is a convenience for setting the vertical span while chaining calls together.
+// VerticalSpan returns the number of rows the widget should span.
+func (pd *PrecisionData) VerticalSpan() int {
+	return pd.vSpan
+}
+
+// SetVerticalSpan sets the number of rows the widget should span.
 func (pd *PrecisionData) SetVerticalSpan(span int) *PrecisionData {
-	pd.VerticalSpan = span
+	pd.vSpan = span
 	return pd
 }
 
-// SetMinSize is a convenience for setting the minimum size while chaining calls together.
+// MinSize returns an override for the minimum size of the widget.
+func (pd *PrecisionData) MinSize() Size {
+	return pd.minSize
+}
+
+// SetMinSize sets an override for the minimum size of the widget.
 func (pd *PrecisionData) SetMinSize(size Size) *PrecisionData {
-	pd.MinSize = size
+	pd.minSize = size
 	return pd
 }
 
-// SetMinWidth is a convenience for setting the minimum width while chaining calls together.
+// SetMinWidth sets an override for the minimum width of the widget.
 func (pd *PrecisionData) SetMinWidth(width float32) *PrecisionData {
-	pd.MinSize.Width = width
+	pd.minSize.Width = width
 	return pd
 }
 
-// SetMinHeight is a convenience for setting the minimum height while chaining calls together.
+// SetMinHeight sets an override for the minimum height of the widget.
 func (pd *PrecisionData) SetMinHeight(height float32) *PrecisionData {
-	pd.MinSize.Height = height
+	pd.minSize.Height = height
 	return pd
 }
 
-// SetHorizontalGrab is a convenience for setting the horizontal grab while chaining calls
-// together.
+// HorizontalGrab returns true if the widget should attempt to grab excess horizontal space.
+func (pd *PrecisionData) HorizontalGrab() bool {
+	return pd.hGrab
+}
+
+// SetHorizontalGrab marks the widget to attempt to grab excess horizontal space if true.
 func (pd *PrecisionData) SetHorizontalGrab(grab bool) *PrecisionData {
-	pd.HorizontalGrab = grab
+	pd.hGrab = grab
 	return pd
 }
 
-// SetVerticalGrab is a convenience for setting the vertical grab while chaining calls together.
+// VerticalGrab returns true if the widget should attempt to grab excess vertical space.
+func (pd *PrecisionData) VerticalGrab() bool {
+	return pd.vGrab
+}
+
+// SetVerticalGrab marks the widget to attempt to grab excess vertical space if true.
 func (pd *PrecisionData) SetVerticalGrab(grab bool) *PrecisionData {
-	pd.VerticalGrab = grab
+	pd.vGrab = grab
 	return pd
 }
 
-func (pd *PrecisionData) computeCacheSize(target *Block, hint Size, useMinimumSize bool) {
+func (pd *PrecisionData) computeCacheSize(target Widget, hint Size, useMinimumSize bool) {
 	pd.cacheMinWidth = 0
 	pd.cacheSize.Width = 0
 	pd.cacheSize.Height = 0
-	min, pref, max := target.ComputeSizes(hint)
+	min, pref, max := ComputeSizes(target, hint)
 	if hint.Width != NoLayoutHint || hint.Height != NoLayoutHint {
-		if pd.MinSize.Width != NoLayoutHint {
-			pd.cacheMinWidth = pd.MinSize.Width
+		if pd.minSize.Width != NoLayoutHint {
+			pd.cacheMinWidth = pd.minSize.Width
 		} else {
 			pd.cacheMinWidth = min.Width
 		}
@@ -123,10 +159,10 @@ func (pd *PrecisionData) computeCacheSize(target *Block, hint Size, useMinimumSi
 		}
 		if hint.Height != NoLayoutHint {
 			var value float32
-			if pd.MinSize.Height == NoLayoutHint {
+			if pd.minSize.Height == NoLayoutHint {
 				value = min.Height
 			} else {
-				value = pd.MinSize.Height
+				value = pd.minSize.Height
 			}
 			if hint.Height < value {
 				hint.Height = value
@@ -138,8 +174,8 @@ func (pd *PrecisionData) computeCacheSize(target *Block, hint Size, useMinimumSi
 	}
 	if useMinimumSize {
 		pd.cacheSize = min
-		if pd.MinSize.Width != NoLayoutHint {
-			pd.cacheMinWidth = pd.MinSize.Width
+		if pd.minSize.Width != NoLayoutHint {
+			pd.cacheMinWidth = pd.minSize.Width
 		} else {
 			pd.cacheMinWidth = min.Width
 		}
@@ -149,21 +185,21 @@ func (pd *PrecisionData) computeCacheSize(target *Block, hint Size, useMinimumSi
 	if hint.Width != NoLayoutHint {
 		pd.cacheSize.Width = hint.Width
 	} else {
-		if pd.SizeHint.Width != NoLayoutHint {
-			pd.cacheSize.Width = pd.SizeHint.Width
+		if pd.sizeHint.Width != NoLayoutHint {
+			pd.cacheSize.Width = pd.sizeHint.Width
 		}
-		if pd.MinSize.Width != NoLayoutHint && pd.cacheSize.Width < pd.MinSize.Width {
-			pd.cacheSize.Width = pd.MinSize.Width
+		if pd.minSize.Width != NoLayoutHint && pd.cacheSize.Width < pd.minSize.Width {
+			pd.cacheSize.Width = pd.minSize.Width
 		}
 	}
 	if hint.Height != NoLayoutHint {
 		pd.cacheSize.Height = hint.Height
 	} else {
-		if pd.SizeHint.Height != NoLayoutHint {
-			pd.cacheSize.Height = pd.SizeHint.Height
+		if pd.sizeHint.Height != NoLayoutHint {
+			pd.cacheSize.Height = pd.sizeHint.Height
 		}
-		if pd.MinSize.Height != NoLayoutHint && pd.cacheSize.Height < pd.MinSize.Height {
-			pd.cacheSize.Height = pd.MinSize.Height
+		if pd.minSize.Height != NoLayoutHint && pd.cacheSize.Height < pd.minSize.Height {
+			pd.cacheSize.Height = pd.minSize.Height
 		}
 	}
 }

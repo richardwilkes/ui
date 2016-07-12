@@ -11,229 +11,138 @@ package ui
 
 // Block is the basic graphical block in a window.
 type Block struct {
-	Layout
-	Border
-	// Called when no layout has been set for this block. Returns the minimum, preferred, and
-	// maximum sizes of the block. The hint's values will be either NoLayoutHint or a specific value
-	// if that particular dimension has already been determined.
-	Sizes func(hint Size) (min, pref, max Size)
-	// Called to handle mouse down events on this block. Return true if the mouse down event was
-	// passed off to a popup menu.
-	OnMouseDown func(where Point, keyModifiers int, which int, clickCount int) bool
-	// Called to handle mouse dragged events on this block.
-	OnMouseDragged func(where Point, keyModifiers int)
-	// Called to handle mouse up events on this block.
-	OnMouseUp func(where Point, keyModifiers int)
-	// Called to handle mouse entered events on this block.
-	OnMouseEntered func(where Point, keyModifiers int)
-	// Called to handle mouse moved events on this block.
-	OnMouseMoved func(where Point, keyModifiers int)
-	// Called to handle mouse exited events on this block.
-	OnMouseExited func(where Point, keyModifiers int)
-	// Called when a tooltip is being requested for the block at the specified position.
-	OnToolTip func(where Point) string
-	// Called to draw the block's contents.
-	OnPaint    func(g Graphics, dirty Rect)
-	id         int
-	bounds     Rect
-	window     *Window
-	parent     *Block
-	children   []*Block
-	layoutData interface{}
-	background Color
-	NeedLayout bool
-	focused    bool
-	disabled   bool
+	sizer               Sizer
+	layout              Layout
+	border              Border
+	paintHandler        PaintHandler
+	mouseDownHandler    MouseDownHandler
+	mouseDraggedHandler MouseDraggedHandler
+	mouseUpHandler      MouseUpHandler
+	mouseEnteredHandler MouseEnteredHandler
+	mouseMovedHandler   MouseMovedHandler
+	mouseExitedHandler  MouseExitedHandler
+	tooltipHandler      ToolTipHandler
+	window              *Window
+	parent              Widget
+	children            []Widget
+	bounds              Rect
+	layoutData          interface{}
+	background          Color
+	needLayout          bool
+	disabled            bool
+	focused             bool
 }
-
-var (
-	nextBlockID = 1
-	// DefaultMinSize is the minimum size value that will be used for blocks that don't have a layout and don't provide a Sizes function.
-	DefaultMinSize = Size{Width: 0, Height: 0}
-	// DefaultPrefSize is the preferred size value that will be used for blocks that don't have a layout and don't provide a Sizes function.
-	DefaultPrefSize = Size{Width: 0, Height: 0}
-)
 
 // NewBlock creates a new, empty block.
 func NewBlock() *Block {
-	b := &Block{}
-	b.Init()
-	return b
+	return &Block{}
 }
 
-// Init initializes the block.
-func (b *Block) Init() {
-	b.id = nextBlockID
-	nextBlockID++
+// Sizer implements the Widget interface.
+func (b *Block) Sizer() Sizer {
+	return b.sizer
 }
 
-// ID returns the id for this block.
-func (b *Block) ID() int {
-	return b.id
+// SetSizer implements the Widget interface.
+func (b *Block) SetSizer(sizer Sizer) {
+	b.sizer = sizer
 }
 
-// Children returns the blocks contained by this block.
-func (b *Block) Children() []*Block {
-	return b.children
+// Layout implements the Widget interface.
+func (b *Block) Layout() Layout {
+	return b.layout
 }
 
-// LayoutData returns any layout data that is associated with this block.
+// SetLayout implements the Widget interface.
+func (b *Block) SetLayout(layout Layout) {
+	b.layout = layout
+	b.SetNeedLayout(true)
+}
+
+// NeedLayout implements the Widget interface.
+func (b *Block) NeedLayout() bool {
+	return b.needLayout
+}
+
+// SetNeedLayout implements the Widget interface.
+func (b *Block) SetNeedLayout(needLayout bool) {
+	b.needLayout = needLayout
+}
+
+// LayoutData implements the Widget interface.
 func (b *Block) LayoutData() interface{} {
 	return b.layoutData
 }
 
-// SetLayoutData sets the layout data for this block.
+// SetLayoutData implements the Widget interface.
 func (b *Block) SetLayoutData(data interface{}) {
 	if b.layoutData != data {
 		b.layoutData = data
-		b.NeedLayout = true
+		b.SetNeedLayout(true)
 	}
 }
 
-// IndexOfChild returns the index of the specified child, or -1 if the passed in block is not a
-// child of this block.
-func (b *Block) IndexOfChild(child *Block) int {
-	for i, one := range b.children {
-		if one == child {
-			return i
+// ValidateLayout implements the Widget interface.
+func (b *Block) ValidateLayout() {
+	if b.NeedLayout() {
+		if layout := b.Layout(); layout != nil {
+			layout.Layout()
+			b.Repaint()
+		}
+		b.SetNeedLayout(false)
+	}
+	for _, child := range b.children {
+		child.ValidateLayout()
+	}
+}
+
+// Border implements the Widget interface.
+func (b *Block) Border() Border {
+	return b.border
+}
+
+// SetBorder implements the Widget interface.
+func (b *Block) SetBorder(border Border) {
+	b.border = border
+}
+
+// PaintHandler implements the Widget interface.
+func (b *Block) PaintHandler() PaintHandler {
+	return b.paintHandler
+}
+
+// SetPaintHandler implements the Widget interface.
+func (b *Block) SetPaintHandler(handler PaintHandler) {
+	b.paintHandler = handler
+}
+
+// Repaint implements the Widget interface.
+func (b *Block) Repaint() {
+	b.RepaintBounds(b.LocalBounds())
+}
+
+// RepaintBounds implements the Widget interface.
+func (b *Block) RepaintBounds(bounds Rect) {
+	bounds.Intersect(b.LocalBounds())
+	if !bounds.IsEmpty() {
+		if p := b.Parent(); p != nil {
+			bounds.X += b.bounds.X
+			bounds.Y += b.bounds.Y
+			p.RepaintBounds(bounds)
+		} else if b.RootOfWindow() {
+			b.Window().RepaintBounds(bounds)
 		}
 	}
-	return -1
 }
 
-// AddChild adds the specified block as a child of this block, removing it from any previous
-// parent it may have had.
-func (b *Block) AddChild(child *Block) {
-	child.RemoveFromParent()
-	child.parent = b
-	b.children = append(b.children, child)
-	b.NeedLayout = true
-}
-
-// AddChildAtIndex adds the specified block as a child of this block at the specified index,
-// removing it from any previous parent it may have had.
-func (b *Block) AddChildAtIndex(child *Block, index int) {
-	child.RemoveFromParent()
-	child.parent = b
-	if index < 0 {
-		index = 0
-	}
-	if index >= len(b.children) {
-		b.children = append(b.children, child)
-	} else {
-		b.children = append(b.children, nil)
-		copy(b.children[index+1:], b.children[index:])
-		b.children[index] = child
-	}
-	b.NeedLayout = true
-}
-
-// RemoveFromParent removes this block from its parent, if any.
-func (b *Block) RemoveFromParent() {
-	if b.parent != nil {
-		i := b.parent.IndexOfChild(b)
-		copy(b.parent.children[i:], b.parent.children[i+1:])
-		length := len(b.parent.children) - 1
-		b.parent.children[length] = nil
-		b.parent.children = b.parent.children[:length]
-		b.parent.NeedLayout = true
-		b.parent = nil
-	}
-}
-
-// Location returns the location of this block in its parent's coordinate system.
-func (b *Block) Location() Point {
-	return b.bounds.Point
-}
-
-// SetLocation sets the location of this block in its parent's coordinate system.
-func (b *Block) SetLocation(pt Point) {
-	if b.bounds.Point != pt {
-		b.Repaint()
-		b.bounds.Point = pt
-		b.Repaint()
-	}
-}
-
-// Size returns the size of this block.
-func (b *Block) Size() Size {
-	return b.bounds.Size
-}
-
-// SetSize sets the size of this block.
-func (b *Block) SetSize(size Size) {
-	if b.bounds.Size != size {
-		b.Repaint()
-		b.bounds.Size = size
-		b.NeedLayout = true
-		b.Repaint()
-	}
-}
-
-// Insets returns the margins of this block, as determined by any border that it may have.
-func (b *Block) Insets() Insets {
-	if b.Border != nil {
-		return b.Border.Insets()
-	}
-	return Insets{}
-}
-
-// Bounds returns the location and size of this block in its parent's coordinate system.
-func (b *Block) Bounds() Rect {
-	return b.bounds
-}
-
-// LocalBounds returns the location and size of this block in local coordinates.
-func (b *Block) LocalBounds() Rect {
-	return b.bounds.CopyAndZeroLocation()
-}
-
-// LocalInsetBounds returns the location and size of this block in local coordinates after
-// applying its insets.
-func (b *Block) LocalInsetBounds() Rect {
-	bounds := b.LocalBounds()
-	bounds.Inset(b.Insets())
-	return bounds
-}
-
-// SetBounds sets the location and size of this block in its parent's coordinate system.
-func (b *Block) SetBounds(bounds Rect) {
-	moved := b.bounds.X != bounds.X || b.bounds.Y != bounds.Y
-	resized := b.bounds.Width != bounds.Width || b.bounds.Height != bounds.Height
-	if moved || resized {
-		b.Repaint()
-		if moved {
-			b.bounds.Point = bounds.Point
-		}
-		if resized {
-			b.bounds.Size = bounds.Size
-			b.NeedLayout = true
-		}
-		b.Repaint()
-	}
-}
-
-// ComputeSizes is called by the Layout interface to determine the size constraints for
-// this block. This method will defer to a layout that has been set on the block. If no layout
-// has been set, then it will attempt to obtain the sizes by calling Sizes(hint). If no Sizes
-// function has been set, then a default set of sizes are returned.
-func (b *Block) ComputeSizes(hint Size) (min, pref, max Size) {
-	if b.Layout != nil {
-		return b.Layout.ComputeSizes(b, hint)
-	}
-	if b.Sizes != nil {
-		return b.Sizes(hint)
-	}
-	return DefaultMinSize, DefaultPrefSize, DefaultLayoutMaxSize(DefaultPrefSize)
-}
-
-func (b *Block) paint(g Graphics, dirty Rect) {
+// Paint implements the Widget interface.
+func (b *Block) Paint(g Graphics, dirty Rect) {
 	dirty.Intersect(b.LocalBounds())
 	if !dirty.IsEmpty() {
 		b.paintSelf(g, dirty)
 		for _, child := range b.children {
 			adjusted := dirty
-			adjusted.Intersect(child.bounds)
+			adjusted.Intersect(child.Bounds())
 			if !adjusted.IsEmpty() {
 				b.paintChild(child, g, adjusted)
 			}
@@ -250,109 +159,202 @@ func (b *Block) paintSelf(g Graphics, dirty Rect) {
 		g.FillRect(dirty)
 	}
 	b.paintBorder(g)
-	if b.OnPaint != nil {
-		b.OnPaint(g, dirty)
+	if b.paintHandler != nil {
+		b.paintHandler.OnPaint(g, dirty)
 	}
 }
 
 func (b *Block) paintBorder(g Graphics) {
-	if b.Border != nil {
+	if border := b.Border(); border != nil {
 		g.Save()
 		defer g.Restore()
-		b.Border.Paint(g, b.LocalBounds())
+		border.PaintBorder(g, b.LocalBounds())
 	}
 }
 
-func (b *Block) paintChild(child *Block, g Graphics, dirty Rect) {
+func (b *Block) paintChild(child Widget, g Graphics, dirty Rect) {
 	g.Save()
 	defer g.Restore()
-	g.Translate(child.bounds.X, child.bounds.Y)
-	dirty.X -= child.bounds.X
-	dirty.Y -= child.bounds.Y
-	child.paint(g, dirty)
+	bounds := child.Bounds()
+	g.Translate(bounds.X, bounds.Y)
+	dirty.X -= bounds.X
+	dirty.Y -= bounds.Y
+	child.Paint(g, dirty)
 }
 
-// Background returns the current background color of this block.
-func (b *Block) Background() Color {
-	return b.background
+// MouseDownHandler implements the Widget interface.
+func (b *Block) MouseDownHandler() MouseDownHandler {
+	return b.mouseDownHandler
 }
 
-// SetBackground sets the background color of this block.
-func (b *Block) SetBackground(color Color) {
-	if color != b.background {
-		b.background = color
+// SetMouseDownHandler implements the Widget interface.
+func (b *Block) SetMouseDownHandler(handler MouseDownHandler) {
+	b.mouseDownHandler = handler
+}
+
+// MouseDraggedHandler implements the Widget interface.
+func (b *Block) MouseDraggedHandler() MouseDraggedHandler {
+	return b.mouseDraggedHandler
+}
+
+// SetMouseDraggedHandler implements the Widget interface.
+func (b *Block) SetMouseDraggedHandler(handler MouseDraggedHandler) {
+	b.mouseDraggedHandler = handler
+}
+
+// MouseUpHandler implements the Widget interface.
+func (b *Block) MouseUpHandler() MouseUpHandler {
+	return b.mouseUpHandler
+}
+
+// SetMouseUpHandler implements the Widget interface.
+func (b *Block) SetMouseUpHandler(handler MouseUpHandler) {
+	b.mouseUpHandler = handler
+}
+
+// MouseEnteredHandler implements the Widget interface.
+func (b *Block) MouseEnteredHandler() MouseEnteredHandler {
+	return b.mouseEnteredHandler
+}
+
+// SetMouseEnteredHandler implements the Widget interface.
+func (b *Block) SetMouseEnteredHandler(handler MouseEnteredHandler) {
+	b.mouseEnteredHandler = handler
+}
+
+// MouseMovedHandler implements the Widget interface.
+func (b *Block) MouseMovedHandler() MouseMovedHandler {
+	return b.mouseMovedHandler
+}
+
+// SetMouseMovedHandler implements the Widget interface.
+func (b *Block) SetMouseMovedHandler(handler MouseMovedHandler) {
+	b.mouseMovedHandler = handler
+}
+
+// MouseExitedHandler implements the Widget interface.
+func (b *Block) MouseExitedHandler() MouseExitedHandler {
+	return b.mouseExitedHandler
+}
+
+// SetMouseExitedHandler implements the Widget interface.
+func (b *Block) SetMouseExitedHandler(handler MouseExitedHandler) {
+	b.mouseExitedHandler = handler
+}
+
+// ToolTipHandler implements the Widget interface.
+func (b *Block) ToolTipHandler() ToolTipHandler {
+	return b.tooltipHandler
+}
+
+// SetToolTipHandler implements the Widget interface.
+func (b *Block) SetToolTipHandler(handler ToolTipHandler) {
+	b.tooltipHandler = handler
+}
+
+// Enabled implements the Widget interface.
+func (b *Block) Enabled() bool {
+	return !b.disabled
+}
+
+// SetEnabled implements the Widget interface.
+func (b *Block) SetEnabled(enabled bool) {
+	disabled := !enabled
+	if b.disabled != disabled {
+		b.disabled = disabled
 		b.Repaint()
 	}
 }
 
-// Repaint marks this block for painting at the next update.
-func (b *Block) Repaint() {
-	b.RepaintBounds(b.LocalBounds())
+// Focused implements the Widget interface.
+func (b *Block) Focused() bool {
+	return b.focused && !b.disabled
 }
 
-// RepaintBounds marks the specified bounds within the block for painting at the next update.
-func (b *Block) RepaintBounds(bounds Rect) {
-	bounds.Intersect(b.LocalBounds())
-	if !bounds.IsEmpty() {
-		if b.parent != nil {
-			bounds.X += b.bounds.X
-			bounds.Y += b.bounds.Y
-			b.parent.RepaintBounds(bounds)
-		} else if b.window != nil {
-			b.window.RepaintBounds(bounds)
+// SetFocused implements the Widget interface.
+func (b *Block) SetFocused(focused bool) {
+	if b.focused != focused {
+		b.focused = focused
+		b.Repaint()
+	}
+}
+
+// Children implements the Widget interface.
+func (b *Block) Children() []Widget {
+	return b.children
+}
+
+// IndexOfChild implements the Widget interface.
+func (b *Block) IndexOfChild(child Widget) int {
+	for i, one := range b.children {
+		if one == child {
+			return i
 		}
 	}
+	return -1
 }
 
-// ValidateLayout triggers any layout that needs to be run by this block or its children.
-func (b *Block) ValidateLayout() {
-	if b.NeedLayout {
-		if b.Layout != nil {
-			b.Layout.Layout(b)
-			b.Repaint()
-		}
-		b.NeedLayout = false
+// AddChild implements the Widget interface.
+func (b *Block) AddChild(child Widget) {
+	child.RemoveFromParent()
+	b.children = append(b.children, child)
+	child.SetParent(b)
+	b.SetNeedLayout(true)
+}
+
+// AddChildAtIndex implements the Widget interface.
+func (b *Block) AddChildAtIndex(child Widget, index int) {
+	child.RemoveFromParent()
+	if index < 0 {
+		index = 0
 	}
-	for _, child := range b.children {
-		child.ValidateLayout()
+	if index >= len(b.children) {
+		b.children = append(b.children, child)
+	} else {
+		b.children = append(b.children, nil)
+		copy(b.children[index+1:], b.children[index:])
+		b.children[index] = child
+	}
+	child.SetParent(b)
+	b.SetNeedLayout(true)
+}
+
+// RemoveChild implements the Widget interface.
+func (b *Block) RemoveChild(child Widget) {
+	b.RemoveChildAtIndex(b.IndexOfChild(child))
+}
+
+// RemoveChildAtIndex implements the Widget interface.
+func (b *Block) RemoveChildAtIndex(index int) {
+	if index >= 0 && index < len(b.children) {
+		child := b.children[index]
+		copy(b.children[index:], b.children[index+1:])
+		length := len(b.children) - 1
+		b.children[length] = nil
+		b.children = b.children[:length]
+		b.SetNeedLayout(true)
+		child.SetParent(nil)
 	}
 }
 
-// BlockAt returns the leaf-most child block containing the location, or this block if no child
-// is found.
-func (b *Block) BlockAt(pt Point) *Block {
-	for _, child := range b.children {
-		if child.bounds.Contains(pt) {
-			pt.Subtract(child.bounds.Point)
-			return child.BlockAt(pt)
-		}
+// RemoveFromParent implements the Widget interface.
+func (b *Block) RemoveFromParent() {
+	if p := b.Parent(); p != nil {
+		p.RemoveChild(b)
 	}
-	return b
 }
 
-// ToWindow converts block-local coordinates into window coordinates.
-func (b *Block) ToWindow(pt Point) Point {
-	pt.Add(b.bounds.Point)
-	parent := b.parent
-	for parent != nil {
-		pt.Add(parent.bounds.Point)
-		parent = parent.parent
-	}
-	return pt
+// Parent implements the Widget interface.
+func (b *Block) Parent() Widget {
+	return b.parent
 }
 
-// FromWindow converts window coordinates into block-local coordinates.
-func (b *Block) FromWindow(pt Point) Point {
-	pt.Subtract(b.bounds.Point)
-	parent := b.parent
-	for parent != nil {
-		pt.Subtract(parent.bounds.Point)
-		parent = parent.parent
-	}
-	return pt
+// SetParent implements the Widget interface.
+func (b *Block) SetParent(parent Widget) {
+	b.parent = parent
 }
 
-// Window returns the containing window, or nil.
+// Window implements the Widget interface.
 func (b *Block) Window() *Window {
 	if b.window != nil {
 		return b.window
@@ -363,58 +365,119 @@ func (b *Block) Window() *Window {
 	return nil
 }
 
-// InLiveResize returns true if the window is being actively resized by the user at this point in
-// time. If it is, expensive painting operations should be deferred if possible to give a smooth
-// resizing experience.
-func (b *Block) InLiveResize() bool {
-	w := b.Window()
-	if w != nil {
-		return w.inLiveResize
+// RootOfWindow implements the Widget interface.
+func (b *Block) RootOfWindow() bool {
+	return b.window != nil
+}
+
+// Bounds implements the Widget interface.
+func (b *Block) Bounds() Rect {
+	return b.bounds
+}
+
+// LocalBounds implements the Widget interface.
+func (b *Block) LocalBounds() Rect {
+	return b.bounds.CopyAndZeroLocation()
+}
+
+// LocalInsetBounds implements the Widget interface.
+func (b *Block) LocalInsetBounds() Rect {
+	bounds := b.LocalBounds()
+	if border := b.Border(); border != nil {
+		bounds.Inset(border.Insets())
 	}
-	return false
+	return bounds
 }
 
-// Opaque returns true if this block's background is fully opaque.
-func (b *Block) Opaque() bool {
-	return b.background.Opaque()
-}
-
-// Enabled returns true if this block is currently enabled.
-func (b *Block) Enabled() bool {
-	return !b.disabled
-}
-
-// Disabled returns true if this block is currently disabled.
-func (b *Block) Disabled() bool {
-	return b.disabled
-}
-
-// SetDisabled sets this block's enabled state.
-func (b *Block) SetDisabled(disabled bool) {
-	if b.disabled != disabled {
-		b.disabled = disabled
+// SetBounds implements the Widget interface.
+func (b *Block) SetBounds(bounds Rect) {
+	moved := b.bounds.X != bounds.X || b.bounds.Y != bounds.Y
+	resized := b.bounds.Width != bounds.Width || b.bounds.Height != bounds.Height
+	if moved || resized {
+		b.Repaint()
+		if moved {
+			b.bounds.Point = bounds.Point
+		}
+		if resized {
+			b.bounds.Size = bounds.Size
+			b.SetNeedLayout(true)
+		}
 		b.Repaint()
 	}
 }
 
-// Focused returns true if this block has the keyboard focus.
-func (b *Block) Focused() bool {
-	return b.focused && !b.disabled
+// Location implements the Widget interface.
+func (b *Block) Location() Point {
+	return b.bounds.Point
 }
 
-// SetFocused sets this block's focus state.
-func (b *Block) SetFocused(focused bool) {
-	if b.focused != focused {
-		b.focused = focused
+// SetLocation implements the Widget interface.
+func (b *Block) SetLocation(pt Point) {
+	if b.bounds.Point != pt {
+		b.Repaint()
+		b.bounds.Point = pt
 		b.Repaint()
 	}
 }
 
-// ToolTip returns the tooltip for the specified point within this block by calling the OnToolTip()
-// function if it is set, otherwise it returns an empty string.
-func (b *Block) ToolTip(where Point) string {
-	if b.OnToolTip != nil {
-		return b.OnToolTip(where)
+// Size implements the Widget interface.
+func (b *Block) Size() Size {
+	return b.bounds.Size
+}
+
+// SetSize implements the Widget interface.
+func (b *Block) SetSize(size Size) {
+	if b.bounds.Size != size {
+		b.Repaint()
+		b.bounds.Size = size
+		b.SetNeedLayout(true)
+		b.Repaint()
 	}
-	return ""
+}
+
+// WidgetAt implements the Widget interface.
+func (b *Block) WidgetAt(pt Point) Widget {
+	for _, child := range b.children {
+		bounds := child.Bounds()
+		if bounds.Contains(pt) {
+			pt.Subtract(bounds.Point)
+			return child.WidgetAt(pt)
+		}
+	}
+	return b
+}
+
+// ToWindow implements the Widget interface.
+func (b *Block) ToWindow(pt Point) Point {
+	pt.Add(b.bounds.Point)
+	parent := b.parent
+	for parent != nil {
+		pt.Add(parent.Bounds().Point)
+		parent = parent.Parent()
+	}
+	return pt
+}
+
+// FromWindow implements the Widget interface.
+func (b *Block) FromWindow(pt Point) Point {
+	pt.Subtract(b.bounds.Point)
+	parent := b.parent
+	for parent != nil {
+		pt.Subtract(parent.Bounds().Point)
+		parent = parent.Parent()
+	}
+	return pt
+}
+
+// Background implements the Widget interface.
+func (b *Block) Background() Color {
+	return b.background
+}
+
+// SetBackground implements the Widget interface.
+func (b *Block) SetBackground(color Color) {
+	if color != b.background {
+		b.background = color
+		b.Repaint()
+	}
 }

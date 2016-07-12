@@ -13,22 +13,55 @@ import (
 	"math"
 )
 
-// FlowLayout lays out the children of its target left-to-right, then top-to-bottom at
+// FlowLayout lays out the children of its widget left-to-right, then top-to-bottom at
 // their preferred sizes, if possible.
 type FlowLayout struct {
-	// The intra-child spacing to use.
-	HGap, VGap float32
+	widget   Widget
+	hSpacing float32
+	vSpacing float32
 }
 
-// ComputeSizes implements the Layout interface.
-func (flow *FlowLayout) ComputeSizes(target *Block, hint Size) (min, pref, max Size) {
+// NewFlowLayout creates a new FlowLayout and sets it on the widget.
+func NewFlowLayout(widget Widget) *FlowLayout {
+	layout := &FlowLayout{widget: widget}
+	widget.SetLayout(layout)
+	return layout
+}
+
+// HorizontalSpacing returns the horizontal spacing between widgets.
+func (flow *FlowLayout) HorizontalSpacing() float32 {
+	return flow.hSpacing
+}
+
+// SetHorizontalSpacing sets the horizontal spacing between widgets.
+func (flow *FlowLayout) SetHorizontalSpacing(spacing float32) *FlowLayout {
+	flow.hSpacing = MaxFloat32(spacing, 0)
+	return flow
+}
+
+// VerticalSpacing returns the vertical spacing between rows.
+func (flow *FlowLayout) VerticalSpacing() float32 {
+	return flow.vSpacing
+}
+
+// SetVerticalSpacing sets the vertical spacing between rows.
+func (flow *FlowLayout) SetVerticalSpacing(spacing float32) *FlowLayout {
+	flow.vSpacing = MaxFloat32(spacing, 0)
+	return flow
+}
+
+// Sizes implements the Layout interface.
+func (flow *FlowLayout) Sizes(hint Size) (min, pref, max Size) {
+	var insets Insets
+	if border := flow.widget.Border(); border != nil {
+		insets = border.Insets()
+	}
 	if hint.Width < 0 {
 		hint.Width = math.MaxFloat32
 	}
 	if hint.Height < 0 {
 		hint.Height = math.MaxFloat32
 	}
-	insets := target.Insets()
 	width := hint.Width - (insets.Left + insets.Right)
 	pt := Point{X: insets.Left, Y: insets.Top}
 	result := Size{Width: pt.Y, Height: pt.Y}
@@ -37,8 +70,8 @@ func (flow *FlowLayout) ComputeSizes(target *Block, hint Size) (min, pref, max S
 	var maxHeight float32
 	var largestChildMin Size
 	noHint := Size{Width: NoLayoutHint, Height: NoLayoutHint}
-	for _, child := range target.Children() {
-		min, pref, _ := child.ComputeSizes(noHint)
+	for _, child := range flow.widget.Children() {
+		min, pref, _ := ComputeSizes(child, noHint)
 		if largestChildMin.Width < min.Width {
 			largestChildMin.Width = min.Width
 		}
@@ -52,9 +85,9 @@ func (flow *FlowLayout) ComputeSizes(target *Block, hint Size) (min, pref, max S
 				pref.Width = min.Width
 			} else {
 				pt.X = insets.Left
-				pt.Y += maxHeight + flow.VGap
+				pt.Y += maxHeight + flow.vSpacing
 				availWidth = width
-				availHeight -= maxHeight + flow.VGap
+				availHeight -= maxHeight + flow.vSpacing
 				maxHeight = 0
 				if pref.Width > availWidth {
 					if min.Width <= availWidth {
@@ -65,7 +98,7 @@ func (flow *FlowLayout) ComputeSizes(target *Block, hint Size) (min, pref, max S
 				}
 			}
 			savedWidth := pref.Width
-			min, pref, _ = child.ComputeSizes(Size{Width: pref.Width, Height: NoLayoutHint})
+			min, pref, _ = ComputeSizes(child, Size{Width: pref.Width, Height: NoLayoutHint})
 			pref.Width = savedWidth
 			if pref.Height > availHeight {
 				if min.Height <= availHeight {
@@ -86,15 +119,15 @@ func (flow *FlowLayout) ComputeSizes(target *Block, hint Size) (min, pref, max S
 		if maxHeight < pref.Height {
 			maxHeight = pref.Height
 		}
-		availWidth -= pref.Width + flow.HGap
+		availWidth -= pref.Width + flow.hSpacing
 		if availWidth <= 0 {
 			pt.X = insets.Left
-			pt.Y += maxHeight + flow.VGap
+			pt.Y += maxHeight + flow.vSpacing
 			availWidth = width
-			availHeight -= maxHeight + flow.VGap
+			availHeight -= maxHeight + flow.vSpacing
 			maxHeight = 0
 		} else {
-			pt.X += pref.Width + flow.HGap
+			pt.X += pref.Width + flow.hSpacing
 		}
 	}
 	result.Width += insets.Right
@@ -105,17 +138,20 @@ func (flow *FlowLayout) ComputeSizes(target *Block, hint Size) (min, pref, max S
 }
 
 // Layout implements the Layout interface.
-func (flow *FlowLayout) Layout(target *Block) {
-	insets := target.Insets()
-	size := target.Bounds().Size
+func (flow *FlowLayout) Layout() {
+	var insets Insets
+	if border := flow.widget.Border(); border != nil {
+		insets = border.Insets()
+	}
+	size := flow.widget.Bounds().Size
 	width := size.Width - (insets.Left + insets.Right)
 	pt := Point{X: insets.Left, Y: insets.Top}
 	availWidth := width
 	availHeight := size.Height - (insets.Top + insets.Bottom)
 	var maxHeight float32
 	noHint := Size{Width: NoLayoutHint, Height: NoLayoutHint}
-	for _, child := range target.Children() {
-		min, pref, _ := child.ComputeSizes(noHint)
+	for _, child := range flow.widget.Children() {
+		min, pref, _ := ComputeSizes(child, noHint)
 		if pref.Width > availWidth {
 			if min.Width <= availWidth {
 				pref.Width = availWidth
@@ -123,9 +159,9 @@ func (flow *FlowLayout) Layout(target *Block) {
 				pref.Width = min.Width
 			} else {
 				pt.X = insets.Left
-				pt.Y += maxHeight + flow.VGap
+				pt.Y += maxHeight + flow.vSpacing
 				availWidth = width
-				availHeight -= maxHeight + flow.VGap
+				availHeight -= maxHeight + flow.vSpacing
 				maxHeight = 0
 				if pref.Width > availWidth {
 					if min.Width <= availWidth {
@@ -136,7 +172,7 @@ func (flow *FlowLayout) Layout(target *Block) {
 				}
 			}
 			savedWidth := pref.Width
-			min, pref, _ = child.ComputeSizes(Size{Width: pref.Width, Height: NoLayoutHint})
+			min, pref, _ = ComputeSizes(child, Size{Width: pref.Width, Height: NoLayoutHint})
 			pref.Width = savedWidth
 			if pref.Height > availHeight {
 				if min.Height <= availHeight {
@@ -150,15 +186,15 @@ func (flow *FlowLayout) Layout(target *Block) {
 		if maxHeight < pref.Height {
 			maxHeight = pref.Height
 		}
-		availWidth -= pref.Width + flow.HGap
+		availWidth -= pref.Width + flow.hSpacing
 		if availWidth <= 0 {
 			pt.X = insets.Left
-			pt.Y += maxHeight + flow.VGap
+			pt.Y += maxHeight + flow.vSpacing
 			availWidth = width
-			availHeight -= maxHeight + flow.VGap
+			availHeight -= maxHeight + flow.vSpacing
 			maxHeight = 0
 		} else {
-			pt.X += pref.Width + flow.HGap
+			pt.X += pref.Width + flow.hSpacing
 		}
 	}
 }

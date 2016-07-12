@@ -45,8 +45,8 @@ func createButtonsWindow() {
 	wnd.SetTitle("Buttons")
 
 	root := wnd.RootBlock()
-	root.Border = ui.NewEmptyBorder(ui.Insets{Top: 10, Left: 10, Bottom: 10, Right: 10})
-	root.Layout = ui.NewPrecisionLayout().SetVerticalSpacing(10)
+	root.SetBorder(ui.NewEmptyBorder(ui.Insets{Top: 10, Left: 10, Bottom: 10, Right: 10}))
+	ui.NewPrecisionLayout(root).SetVerticalSpacing(10)
 
 	buttonsPanel := createButtonsPanel()
 	buttonsPanel.SetLayoutData(ui.NewPrecisionData().SetHorizontalGrab(true))
@@ -75,34 +75,46 @@ func createButtonsWindow() {
 	target := &scrollTarget{}
 	scrollbar := ui.NewScrollBar(false, target)
 	scrollbar.SetLayoutData(ui.NewPrecisionData().SetMinSize(ui.Size{Width: ui.NoLayoutHint, Height: 200}))
-	root.AddChild(&scrollbar.Block)
+	root.AddChild(scrollbar)
 
 	scrollbar = ui.NewScrollBar(true, target)
 	scrollbar.SetLayoutData(ui.NewPrecisionData().SetHorizontalAlignment(ui.AlignFill))
-	root.AddChild(&scrollbar.Block)
+	root.AddChild(scrollbar)
+
+	img, err := ui.AcquireImageFromURL("http://allwallpapersnew.com/wp-content/gallery/stock-photos-for-free/grassy_field_sunset___free_stock_by_kevron2001-d5blgkr.jpg")
+	if err == nil {
+		content := ui.NewImageLabel(img)
+		_, prefSize, _ := ui.ComputeSizes(content, ui.NoLayoutHintSize)
+		content.SetSize(prefSize)
+		scrollArea := ui.NewScrollArea(content)
+		scrollbar.SetLayoutData(ui.NewPrecisionData().SetHorizontalAlignment(ui.AlignFill).SetVerticalAlignment(ui.AlignFill).SetHorizontalGrab(true).SetVerticalGrab(true))
+		root.AddChild(scrollArea)
+	} else {
+		fmt.Println(err)
+	}
 
 	wnd.Pack()
 	wnd.ToFront()
 }
 
-func addSeparator(root *ui.Block) {
+func addSeparator(root ui.Widget) {
 	sep := ui.NewSeparator(true)
 	sep.SetLayoutData(ui.NewPrecisionData().SetHorizontalAlignment(ui.AlignFill))
-	root.AddChild(&sep.Block)
+	root.AddChild(sep)
 }
 
 func createButtonsPanel() *ui.Block {
 	panel := ui.NewBlock()
-	panel.Layout = &ui.FlowLayout{HGap: 5, VGap: 5}
+	ui.NewFlowLayout(panel).SetHorizontalSpacing(5).SetVerticalSpacing(5)
 
 	createButton("Press Me", panel)
 	createButton("Default", panel).SetFocused(true)
-	createButton("Disabled", panel).SetDisabled(true)
+	createButton("Disabled", panel).SetEnabled(false)
 
 	img, err := ui.AcquireImageFromFile(images.FS, "/home.png")
 	if err == nil {
 		createImageButton(img, "Home", panel)
-		createImageButton(img, "Home (disabled)", panel).SetDisabled(true)
+		createImageButton(img, "Home (disabled)", panel).SetEnabled(false)
 	} else {
 		fmt.Println(err)
 	}
@@ -110,7 +122,7 @@ func createButtonsPanel() *ui.Block {
 	img, err = ui.AcquireImageFromFile(images.FS, "/classic-apple-logo.png")
 	if err == nil {
 		createImageButton(img, "Classic Apple Logo", panel)
-		createImageButton(img, "Classic Apple Logo (disabled)", panel).SetDisabled(true)
+		createImageButton(img, "Classic Apple Logo (disabled)", panel).SetEnabled(false)
 	} else {
 		fmt.Println(err)
 	}
@@ -121,10 +133,9 @@ func createButtonsPanel() *ui.Block {
 func createButton(title string, panel *ui.Block) *ui.Button {
 	button := ui.NewButton(title)
 	button.OnClick = func() { fmt.Printf("The button '%s' was clicked.\n", title) }
-	button.OnToolTip = func(where ui.Point) string {
-		return fmt.Sprintf("This is the tooltip for the '%s' button.", title)
-	}
-	panel.AddChild(&button.Block)
+	button.SetToolTipHandler(ui.ToolTip("Test"))
+	button.SetToolTipHandler(ui.ToolTip(fmt.Sprintf("This is the tooltip for the '%s' button.", title)))
+	panel.AddChild(button)
 	return button
 }
 
@@ -134,19 +145,19 @@ func createImageButton(img *ui.Image, name string, panel *ui.Block) *ui.ImageBut
 	size.Height /= 2
 	button := ui.NewImageButtonWithImageSize(img, size)
 	button.OnClick = func() { fmt.Printf("The button '%s' was clicked.\n", name) }
-	button.OnToolTip = func(where ui.Point) string { return name }
-	panel.AddChild(&button.Block)
+	button.SetToolTipHandler(ui.ToolTip(name))
+	panel.AddChild(button)
 	return button
 }
 
 func createCheckBoxPanel() *ui.Block {
 	panel := ui.NewBlock()
-	panel.Layout = ui.NewPrecisionLayout()
+	ui.NewPrecisionLayout(panel)
 	createCheckBox("Press Me", panel)
 	createCheckBox("Initially Mixed", panel).SetState(ui.Mixed)
-	createCheckBox("Disabled", panel).SetDisabled(true)
+	createCheckBox("Disabled", panel).SetEnabled(false)
 	checkbox := createCheckBox("Disabled w/Check", panel)
-	checkbox.SetDisabled(true)
+	checkbox.SetEnabled(false)
 	checkbox.SetState(ui.Checked)
 	return panel
 }
@@ -154,21 +165,19 @@ func createCheckBoxPanel() *ui.Block {
 func createCheckBox(title string, panel *ui.Block) *ui.CheckBox {
 	checkbox := ui.NewCheckBox(title)
 	checkbox.OnClick = func() { fmt.Printf("The checkbox '%s' was clicked.\n", title) }
-	checkbox.OnToolTip = func(where ui.Point) string {
-		return fmt.Sprintf("This is the tooltip for the '%s' checkbox.", title)
-	}
-	panel.AddChild(&checkbox.Block)
+	checkbox.SetToolTipHandler(ui.ToolTip(fmt.Sprintf("This is the tooltip for the '%s' checkbox.", title)))
+	panel.AddChild(checkbox)
 	return checkbox
 }
 
 func createRadioButtonsPanel() *ui.Block {
 	panel := ui.NewBlock()
-	panel.Layout = ui.NewPrecisionLayout()
+	ui.NewPrecisionLayout(panel)
 
 	group := ui.NewRadioButtonGroup()
 	first := createRadioButton("First", panel, group)
 	createRadioButton("Second", panel, group)
-	createRadioButton("Third (disabled)", panel, group).SetDisabled(true)
+	createRadioButton("Third (disabled)", panel, group).SetEnabled(false)
 	createRadioButton("Fourth", panel, group)
 	group.Select(first)
 
@@ -178,29 +187,25 @@ func createRadioButtonsPanel() *ui.Block {
 func createRadioButton(title string, panel *ui.Block, group *ui.RadioButtonGroup) *ui.RadioButton {
 	rb := ui.NewRadioButton(title)
 	rb.OnClick = func() { fmt.Printf("The radio button '%s' was clicked.\n", title) }
-	rb.OnToolTip = func(where ui.Point) string {
-		return fmt.Sprintf("This is the tooltip for the '%s' radio button.", title)
-	}
-	panel.AddChild(&rb.Block)
+	rb.SetToolTipHandler(ui.ToolTip(fmt.Sprintf("This is the tooltip for the '%s' radio button.", title)))
+	panel.AddChild(rb)
 	group.Add(rb)
 	return rb
 }
 
 func createPopupMenusPanel() *ui.Block {
 	panel := ui.NewBlock()
-	panel.Layout = ui.NewPrecisionLayout()
+	ui.NewPrecisionLayout(panel)
 
 	createPopupMenu(panel, 1, "One", "Two", "Three", "", "Four", "Five", "Six")
-	createPopupMenu(panel, 2, "Red", "Blue", "Green").SetDisabled(true)
+	createPopupMenu(panel, 2, "Red", "Blue", "Green").SetEnabled(false)
 
 	return panel
 }
 
 func createPopupMenu(panel *ui.Block, selection int, titles ...string) *ui.PopupMenu {
 	p := ui.NewPopupMenu()
-	p.OnToolTip = func(where ui.Point) string {
-		return fmt.Sprintf("This is the tooltip for the PopupMenu with %d items.", len(titles))
-	}
+	p.SetToolTipHandler(ui.ToolTip(fmt.Sprintf("This is the tooltip for the PopupMenu with %d items.", len(titles))))
 	for _, title := range titles {
 		if title == "" {
 			p.AddSeparator()
@@ -212,7 +217,7 @@ func createPopupMenu(panel *ui.Block, selection int, titles ...string) *ui.Popup
 	p.OnSelection = func() {
 		fmt.Printf("The '%v' item was selected from the PopupMenu.\n", p.Selected())
 	}
-	panel.AddChild(&p.Block)
+	panel.AddChild(p)
 	return p
 }
 
@@ -222,15 +227,13 @@ func createAboutWindow(item *ui.MenuItem) {
 		aboutWindow.DidClose = func() { aboutWindow = nil }
 		aboutWindow.SetTitle("About " + ui.AppName())
 		root := aboutWindow.RootBlock()
-		root.Border = ui.NewEmptyBorder(ui.Insets{Top: 10, Left: 10, Bottom: 10, Right: 10})
-		root.Layout = ui.NewPrecisionLayout()
+		root.SetBorder(ui.NewEmptyBorder(ui.Insets{Top: 10, Left: 10, Bottom: 10, Right: 10}))
+		ui.NewPrecisionLayout(root)
 		title := ui.NewLabelWithFont(ui.AppName(), ui.AcquireFont(ui.EmphasizedSystemFontDesc))
-		ld := ui.NewPrecisionData()
-		ld.HorizontalAlignment = ui.AlignMiddle
-		title.SetLayoutData(ld)
-		root.AddChild(&title.Block)
+		title.SetLayoutData(ui.NewPrecisionData().SetHorizontalAlignment(ui.AlignMiddle))
+		root.AddChild(title)
 		desc := ui.NewLabel("Simple app to demonstrate the\ncapabilities of the ui framework.")
-		root.AddChild(&desc.Block)
+		root.AddChild(desc)
 		aboutWindow.Pack()
 	}
 	aboutWindow.ToFront()

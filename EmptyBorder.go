@@ -24,7 +24,7 @@ func (e *EmptyBorder) Insets() Insets {
 	return e.insets
 }
 
-// Paint implements the Border interface.
-func (e *EmptyBorder) Paint(g Graphics, bounds Rect) {
+// PaintBorder implements the Border interface.
+func (e *EmptyBorder) PaintBorder(g Graphics, bounds Rect) {
 	// Does nothing
 }

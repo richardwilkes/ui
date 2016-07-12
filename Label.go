@@ -26,25 +26,34 @@ func NewLabel(text string) *Label {
 // NewLabelWithFont creates a label with the specified text and font.
 func NewLabelWithFont(text string, font *Font) *Label {
 	label := &Label{}
-	label.Init(text, BlackColor, font, AlignStart)
+	label.text = text
+	label.foreground = BlackColor
+	label.font = font
+	label.alignment = AlignStart
+	label.SetSizer(label)
+	label.SetPaintHandler(label)
 	return label
 }
 
-// Init initializes the label.
-func (label *Label) Init(text string, foreground Color, font *Font, alignment Alignment) {
-	label.Block.Init()
-	label.text = text
-	label.foreground = foreground
-	label.font = font
-	label.alignment = alignment
-	label.OnPaint = func(g Graphics, dirty Rect) {
-		g.DrawAttributedTextConstrained(label.LocalInsetBounds(), label.attributedString(), TextModeFill)
+// Sizes implements Sizer
+func (label *Label) Sizes(hint Size) (min, pref, max Size) {
+	size, _ := label.attributedString().MeasureConstrained(hint)
+	if border := label.Border(); border != nil {
+		size.AddInsets(border.Insets())
 	}
-	label.Sizes = func(hint Size) (min, pref, max Size) {
-		insets := label.Insets()
-		size, _ := label.attributedString().MeasureConstrained(hint)
-		size.AddInsets(insets)
-		return size, size, size
+	return size, size, size
+}
+
+// OnPaint implements PaintHandler
+func (label *Label) OnPaint(g Graphics, dirty Rect) {
+	g.DrawAttributedTextConstrained(label.LocalInsetBounds(), label.attributedString(), TextModeFill)
+}
+
+// SetForeground sets the color used when drawing the text.
+func (label *Label) SetForeground(color Color) {
+	if label.foreground != color {
+		label.foreground = color
+		label.Repaint()
 	}
 }
 

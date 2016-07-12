@@ -23,105 +23,115 @@ type RadioButton struct {
 // NewRadioButton creates a new radio button with the specified title.
 func NewRadioButton(title string) *RadioButton {
 	button := &RadioButton{}
-	button.Init(title)
+	button.Title = title
+	button.Theme = StdRadioButtonTheme
+	button.SetSizer(button)
+	button.SetPaintHandler(button)
+	button.SetMouseDownHandler(button)
+	button.SetMouseDraggedHandler(button)
+	button.SetMouseUpHandler(button)
 	return button
 }
 
-// Init initializes the radio button.
-func (button *RadioButton) Init(title string) {
-	button.Block.Init()
-	button.Title = title
-	button.Theme = StdRadioButtonTheme
-	button.Sizes = func(hint Size) (min, pref, max Size) {
-		var size Size
-		box := button.Theme.Font.Ascent()
-		if button.Title != "" {
-			if hint.Width != NoLayoutHint {
-				hint.Width -= button.Theme.HorizontalGap + box
-				if hint.Width < 1 {
-					hint.Width = 1
-				}
+// Sizes implements Sizer
+func (button *RadioButton) Sizes(hint Size) (min, pref, max Size) {
+	var size Size
+	box := button.Theme.Font.Ascent()
+	if button.Title != "" {
+		if hint.Width != NoLayoutHint {
+			hint.Width -= button.Theme.HorizontalGap + box
+			if hint.Width < 1 {
+				hint.Width = 1
 			}
-			if hint.Height != NoLayoutHint {
-				if hint.Height < 1 {
-					hint.Height = 1
-				}
+		}
+		if hint.Height != NoLayoutHint {
+			if hint.Height < 1 {
+				hint.Height = 1
 			}
-			size, _ = button.attributedString().MeasureConstrained(hint)
-			size.Width += button.Theme.HorizontalGap + box
-			if size.Height < box {
-				size.Height = box
-			}
-		} else {
-			size.Width = box
+		}
+		size, _ = button.attributedString().MeasureConstrained(hint)
+		size.Width += button.Theme.HorizontalGap + box
+		if size.Height < box {
 			size.Height = box
 		}
-		insets := button.Insets()
-		size.AddInsets(insets)
-		return size, size, DefaultLayoutMaxSize(size)
+	} else {
+		size.Width = box
+		size.Height = box
 	}
-	button.OnMouseDown = func(where Point, keyModifiers int, which int, clickCount int) bool {
-		button.pressed = true
-		button.Repaint()
-		return false
+	if border := button.Border(); border != nil {
+		size.AddInsets(border.Insets())
 	}
-	button.OnMouseDragged = func(where Point, keyModifiers int) {
-		bounds := button.LocalInsetBounds()
-		pressed := bounds.Contains(where)
-		if button.pressed != pressed {
-			button.pressed = pressed
-			button.Repaint()
-		}
+	return size, size, DefaultLayoutMaxSize(size)
+}
+
+// OnPaint implements PaintHandler
+func (button *RadioButton) OnPaint(g Graphics, dirty Rect) {
+	box := button.Theme.Font.Ascent()
+	bounds := button.LocalInsetBounds()
+	bounds.Width = box
+	bounds.Y += (bounds.Height - box) / 2
+	bounds.Height = box
+	path := NewPath()
+	path.Ellipse(bounds)
+	g.AddPath(path)
+	g.Save()
+	g.Clip()
+	base := button.BaseBackground()
+	if button.Enabled() {
+		g.DrawLinearGradient(button.Theme.Gradient(base), bounds.X+bounds.Width/2, bounds.Y+1, bounds.X+bounds.Width/2, bounds.Y+bounds.Height-1)
+	} else {
+		g.SetFillColor(BackgroundColor)
+		g.FillRect(bounds)
 	}
-	button.OnMouseUp = func(where Point, keyModifiers int) {
-		button.pressed = false
-		button.SetSelected(true)
-		button.Repaint()
-		if button.OnClick != nil {
-			bounds := button.LocalInsetBounds()
-			if bounds.Contains(where) {
-				button.OnClick()
-			}
-		}
-	}
-	button.OnPaint = func(g Graphics, dirty Rect) {
-		box := button.Theme.Font.Ascent()
-		bounds := button.LocalInsetBounds()
-		bounds.Width = box
-		bounds.Y += (bounds.Height - box) / 2
-		bounds.Height = box
-		path := NewPath()
-		path.Ellipse(bounds)
-		g.AddPath(path)
-		g.Save()
-		g.Clip()
-		base := button.BaseBackground()
+	g.AddPath(path)
+	c := base.AdjustBrightness(button.Theme.OutlineAdjustment)
+	g.SetStrokeColor(c)
+	g.StrokePath()
+	g.Restore()
+	if button.selected {
+		bounds.InsetUniform(0.2 * box)
 		if button.Enabled() {
-			g.DrawLinearGradient(button.Theme.Gradient(base), bounds.X+bounds.Width/2, bounds.Y+1, bounds.X+bounds.Width/2, bounds.Y+bounds.Height-1)
-		} else {
-			g.SetFillColor(BackgroundColor)
-			g.FillRect(bounds)
+			c = KeyboardFocusColor
 		}
-		g.AddPath(path)
-		c := base.AdjustBrightness(button.Theme.OutlineAdjustment)
-		g.SetStrokeColor(c)
-		g.StrokePath()
-		g.Restore()
-		if button.selected {
-			bounds.InsetUniform(0.2 * box)
-			if button.Enabled() {
-				c = KeyboardFocusColor
-			}
-			g.SetFillColor(c)
-			g.FillEllipse(bounds)
+		g.SetFillColor(c)
+		g.FillEllipse(bounds)
+	}
+	if button.Title != "" {
+		bounds = button.LocalInsetBounds()
+		bounds.X += box + button.Theme.HorizontalGap
+		bounds.Width -= box + button.Theme.HorizontalGap
+		if bounds.Width > 0 {
+			g.DrawAttributedTextConstrained(bounds, button.attributedString(), TextModeFill)
 		}
-		if button.Title != "" {
-			bounds = button.LocalInsetBounds()
-			bounds.X += box + button.Theme.HorizontalGap
-			bounds.Width -= box + button.Theme.HorizontalGap
-			if bounds.Width > 0 {
-				g.DrawAttributedTextConstrained(bounds, button.attributedString(), TextModeFill)
-			}
+	}
+}
+
+// OnMouseDown implements MouseDownHandler
+func (button *RadioButton) OnMouseDown(where Point, keyModifiers int, which int, clickCount int) bool {
+	button.pressed = true
+	button.Repaint()
+	return false
+}
+
+// OnMouseDragged implements MouseDraggedHandler
+func (button *RadioButton) OnMouseDragged(where Point, keyModifiers int) {
+	bounds := button.LocalInsetBounds()
+	pressed := bounds.Contains(where)
+	if button.pressed != pressed {
+		button.pressed = pressed
+		button.Repaint()
+	}
+}
+
+// OnMouseUp implements MouseUpHandler
+func (button *RadioButton) OnMouseUp(where Point, keyModifiers int) {
+	button.pressed = false
+	button.SetSelected(true)
+	button.Repaint()
+	if button.OnClick != nil {
+		bounds := button.LocalInsetBounds()
+		if bounds.Contains(where) {
+			button.OnClick()
 		}
 	}
 }
@@ -129,7 +139,7 @@ func (button *RadioButton) Init(title string) {
 // BaseBackground returns this button's current base background color.
 func (button *RadioButton) BaseBackground() Color {
 	switch {
-	case button.Disabled():
+	case !button.Enabled():
 		return button.Theme.Background.AdjustBrightness(button.Theme.DisabledAdjustment)
 	case button.pressed:
 		return button.Theme.BackgroundWhenPressed
@@ -142,10 +152,10 @@ func (button *RadioButton) BaseBackground() Color {
 
 // TextColor returns this button's current text color.
 func (button *RadioButton) TextColor() Color {
-	if button.Disabled() {
-		return button.Theme.TextWhenDisabled
+	if button.Enabled() {
+		return button.Theme.TextWhenLight
 	}
-	return button.Theme.TextWhenLight
+	return button.Theme.TextWhenDisabled
 }
 
 func (button *RadioButton) attributedString() *AttributedString {

@@ -18,58 +18,60 @@ type Separator struct {
 // NewSeparator creates a new separator.
 func NewSeparator(horizontal bool) *Separator {
 	sep := &Separator{}
-	sep.Init(horizontal)
+	sep.horizontal = horizontal
+	sep.SetSizer(sep)
+	sep.SetPaintHandler(sep)
 	return sep
 }
 
-// Init initializes the separator.
-func (sep *Separator) Init(horizontal bool) {
-	sep.Block.Init()
-	sep.horizontal = horizontal
-	sep.Sizes = func(hint Size) (min, pref, max Size) {
-		if sep.horizontal {
-			if hint.Width == NoLayoutHint {
-				pref.Width = 1
-			} else {
-				pref.Width = hint.Width
-			}
-			min.Width = 1
-			max.Width = DefaultLayoutMax
-			min.Height = 1
-			pref.Height = 1
-			max.Height = 1
-		} else {
-			if hint.Height == NoLayoutHint {
-				pref.Height = 1
-			} else {
-				pref.Height = hint.Height
-			}
-			min.Height = 1
-			max.Height = DefaultLayoutMax
-			min.Width = 1
+// Sizes implements Sizer
+func (sep *Separator) Sizes(hint Size) (min, pref, max Size) {
+	if sep.horizontal {
+		if hint.Width == NoLayoutHint {
 			pref.Width = 1
-			max.Width = 1
+		} else {
+			pref.Width = hint.Width
 		}
-		insets := sep.Insets()
+		min.Width = 1
+		max.Width = DefaultLayoutMax
+		min.Height = 1
+		pref.Height = 1
+		max.Height = 1
+	} else {
+		if hint.Height == NoLayoutHint {
+			pref.Height = 1
+		} else {
+			pref.Height = hint.Height
+		}
+		min.Height = 1
+		max.Height = DefaultLayoutMax
+		min.Width = 1
+		pref.Width = 1
+		max.Width = 1
+	}
+	if border := sep.Border(); border != nil {
+		insets := border.Insets()
 		min.AddInsets(insets)
 		pref.AddInsets(insets)
 		max.AddInsets(insets)
-		return min, pref, max
 	}
-	sep.OnPaint = func(g Graphics, dirty Rect) {
-		bounds := sep.LocalInsetBounds()
-		if sep.horizontal {
-			if bounds.Height > 1 {
-				bounds.Y += (bounds.Height - 1) / 2
-				bounds.Height = 1
-			}
-		} else {
-			if bounds.Width > 1 {
-				bounds.X += (bounds.Width - 1) / 2
-				bounds.Width = 1
-			}
+	return min, pref, max
+}
+
+// OnPaint implements PaintHandler
+func (sep *Separator) OnPaint(g Graphics, dirty Rect) {
+	bounds := sep.LocalInsetBounds()
+	if sep.horizontal {
+		if bounds.Height > 1 {
+			bounds.Y += (bounds.Height - 1) / 2
+			bounds.Height = 1
 		}
-		g.SetFillColor(BackgroundColor.AdjustBrightness(-0.25))
-		g.FillRect(bounds)
+	} else {
+		if bounds.Width > 1 {
+			bounds.X += (bounds.Width - 1) / 2
+			bounds.Width = 1
+		}
 	}
+	g.SetFillColor(BackgroundColor.AdjustBrightness(-0.25))
+	g.FillRect(bounds)
 }

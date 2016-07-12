@@ -12,5 +12,5 @@ package ui
 // The Border interface should be implemented by objects that provide a border around an area.
 type Border interface {
 	Insets() Insets
-	Paint(g Graphics, bounds Rect)
+	PaintBorder(g Graphics, bounds Rect)
 }

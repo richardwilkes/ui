@@ -29,11 +29,11 @@ func (c *CompoundBorder) Insets() Insets {
 	return insets
 }
 
-// Paint implements the Border interface.
-func (c *CompoundBorder) Paint(g Graphics, bounds Rect) {
+// PaintBorder implements the Border interface.
+func (c *CompoundBorder) PaintBorder(g Graphics, bounds Rect) {
 	for _, one := range c.borders {
 		g.Save()
-		one.Paint(g, bounds)
+		one.PaintBorder(g, bounds)
 		g.Restore()
 		bounds.Inset(one.Insets())
 	}

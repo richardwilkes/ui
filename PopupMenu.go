@@ -28,88 +28,91 @@ type separationMarker struct {
 // NewPopupMenu creates a new PopupMenu.
 func NewPopupMenu() *PopupMenu {
 	pm := &PopupMenu{}
-	pm.Init()
+	pm.selectedIndex = -1
+	pm.Theme = StdPopupMenuTheme
+	pm.SetSizer(pm)
+	pm.SetPaintHandler(pm)
+	pm.SetMouseDownHandler(pm)
 	return pm
 }
 
-// Init initializes the PopupMenu.
-func (pm *PopupMenu) Init() {
-	pm.Block.Init()
-	pm.selectedIndex = -1
-	pm.Theme = StdPopupMenuTheme
-	pm.Sizes = func(hint Size) (min, pref, max Size) {
-		var hSpace = pm.Theme.HorizontalMargin*3 + 2
-		var vSpace = pm.Theme.VerticalMargin*2 + 2
-		if hint.Width != NoLayoutHint {
-			hint.Width -= hSpace
-			if hint.Width < pm.Theme.MinimumTextWidth {
-				hint.Width = pm.Theme.MinimumTextWidth
-			}
+// Sizes implements Sizer
+func (pm *PopupMenu) Sizes(hint Size) (min, pref, max Size) {
+	var hSpace = pm.Theme.HorizontalMargin*3 + 2
+	var vSpace = pm.Theme.VerticalMargin*2 + 2
+	if hint.Width != NoLayoutHint {
+		hint.Width -= hSpace
+		if hint.Width < pm.Theme.MinimumTextWidth {
+			hint.Width = pm.Theme.MinimumTextWidth
 		}
-		if hint.Height != NoLayoutHint {
-			hint.Height -= vSpace
-			if hint.Height < 1 {
-				hint.Height = 1
-			}
-		}
-		size := pm.measureConstrained(hint)
-		size.Width += hSpace + size.Height*0.75
-		size.Height += vSpace
-		insets := pm.Insets()
-		size.AddInsets(insets)
-		return size, size, DefaultLayoutMaxSize(size)
 	}
-	pm.OnMouseDown = func(where Point, keyModifiers int, which int, clickCount int) bool {
-		hasItem := false
-		menu := NewMenu("")
-		defer menu.Dispose()
-		for i := range pm.items {
-			if pm.addItemToMenu(menu, i) {
-				hasItem = true
-			}
+	if hint.Height != NoLayoutHint {
+		hint.Height -= vSpace
+		if hint.Height < 1 {
+			hint.Height = 1
 		}
-		if hasItem {
-			menu.Popup(&pm.Block, pm.LocalInsetBounds().Point, menu.Item(pm.selectedIndex))
-		}
-		return hasItem
+	}
+	size := pm.measureConstrained(hint)
+	size.Width += hSpace + size.Height*0.75
+	size.Height += vSpace
+	if border := pm.Border(); border != nil {
+		size.AddInsets(border.Insets())
+	}
+	return size, size, DefaultLayoutMaxSize(size)
+}
 
+// OnPaint implements PaintHandler
+func (pm *PopupMenu) OnPaint(g Graphics, dirty Rect) {
+	var hSpace = pm.Theme.HorizontalMargin*2 + 2
+	var vSpace = pm.Theme.VerticalMargin*2 + 2
+	bounds := pm.LocalInsetBounds()
+	path := NewPath()
+	path.MoveTo(bounds.X, bounds.Y+pm.Theme.CornerRadius)
+	path.QuadCurveTo(bounds.X, bounds.Y, bounds.X+pm.Theme.CornerRadius, bounds.Y)
+	path.LineTo(bounds.X+bounds.Width-pm.Theme.CornerRadius, bounds.Y)
+	path.QuadCurveTo(bounds.X+bounds.Width, bounds.Y, bounds.X+bounds.Width, bounds.Y+pm.Theme.CornerRadius)
+	path.LineTo(bounds.X+bounds.Width, bounds.Y+bounds.Height-pm.Theme.CornerRadius)
+	path.QuadCurveTo(bounds.X+bounds.Width, bounds.Y+bounds.Height, bounds.X+bounds.Width-pm.Theme.CornerRadius, bounds.Y+bounds.Height)
+	path.LineTo(bounds.X+pm.Theme.CornerRadius, bounds.Y+bounds.Height)
+	path.QuadCurveTo(bounds.X, bounds.Y+bounds.Height, bounds.X, bounds.Y+bounds.Height-pm.Theme.CornerRadius)
+	path.ClosePath()
+	g.AddPath(path)
+	g.Clip()
+	base := pm.BaseBackground()
+	g.DrawLinearGradient(pm.Theme.Gradient(base), bounds.X+bounds.Width/2, bounds.Y+1, bounds.X+bounds.Width/2, bounds.Y+bounds.Height-1)
+	g.AddPath(path)
+	g.SetStrokeColor(base.AdjustBrightness(pm.Theme.OutlineAdjustment))
+	g.StrokePath()
+	triWidth := (bounds.Height*0.75 - vSpace)
+	triHeight := triWidth / 2
+	g.BeginPath()
+	g.MoveTo(bounds.X+bounds.Width-pm.Theme.HorizontalMargin, bounds.Y+(bounds.Height-triHeight)/2)
+	g.LineTo(bounds.X+bounds.Width-pm.Theme.HorizontalMargin-triWidth, bounds.Y+(bounds.Height-triHeight)/2)
+	g.LineTo(bounds.X+bounds.Width-pm.Theme.HorizontalMargin-triWidth/2, bounds.Y+(bounds.Height-triHeight)/2+triHeight)
+	g.ClosePath()
+	g.SetFillColor(pm.TextColor())
+	g.FillPath()
+	bounds.X += pm.Theme.HorizontalMargin + 1
+	bounds.Y += pm.Theme.VerticalMargin + 1
+	bounds.Height -= vSpace
+	bounds.Width -= hSpace + bounds.Height
+	g.DrawAttributedTextConstrained(bounds, pm.attributedString(), TextModeFill)
+}
+
+// OnMouseDown implements MouseDownHandler
+func (pm *PopupMenu) OnMouseDown(where Point, keyModifiers int, which int, clickCount int) bool {
+	hasItem := false
+	menu := NewMenu("")
+	defer menu.Dispose()
+	for i := range pm.items {
+		if pm.addItemToMenu(menu, i) {
+			hasItem = true
+		}
 	}
-	pm.OnPaint = func(g Graphics, dirty Rect) {
-		var hSpace = pm.Theme.HorizontalMargin*2 + 2
-		var vSpace = pm.Theme.VerticalMargin*2 + 2
-		bounds := pm.LocalInsetBounds()
-		path := NewPath()
-		path.MoveTo(bounds.X, bounds.Y+pm.Theme.CornerRadius)
-		path.QuadCurveTo(bounds.X, bounds.Y, bounds.X+pm.Theme.CornerRadius, bounds.Y)
-		path.LineTo(bounds.X+bounds.Width-pm.Theme.CornerRadius, bounds.Y)
-		path.QuadCurveTo(bounds.X+bounds.Width, bounds.Y, bounds.X+bounds.Width, bounds.Y+pm.Theme.CornerRadius)
-		path.LineTo(bounds.X+bounds.Width, bounds.Y+bounds.Height-pm.Theme.CornerRadius)
-		path.QuadCurveTo(bounds.X+bounds.Width, bounds.Y+bounds.Height, bounds.X+bounds.Width-pm.Theme.CornerRadius, bounds.Y+bounds.Height)
-		path.LineTo(bounds.X+pm.Theme.CornerRadius, bounds.Y+bounds.Height)
-		path.QuadCurveTo(bounds.X, bounds.Y+bounds.Height, bounds.X, bounds.Y+bounds.Height-pm.Theme.CornerRadius)
-		path.ClosePath()
-		g.AddPath(path)
-		g.Clip()
-		base := pm.BaseBackground()
-		g.DrawLinearGradient(pm.Theme.Gradient(base), bounds.X+bounds.Width/2, bounds.Y+1, bounds.X+bounds.Width/2, bounds.Y+bounds.Height-1)
-		g.AddPath(path)
-		g.SetStrokeColor(base.AdjustBrightness(pm.Theme.OutlineAdjustment))
-		g.StrokePath()
-		triWidth := (bounds.Height*0.75 - vSpace)
-		triHeight := triWidth / 2
-		g.BeginPath()
-		g.MoveTo(bounds.X+bounds.Width-pm.Theme.HorizontalMargin, bounds.Y+(bounds.Height-triHeight)/2)
-		g.LineTo(bounds.X+bounds.Width-pm.Theme.HorizontalMargin-triWidth, bounds.Y+(bounds.Height-triHeight)/2)
-		g.LineTo(bounds.X+bounds.Width-pm.Theme.HorizontalMargin-triWidth/2, bounds.Y+(bounds.Height-triHeight)/2+triHeight)
-		g.ClosePath()
-		g.SetFillColor(pm.TextColor())
-		g.FillPath()
-		bounds.X += pm.Theme.HorizontalMargin + 1
-		bounds.Y += pm.Theme.VerticalMargin + 1
-		bounds.Height -= vSpace
-		bounds.Width -= hSpace + bounds.Height
-		g.DrawAttributedTextConstrained(bounds, pm.attributedString(), TextModeFill)
+	if hasItem {
+		menu.Popup(pm, pm.LocalInsetBounds().Point, menu.Item(pm.selectedIndex))
 	}
+	return hasItem
 }
 
 func (pm *PopupMenu) addItemToMenu(menu *Menu, index int) bool {
@@ -203,7 +206,7 @@ func (pm *PopupMenu) SelectIndex(index int) {
 // BaseBackground returns this popup menu's current base background color.
 func (pm *PopupMenu) BaseBackground() Color {
 	switch {
-	case pm.Disabled():
+	case !pm.Enabled():
 		return pm.Theme.Background.AdjustBrightness(pm.Theme.DisabledAdjustment)
 	case pm.Focused():
 		return pm.Theme.Background.Blend(KeyboardFocusColor, 0.5)
@@ -214,7 +217,7 @@ func (pm *PopupMenu) BaseBackground() Color {
 
 // TextColor returns this popup menu's current text color.
 func (pm *PopupMenu) TextColor() Color {
-	if pm.Disabled() {
+	if !pm.Enabled() {
 		return pm.Theme.TextWhenDisabled
 	}
 	if pm.BaseBackground().Luminance() > 0.65 {

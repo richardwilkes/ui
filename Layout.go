@@ -31,14 +31,18 @@ const (
 // Alignment specifies how to align an object within its available space.
 type Alignment uint8
 
+// Sizer is called when no layout has been set for a widget. Returns the minimum, preferred, and
+// maximum sizes of the widget. The hint's values will be either NoLayoutHint or a specific value
+// if that particular dimension has already been determined.
+type Sizer interface {
+	Sizes(hint Size) (min, pref, max Size)
+}
+
 // The Layout interface should be implemented by objects that provide layout services.
 type Layout interface {
-	// ComputeSizes returns the minimum, preferred, and maximum sizes of the target. The hint's
-	// values will be either NoLayoutHint or a specific value if that particular dimension has already
-	// been determined.
-	ComputeSizes(target *Block, hint Size) (min, pref, max Size)
+	Sizer
 	// Layout is called to layout the target and its children.
-	Layout(target *Block)
+	Layout()
 }
 
 var (
@@ -51,4 +55,18 @@ var (
 // larger if the preferred size that is passed in is larger.
 func DefaultLayoutMaxSize(pref Size) Size {
 	return Size{Width: MaxFloat32(DefaultLayoutMax, pref.Width), Height: MaxFloat32(DefaultLayoutMax, pref.Height)}
+}
+
+// ComputeSizes returns the minimum, preferred, and maximum sizes 'widget' wishes to be. It does
+// this by asking the widget's Layout. If no Layout is present, then the widget's Sizer is asked.
+// If no Sizer is present, then it finally uses a default set of sizes that are used for all
+// components.
+func ComputeSizes(widget Widget, hint Size) (min, pref, max Size) {
+	if l := widget.Layout(); l != nil {
+		return l.Sizes(hint)
+	}
+	if s := widget.Sizer(); s != nil {
+		return s.Sizes(hint)
+	}
+	return Size{}, Size{}, DefaultLayoutMaxSize(Size{})
 }

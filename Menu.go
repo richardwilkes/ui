@@ -108,9 +108,9 @@ func (menu *Menu) AddSeparator() {
 
 // Popup shows the menu at the specified location. If itemAtLocation is specified, it also tries to
 // position the menu such that the specified menu item is at that location.
-func (menu *Menu) Popup(block *Block, where Point, itemAtLocation *MenuItem) {
-	where = block.ToWindow(where)
-	C.uiPopupMenu(block.Window().window, menu.menu, C.float(where.X), C.float(where.Y), itemAtLocation.item)
+func (menu *Menu) Popup(widget Widget, where Point, itemAtLocation *MenuItem) {
+	where = widget.ToWindow(where)
+	C.uiPopupMenu(widget.Window().window, menu.menu, C.float(where.X), C.float(where.Y), itemAtLocation.item)
 }
 
 // Dispose of the Menu, releasing any operating system resources it consumed.

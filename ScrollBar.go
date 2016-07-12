@@ -20,16 +20,21 @@ const (
 
 type scrollBarPart int
 
+// Pager objects can provide line and page information for scrolling.
+type Pager interface {
+	// LineScrollAmount is called to determine how far to scroll in the given direction to reveal
+	// a full 'line' of content. A positive value should be returned regardless of the direction,
+	// although negative values will behave as if they were positive.
+	LineScrollAmount(horizontal, towardsStart bool) float32
+	// PageScrollAmount is called to determine how far to scroll in the given direction to reveal
+	// a full 'page' of content. A positive value should be returned regardless of the direction,
+	// although negative values will behave as if they were positive.
+	PageScrollAmount(horizontal, towardsStart bool) float32
+}
+
 // Scrollable objects can respond to ScrollBars.
 type Scrollable interface {
-	// LineScrollAmount is called to determine how far the Scrollable should be scrolled in the
-	// given direction to reveal a full 'line' of content. A positive value should be returned
-	// regardless of the direction, although negative values will behave as if they were positive.
-	LineScrollAmount(horizontal, towardsStart bool) float32
-	// PageScrollAmount is called to determine how far the Scrollable should be scrolled in the
-	// given direction to reveal a full 'page' of content. A positive value should be returned
-	// regardless of the direction, although negative values will behave as if they were positive.
-	PageScrollAmount(horizontal, towardsStart bool) float32
+	Pager
 	// ScrolledPosition is called to determine the current position of the Scrollable.
 	ScrolledPosition(horizontal bool) float32
 	// SetScrolledPosition is called to set the current position of the Scrollable.
@@ -54,94 +59,109 @@ type ScrollBar struct {
 // NewScrollBar creates a new scrollbar.
 func NewScrollBar(horizontal bool, target Scrollable) *ScrollBar {
 	sb := &ScrollBar{}
-	sb.Init(horizontal, target)
-	return sb
-}
-
-// Init initializes the scrollbar.
-func (sb *ScrollBar) Init(horizontal bool, target Scrollable) {
-	sb.Block.Init()
 	sb.Theme = StdScrollBarTheme
 	sb.Target = target
 	sb.horizontal = horizontal
-	sb.Sizes = func(hint Size) (min, pref, max Size) {
-		if sb.horizontal {
-			min.Width = sb.Theme.Size * 2
-			min.Height = sb.Theme.Size
-			pref.Width = sb.Theme.Size * 2
-			pref.Height = sb.Theme.Size
-			max.Width = DefaultLayoutMax
-			max.Height = sb.Theme.Size
-		} else {
-			min.Width = sb.Theme.Size
-			min.Height = sb.Theme.Size * 2
-			pref.Width = sb.Theme.Size
-			pref.Height = sb.Theme.Size * 2
-			max.Width = sb.Theme.Size
-			max.Height = DefaultLayoutMax
-		}
-		return min, pref, max
+	sb.SetSizer(sb)
+	sb.SetPaintHandler(sb)
+	sb.SetMouseDownHandler(sb)
+	sb.SetMouseDraggedHandler(sb)
+	sb.SetMouseUpHandler(sb)
+	return sb
+}
+
+// Sizes implements the Sizer interface.
+func (sb *ScrollBar) Sizes(hint Size) (min, pref, max Size) {
+	if sb.horizontal {
+		min.Width = sb.Theme.Size * 2
+		min.Height = sb.Theme.Size
+		pref.Width = sb.Theme.Size * 2
+		pref.Height = sb.Theme.Size
+		max.Width = DefaultLayoutMax
+		max.Height = sb.Theme.Size
+	} else {
+		min.Width = sb.Theme.Size
+		min.Height = sb.Theme.Size * 2
+		pref.Width = sb.Theme.Size
+		pref.Height = sb.Theme.Size * 2
+		max.Width = sb.Theme.Size
+		max.Height = DefaultLayoutMax
 	}
-	sb.OnMouseDown = func(where Point, keyModifiers int, which int, clickCount int) bool {
-		sb.sequence++
-		part := sb.over(where)
-		if sb.partEnabled(part) {
-			sb.pressed = part
-			switch part {
-			case scrollBarThumb:
-				if sb.horizontal {
-					sb.thumbDown = where.X - sb.partRect(part).X
-				} else {
-					sb.thumbDown = where.Y - sb.partRect(part).Y
-				}
-			case scrollBarLineUp, scrollBarLineDown, scrollBarPageUp, scrollBarPageDown:
-				sb.scheduleRepeat(part)
-			}
-			sb.Repaint()
-		}
-		return false
+	if border := sb.Border(); border != nil {
+		insets := border.Insets()
+		min.AddInsets(insets)
+		pref.AddInsets(insets)
+		max.AddInsets(insets)
 	}
-	sb.OnMouseDragged = func(where Point, keyModifiers int) {
-		if sb.pressed == scrollBarThumb {
-			var pos float32
-			rect := sb.partRect(scrollBarLineUp)
+	return min, pref, max
+}
+
+// OnPaint implements PaintHandler
+func (sb *ScrollBar) OnPaint(g Graphics, dirty Rect) {
+	bounds := sb.LocalInsetBounds()
+	bgColor := sb.baseBackground(scrollBarNone)
+	g.SetFillColor(bgColor)
+	g.FillRect(bounds)
+	g.SetStrokeColor(bgColor.AdjustBrightness(sb.Theme.OutlineAdjustment))
+	g.StrokeRect(bounds)
+	sb.drawLineButton(g, scrollBarLineUp)
+	sb.drawLineButton(g, scrollBarLineDown)
+	if sb.pressed == scrollBarPageUp || sb.pressed == scrollBarPageDown {
+		bounds = sb.partRect(sb.pressed)
+		if !bounds.IsEmpty() {
 			if sb.horizontal {
-				pos = where.X - (sb.thumbDown + rect.X + rect.Width - 1)
+				bounds.Y++
+				bounds.Height -= 2
 			} else {
-				pos = where.Y - (sb.thumbDown + rect.Y + rect.Height - 1)
+				bounds.X++
+				bounds.Width -= 2
 			}
-			sb.SetScrolledPosition(pos / sb.thumbScale())
+			g.SetFillColor(sb.baseBackground(sb.pressed))
+			g.FillRect(bounds)
 		}
 	}
-	sb.OnMouseUp = func(where Point, keyModifiers int) {
-		sb.pressed = scrollBarNone
+	sb.drawThumb(g)
+}
+
+// OnMouseDown implements MouseDownHandler
+func (sb *ScrollBar) OnMouseDown(where Point, keyModifiers int, which int, clickCount int) bool {
+	sb.sequence++
+	part := sb.over(where)
+	if sb.partEnabled(part) {
+		sb.pressed = part
+		switch part {
+		case scrollBarThumb:
+			if sb.horizontal {
+				sb.thumbDown = where.X - sb.partRect(part).X
+			} else {
+				sb.thumbDown = where.Y - sb.partRect(part).Y
+			}
+		case scrollBarLineUp, scrollBarLineDown, scrollBarPageUp, scrollBarPageDown:
+			sb.scheduleRepeat(part)
+		}
 		sb.Repaint()
 	}
-	sb.OnPaint = func(g Graphics, dirty Rect) {
-		bounds := sb.LocalInsetBounds()
-		bgColor := sb.baseBackground(scrollBarNone)
-		g.SetFillColor(bgColor)
-		g.FillRect(bounds)
-		g.SetStrokeColor(bgColor.AdjustBrightness(sb.Theme.OutlineAdjustment))
-		g.StrokeRect(bounds)
-		sb.drawLineButton(g, scrollBarLineUp)
-		sb.drawLineButton(g, scrollBarLineDown)
-		if sb.pressed == scrollBarPageUp || sb.pressed == scrollBarPageDown {
-			bounds = sb.partRect(sb.pressed)
-			if !bounds.IsEmpty() {
-				if sb.horizontal {
-					bounds.Y++
-					bounds.Height -= 2
-				} else {
-					bounds.X++
-					bounds.Width -= 2
-				}
-				g.SetFillColor(sb.baseBackground(sb.pressed))
-				g.FillRect(bounds)
-			}
+	return false
+}
+
+// OnMouseDragged implements MouseDraggedHandler
+func (sb *ScrollBar) OnMouseDragged(where Point, keyModifiers int) {
+	if sb.pressed == scrollBarThumb {
+		var pos float32
+		rect := sb.partRect(scrollBarLineUp)
+		if sb.horizontal {
+			pos = where.X - (sb.thumbDown + rect.X + rect.Width - 1)
+		} else {
+			pos = where.Y - (sb.thumbDown + rect.Y + rect.Height - 1)
 		}
-		sb.drawThumb(g)
+		sb.SetScrolledPosition(pos / sb.thumbScale())
 	}
+}
+
+// OnMouseUp implements MouseUpHandler
+func (sb *ScrollBar) OnMouseUp(where Point, keyModifiers int) {
+	sb.pressed = scrollBarNone
+	sb.Repaint()
 }
 
 func (sb *ScrollBar) scheduleRepeat(part scrollBarPart) {
@@ -330,7 +350,7 @@ func (sb *ScrollBar) drawThumb(g Graphics) {
 					full.Height = visible
 					middle := full.Y + full.Height/2
 					g.ClipRect(full)
-					g.DrawLinearGradient(sb.Theme.Gradient(bgColor), full.X+full.Width/2, full.Y, full.X+full.Width/2, full.Y+full.Height-1)
+					g.DrawLinearGradient(sb.Theme.Gradient(bgColor), full.X, full.Y+full.Height/2, full.X+full.Width-1, full.Y+full.Height/2)
 					g.Restore()
 					g.SetStrokeColor(bgColor.AdjustBrightness(sb.Theme.OutlineAdjustment))
 					g.StrokeLine(full.X-1, full.Y, full.X+full.Width, full.Y)
@@ -391,7 +411,7 @@ func (sb *ScrollBar) drawLineButton(g Graphics, linePart scrollBarPart) {
 
 func (sb *ScrollBar) baseBackground(part scrollBarPart) Color {
 	switch {
-	case sb.Disabled():
+	case !sb.Enabled():
 		return sb.Theme.Background.AdjustBrightness(sb.Theme.DisabledAdjustment)
 	case part != scrollBarNone && sb.pressed == part:
 		return sb.Theme.BackgroundWhenPressed

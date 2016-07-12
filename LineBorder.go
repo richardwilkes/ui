@@ -26,8 +26,8 @@ func (line *LineBorder) Insets() Insets {
 	return line.insets
 }
 
-// Paint implements the Border interface.
-func (line *LineBorder) Paint(g Graphics, bounds Rect) {
+// PaintBorder implements the Border interface.
+func (line *LineBorder) PaintBorder(g Graphics, bounds Rect) {
 	clip := bounds
 	clip.Inset(line.insets)
 	g.Save()
