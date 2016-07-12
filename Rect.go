@@ -19,6 +19,17 @@ type Rect struct {
 	Size
 }
 
+// Align modifies this rectangle to align with integer coordinates that would encompass the
+// original rectangle.
+func (r *Rect) Align() {
+	x := FloorFloat32(r.X)
+	r.Width = CeilFloat32(r.X+r.Width) - x
+	r.X = x
+	y := FloorFloat32(r.Y)
+	r.Height = CeilFloat32(r.Y+r.Height) - y
+	r.Y = y
+}
+
 // CopyAndZeroLocation creates a new copy of the Rect and sets the location of the copy to 0,0.
 func (r *Rect) CopyAndZeroLocation() Rect {
 	return Rect{Size: r.Size}
