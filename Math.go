@@ -92,3 +92,18 @@ func MaxOf3int(a, b, c int) int {
 	}
 	return c
 }
+
+// RoundFloat32 returns the closest integer.
+func RoundFloat32(x float32) float32 {
+	return float32(int(x + 0.5))
+}
+
+// FloorFloat32 returns the greatest integer value less than or equal to x.
+func FloorFloat32(x float32) float32 {
+	return float32(math.Floor(float64(x)))
+}
+
+// CeilFloat32 returns the smallest integer value greater than or equal to x.
+func CeilFloat32(x float32) float32 {
+	return float32(math.Ceil(float64(x)))
+}
