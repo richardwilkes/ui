@@ -99,6 +99,11 @@ func (sb *ScrollBar) Sizes(hint Size) (min, pref, max Size) {
 // OnPaint implements PaintHandler
 func (sb *ScrollBar) OnPaint(g Graphics, dirty Rect) {
 	bounds := sb.LocalInsetBounds()
+	if sb.horizontal {
+		bounds.Height = sb.Theme.Size
+	} else {
+		bounds.Width = sb.Theme.Size
+	}
 	bgColor := sb.baseBackground(scrollBarNone)
 	g.SetFillColor(bgColor)
 	g.FillRect(bounds)
@@ -221,6 +226,7 @@ func (sb *ScrollBar) thumbScale() float32 {
 }
 
 func (sb *ScrollBar) partRect(part scrollBarPart) Rect {
+	var result Rect
 	switch part {
 	case scrollBarThumb:
 		if sb.Target != nil {
@@ -232,6 +238,7 @@ func (sb *ScrollBar) partRect(part scrollBarPart) Rect {
 				if sb.horizontal {
 					full.X += sb.Theme.Size - 1
 					full.Width -= sb.Theme.Size*2 - 2
+					full.Height = sb.Theme.Size
 					if full.Width > 0 {
 						scale := full.Width / content
 						visible *= scale
@@ -243,11 +250,12 @@ func (sb *ScrollBar) partRect(part scrollBarPart) Rect {
 						pos *= scale
 						full.X += pos
 						full.Width = visible + 1
-						return full
+						result = full
 					}
 				} else {
 					full.Y += sb.Theme.Size - 1
 					full.Height -= sb.Theme.Size*2 - 2
+					full.Width = sb.Theme.Size
 					if full.Height > 0 {
 						scale := full.Height / content
 						visible *= scale
@@ -259,107 +267,82 @@ func (sb *ScrollBar) partRect(part scrollBarPart) Rect {
 						pos *= scale
 						full.Y += pos
 						full.Height = visible + 1
-						return full
+						result = full
 					}
 				}
 			}
 		}
-		return Rect{}
 	case scrollBarLineUp:
-		bounds := sb.LocalInsetBounds()
-		return Rect{Point: Point{X: bounds.X, Y: bounds.Y}, Size: Size{Width: sb.Theme.Size, Height: sb.Theme.Size}}
+		result = sb.LocalInsetBounds()
+		result.Width = sb.Theme.Size
+		result.Height = sb.Theme.Size
 	case scrollBarLineDown:
-		bounds := sb.LocalInsetBounds()
-		return Rect{Point: Point{X: bounds.X + bounds.Width - sb.Theme.Size, Y: bounds.Y + bounds.Height - sb.Theme.Size}, Size: Size{Width: sb.Theme.Size, Height: sb.Theme.Size}}
+		result = sb.LocalInsetBounds()
+		if sb.horizontal {
+			result.X += result.Width - sb.Theme.Size
+		} else {
+			result.Y += result.Height - sb.Theme.Size
+		}
+		result.Width = sb.Theme.Size
+		result.Height = sb.Theme.Size
 	case scrollBarPageUp:
-		top := sb.partRect(scrollBarLineUp)
+		result = sb.partRect(scrollBarLineUp)
 		thumb := sb.partRect(scrollBarThumb)
 		if sb.horizontal {
-			x := top.X + top.Width
-			return Rect{Point: Point{X: x, Y: top.Y}, Size: Size{Width: thumb.X - x, Height: top.Height}}
+			result.X += result.Width
+			result.Width = thumb.X - result.X
+		} else {
+			result.Y += result.Height
+			result.Height = thumb.Y - result.Y
 		}
-		y := top.Y + top.Height
-		return Rect{Point: Point{X: top.X, Y: y}, Size: Size{Width: top.Width, Height: thumb.Y - y}}
 	case scrollBarPageDown:
+		result = sb.partRect(scrollBarLineDown)
 		thumb := sb.partRect(scrollBarThumb)
-		bottom := sb.partRect(scrollBarLineDown)
 		if sb.horizontal {
 			x := thumb.X + thumb.Width
-			return Rect{Point: Point{X: x, Y: bottom.Y}, Size: Size{Width: bottom.X - x, Height: bottom.Height}}
+			result.Width = result.X - x
+			result.X = x
+		} else {
+			y := thumb.Y + thumb.Height
+			result.Height = result.Y - y
+			result.Y = y
 		}
-		y := thumb.Y + thumb.Height
-		return Rect{Point: Point{X: bottom.X, Y: y}, Size: Size{Width: bottom.Width, Height: bottom.Y - y}}
-	default:
-		return Rect{}
 	}
+	return result
 }
 
 func (sb *ScrollBar) drawThumb(g Graphics) {
-	if sb.Target != nil {
-		content := sb.Target.ContentSize(sb.horizontal)
-		visible := sb.Target.VisibleSize(sb.horizontal)
-		if content-visible > 0 {
-			bgColor := sb.baseBackground(scrollBarThumb)
-			pos := sb.Target.ScrolledPosition(sb.horizontal)
-			full := sb.LocalInsetBounds()
+	bounds := sb.partRect(scrollBarThumb)
+	if !bounds.IsEmpty() {
+		bgColor := sb.baseBackground(scrollBarThumb)
+		g.Save()
+		g.ClipRect(bounds)
+		if sb.horizontal {
+			g.DrawLinearGradient(sb.Theme.Gradient(bgColor), bounds.X, bounds.Y, bounds.X, bounds.Y+bounds.Height)
+		} else {
+			g.DrawLinearGradient(sb.Theme.Gradient(bgColor), bounds.X, bounds.Y, bounds.X+bounds.Width, bounds.Y)
+		}
+		g.Restore()
+		g.SetStrokeColor(bgColor.AdjustBrightness(sb.Theme.OutlineAdjustment))
+		g.StrokeRect(bounds)
+		g.SetStrokeColor(sb.markColor(scrollBarThumb))
+		var v0, v1, v2 float32
+		if sb.horizontal {
+			v0 = RoundFloat32(bounds.X + bounds.Width/2)
+			v1 = bounds.Y + bounds.Height*0.2
+			v2 = bounds.Y + bounds.Height*0.8
+		} else {
+			v0 = RoundFloat32(bounds.Y + bounds.Height/2)
+			v1 = bounds.X + bounds.Width*0.2
+			v2 = bounds.X + bounds.Width*0.8
+		}
+		for i := -1; i < 2; i++ {
 			if sb.horizontal {
-				full.X += sb.Theme.Size - 1
-				full.Y++
-				full.Width -= sb.Theme.Size*2 - 2
-				full.Height -= 2
-				if full.Width > 0 {
-					scale := full.Width / content
-					visible *= scale
-					min := sb.Theme.Size * 0.75
-					if visible < min {
-						scale = (full.Width + visible - min) / content
-						visible = min
-					}
-					pos *= scale
-					g.Save()
-					full.X += pos
-					full.Width = visible
-					middle := full.X + full.Width/2
-					g.ClipRect(full)
-					g.DrawLinearGradient(sb.Theme.Gradient(bgColor), middle, full.Y, middle, full.Y+full.Height-1)
-					g.Restore()
-					g.SetStrokeColor(bgColor.AdjustBrightness(sb.Theme.OutlineAdjustment))
-					g.StrokeLine(full.X, full.Y-1, full.X, full.Y+full.Height)
-					g.StrokeLine(full.X+full.Width, full.Y-1, full.X+full.Width, full.Y+full.Height)
-					g.SetStrokeColor(sb.markColor(scrollBarThumb))
-					for i := middle - 2; i < middle+3; i += 2 {
-						g.StrokeLine(i, full.Y+2.5, i, full.Y+full.Height-3.5)
-					}
-				}
+				x := v0 + float32(i*2)
+				g.StrokeLine(x, v1, x, v2)
 			} else {
-				full.X++
-				full.Y += sb.Theme.Size - 1
-				full.Width -= 2
-				full.Height -= sb.Theme.Size*2 - 2
-				if full.Height > 0 {
-					scale := full.Height / content
-					visible *= scale
-					min := sb.Theme.Size * 0.75
-					if visible < min {
-						scale = (full.Height + visible - min) / content
-						visible = min
-					}
-					pos *= scale
-					g.Save()
-					full.Y += pos
-					full.Height = visible
-					middle := full.Y + full.Height/2
-					g.ClipRect(full)
-					g.DrawLinearGradient(sb.Theme.Gradient(bgColor), full.X, full.Y+full.Height/2, full.X+full.Width-1, full.Y+full.Height/2)
-					g.Restore()
-					g.SetStrokeColor(bgColor.AdjustBrightness(sb.Theme.OutlineAdjustment))
-					g.StrokeLine(full.X-1, full.Y, full.X+full.Width, full.Y)
-					g.StrokeLine(full.X-1, full.Y+full.Height, full.X+full.Width, full.Y+full.Height)
-					g.SetStrokeColor(sb.markColor(scrollBarThumb))
-					for i := middle - 2; i < middle+3; i += 2 {
-						g.StrokeLine(full.X+2.5, i, full.X+full.Width-3.5, i)
-					}
-				}
+				y := v0 + float32(i*2)
+				g.StrokeLine(v1, y, v2, y)
 			}
 		}
 	}
