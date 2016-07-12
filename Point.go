@@ -31,6 +31,6 @@ func (p *Point) Subtract(pt Point) {
 }
 
 // String implements the fmt.Stringer interface.
-func (p *Point) String() string {
+func (p Point) String() string {
 	return fmt.Sprintf("%v, %v", p.X, p.Y)
 }

@@ -30,6 +30,6 @@ func (i *Insets) Add(insets Insets) {
 }
 
 // String implements the fmt.Stringer interface.
-func (i *Insets) String() string {
+func (i Insets) String() string {
 	return fmt.Sprintf("%v, %v, %v, %v", i.Top, i.Left, i.Bottom, i.Right)
 }

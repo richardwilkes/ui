@@ -122,6 +122,6 @@ func (r *Rect) Contains(pt Point) bool {
 }
 
 // String implements the fmt.Stringer interface.
-func (r *Rect) String() string {
+func (r Rect) String() string {
 	return fmt.Sprintf("%v, %v", r.Point, r.Size)
 }

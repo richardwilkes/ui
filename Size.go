@@ -43,6 +43,6 @@ func (s *Size) SubtractInsets(insets Insets) {
 }
 
 // String implements the fmt.Stringer interface.
-func (s *Size) String() string {
+func (s Size) String() string {
 	return fmt.Sprintf("%v, %v", s.Width, s.Height)
 }
