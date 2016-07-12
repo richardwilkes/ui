@@ -55,6 +55,7 @@ func (pm *PopupMenu) Sizes(hint Size) (min, pref, max Size) {
 	size := pm.measureConstrained(hint)
 	size.Width += hSpace + size.Height*0.75
 	size.Height += vSpace
+	size.GrowToInteger()
 	if border := pm.Border(); border != nil {
 		size.AddInsets(border.Insets())
 	}
@@ -100,7 +101,7 @@ func (pm *PopupMenu) OnPaint(g Graphics, dirty Rect) {
 }
 
 // OnMouseDown implements MouseDownHandler
-func (pm *PopupMenu) OnMouseDown(where Point, keyModifiers int, which int, clickCount int) bool {
+func (pm *PopupMenu) OnMouseDown(where Point, keyModifiers KeyMask, which int, clickCount int) bool {
 	hasItem := false
 	menu := NewMenu("")
 	defer menu.Dispose()

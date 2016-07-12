@@ -48,6 +48,7 @@ func (button *Button) Sizes(hint Size) (min, pref, max Size) {
 		}
 	}
 	size, _ := button.attributedString().MeasureConstrained(hint)
+	size.GrowToInteger()
 	size.Width += hSpace
 	size.Height += vSpace
 	if border := button.Border(); border != nil {
@@ -86,14 +87,14 @@ func (button *Button) OnPaint(g Graphics, dirty Rect) {
 }
 
 // OnMouseDown implements MouseDownHandler
-func (button *Button) OnMouseDown(where Point, keyModifiers int, which int, clickCount int) bool {
+func (button *Button) OnMouseDown(where Point, keyModifiers KeyMask, which int, clickCount int) bool {
 	button.pressed = true
 	button.Repaint()
 	return false
 }
 
 // OnMouseDragged implements MouseDraggedHandler
-func (button *Button) OnMouseDragged(where Point, keyModifiers int) {
+func (button *Button) OnMouseDragged(where Point, keyModifiers KeyMask) {
 	bounds := button.LocalInsetBounds()
 	pressed := bounds.Contains(where)
 	if button.pressed != pressed {
@@ -103,7 +104,7 @@ func (button *Button) OnMouseDragged(where Point, keyModifiers int) {
 }
 
 // OnMouseUp implements MouseUpHandler
-func (button *Button) OnMouseUp(where Point, keyModifiers int) {
+func (button *Button) OnMouseUp(where Point, keyModifiers KeyMask) {
 	button.pressed = false
 	button.Repaint()
 	if button.OnClick != nil {

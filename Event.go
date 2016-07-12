@@ -9,6 +9,20 @@
 
 package ui
 
+// Possible KeyMask values.
+const (
+	CapsLockKeyMask KeyMask = 1 << iota
+	ShiftKeyMask
+	ControlKeyMask
+	OptionKeyMask
+	CommandKeyMask   // On platforms that don't have a distinct command key, this will also be set if the Control key is pressed.
+	NonStickyKeyMask = ShiftKeyMask | ControlKeyMask | OptionKeyMask | CommandKeyMask
+	AllKeyMask       = CapsLockKeyMask | NonStickyKeyMask
+)
+
+// KeyMask contains flags indicating which modifier keys were down when an event occurred.
+type KeyMask int
+
 // PaintHandler is called when a widget needs to be drawn. 'g' is the Graphics context to use. It
 // has already had its clip set to the dirty rectangle. 'dirty' is the area that needs to be drawn.
 type PaintHandler interface {
@@ -21,41 +35,41 @@ type PaintHandler interface {
 // consecutive clicks in this widget. Return true if the event was effectively discarded for the
 // object, such as when a mouse press is passed off to a popup menu.
 type MouseDownHandler interface {
-	OnMouseDown(where Point, keyModifiers int, which int, clickCount int) bool
+	OnMouseDown(where Point, keyModifiers KeyMask, which int, clickCount int) bool
 }
 
 // MouseDraggedHandler is called when the mouse is moved within a widget while a mouse button is
 // down. 'where' is the location of the mouse in local coordinates. 'keyModifiers' are the modifier
 // keys that were down at the time of the event.
 type MouseDraggedHandler interface {
-	OnMouseDragged(where Point, keyModifiers int)
+	OnMouseDragged(where Point, keyModifiers KeyMask)
 }
 
 // MouseUpHandler is called when the mouse button is released after a mouse button press occurred
 // within a widget. 'where' is the location of the mouse in local coordinates. 'keyModifiers' are
 // the modifier keys that were down at the time of the event.
 type MouseUpHandler interface {
-	OnMouseUp(where Point, keyModifiers int)
+	OnMouseUp(where Point, keyModifiers KeyMask)
 }
 
 // MouseEnteredHandler is called when the mouse enters a widget. 'where' is the location of the
 // mouse in local coordinates. 'keyModifiers' are the modifier keys that were down at the time of
 // the event.
 type MouseEnteredHandler interface {
-	OnMouseEntered(where Point, keyModifiers int)
+	OnMouseEntered(where Point, keyModifiers KeyMask)
 }
 
 // MouseMovedHandler is called when the mouse moves within a widget, except when a mouse button is
 // also down (use a MouseDraggedHandler for that). 'where' is the location of the mouse in local
 // coordinates. 'keyModifiers' are the modifier keys that were down at the time of the event.
 type MouseMovedHandler interface {
-	OnMouseMoved(where Point, keyModifiers int)
+	OnMouseMoved(where Point, keyModifiers KeyMask)
 }
 
 // MouseExitedHandler is called when the mouse exits a widget. 'keyModifiers' are the modifier keys
 // that were down at the time of the event.
 type MouseExitedHandler interface {
-	OnMouseExited(keyModifiers int)
+	OnMouseExited(keyModifiers KeyMask)
 }
 
 // ToolTipHandler is called when a tooltip is being requested for the widget. 'where' is the

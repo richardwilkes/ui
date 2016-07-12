@@ -44,7 +44,7 @@ func createButtonsWindow() {
 	wnd := ui.NewWindow(ui.Point{}, ui.StdWindowMask)
 	wnd.SetTitle("Buttons")
 
-	root := wnd.RootBlock()
+	root := wnd.RootWidget()
 	root.SetBorder(ui.NewEmptyBorder(ui.Insets{Top: 10, Left: 10, Bottom: 10, Right: 10}))
 	ui.NewPrecisionLayout(root).SetVerticalSpacing(10)
 
@@ -226,7 +226,7 @@ func createAboutWindow(item *ui.MenuItem) {
 		aboutWindow = ui.NewWindow(ui.Point{}, ui.TitledWindowMask|ui.ClosableWindowMask)
 		aboutWindow.DidClose = func() { aboutWindow = nil }
 		aboutWindow.SetTitle("About " + ui.AppName())
-		root := aboutWindow.RootBlock()
+		root := aboutWindow.RootWidget()
 		root.SetBorder(ui.NewEmptyBorder(ui.Insets{Top: 10, Left: 10, Bottom: 10, Right: 10}))
 		ui.NewPrecisionLayout(root)
 		title := ui.NewLabelWithFont(ui.AppName(), ui.AcquireFont(ui.EmphasizedSystemFontDesc))

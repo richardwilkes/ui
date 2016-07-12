@@ -36,7 +36,7 @@ func NewRadioButton(title string) *RadioButton {
 // Sizes implements Sizer
 func (button *RadioButton) Sizes(hint Size) (min, pref, max Size) {
 	var size Size
-	box := button.Theme.Font.Ascent()
+	box := CeilFloat32(button.Theme.Font.Ascent())
 	if button.Title != "" {
 		if hint.Width != NoLayoutHint {
 			hint.Width -= button.Theme.HorizontalGap + box
@@ -50,6 +50,7 @@ func (button *RadioButton) Sizes(hint Size) (min, pref, max Size) {
 			}
 		}
 		size, _ = button.attributedString().MeasureConstrained(hint)
+		size.GrowToInteger()
 		size.Width += button.Theme.HorizontalGap + box
 		if size.Height < box {
 			size.Height = box
@@ -66,7 +67,7 @@ func (button *RadioButton) Sizes(hint Size) (min, pref, max Size) {
 
 // OnPaint implements PaintHandler
 func (button *RadioButton) OnPaint(g Graphics, dirty Rect) {
-	box := button.Theme.Font.Ascent()
+	box := CeilFloat32(button.Theme.Font.Ascent())
 	bounds := button.LocalInsetBounds()
 	bounds.Width = box
 	bounds.Y += (bounds.Height - box) / 2
@@ -78,7 +79,7 @@ func (button *RadioButton) OnPaint(g Graphics, dirty Rect) {
 	g.Clip()
 	base := button.BaseBackground()
 	if button.Enabled() {
-		g.DrawLinearGradient(button.Theme.Gradient(base), bounds.X+bounds.Width/2, bounds.Y+1, bounds.X+bounds.Width/2, bounds.Y+bounds.Height-1)
+		g.DrawLinearGradient(button.Theme.Gradient(base), bounds.X, bounds.Y, bounds.X, bounds.Y+bounds.Height)
 	} else {
 		g.SetFillColor(BackgroundColor)
 		g.FillRect(bounds)
@@ -107,14 +108,14 @@ func (button *RadioButton) OnPaint(g Graphics, dirty Rect) {
 }
 
 // OnMouseDown implements MouseDownHandler
-func (button *RadioButton) OnMouseDown(where Point, keyModifiers int, which int, clickCount int) bool {
+func (button *RadioButton) OnMouseDown(where Point, keyModifiers KeyMask, which int, clickCount int) bool {
 	button.pressed = true
 	button.Repaint()
 	return false
 }
 
 // OnMouseDragged implements MouseDraggedHandler
-func (button *RadioButton) OnMouseDragged(where Point, keyModifiers int) {
+func (button *RadioButton) OnMouseDragged(where Point, keyModifiers KeyMask) {
 	bounds := button.LocalInsetBounds()
 	pressed := bounds.Contains(where)
 	if button.pressed != pressed {
@@ -124,7 +125,7 @@ func (button *RadioButton) OnMouseDragged(where Point, keyModifiers int) {
 }
 
 // OnMouseUp implements MouseUpHandler
-func (button *RadioButton) OnMouseUp(where Point, keyModifiers int) {
+func (button *RadioButton) OnMouseUp(where Point, keyModifiers KeyMask) {
 	button.pressed = false
 	button.SetSelected(true)
 	button.Repaint()

@@ -45,7 +45,7 @@ func NewCheckBox(title string) *CheckBox {
 // Sizes implements Sizer
 func (checkbox *CheckBox) Sizes(hint Size) (min, pref, max Size) {
 	var size Size
-	box := checkbox.Theme.Font.Ascent()
+	box := CeilFloat32(checkbox.Theme.Font.Ascent())
 	if checkbox.Title != "" {
 		if hint.Width != NoLayoutHint {
 			hint.Width -= checkbox.Theme.HorizontalGap + box
@@ -59,6 +59,7 @@ func (checkbox *CheckBox) Sizes(hint Size) (min, pref, max Size) {
 			}
 		}
 		size, _ = checkbox.attributedString().MeasureConstrained(hint)
+		size.GrowToInteger()
 		size.Width += checkbox.Theme.HorizontalGap + box
 		if size.Height < box {
 			size.Height = box
@@ -75,7 +76,7 @@ func (checkbox *CheckBox) Sizes(hint Size) (min, pref, max Size) {
 
 // OnPaint implements PaintHandler
 func (checkbox *CheckBox) OnPaint(g Graphics, dirty Rect) {
-	box := checkbox.Theme.Font.Ascent()
+	box := CeilFloat32(checkbox.Theme.Font.Ascent())
 	bounds := checkbox.LocalInsetBounds()
 	bounds.Width = box
 	bounds.Y += (bounds.Height - box) / 2
@@ -133,14 +134,14 @@ func (checkbox *CheckBox) OnPaint(g Graphics, dirty Rect) {
 }
 
 // OnMouseDown implements MouseDownHandler
-func (checkbox *CheckBox) OnMouseDown(where Point, keyModifiers int, which int, clickCount int) bool {
+func (checkbox *CheckBox) OnMouseDown(where Point, keyModifiers KeyMask, which int, clickCount int) bool {
 	checkbox.pressed = true
 	checkbox.Repaint()
 	return false
 }
 
 // OnMouseDragged implements MouseDraggedHandler
-func (checkbox *CheckBox) OnMouseDragged(where Point, keyModifiers int) {
+func (checkbox *CheckBox) OnMouseDragged(where Point, keyModifiers KeyMask) {
 	bounds := checkbox.LocalInsetBounds()
 	pressed := bounds.Contains(where)
 	if checkbox.pressed != pressed {
@@ -150,7 +151,7 @@ func (checkbox *CheckBox) OnMouseDragged(where Point, keyModifiers int) {
 }
 
 // OnMouseUp implements MouseUpHandler
-func (checkbox *CheckBox) OnMouseUp(where Point, keyModifiers int) {
+func (checkbox *CheckBox) OnMouseUp(where Point, keyModifiers KeyMask) {
 	checkbox.pressed = false
 	if checkbox.state == Checked {
 		checkbox.state = Unchecked

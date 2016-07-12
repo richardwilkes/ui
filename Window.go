@@ -38,14 +38,14 @@ type WindowStyleMask int
 
 // Window represents a window on the display.
 type Window struct {
-	window         C.uiWindow
-	ShouldClose    func() bool // Called to ask if closing the window is permitted. Return true if it is.
-	DidClose       func()      // Called when the window has been closed.
-	rootBlock      *Block
-	lastMouseBlock Widget
-	lastToolTip    string
-	inMouseDown    bool
-	inLiveResize   bool
+	window          C.uiWindow
+	ShouldClose     func() bool // Called to ask if closing the window is permitted. Return true if it is.
+	DidClose        func()      // Called when the window has been closed.
+	rootBlock       *Block
+	lastMouseWidget Widget
+	lastToolTip     string
+	inMouseDown     bool
+	inLiveResize    bool
 }
 
 var (
@@ -96,20 +96,21 @@ func windowResized(cWindow C.uiWindow) {
 //export handleWindowMouseEvent
 func handleWindowMouseEvent(cWindow C.uiWindow, eventType, keyModifiers, button, clickCount int, x, y float32) {
 	if window, ok := windowMap[cWindow]; ok {
+		keyMask := KeyMask(keyModifiers)
 		discardMouseDown := false
 		where := Point{X: x, Y: y}
-		var block Widget
+		var widget Widget
 		if window.inMouseDown {
-			block = window.lastMouseBlock
+			widget = window.lastMouseWidget
 		} else {
-			block = window.rootBlock.WidgetAt(where)
-			if block == nil {
-				panic("block is nil")
+			widget = window.rootBlock.WidgetAt(where)
+			if widget == nil {
+				panic("widget is nil")
 			}
-			if eventType == C.uiMouseMoved && block != window.lastMouseBlock {
-				if window.lastMouseBlock != nil {
-					if h := window.lastMouseBlock.MouseExitedHandler(); h != nil {
-						h.OnMouseExited(keyModifiers)
+			if eventType == C.uiMouseMoved && widget != window.lastMouseWidget {
+				if window.lastMouseWidget != nil {
+					if h := window.lastMouseWidget.MouseExitedHandler(); h != nil {
+						h.OnMouseExited(keyMask)
 					}
 				}
 				eventType = C.uiMouseEntered
@@ -117,43 +118,43 @@ func handleWindowMouseEvent(cWindow C.uiWindow, eventType, keyModifiers, button,
 		}
 		switch eventType {
 		case C.uiMouseDown:
-			if block.Enabled() {
-				if h := block.MouseDownHandler(); h != nil {
-					discardMouseDown = h.OnMouseDown(block.FromWindow(where), keyModifiers, button, clickCount)
+			if widget.Enabled() {
+				if h := widget.MouseDownHandler(); h != nil {
+					discardMouseDown = h.OnMouseDown(widget.FromWindow(where), keyMask, button, clickCount)
 				}
 			}
 		case C.uiMouseDragged:
-			if block.Enabled() {
-				if h := block.MouseDraggedHandler(); h != nil {
-					h.OnMouseDragged(block.FromWindow(where), keyModifiers)
+			if widget.Enabled() {
+				if h := widget.MouseDraggedHandler(); h != nil {
+					h.OnMouseDragged(widget.FromWindow(where), keyMask)
 				}
 			}
 		case C.uiMouseUp:
-			if block.Enabled() {
-				if h := block.MouseUpHandler(); h != nil {
-					h.OnMouseUp(block.FromWindow(where), keyModifiers)
+			if widget.Enabled() {
+				if h := widget.MouseUpHandler(); h != nil {
+					h.OnMouseUp(widget.FromWindow(where), keyMask)
 				}
 			}
 		case C.uiMouseEntered:
-			where = block.FromWindow(where)
-			if h := block.MouseEnteredHandler(); h != nil {
-				h.OnMouseEntered(where, keyModifiers)
+			where = widget.FromWindow(where)
+			if h := widget.MouseEnteredHandler(); h != nil {
+				h.OnMouseEntered(where, keyMask)
 			}
-			window.updateToolTip(block, where)
+			window.updateToolTip(widget, where)
 		case C.uiMouseMoved:
-			where = block.FromWindow(where)
-			if h := block.MouseMovedHandler(); h != nil {
-				h.OnMouseMoved(where, keyModifiers)
+			where = widget.FromWindow(where)
+			if h := widget.MouseMovedHandler(); h != nil {
+				h.OnMouseMoved(where, keyMask)
 			}
-			window.updateToolTip(block, where)
+			window.updateToolTip(widget, where)
 		case C.uiMouseExited:
-			if h := block.MouseExitedHandler(); h != nil {
-				h.OnMouseExited(keyModifiers)
+			if h := widget.MouseExitedHandler(); h != nil {
+				h.OnMouseExited(keyMask)
 			}
 		default:
 			panic(fmt.Sprintf("Unknown event type: %d", eventType))
 		}
-		window.lastMouseBlock = block
+		window.lastMouseWidget = widget
 		if eventType == C.uiMouseDown {
 			if !discardMouseDown {
 				window.inMouseDown = true
@@ -259,29 +260,29 @@ func (window *Window) SetSize(size Size) {
 	C.uiSetWindowSize(window.window, C.float(size.Width), C.float(size.Height))
 }
 
-// ContentFrame returns the boundaries of the root content block of this window.
+// ContentFrame returns the boundaries of the root content widget of this window.
 func (window *Window) ContentFrame() Rect {
 	return toRect(C.uiGetWindowContentFrame(window.window))
 }
 
-// ContentLocalBounds returns the local boundaries of the content block of this window.
+// ContentLocalBounds returns the local boundaries of the content widget of this window.
 func (window *Window) ContentLocalBounds() Rect {
 	size := C.uiGetWindowContentSize(window.window)
 	return Rect{Size: Size{Width: float32(size.width), Height: float32(size.height)}}
 }
 
-// ContentLocation returns the upper left corner of the content block in display coordinates.
+// ContentLocation returns the upper left corner of the content widget in display coordinates.
 func (window *Window) ContentLocation() Point {
 	return toPoint(C.uiGetWindowContentPosition(window.window))
 }
 
-// SetContentLocation moves the window such that the upper left corner of the content block is
+// SetContentLocation moves the window such that the upper left corner of the content widget is
 // at the specified point in display coordinates.
 func (window *Window) SetContentLocation(pt Point) {
 	C.uiSetWindowContentPosition(window.window, C.float(pt.X), C.float(pt.Y))
 }
 
-// ContentSize returns the size of the content block.
+// ContentSize returns the size of the content widget.
 func (window *Window) ContentSize() Size {
 	return toSize(C.uiGetWindowContentSize(window.window))
 }
@@ -311,12 +312,12 @@ func (window *Window) ToFront() {
 	C.uiBringWindowToFront(window.window)
 }
 
-// RootBlock returns the root Block of the window.
-func (window *Window) RootBlock() Widget {
+// RootWidget returns the root widget of the window.
+func (window *Window) RootWidget() Widget {
 	return window.rootBlock
 }
 
-// Pack sets the window's content size to match the preferred size of the root block.
+// Pack sets the window's content size to match the preferred size of the root widget.
 func (window *Window) Pack() {
 	_, pref, _ := ComputeSizes(window.rootBlock, NoLayoutHintSize)
 	window.SetContentSize(pref)

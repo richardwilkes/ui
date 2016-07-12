@@ -100,14 +100,14 @@ func (button *ImageButton) OnPaint(g Graphics, dirty Rect) {
 }
 
 // OnMouseDown implements MouseDownHandler
-func (button *ImageButton) OnMouseDown(where Point, keyModifiers int, which int, clickCount int) bool {
+func (button *ImageButton) OnMouseDown(where Point, keyModifiers KeyMask, which int, clickCount int) bool {
 	button.pressed = true
 	button.Repaint()
 	return false
 }
 
 // OnMouseDragged implements MouseDraggedHandler
-func (button *ImageButton) OnMouseDragged(where Point, keyModifiers int) {
+func (button *ImageButton) OnMouseDragged(where Point, keyModifiers KeyMask) {
 	bounds := button.LocalInsetBounds()
 	pressed := bounds.Contains(where)
 	if button.pressed != pressed {
@@ -117,7 +117,7 @@ func (button *ImageButton) OnMouseDragged(where Point, keyModifiers int) {
 }
 
 // OnMouseUp implements MouseUpHandler
-func (button *ImageButton) OnMouseUp(where Point, keyModifiers int) {
+func (button *ImageButton) OnMouseUp(where Point, keyModifiers KeyMask) {
 	button.pressed = false
 	button.Repaint()
 	if button.OnClick != nil {

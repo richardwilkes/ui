@@ -42,6 +42,13 @@ func (s *Size) SubtractInsets(insets Insets) {
 	s.Height -= insets.Top + insets.Bottom
 }
 
+// GrowToInteger modifies this Size such that its width and height are both the smallest integers
+// greater than or equal to their original values.
+func (s *Size) GrowToInteger() {
+	s.Width = CeilFloat32(s.Width)
+	s.Height = CeilFloat32(s.Height)
+}
+
 // String implements the fmt.Stringer interface.
 func (s Size) String() string {
 	return fmt.Sprintf("%v, %v", s.Width, s.Height)

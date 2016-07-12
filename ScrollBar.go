@@ -129,7 +129,7 @@ func (sb *ScrollBar) OnPaint(g Graphics, dirty Rect) {
 }
 
 // OnMouseDown implements MouseDownHandler
-func (sb *ScrollBar) OnMouseDown(where Point, keyModifiers int, which int, clickCount int) bool {
+func (sb *ScrollBar) OnMouseDown(where Point, keyModifiers KeyMask, which int, clickCount int) bool {
 	sb.sequence++
 	part := sb.over(where)
 	if sb.partEnabled(part) {
@@ -150,7 +150,7 @@ func (sb *ScrollBar) OnMouseDown(where Point, keyModifiers int, which int, click
 }
 
 // OnMouseDragged implements MouseDraggedHandler
-func (sb *ScrollBar) OnMouseDragged(where Point, keyModifiers int) {
+func (sb *ScrollBar) OnMouseDragged(where Point, keyModifiers KeyMask) {
 	if sb.pressed == scrollBarThumb {
 		var pos float32
 		rect := sb.partRect(scrollBarLineUp)
@@ -164,7 +164,7 @@ func (sb *ScrollBar) OnMouseDragged(where Point, keyModifiers int) {
 }
 
 // OnMouseUp implements MouseUpHandler
-func (sb *ScrollBar) OnMouseUp(where Point, keyModifiers int) {
+func (sb *ScrollBar) OnMouseUp(where Point, keyModifiers KeyMask) {
 	sb.pressed = scrollBarNone
 	sb.Repaint()
 }
@@ -328,13 +328,15 @@ func (sb *ScrollBar) drawThumb(g Graphics) {
 		g.SetStrokeColor(sb.markColor(scrollBarThumb))
 		var v0, v1, v2 float32
 		if sb.horizontal {
-			v0 = RoundFloat32(bounds.X + bounds.Width/2)
-			v1 = bounds.Y + bounds.Height*0.2
-			v2 = bounds.Y + bounds.Height*0.8
+			v0 = FloorFloat32(bounds.X + bounds.Width/2)
+			d := CeilFloat32(bounds.Height * 0.2)
+			v1 = bounds.Y + d
+			v2 = bounds.Y + bounds.Height - (d + 1)
 		} else {
-			v0 = RoundFloat32(bounds.Y + bounds.Height/2)
-			v1 = bounds.X + bounds.Width*0.2
-			v2 = bounds.X + bounds.Width*0.8
+			v0 = FloorFloat32(bounds.Y + bounds.Height/2)
+			d := CeilFloat32(bounds.Width * 0.2)
+			v1 = bounds.X + d
+			v2 = bounds.X + bounds.Width - (d + 1)
 		}
 		for i := -1; i < 2; i++ {
 			if sb.horizontal {

@@ -38,6 +38,7 @@ func NewLabelWithFont(text string, font *Font) *Label {
 // Sizes implements Sizer
 func (label *Label) Sizes(hint Size) (min, pref, max Size) {
 	size, _ := label.attributedString().MeasureConstrained(hint)
+	size.GrowToInteger()
 	if border := label.Border(); border != nil {
 		size.AddInsets(border.Insets())
 	}
