@@ -6,30 +6,27 @@ hope to add support for Windows and Linux as well.
 
 Widgets that have been implemented:
 
-- Button
-- CheckBox
-- ImageButton
-- Label
-- Menus
-- PopupMenu
-- RadioButton
-- ScrollBar
-- Separator
-- Window
-
-Widgets that still need to be implemented:
-
-- ColorChooser
-- Dialog
-- FileChooser
-- List
-- ProgressBar
-- ScrollArea
-- Slider
-- SplitPanel
-- Table
-- TabPanel
-- TextArea
-- TextField
-- ToolBar
-- Tree
+- [x] Button
+- [x] CheckBox
+- [ ] ColorChooser
+- [ ] Dialog
+- [ ] FileChooser
+- [x] ImageButton
+- [x] Label
+- [ ] List
+- [x] Menus
+- [x] PopupMenu
+- [ ] ProgressBar
+- [x] RadioButton
+- [x] ScrollArea
+- [x] ScrollBar
+- [ ] Slider
+- [x] Separator
+- [ ] SplitPanel
+- [ ] Table
+- [ ] TabPanel
+- [ ] TextArea
+- [ ] TextField
+- [ ] ToolBar
+- [ ] Tree
+- [x] Window
