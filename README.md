@@ -1,6 +1,11 @@
 # go-ui
 A user interface for Go.
 
+Dependencies:
+```
+go get -u github.com/richardwilkes/errors
+```
+
 This is very much a work in progress. At present, this code only runs on the Mac. Over time, I
 hope to add support for Windows and Linux as well.
 
