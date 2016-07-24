@@ -25,6 +25,7 @@ func NewScrollArea(content Widget) *ScrollArea {
 	sa := &ScrollArea{}
 	sa.view = NewBlock()
 	sa.view.SetBackground(TextBackgroundColor)
+	sa.view.SetResizeHandler(sa)
 	sa.AddChild(sa.view)
 	sa.hBar = NewScrollBar(true, sa)
 	sa.vBar = NewScrollBar(false, sa)
@@ -127,4 +128,23 @@ func (sa *ScrollArea) ContentSize(horizontal bool) float32 {
 		return size.Width
 	}
 	return size.Height
+}
+
+// Resized implements ResizeHandler and is called for the contained view.
+func (sa *ScrollArea) Resized() {
+	if sa.content != nil {
+		vs := sa.view.Size()
+		cl := sa.content.Location()
+		cs := sa.content.Size()
+		nl := cl
+		if cl.Y != 0 && vs.Height > cl.Y+cs.Height {
+			nl.Y = MinFloat32(vs.Height-cs.Height, 0)
+		}
+		if cl.X != 0 && vs.Width > cl.X+cs.Width {
+			nl.X = MinFloat32(vs.Width-cs.Width, 0)
+		}
+		if nl != cl {
+			sa.content.SetLocation(nl)
+		}
+	}
 }
