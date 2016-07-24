@@ -87,7 +87,7 @@ func createButtonsWindow() {
 		_, prefSize, _ := ui.ComputeSizes(content, ui.NoLayoutHintSize)
 		content.SetSize(prefSize)
 		scrollArea := ui.NewScrollArea(content)
-		scrollbar.SetLayoutData(ui.NewPrecisionData().SetHorizontalAlignment(ui.AlignFill).SetVerticalAlignment(ui.AlignFill).SetHorizontalGrab(true).SetVerticalGrab(true))
+		scrollArea.SetLayoutData(ui.NewPrecisionData().SetHorizontalAlignment(ui.AlignFill).SetVerticalAlignment(ui.AlignFill).SetHorizontalGrab(true).SetVerticalGrab(true))
 		root.AddChild(scrollArea)
 	} else {
 		fmt.Println(err)
