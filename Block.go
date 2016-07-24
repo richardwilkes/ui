@@ -22,6 +22,7 @@ type Block struct {
 	mouseMovedHandler   MouseMovedHandler
 	mouseExitedHandler  MouseExitedHandler
 	tooltipHandler      ToolTipHandler
+	resizeHandler       ResizeHandler
 	window              *Window
 	parent              Widget
 	children            []Widget
@@ -46,6 +47,16 @@ func (b *Block) Sizer() Sizer {
 // SetSizer implements the Widget interface.
 func (b *Block) SetSizer(sizer Sizer) {
 	b.sizer = sizer
+}
+
+// ResizeHandler implements the Widget interface.
+func (b *Block) ResizeHandler() ResizeHandler {
+	return b.resizeHandler
+}
+
+// SetResizeHandler implements the Widget interface.
+func (b *Block) SetResizeHandler(handler ResizeHandler) {
+	b.resizeHandler = handler
 }
 
 // Layout implements the Widget interface.
@@ -401,6 +412,9 @@ func (b *Block) SetBounds(bounds Rect) {
 		if resized {
 			b.bounds.Size = bounds.Size
 			b.SetNeedLayout(true)
+			if b.resizeHandler != nil {
+				b.resizeHandler.Resized()
+			}
 		}
 		b.Repaint()
 	}
@@ -431,6 +445,9 @@ func (b *Block) SetSize(size Size) {
 		b.Repaint()
 		b.bounds.Size = size
 		b.SetNeedLayout(true)
+		if b.resizeHandler != nil {
+			b.resizeHandler.Resized()
+		}
 		b.Repaint()
 	}
 }

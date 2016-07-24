@@ -9,12 +9,22 @@
 
 package ui
 
+// ResizeHandler is called when a widget is resized.
+type ResizeHandler interface {
+	// Resized is called when a widget is resized.
+	Resized()
+}
+
 // A Widget is the basic user interface block that interacts with the user.
 type Widget interface {
 	// Sizer returns the Sizer for this widget, if any.
 	Sizer() Sizer
 	// SetSizer sets the Sizer for this widget. May be nil.
 	SetSizer(sizer Sizer)
+	// ResizeHandler returns the ResizeHandler for this widget, if any.
+	ResizeHandler() ResizeHandler
+	// SetResizeHandler sets the ResizeHandler for this widget. May be nil.
+	SetResizeHandler(handle ResizeHandler)
 
 	// Layout returns the Layout for this widget, if any.
 	Layout() Layout
