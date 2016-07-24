@@ -9,6 +9,10 @@
 
 package ui
 
+import (
+	"time"
+)
+
 const (
 	scrollBarNone scrollBarPart = iota
 	scrollBarThumb
@@ -142,7 +146,7 @@ func (sb *ScrollBar) OnMouseDown(where Point, keyModifiers KeyMask, which int, c
 				sb.thumbDown = where.Y - sb.partRect(part).Y
 			}
 		case scrollBarLineUp, scrollBarLineDown, scrollBarPageUp, scrollBarPageDown:
-			sb.scheduleRepeat(part)
+			sb.scheduleRepeat(part, sb.Theme.InitialRepeatDelay)
 		}
 		sb.Repaint()
 	}
@@ -169,7 +173,7 @@ func (sb *ScrollBar) OnMouseUp(where Point, keyModifiers KeyMask) {
 	sb.Repaint()
 }
 
-func (sb *ScrollBar) scheduleRepeat(part scrollBarPart) {
+func (sb *ScrollBar) scheduleRepeat(part scrollBarPart, delay time.Duration) {
 	current := sb.sequence
 	switch part {
 	case scrollBarLineUp:
@@ -185,9 +189,9 @@ func (sb *ScrollBar) scheduleRepeat(part scrollBarPart) {
 	}
 	InvokeAfter(func() {
 		if current == sb.sequence && sb.pressed == part {
-			sb.scheduleRepeat(part)
+			sb.scheduleRepeat(part, sb.Theme.RepeatDelay)
 		}
-	}, sb.Theme.RepeatDelay)
+	}, delay)
 }
 
 func (sb *ScrollBar) over(where Point) scrollBarPart {

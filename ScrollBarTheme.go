@@ -20,6 +20,7 @@ var (
 
 // ScrollBarTheme contains the theme elements for ScrollBars.
 type ScrollBarTheme struct {
+	InitialRepeatDelay    time.Duration // The amount of time to wait before triggering the first repeating event.
 	RepeatDelay           time.Duration // The amount of time to wait before triggering a repeating event.
 	Background            Color         // The background color when enabled but not pressed or focused.
 	BackgroundWhenPressed Color         // The background color when enabled and pressed.
@@ -41,6 +42,7 @@ func NewScrollBarTheme() *ScrollBarTheme {
 
 // Init initializes the theme with its default values.
 func (theme *ScrollBarTheme) Init() {
+	theme.InitialRepeatDelay = time.Millisecond * 250
 	theme.RepeatDelay = time.Millisecond * 75
 	theme.Background = WhiteColor
 	theme.BackgroundWhenPressed = KeyboardFocusColor
