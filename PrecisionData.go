@@ -11,16 +11,16 @@ package ui
 
 // PrecisionData is used to control how an object is laid out by the Precision layout.
 type PrecisionData struct {
-	hSpan         int
-	vSpan         int
-	hAlign        Alignment
-	vAlign        Alignment
-	sizeHint      Size
-	minSize       Size
-	cacheSize     Size
-	cacheMinWidth float32
-	hGrab         bool
-	vGrab         bool
+	hSpan        int
+	vSpan        int
+	hAlign       Alignment
+	vAlign       Alignment
+	sizeHint     Size
+	minSize      Size
+	cacheSize    Size
+	minCacheSize Size
+	hGrab        bool
+	vGrab        bool
 }
 
 // NewPrecisionData creates a new PrecisionData.
@@ -141,32 +141,31 @@ func (pd *PrecisionData) SetVerticalGrab(grab bool) *PrecisionData {
 }
 
 func (pd *PrecisionData) computeCacheSize(target Widget, hint Size, useMinimumSize bool) {
-	pd.cacheMinWidth = 0
+	pd.minCacheSize.Width = 0
+	pd.minCacheSize.Height = 0
 	pd.cacheSize.Width = 0
 	pd.cacheSize.Height = 0
 	min, pref, max := ComputeSizes(target, hint)
 	if hint.Width != NoLayoutHint || hint.Height != NoLayoutHint {
 		if pd.minSize.Width != NoLayoutHint {
-			pd.cacheMinWidth = pd.minSize.Width
+			pd.minCacheSize.Width = pd.minSize.Width
 		} else {
-			pd.cacheMinWidth = min.Width
+			pd.minCacheSize.Width = min.Width
 		}
-		if hint.Width != NoLayoutHint && hint.Width < pd.cacheMinWidth {
-			hint.Width = pd.cacheMinWidth
+		if hint.Width != NoLayoutHint && hint.Width < pd.minCacheSize.Width {
+			hint.Width = pd.minCacheSize.Width
 		}
 		if hint.Width != NoLayoutHint && hint.Width > max.Width {
 			hint.Width = max.Width
 		}
-		if hint.Height != NoLayoutHint {
-			var value float32
-			if pd.minSize.Height == NoLayoutHint {
-				value = min.Height
-			} else {
-				value = pd.minSize.Height
-			}
-			if hint.Height < value {
-				hint.Height = value
-			}
+
+		if pd.minSize.Height != NoLayoutHint {
+			pd.minCacheSize.Height = pd.minSize.Height
+		} else {
+			pd.minCacheSize.Height = min.Height
+		}
+		if hint.Height != NoLayoutHint && hint.Height < pd.minCacheSize.Height {
+			hint.Height = pd.minCacheSize.Height
 		}
 		if hint.Height != NoLayoutHint && hint.Height > max.Height {
 			hint.Height = max.Height
@@ -175,31 +174,34 @@ func (pd *PrecisionData) computeCacheSize(target Widget, hint Size, useMinimumSi
 	if useMinimumSize {
 		pd.cacheSize = min
 		if pd.minSize.Width != NoLayoutHint {
-			pd.cacheMinWidth = pd.minSize.Width
+			pd.minCacheSize.Width = pd.minSize.Width
 		} else {
-			pd.cacheMinWidth = min.Width
+			pd.minCacheSize.Width = min.Width
+		}
+		if pd.minSize.Height != NoLayoutHint {
+			pd.minCacheSize.Height = pd.minSize.Height
+		} else {
+			pd.minCacheSize.Height = min.Height
 		}
 	} else {
 		pd.cacheSize = pref
 	}
 	if hint.Width != NoLayoutHint {
 		pd.cacheSize.Width = hint.Width
-	} else {
-		if pd.sizeHint.Width != NoLayoutHint {
-			pd.cacheSize.Width = pd.sizeHint.Width
-		}
-		if pd.minSize.Width != NoLayoutHint && pd.cacheSize.Width < pd.minSize.Width {
-			pd.cacheSize.Width = pd.minSize.Width
-		}
+	}
+	if pd.minSize.Width != NoLayoutHint && pd.cacheSize.Width < pd.minSize.Width {
+		pd.cacheSize.Width = pd.minSize.Width
+	}
+	if pd.sizeHint.Width != NoLayoutHint {
+		pd.cacheSize.Width = pd.sizeHint.Width
 	}
 	if hint.Height != NoLayoutHint {
 		pd.cacheSize.Height = hint.Height
-	} else {
-		if pd.sizeHint.Height != NoLayoutHint {
-			pd.cacheSize.Height = pd.sizeHint.Height
-		}
-		if pd.minSize.Height != NoLayoutHint && pd.cacheSize.Height < pd.minSize.Height {
-			pd.cacheSize.Height = pd.minSize.Height
-		}
+	}
+	if pd.minSize.Height != NoLayoutHint && pd.cacheSize.Height < pd.minSize.Height {
+		pd.cacheSize.Height = pd.minSize.Height
+	}
+	if pd.sizeHint.Height != NoLayoutHint {
+		pd.cacheSize.Height = pd.sizeHint.Height
 	}
 }
