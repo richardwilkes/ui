@@ -15,7 +15,7 @@
 @end
 
 const char *uiAppName() {
-    return strdup([[[NSProcessInfo processInfo] processName] UTF8String]);
+    return [[[NSProcessInfo processInfo] processName] UTF8String];
 }
 
 void uiStart() {
