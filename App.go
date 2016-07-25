@@ -11,7 +11,6 @@ package ui
 
 import (
 	"runtime"
-	"unsafe"
 )
 
 // #cgo darwin LDFLAGS: -framework Cocoa
@@ -63,10 +62,7 @@ func Start() {
 
 // AppName returns the application's name.
 func AppName() string {
-	cAppName := C.uiAppName()
-	defer C.free(unsafe.Pointer(cAppName))
-	name := C.GoString(cAppName)
-	return name
+	return C.GoString(C.uiAppName())
 }
 
 // AttemptQuit initiates the termination sequence.
