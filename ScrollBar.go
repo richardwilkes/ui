@@ -179,11 +179,11 @@ func (sb *ScrollBar) scheduleRepeat(part scrollBarPart, delay time.Duration) {
 	case scrollBarLineUp:
 		sb.SetScrolledPosition(sb.Target.ScrolledPosition(sb.horizontal) - AbsFloat32(sb.Target.LineScrollAmount(sb.horizontal, true)))
 	case scrollBarLineDown:
-		sb.SetScrolledPosition(sb.Target.ScrolledPosition(sb.horizontal) + AbsFloat32(sb.Target.LineScrollAmount(sb.horizontal, true)))
+		sb.SetScrolledPosition(sb.Target.ScrolledPosition(sb.horizontal) + AbsFloat32(sb.Target.LineScrollAmount(sb.horizontal, false)))
 	case scrollBarPageUp:
 		sb.SetScrolledPosition(sb.Target.ScrolledPosition(sb.horizontal) - AbsFloat32(sb.Target.PageScrollAmount(sb.horizontal, true)))
 	case scrollBarPageDown:
-		sb.SetScrolledPosition(sb.Target.ScrolledPosition(sb.horizontal) + AbsFloat32(sb.Target.PageScrollAmount(sb.horizontal, true)))
+		sb.SetScrolledPosition(sb.Target.ScrolledPosition(sb.horizontal) + AbsFloat32(sb.Target.PageScrollAmount(sb.horizontal, false)))
 	default:
 		return
 	}

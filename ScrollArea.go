@@ -23,6 +23,7 @@ type ScrollArea struct {
 // be nil.
 func NewScrollArea(content Widget) *ScrollArea {
 	sa := &ScrollArea{}
+	sa.SetMouseWheelHandler(sa)
 	sa.view = NewBlock()
 	sa.view.SetBackground(TextBackgroundColor)
 	sa.view.SetResizeHandler(sa)
@@ -146,5 +147,15 @@ func (sa *ScrollArea) Resized() {
 		if nl != cl {
 			sa.content.SetLocation(nl)
 		}
+	}
+}
+
+// OnMouseWheel implements MouseWheelHandler.
+func (sa *ScrollArea) OnMouseWheel(delta Point, where Point, keyModifiers KeyMask) {
+	if delta.Y != 0 {
+		sa.vBar.SetScrolledPosition(sa.ScrolledPosition(false) - delta.Y*sa.LineScrollAmount(false, delta.Y > 0))
+	}
+	if delta.X != 0 {
+		sa.hBar.SetScrolledPosition(sa.ScrolledPosition(true) - delta.X*sa.LineScrollAmount(true, delta.X > 0))
 	}
 }

@@ -72,9 +72,22 @@ type MouseExitedHandler interface {
 	OnMouseExited(keyModifiers KeyMask)
 }
 
+// MouseWheelHandler is called when the mouse wheel is used over a widget. 'delta' is the amount
+// scrolled. 'where' is the location of the mouse in local coordinates. 'keyModifiers' are the
+// modifier keys that were down at the time of the event.
+type MouseWheelHandler interface {
+	OnMouseWheel(delta Point, where Point, keyModifiers KeyMask)
+}
+
 // ToolTipHandler is called when a tooltip is being requested for the widget. 'where' is the
 // location of the mouse in local coordinates. Return the text of the tooltip, or an empty string
 // if no tooltip should be shown.
 type ToolTipHandler interface {
 	OnToolTip(where Point) string
+}
+
+// ResizeHandler is called when a widget is resized.
+type ResizeHandler interface {
+	// Resized is called when a widget is resized.
+	Resized()
 }

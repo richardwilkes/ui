@@ -165,6 +165,42 @@ func handleWindowMouseEvent(cWindow C.uiWindow, eventType, keyModifiers, button,
 	}
 }
 
+//export handleWindowMouseWheelEvent
+func handleWindowMouseWheelEvent(cWindow C.uiWindow, eventType, keyModifiers int, x, y, dx, dy float32) {
+	if window, ok := windowMap[cWindow]; ok {
+		where := Point{X: x, Y: y}
+		widget := window.rootBlock.WidgetAt(where)
+		for widget != nil {
+			if h := widget.MouseWheelHandler(); h != nil {
+				h.OnMouseWheel(Point{X: dx, Y: dy}, widget.FromWindow(where), KeyMask(keyModifiers))
+				if window.inMouseDown {
+					eventType = C.uiMouseDragged
+				} else {
+					eventType = C.uiMouseMoved
+				}
+				handleWindowMouseEvent(cWindow, eventType, keyModifiers, 0, 0, x, y)
+				break
+			}
+			widget = widget.Parent()
+		}
+	}
+}
+
+//export handleWindowKeyEvent
+func handleWindowKeyEvent(cWindow C.uiWindow, eventType, keyModifiers, keyCode int, chars *C.char, repeat bool) {
+	// TODO: Implement key dispatch along with the concept of keyboard focus
+	var keyType string
+	switch eventType {
+	case C.uiKeyDown:
+		keyType = "down"
+	case C.uiKeyUp:
+		keyType = "up"
+	default:
+		keyType = "unknown"
+	}
+	fmt.Printf("key %s, code: %d, repeat: %v, chars: %s\n", keyType, keyCode, repeat, C.GoString(chars))
+}
+
 //export windowShouldClose
 func windowShouldClose(cWindow C.uiWindow) bool {
 	if window, ok := windowMap[cWindow]; ok {
@@ -201,10 +237,7 @@ func KeyWindow() *Window {
 
 // Title returns the title of this window.
 func (window *Window) Title() string {
-	cTitle := C.uiGetWindowTitle(window.window)
-	title := C.GoString(cTitle)
-	C.free(unsafe.Pointer(cTitle))
-	return title
+	return C.GoString(C.uiGetWindowTitle(window.window))
 }
 
 // SetTitle sets the title of this window.

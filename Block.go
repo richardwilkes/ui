@@ -21,6 +21,7 @@ type Block struct {
 	mouseEnteredHandler MouseEnteredHandler
 	mouseMovedHandler   MouseMovedHandler
 	mouseExitedHandler  MouseExitedHandler
+	mouseWheelHandler   MouseWheelHandler
 	tooltipHandler      ToolTipHandler
 	resizeHandler       ResizeHandler
 	window              *Window
@@ -251,6 +252,16 @@ func (b *Block) MouseExitedHandler() MouseExitedHandler {
 // SetMouseExitedHandler implements the Widget interface.
 func (b *Block) SetMouseExitedHandler(handler MouseExitedHandler) {
 	b.mouseExitedHandler = handler
+}
+
+// MouseWheelHandler implements the Widget interface.
+func (b *Block) MouseWheelHandler() MouseWheelHandler {
+	return b.mouseWheelHandler
+}
+
+// SetMouseWheelHandler implements the Widget interface.
+func (b *Block) SetMouseWheelHandler(handler MouseWheelHandler) {
+	b.mouseWheelHandler = handler
 }
 
 // ToolTipHandler implements the Widget interface.

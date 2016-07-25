@@ -29,7 +29,7 @@ uiWindow uiNewWindow(uiRect bounds, int styleMask) {
 }
 
 const char *uiGetWindowTitle(uiWindow window) {
-	return strdup([[((NSWindow *)window) title] UTF8String]);
+	return [[((NSWindow *)window) title] UTF8String];
 }
 
 void uiSetWindowTitle(uiWindow window, const char *title) {
@@ -183,14 +183,18 @@ void uiSetToolTip(uiWindow window, const char *tooltip) {
 	drawWindow((uiWindow)[self window], [[NSGraphicsContext currentContext] graphicsPort], bounds, [self inLiveResize]);
 }
 
+-(int)getModifiers:(NSEvent *)theEvent {
+	// macOS uses the same modifier mask bit order as we do, but it is shifted up by 16 bits
+	return (theEvent.modifierFlags & (NSAlphaShiftKeyMask | NSShiftKeyMask | NSControlKeyMask | NSAlternateKeyMask | NSCommandKeyMask)) >> 16;
+}
+
 -(void)deliverMouseEvent:(NSEvent *)theEvent ofType:(unsigned char)type {
 	unsigned char clickCount = 0;
 	if (type != uiMouseEntered && type != uiMouseExited) {
 		clickCount = theEvent.clickCount;
 	}
 	NSPoint where = [self convertPoint:theEvent.locationInWindow fromView:nil];
-	// macOS uses the same modifier mask bit order as we do, but it is shifted up by 16 bits
-	handleWindowMouseEvent((uiWindow)[self window], type, (theEvent.modifierFlags & (NSAlphaShiftKeyMask | NSShiftKeyMask | NSControlKeyMask | NSAlternateKeyMask | NSCommandKeyMask)) >> 16, theEvent.buttonNumber, clickCount, where.x, where.y);
+	handleWindowMouseEvent((uiWindow)[self window], type, [self getModifiers:theEvent], theEvent.buttonNumber, clickCount, where.x, where.y);
 }
 
 -(void)mouseDown:(NSEvent *)theEvent {
@@ -239,6 +243,57 @@ void uiSetToolTip(uiWindow window, const char *tooltip) {
 
 - (void)mouseExited:(NSEvent *)theEvent {
 	[self deliverMouseEvent:theEvent ofType:uiMouseExited];
+}
+
+- (void)scrollWheel:(NSEvent *)theEvent {
+	NSPoint where = [self convertPoint:theEvent.locationInWindow fromView:nil];
+	handleWindowMouseWheelEvent((uiWindow)[self window], uiMouseWheel, [self getModifiers:theEvent], where.x, where.y, theEvent.scrollingDeltaX, theEvent.scrollingDeltaY);
+}
+
+- (BOOL)acceptsFirstResponder {
+	return YES;
+}
+
+-(void)deliverKeyEvent:(NSEvent *)theEvent ofType:(unsigned char)type {
+	handleWindowKeyEvent((uiWindow)[self window], type, [self getModifiers:theEvent], theEvent.keyCode, (char *)[theEvent.characters UTF8String], theEvent.ARepeat);
+}
+
+- (void)keyDown:(NSEvent *)theEvent {
+	[self deliverKeyEvent:theEvent ofType:uiKeyDown];
+}
+
+- (void)keyUp:(NSEvent *)theEvent {
+	[self deliverKeyEvent:theEvent ofType:uiKeyUp];
+}
+
+- (void)flagsChanged:(NSEvent *)theEvent {
+	int modifiers = [self getModifiers:theEvent];
+	unsigned char type;
+	switch (theEvent.keyCode) {
+		case 57:	// Caps Lock
+			type = (modifiers & uiCapsLockKeyMask) == 0 ? uiKeyUp : uiKeyDown;
+			break;
+		case 56:	// Left Shift
+		case 60:	// Right Shift
+			type = (modifiers & uiShiftKeyMask) == 0 ? uiKeyUp : uiKeyDown;
+			break;
+		case 59:	// Left Control
+		case 62:	// Right Control
+			type = (modifiers & uiControlKeyMask) == 0 ? uiKeyUp : uiKeyDown;
+			break;
+		case 58:	// Left Option
+		case 61:	// Right Option
+			type = (modifiers & uiOptionKeyMask) == 0 ? uiKeyUp : uiKeyDown;
+			break;
+		case 54:	// Right Cmd
+		case 55:	// Left Cmd
+			type = (modifiers & uiCommandKeyMask) == 0 ? uiKeyUp : uiKeyDown;
+			break;
+		default:
+			type = uiKeyDown;
+			break;
+	}
+	handleWindowKeyEvent((uiWindow)[self window], type, modifiers, theEvent.keyCode, nil, NO);
 }
 
 @end

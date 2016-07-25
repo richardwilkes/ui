@@ -32,7 +32,10 @@ enum {
 	uiMouseUp,
 	uiMouseEntered,
 	uiMouseMoved,
-	uiMouseExited
+	uiMouseExited,
+	uiMouseWheel,
+	uiKeyDown,
+	uiKeyUp
 };
 
 enum {

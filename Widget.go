@@ -9,12 +9,6 @@
 
 package ui
 
-// ResizeHandler is called when a widget is resized.
-type ResizeHandler interface {
-	// Resized is called when a widget is resized.
-	Resized()
-}
-
 // A Widget is the basic user interface block that interacts with the user.
 type Widget interface {
 	// Sizer returns the Sizer for this widget, if any.
@@ -89,6 +83,11 @@ type Widget interface {
 	MouseExitedHandler() MouseExitedHandler
 	// SetMouseExitedHandler sets the MouseExitedHandler for this widget. May be nil.
 	SetMouseExitedHandler(handler MouseExitedHandler)
+
+	// MouseWheelHandler returns the MouseWheelHandler for this widget, if any.
+	MouseWheelHandler() MouseWheelHandler
+	// SetMouseWheelHandler sets the MouseWheelHandler for this widget. May be nil.
+	SetMouseWheelHandler(handler MouseWheelHandler)
 
 	// ToolTipHandler returns the ToolTipHandler for this widget, if any.
 	ToolTipHandler() ToolTipHandler
