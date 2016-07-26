@@ -11,14 +11,12 @@ package ui
 
 // A Widget is the basic user interface block that interacts with the user.
 type Widget interface {
+	EventHandlers() map[int][]EventHandler
+
 	// Sizer returns the Sizer for this widget, if any.
 	Sizer() Sizer
 	// SetSizer sets the Sizer for this widget. May be nil.
 	SetSizer(sizer Sizer)
-	// ResizeHandler returns the ResizeHandler for this widget, if any.
-	ResizeHandler() ResizeHandler
-	// SetResizeHandler sets the ResizeHandler for this widget. May be nil.
-	SetResizeHandler(handle ResizeHandler)
 
 	// Layout returns the Layout for this widget, if any.
 	Layout() Layout
@@ -40,10 +38,6 @@ type Widget interface {
 	// SetBorder sets the Border for this widget. May be nil.
 	SetBorder(border Border)
 
-	// PaintHandler returns the PaintHandler for this widget, if any.
-	PaintHandler() PaintHandler
-	// SetPaintHandler sets the PaintHandler for this widget. May be nil.
-	SetPaintHandler(handler PaintHandler)
 	// Repaint marks this widget for painting at the next update.
 	Repaint()
 	// RepaintBounds marks the area 'bounds' in local coordinates within the widget for painting at
@@ -53,46 +47,6 @@ type Widget interface {
 	// context to use. It has already had its clip set to the 'dirty' rectangle. 'dirty' is the
 	// area that needs to be drawn.
 	Paint(g Graphics, dirty Rect)
-
-	// MouseDownHandler returns the MouseDownHandler for this widget, if any.
-	MouseDownHandler() MouseDownHandler
-	// MouseDownHandler sets the MouseDownHandler for this widget. May be nil.
-	SetMouseDownHandler(handler MouseDownHandler)
-
-	// MouseDraggedHandler returns the MouseDraggedHandler for this widget, if any.
-	MouseDraggedHandler() MouseDraggedHandler
-	// SetMouseDraggedHandler sets the MouseDraggedHandler for this widget. May be nil.
-	SetMouseDraggedHandler(handler MouseDraggedHandler)
-
-	// MouseUpHandler returns the MouseUpHandler for this widget, if any.
-	MouseUpHandler() MouseUpHandler
-	// SetMouseUpHandler sets the MouseUpHandler for this widget. May be nil.
-	SetMouseUpHandler(handler MouseUpHandler)
-
-	// MouseEnteredHandler returns the MouseEnteredHandler for this widget, if any.
-	MouseEnteredHandler() MouseEnteredHandler
-	// SetMouseEnteredHandler sets the MouseEnteredHandler for this widget. May be nil.
-	SetMouseEnteredHandler(handler MouseEnteredHandler)
-
-	// MouseMovedHandler returns the MouseMovedHandler for this widget, if any.
-	MouseMovedHandler() MouseMovedHandler
-	// SetMouseMovedHandler sets the MouseMovedHandler for this widget. May be nil.
-	SetMouseMovedHandler(handler MouseMovedHandler)
-
-	// MouseExitedHandler returns the MouseExitedHandler for this widget, if any.
-	MouseExitedHandler() MouseExitedHandler
-	// SetMouseExitedHandler sets the MouseExitedHandler for this widget. May be nil.
-	SetMouseExitedHandler(handler MouseExitedHandler)
-
-	// MouseWheelHandler returns the MouseWheelHandler for this widget, if any.
-	MouseWheelHandler() MouseWheelHandler
-	// SetMouseWheelHandler sets the MouseWheelHandler for this widget. May be nil.
-	SetMouseWheelHandler(handler MouseWheelHandler)
-
-	// ToolTipHandler returns the ToolTipHandler for this widget, if any.
-	ToolTipHandler() ToolTipHandler
-	// SetToolTipHandler sets the ToolTipHandler for this widget. May be nil.
-	SetToolTipHandler(handler ToolTipHandler)
 
 	// Enabled returns true if this widget is currently enabled and can receive events.
 	Enabled() bool

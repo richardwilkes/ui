@@ -23,10 +23,10 @@ type ScrollArea struct {
 // be nil.
 func NewScrollArea(content Widget) *ScrollArea {
 	sa := &ScrollArea{}
-	sa.SetMouseWheelHandler(sa)
+	sa.AddEventHandler(MouseWheelEvent, sa.mouseWheel)
 	sa.view = NewBlock()
 	sa.view.SetBackground(TextBackgroundColor)
-	sa.view.SetResizeHandler(sa)
+	sa.view.AddEventHandler(ResizeEvent, sa.viewResized)
 	sa.AddChild(sa.view)
 	sa.hBar = NewScrollBar(true, sa)
 	sa.vBar = NewScrollBar(false, sa)
@@ -131,8 +131,7 @@ func (sa *ScrollArea) ContentSize(horizontal bool) float32 {
 	return size.Height
 }
 
-// Resized implements ResizeHandler and is called for the contained view.
-func (sa *ScrollArea) Resized() {
+func (sa *ScrollArea) viewResized(event *Event) {
 	if sa.content != nil {
 		vs := sa.view.Size()
 		cl := sa.content.Location()
@@ -150,12 +149,12 @@ func (sa *ScrollArea) Resized() {
 	}
 }
 
-// OnMouseWheel implements MouseWheelHandler.
-func (sa *ScrollArea) OnMouseWheel(delta Point, where Point, keyModifiers KeyMask) {
-	if delta.Y != 0 {
-		sa.vBar.SetScrolledPosition(sa.ScrolledPosition(false) - delta.Y*sa.LineScrollAmount(false, delta.Y > 0))
+func (sa *ScrollArea) mouseWheel(event *Event) {
+	if event.Delta.Y != 0 {
+		sa.vBar.SetScrolledPosition(sa.ScrolledPosition(false) - event.Delta.Y*sa.LineScrollAmount(false, event.Delta.Y > 0))
 	}
-	if delta.X != 0 {
-		sa.hBar.SetScrolledPosition(sa.ScrolledPosition(true) - delta.X*sa.LineScrollAmount(true, delta.X > 0))
+	if event.Delta.X != 0 {
+		sa.hBar.SetScrolledPosition(sa.ScrolledPosition(true) - event.Delta.X*sa.LineScrollAmount(true, event.Delta.X > 0))
 	}
+	event.CascadeUp = false
 }

@@ -31,7 +31,7 @@ func NewLabelWithFont(text string, font *Font) *Label {
 	label.font = font
 	label.alignment = AlignStart
 	label.SetSizer(label)
-	label.SetPaintHandler(label)
+	label.AddEventHandler(PaintEvent, label.paint)
 	return label
 }
 
@@ -45,9 +45,8 @@ func (label *Label) Sizes(hint Size) (min, pref, max Size) {
 	return size, size, size
 }
 
-// OnPaint implements PaintHandler
-func (label *Label) OnPaint(g Graphics, dirty Rect) {
-	g.DrawAttributedTextConstrained(label.LocalInsetBounds(), label.attributedString(), TextModeFill)
+func (label *Label) paint(event *Event) {
+	event.GC.DrawAttributedTextConstrained(label.LocalInsetBounds(), label.attributedString(), TextModeFill)
 }
 
 // SetForeground sets the color used when drawing the text.

@@ -11,6 +11,7 @@ package ui
 
 import (
 	"fmt"
+	"time"
 	"unsafe"
 )
 
@@ -109,9 +110,8 @@ func handleWindowMouseEvent(cWindow C.uiWindow, eventType, keyModifiers, button,
 			}
 			if eventType == C.uiMouseMoved && widget != window.lastMouseWidget {
 				if window.lastMouseWidget != nil {
-					if h := window.lastMouseWidget.MouseExitedHandler(); h != nil {
-						h.OnMouseExited(keyMask)
-					}
+					event := &Event{Type: MouseExitedEvent, When: time.Now(), Target: window.lastMouseWidget, KeyModifiers: keyMask}
+					event.Dispatch()
 				}
 				eventType = C.uiMouseEntered
 			}
@@ -119,38 +119,31 @@ func handleWindowMouseEvent(cWindow C.uiWindow, eventType, keyModifiers, button,
 		switch eventType {
 		case C.uiMouseDown:
 			if widget.Enabled() {
-				if h := widget.MouseDownHandler(); h != nil {
-					discardMouseDown = h.OnMouseDown(widget.FromWindow(where), keyMask, button, clickCount)
-				}
+				event := &Event{Type: MouseDownEvent, When: time.Now(), Target: widget, Where: where, KeyModifiers: keyMask, Button: button, Clicks: clickCount}
+				event.Dispatch()
+				discardMouseDown = event.Discard
 			}
 		case C.uiMouseDragged:
 			if widget.Enabled() {
-				if h := widget.MouseDraggedHandler(); h != nil {
-					h.OnMouseDragged(widget.FromWindow(where), keyMask)
-				}
+				event := &Event{Type: MouseDraggedEvent, When: time.Now(), Target: widget, Where: where, KeyModifiers: keyMask}
+				event.Dispatch()
 			}
 		case C.uiMouseUp:
 			if widget.Enabled() {
-				if h := widget.MouseUpHandler(); h != nil {
-					h.OnMouseUp(widget.FromWindow(where), keyMask)
-				}
+				event := &Event{Type: MouseUpEvent, When: time.Now(), Target: widget, Where: where, KeyModifiers: keyMask}
+				event.Dispatch()
 			}
 		case C.uiMouseEntered:
-			where = widget.FromWindow(where)
-			if h := widget.MouseEnteredHandler(); h != nil {
-				h.OnMouseEntered(where, keyMask)
-			}
+			event := &Event{Type: MouseEnteredEvent, When: time.Now(), Target: widget, Where: where, KeyModifiers: keyMask}
+			event.Dispatch()
 			window.updateToolTip(widget, where)
 		case C.uiMouseMoved:
-			where = widget.FromWindow(where)
-			if h := widget.MouseMovedHandler(); h != nil {
-				h.OnMouseMoved(where, keyMask)
-			}
+			event := &Event{Type: MouseMovedEvent, When: time.Now(), Target: widget, Where: where, KeyModifiers: keyMask}
+			event.Dispatch()
 			window.updateToolTip(widget, where)
 		case C.uiMouseExited:
-			if h := widget.MouseExitedHandler(); h != nil {
-				h.OnMouseExited(keyMask)
-			}
+			event := &Event{Type: MouseExitedEvent, When: time.Now(), Target: widget, KeyModifiers: keyMask}
+			event.Dispatch()
 		default:
 			panic(fmt.Sprintf("Unknown event type: %d", eventType))
 		}
@@ -170,18 +163,15 @@ func handleWindowMouseWheelEvent(cWindow C.uiWindow, eventType, keyModifiers int
 	if window, ok := windowMap[cWindow]; ok {
 		where := Point{X: x, Y: y}
 		widget := window.rootBlock.WidgetAt(where)
-		for widget != nil {
-			if h := widget.MouseWheelHandler(); h != nil {
-				h.OnMouseWheel(Point{X: dx, Y: dy}, widget.FromWindow(where), KeyMask(keyModifiers))
-				if window.inMouseDown {
-					eventType = C.uiMouseDragged
-				} else {
-					eventType = C.uiMouseMoved
-				}
-				handleWindowMouseEvent(cWindow, eventType, keyModifiers, 0, 0, x, y)
-				break
+		if widget != nil {
+			event := &Event{Type: MouseWheelEvent, When: time.Now(), Target: widget, Where: where, Delta: Point{X: dx, Y: dy}, KeyModifiers: KeyMask(keyModifiers), CascadeUp: true}
+			event.Dispatch()
+			if window.inMouseDown {
+				eventType = C.uiMouseDragged
+			} else {
+				eventType = C.uiMouseMoved
 			}
-			widget = widget.Parent()
+			handleWindowMouseEvent(cWindow, eventType, keyModifiers, 0, 0, x, y)
 		}
 	}
 }
@@ -247,12 +237,12 @@ func (window *Window) SetTitle(title string) {
 	C.free(unsafe.Pointer(cTitle))
 }
 
-func (window *Window) updateToolTip(widget Widget, whereInWidget Point) {
+func (window *Window) updateToolTip(widget Widget, where Point) {
 	tooltip := ""
 	if widget != nil {
-		if th := widget.ToolTipHandler(); th != nil {
-			tooltip = th.OnToolTip(whereInWidget)
-		}
+		event := &Event{Type: ToolTipEvent, When: time.Now(), Target: widget, Where: where}
+		event.Dispatch()
+		tooltip = event.ToolTip
 	}
 	if window.lastToolTip != tooltip {
 		if tooltip != "" {

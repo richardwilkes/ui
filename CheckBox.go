@@ -35,10 +35,10 @@ func NewCheckBox(title string) *CheckBox {
 	checkbox.Title = title
 	checkbox.Theme = StdCheckBoxTheme
 	checkbox.SetSizer(checkbox)
-	checkbox.SetPaintHandler(checkbox)
-	checkbox.SetMouseDownHandler(checkbox)
-	checkbox.SetMouseDraggedHandler(checkbox)
-	checkbox.SetMouseUpHandler(checkbox)
+	checkbox.AddEventHandler(PaintEvent, checkbox.paint)
+	checkbox.AddEventHandler(MouseDownEvent, checkbox.mouseDown)
+	checkbox.AddEventHandler(MouseDraggedEvent, checkbox.mouseDragged)
+	checkbox.AddEventHandler(MouseUpEvent, checkbox.mouseUp)
 	return checkbox
 }
 
@@ -74,8 +74,7 @@ func (checkbox *CheckBox) Sizes(hint Size) (min, pref, max Size) {
 	return size, size, DefaultLayoutMaxSize(size)
 }
 
-// OnPaint implements PaintHandler
-func (checkbox *CheckBox) OnPaint(g Graphics, dirty Rect) {
+func (checkbox *CheckBox) paint(event *Event) {
 	box := CeilFloat32(checkbox.Theme.Font.Ascent())
 	bounds := checkbox.LocalInsetBounds()
 	bounds.Width = box
@@ -91,77 +90,74 @@ func (checkbox *CheckBox) OnPaint(g Graphics, dirty Rect) {
 	path.LineTo(bounds.X+checkbox.Theme.CornerRadius, bounds.Y+bounds.Height)
 	path.QuadCurveTo(bounds.X, bounds.Y+bounds.Height, bounds.X, bounds.Y+bounds.Height-checkbox.Theme.CornerRadius)
 	path.ClosePath()
-	g.AddPath(path)
-	g.Save()
-	g.Clip()
+	gc := event.GC
+	gc.AddPath(path)
+	gc.Save()
+	gc.Clip()
 	base := checkbox.BaseBackground()
 	if checkbox.Enabled() {
-		g.DrawLinearGradient(checkbox.Theme.Gradient(base), bounds.X+bounds.Width/2, bounds.Y+1, bounds.X+bounds.Width/2, bounds.Y+bounds.Height-1)
+		gc.DrawLinearGradient(checkbox.Theme.Gradient(base), bounds.X+bounds.Width/2, bounds.Y+1, bounds.X+bounds.Width/2, bounds.Y+bounds.Height-1)
 	} else {
-		g.SetFillColor(BackgroundColor)
-		g.FillRect(bounds)
+		gc.SetFillColor(BackgroundColor)
+		gc.FillRect(bounds)
 	}
-	g.AddPath(path)
-	g.SetStrokeColor(base.AdjustBrightness(checkbox.Theme.OutlineAdjustment))
-	g.StrokePath()
-	g.Restore()
+	gc.AddPath(path)
+	gc.SetStrokeColor(base.AdjustBrightness(checkbox.Theme.OutlineAdjustment))
+	gc.StrokePath()
+	gc.Restore()
 	switch checkbox.state {
 	case Mixed:
-		g.Save()
-		g.SetStrokeColor(checkbox.stateColor(base))
-		g.SetStrokeWidth(2)
-		g.StrokeLine(bounds.X+bounds.Width*0.25, bounds.Y+bounds.Height*0.5, bounds.X+bounds.Width*0.7, bounds.Y+bounds.Height*0.5)
-		g.Restore()
+		gc.Save()
+		gc.SetStrokeColor(checkbox.stateColor(base))
+		gc.SetStrokeWidth(2)
+		gc.StrokeLine(bounds.X+bounds.Width*0.25, bounds.Y+bounds.Height*0.5, bounds.X+bounds.Width*0.7, bounds.Y+bounds.Height*0.5)
+		gc.Restore()
 	case Checked:
-		g.Save()
-		g.SetStrokeColor(checkbox.stateColor(base))
-		g.SetStrokeWidth(2)
-		g.BeginPath()
-		g.MoveTo(bounds.X+bounds.Width*0.25, bounds.Y+bounds.Height*0.55)
-		g.LineTo(bounds.X+bounds.Width*0.45, bounds.Y+bounds.Height*0.7)
-		g.LineTo(bounds.X+bounds.Width*0.75, bounds.Y+bounds.Height*0.3)
-		g.StrokePath()
-		g.Restore()
+		gc.Save()
+		gc.SetStrokeColor(checkbox.stateColor(base))
+		gc.SetStrokeWidth(2)
+		gc.BeginPath()
+		gc.MoveTo(bounds.X+bounds.Width*0.25, bounds.Y+bounds.Height*0.55)
+		gc.LineTo(bounds.X+bounds.Width*0.45, bounds.Y+bounds.Height*0.7)
+		gc.LineTo(bounds.X+bounds.Width*0.75, bounds.Y+bounds.Height*0.3)
+		gc.StrokePath()
+		gc.Restore()
 	}
 	if checkbox.Title != "" {
 		bounds = checkbox.LocalInsetBounds()
 		bounds.X += box + checkbox.Theme.HorizontalGap
 		bounds.Width -= box + checkbox.Theme.HorizontalGap
 		if bounds.Width > 0 {
-			g.DrawAttributedTextConstrained(bounds, checkbox.attributedString(), TextModeFill)
+			gc.DrawAttributedTextConstrained(bounds, checkbox.attributedString(), TextModeFill)
 		}
 	}
 }
 
-// OnMouseDown implements MouseDownHandler
-func (checkbox *CheckBox) OnMouseDown(where Point, keyModifiers KeyMask, which int, clickCount int) bool {
+func (checkbox *CheckBox) mouseDown(event *Event) {
 	checkbox.pressed = true
 	checkbox.Repaint()
-	return false
 }
 
-// OnMouseDragged implements MouseDraggedHandler
-func (checkbox *CheckBox) OnMouseDragged(where Point, keyModifiers KeyMask) {
+func (checkbox *CheckBox) mouseDragged(event *Event) {
 	bounds := checkbox.LocalInsetBounds()
-	pressed := bounds.Contains(where)
+	pressed := bounds.Contains(checkbox.FromWindow(event.Where))
 	if checkbox.pressed != pressed {
 		checkbox.pressed = pressed
 		checkbox.Repaint()
 	}
 }
 
-// OnMouseUp implements MouseUpHandler
-func (checkbox *CheckBox) OnMouseUp(where Point, keyModifiers KeyMask) {
+func (checkbox *CheckBox) mouseUp(event *Event) {
 	checkbox.pressed = false
-	if checkbox.state == Checked {
-		checkbox.state = Unchecked
-	} else {
-		checkbox.state = Checked
-	}
 	checkbox.Repaint()
-	if checkbox.OnClick != nil {
-		bounds := checkbox.LocalInsetBounds()
-		if bounds.Contains(where) {
+	bounds := checkbox.LocalInsetBounds()
+	if bounds.Contains(checkbox.FromWindow(event.Where)) {
+		if checkbox.state == Checked {
+			checkbox.state = Unchecked
+		} else {
+			checkbox.state = Checked
+		}
+		if checkbox.OnClick != nil {
 			checkbox.OnClick()
 		}
 	}

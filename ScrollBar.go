@@ -67,10 +67,10 @@ func NewScrollBar(horizontal bool, target Scrollable) *ScrollBar {
 	sb.Target = target
 	sb.horizontal = horizontal
 	sb.SetSizer(sb)
-	sb.SetPaintHandler(sb)
-	sb.SetMouseDownHandler(sb)
-	sb.SetMouseDraggedHandler(sb)
-	sb.SetMouseUpHandler(sb)
+	sb.AddEventHandler(PaintEvent, sb.paint)
+	sb.AddEventHandler(MouseDownEvent, sb.mouseDown)
+	sb.AddEventHandler(MouseDraggedEvent, sb.mouseDragged)
+	sb.AddEventHandler(MouseUpEvent, sb.mouseUp)
 	return sb
 }
 
@@ -100,8 +100,7 @@ func (sb *ScrollBar) Sizes(hint Size) (min, pref, max Size) {
 	return min, pref, max
 }
 
-// OnPaint implements PaintHandler
-func (sb *ScrollBar) OnPaint(g Graphics, dirty Rect) {
+func (sb *ScrollBar) paint(event *Event) {
 	bounds := sb.LocalInsetBounds()
 	if sb.horizontal {
 		bounds.Height = sb.Theme.Size
@@ -109,12 +108,13 @@ func (sb *ScrollBar) OnPaint(g Graphics, dirty Rect) {
 		bounds.Width = sb.Theme.Size
 	}
 	bgColor := sb.baseBackground(scrollBarNone)
-	g.SetFillColor(bgColor)
-	g.FillRect(bounds)
-	g.SetStrokeColor(bgColor.AdjustBrightness(sb.Theme.OutlineAdjustment))
-	g.StrokeRect(bounds)
-	sb.drawLineButton(g, scrollBarLineUp)
-	sb.drawLineButton(g, scrollBarLineDown)
+	gc := event.GC
+	gc.SetFillColor(bgColor)
+	gc.FillRect(bounds)
+	gc.SetStrokeColor(bgColor.AdjustBrightness(sb.Theme.OutlineAdjustment))
+	gc.StrokeRect(bounds)
+	sb.drawLineButton(gc, scrollBarLineUp)
+	sb.drawLineButton(gc, scrollBarLineDown)
 	if sb.pressed == scrollBarPageUp || sb.pressed == scrollBarPageDown {
 		bounds = sb.partRect(sb.pressed)
 		if !bounds.IsEmpty() {
@@ -125,16 +125,16 @@ func (sb *ScrollBar) OnPaint(g Graphics, dirty Rect) {
 				bounds.X++
 				bounds.Width -= 2
 			}
-			g.SetFillColor(sb.baseBackground(sb.pressed))
-			g.FillRect(bounds)
+			gc.SetFillColor(sb.baseBackground(sb.pressed))
+			gc.FillRect(bounds)
 		}
 	}
-	sb.drawThumb(g)
+	sb.drawThumb(gc)
 }
 
-// OnMouseDown implements MouseDownHandler
-func (sb *ScrollBar) OnMouseDown(where Point, keyModifiers KeyMask, which int, clickCount int) bool {
+func (sb *ScrollBar) mouseDown(event *Event) {
 	sb.sequence++
+	where := sb.FromWindow(event.Where)
 	part := sb.over(where)
 	if sb.partEnabled(part) {
 		sb.pressed = part
@@ -150,14 +150,13 @@ func (sb *ScrollBar) OnMouseDown(where Point, keyModifiers KeyMask, which int, c
 		}
 		sb.Repaint()
 	}
-	return false
 }
 
-// OnMouseDragged implements MouseDraggedHandler
-func (sb *ScrollBar) OnMouseDragged(where Point, keyModifiers KeyMask) {
+func (sb *ScrollBar) mouseDragged(event *Event) {
 	if sb.pressed == scrollBarThumb {
 		var pos float32
 		rect := sb.partRect(scrollBarLineUp)
+		where := sb.FromWindow(event.Where)
 		if sb.horizontal {
 			pos = where.X - (sb.thumbDown + rect.X + rect.Width - 1)
 		} else {
@@ -167,8 +166,7 @@ func (sb *ScrollBar) OnMouseDragged(where Point, keyModifiers KeyMask) {
 	}
 }
 
-// OnMouseUp implements MouseUpHandler
-func (sb *ScrollBar) OnMouseUp(where Point, keyModifiers KeyMask) {
+func (sb *ScrollBar) mouseUp(event *Event) {
 	sb.pressed = scrollBarNone
 	sb.Repaint()
 }

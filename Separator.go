@@ -20,7 +20,7 @@ func NewSeparator(horizontal bool) *Separator {
 	sep := &Separator{}
 	sep.horizontal = horizontal
 	sep.SetSizer(sep)
-	sep.SetPaintHandler(sep)
+	sep.AddEventHandler(PaintEvent, sep.paint)
 	return sep
 }
 
@@ -58,8 +58,7 @@ func (sep *Separator) Sizes(hint Size) (min, pref, max Size) {
 	return min, pref, max
 }
 
-// OnPaint implements PaintHandler
-func (sep *Separator) OnPaint(g Graphics, dirty Rect) {
+func (sep *Separator) paint(event *Event) {
 	bounds := sep.LocalInsetBounds()
 	if sep.horizontal {
 		if bounds.Height > 1 {
@@ -72,6 +71,7 @@ func (sep *Separator) OnPaint(g Graphics, dirty Rect) {
 			bounds.Width = 1
 		}
 	}
-	g.SetFillColor(BackgroundColor.AdjustBrightness(-0.25))
-	g.FillRect(bounds)
+	gc := event.GC
+	gc.SetFillColor(BackgroundColor.AdjustBrightness(-0.25))
+	gc.FillRect(bounds)
 }

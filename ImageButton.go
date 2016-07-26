@@ -40,10 +40,10 @@ func NewImageButtonWithImageSize(img *Image, size Size) *ImageButton {
 	} else {
 		button.SetSizer(&imageButtonSizer{button: button, size: size})
 	}
-	button.SetPaintHandler(button)
-	button.SetMouseDownHandler(button)
-	button.SetMouseDraggedHandler(button)
-	button.SetMouseUpHandler(button)
+	button.AddEventHandler(PaintEvent, button.paint)
+	button.AddEventHandler(MouseDownEvent, button.mouseDown)
+	button.AddEventHandler(MouseDraggedEvent, button.mouseDragged)
+	button.AddEventHandler(MouseUpEvent, button.mouseUp)
 	return button
 }
 
@@ -58,8 +58,7 @@ func (button *ImageButton) Sizes(hint Size) (min, pref, max Size) {
 	return size, size, size
 }
 
-// OnPaint implements PaintHandler
-func (button *ImageButton) OnPaint(g Graphics, dirty Rect) {
+func (button *ImageButton) paint(event *Event) {
 	var hSpace = button.Theme.HorizontalMargin*2 + 2
 	var vSpace = button.Theme.VerticalMargin*2 + 2
 	bounds := button.LocalInsetBounds()
@@ -73,13 +72,14 @@ func (button *ImageButton) OnPaint(g Graphics, dirty Rect) {
 	path.LineTo(bounds.X+button.Theme.CornerRadius, bounds.Y+bounds.Height)
 	path.QuadCurveTo(bounds.X, bounds.Y+bounds.Height, bounds.X, bounds.Y+bounds.Height-button.Theme.CornerRadius)
 	path.ClosePath()
-	g.AddPath(path)
-	g.Clip()
+	gc := event.GC
+	gc.AddPath(path)
+	gc.Clip()
 	base := button.BaseBackground()
-	g.DrawLinearGradient(button.Theme.Gradient(base), bounds.X+bounds.Width/2, bounds.Y+1, bounds.X+bounds.Width/2, bounds.Y+bounds.Height-1)
-	g.AddPath(path)
-	g.SetStrokeColor(base.AdjustBrightness(button.Theme.OutlineAdjustment))
-	g.StrokePath()
+	gc.DrawLinearGradient(button.Theme.Gradient(base), bounds.X+bounds.Width/2, bounds.Y+1, bounds.X+bounds.Width/2, bounds.Y+bounds.Height-1)
+	gc.AddPath(path)
+	gc.SetStrokeColor(base.AdjustBrightness(button.Theme.OutlineAdjustment))
+	gc.StrokePath()
 	bounds.X += button.Theme.HorizontalMargin + 1
 	bounds.Y += button.Theme.VerticalMargin + 1
 	bounds.Width -= hSpace
@@ -95,34 +95,30 @@ func (button *ImageButton) OnPaint(g Graphics, dirty Rect) {
 			bounds.Y += (bounds.Height - size.Height) / 2
 			bounds.Height = size.Height
 		}
-		g.DrawImageInRect(img, bounds)
+		gc.DrawImageInRect(img, bounds)
 	}
 }
 
-// OnMouseDown implements MouseDownHandler
-func (button *ImageButton) OnMouseDown(where Point, keyModifiers KeyMask, which int, clickCount int) bool {
+func (button *ImageButton) mouseDown(event *Event) {
 	button.pressed = true
 	button.Repaint()
-	return false
 }
 
-// OnMouseDragged implements MouseDraggedHandler
-func (button *ImageButton) OnMouseDragged(where Point, keyModifiers KeyMask) {
+func (button *ImageButton) mouseDragged(event *Event) {
 	bounds := button.LocalInsetBounds()
-	pressed := bounds.Contains(where)
+	pressed := bounds.Contains(button.FromWindow(event.Where))
 	if button.pressed != pressed {
 		button.pressed = pressed
 		button.Repaint()
 	}
 }
 
-// OnMouseUp implements MouseUpHandler
-func (button *ImageButton) OnMouseUp(where Point, keyModifiers KeyMask) {
+func (button *ImageButton) mouseUp(event *Event) {
 	button.pressed = false
 	button.Repaint()
 	if button.OnClick != nil {
 		bounds := button.LocalInsetBounds()
-		if bounds.Contains(where) {
+		if bounds.Contains(button.FromWindow(event.Where)) {
 			button.OnClick()
 		}
 	}

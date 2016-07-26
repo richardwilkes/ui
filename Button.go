@@ -24,10 +24,10 @@ func NewButton(title string) *Button {
 	button.Title = title
 	button.Theme = StdButtonTheme
 	button.SetSizer(button)
-	button.SetPaintHandler(button)
-	button.SetMouseDownHandler(button)
-	button.SetMouseDraggedHandler(button)
-	button.SetMouseUpHandler(button)
+	button.AddEventHandler(PaintEvent, button.paint)
+	button.AddEventHandler(MouseDownEvent, button.mouseDown)
+	button.AddEventHandler(MouseDraggedEvent, button.mouseDragged)
+	button.AddEventHandler(MouseUpEvent, button.mouseUp)
 	return button
 }
 
@@ -57,8 +57,7 @@ func (button *Button) Sizes(hint Size) (min, pref, max Size) {
 	return size, size, DefaultLayoutMaxSize(size)
 }
 
-// OnPaint implements PaintHandler
-func (button *Button) OnPaint(g Graphics, dirty Rect) {
+func (button *Button) paint(event *Event) {
 	var hSpace = button.Theme.HorizontalMargin*2 + 2
 	var vSpace = button.Theme.VerticalMargin*2 + 2
 	bounds := button.LocalInsetBounds()
@@ -72,44 +71,41 @@ func (button *Button) OnPaint(g Graphics, dirty Rect) {
 	path.LineTo(bounds.X+button.Theme.CornerRadius, bounds.Y+bounds.Height)
 	path.QuadCurveTo(bounds.X, bounds.Y+bounds.Height, bounds.X, bounds.Y+bounds.Height-button.Theme.CornerRadius)
 	path.ClosePath()
-	g.AddPath(path)
-	g.Clip()
+	gc := event.GC
+	gc.AddPath(path)
+	gc.Clip()
 	base := button.BaseBackground()
-	g.DrawLinearGradient(button.Theme.Gradient(base), bounds.X+bounds.Width/2, bounds.Y+1, bounds.X+bounds.Width/2, bounds.Y+bounds.Height-1)
-	g.AddPath(path)
-	g.SetStrokeColor(base.AdjustBrightness(button.Theme.OutlineAdjustment))
-	g.StrokePath()
+	gc.DrawLinearGradient(button.Theme.Gradient(base), bounds.X+bounds.Width/2, bounds.Y+1, bounds.X+bounds.Width/2, bounds.Y+bounds.Height-1)
+	gc.AddPath(path)
+	gc.SetStrokeColor(base.AdjustBrightness(button.Theme.OutlineAdjustment))
+	gc.StrokePath()
 	bounds.X += button.Theme.HorizontalMargin + 1
 	bounds.Y += button.Theme.VerticalMargin + 1
 	bounds.Width -= hSpace
 	bounds.Height -= vSpace
-	g.DrawAttributedTextConstrained(bounds, button.attributedString(), TextModeFill)
+	gc.DrawAttributedTextConstrained(bounds, button.attributedString(), TextModeFill)
 }
 
-// OnMouseDown implements MouseDownHandler
-func (button *Button) OnMouseDown(where Point, keyModifiers KeyMask, which int, clickCount int) bool {
+func (button *Button) mouseDown(event *Event) {
 	button.pressed = true
 	button.Repaint()
-	return false
 }
 
-// OnMouseDragged implements MouseDraggedHandler
-func (button *Button) OnMouseDragged(where Point, keyModifiers KeyMask) {
+func (button *Button) mouseDragged(event *Event) {
 	bounds := button.LocalInsetBounds()
-	pressed := bounds.Contains(where)
+	pressed := bounds.Contains(button.FromWindow(event.Where))
 	if button.pressed != pressed {
 		button.pressed = pressed
 		button.Repaint()
 	}
 }
 
-// OnMouseUp implements MouseUpHandler
-func (button *Button) OnMouseUp(where Point, keyModifiers KeyMask) {
+func (button *Button) mouseUp(event *Event) {
 	button.pressed = false
 	button.Repaint()
 	if button.OnClick != nil {
 		bounds := button.LocalInsetBounds()
-		if bounds.Contains(where) {
+		if bounds.Contains(button.FromWindow(event.Where)) {
 			button.OnClick()
 		}
 	}

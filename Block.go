@@ -9,35 +9,62 @@
 
 package ui
 
+import (
+	"reflect"
+	"time"
+)
+
 // Block is the basic graphical block in a window.
 type Block struct {
-	sizer               Sizer
-	layout              Layout
-	border              Border
-	paintHandler        PaintHandler
-	mouseDownHandler    MouseDownHandler
-	mouseDraggedHandler MouseDraggedHandler
-	mouseUpHandler      MouseUpHandler
-	mouseEnteredHandler MouseEnteredHandler
-	mouseMovedHandler   MouseMovedHandler
-	mouseExitedHandler  MouseExitedHandler
-	mouseWheelHandler   MouseWheelHandler
-	tooltipHandler      ToolTipHandler
-	resizeHandler       ResizeHandler
-	window              *Window
-	parent              Widget
-	children            []Widget
-	bounds              Rect
-	layoutData          interface{}
-	background          Color
-	needLayout          bool
-	disabled            bool
-	focused             bool
+	eventHandlers map[int][]EventHandler
+	sizer         Sizer
+	layout        Layout
+	border        Border
+	window        *Window
+	parent        Widget
+	children      []Widget
+	bounds        Rect
+	layoutData    interface{}
+	background    Color
+	needLayout    bool
+	disabled      bool
+	focused       bool
 }
 
 // NewBlock creates a new, empty block.
 func NewBlock() *Block {
 	return &Block{}
+}
+
+func (b *Block) EventHandlers() map[int][]EventHandler {
+	return b.eventHandlers
+}
+
+func (b *Block) AddEventHandler(eventType int, handler EventHandler) {
+	if b.eventHandlers == nil {
+		b.eventHandlers = make(map[int][]EventHandler)
+	}
+	b.eventHandlers[eventType] = append(b.eventHandlers[eventType], handler)
+}
+
+func (b *Block) RemoveEventHandler(eventType int, handler EventHandler) {
+	if b.eventHandlers != nil {
+		hPtr := reflect.ValueOf(handler).Pointer()
+		handlers := b.eventHandlers[eventType]
+		for i, one := range handlers {
+			if reflect.ValueOf(one).Pointer() == hPtr {
+				if len(handlers) == 1 {
+					delete(b.eventHandlers, eventType)
+				} else {
+					copy(handlers[i:], handlers[i+1:])
+					length := len(handlers) - 1
+					handlers[length] = nil
+					b.eventHandlers[eventType] = handlers[:length]
+				}
+				break
+			}
+		}
+	}
 }
 
 // Sizer implements the Widget interface.
@@ -48,16 +75,6 @@ func (b *Block) Sizer() Sizer {
 // SetSizer implements the Widget interface.
 func (b *Block) SetSizer(sizer Sizer) {
 	b.sizer = sizer
-}
-
-// ResizeHandler implements the Widget interface.
-func (b *Block) ResizeHandler() ResizeHandler {
-	return b.resizeHandler
-}
-
-// SetResizeHandler implements the Widget interface.
-func (b *Block) SetResizeHandler(handler ResizeHandler) {
-	b.resizeHandler = handler
 }
 
 // Layout implements the Widget interface.
@@ -118,16 +135,6 @@ func (b *Block) SetBorder(border Border) {
 	b.border = border
 }
 
-// PaintHandler implements the Widget interface.
-func (b *Block) PaintHandler() PaintHandler {
-	return b.paintHandler
-}
-
-// SetPaintHandler implements the Widget interface.
-func (b *Block) SetPaintHandler(handler PaintHandler) {
-	b.paintHandler = handler
-}
-
 // Repaint implements the Widget interface.
 func (b *Block) Repaint() {
 	b.RepaintBounds(b.LocalBounds())
@@ -171,9 +178,8 @@ func (b *Block) paintSelf(g Graphics, dirty Rect) {
 		g.FillRect(dirty)
 	}
 	b.paintBorder(g)
-	if b.paintHandler != nil {
-		b.paintHandler.OnPaint(g, dirty)
-	}
+	event := &Event{Type: PaintEvent, When: time.Now(), Target: b, GC: g, DirtyRect: dirty}
+	event.Dispatch()
 }
 
 func (b *Block) paintBorder(g Graphics) {
@@ -192,86 +198,6 @@ func (b *Block) paintChild(child Widget, g Graphics, dirty Rect) {
 	dirty.X -= bounds.X
 	dirty.Y -= bounds.Y
 	child.Paint(g, dirty)
-}
-
-// MouseDownHandler implements the Widget interface.
-func (b *Block) MouseDownHandler() MouseDownHandler {
-	return b.mouseDownHandler
-}
-
-// SetMouseDownHandler implements the Widget interface.
-func (b *Block) SetMouseDownHandler(handler MouseDownHandler) {
-	b.mouseDownHandler = handler
-}
-
-// MouseDraggedHandler implements the Widget interface.
-func (b *Block) MouseDraggedHandler() MouseDraggedHandler {
-	return b.mouseDraggedHandler
-}
-
-// SetMouseDraggedHandler implements the Widget interface.
-func (b *Block) SetMouseDraggedHandler(handler MouseDraggedHandler) {
-	b.mouseDraggedHandler = handler
-}
-
-// MouseUpHandler implements the Widget interface.
-func (b *Block) MouseUpHandler() MouseUpHandler {
-	return b.mouseUpHandler
-}
-
-// SetMouseUpHandler implements the Widget interface.
-func (b *Block) SetMouseUpHandler(handler MouseUpHandler) {
-	b.mouseUpHandler = handler
-}
-
-// MouseEnteredHandler implements the Widget interface.
-func (b *Block) MouseEnteredHandler() MouseEnteredHandler {
-	return b.mouseEnteredHandler
-}
-
-// SetMouseEnteredHandler implements the Widget interface.
-func (b *Block) SetMouseEnteredHandler(handler MouseEnteredHandler) {
-	b.mouseEnteredHandler = handler
-}
-
-// MouseMovedHandler implements the Widget interface.
-func (b *Block) MouseMovedHandler() MouseMovedHandler {
-	return b.mouseMovedHandler
-}
-
-// SetMouseMovedHandler implements the Widget interface.
-func (b *Block) SetMouseMovedHandler(handler MouseMovedHandler) {
-	b.mouseMovedHandler = handler
-}
-
-// MouseExitedHandler implements the Widget interface.
-func (b *Block) MouseExitedHandler() MouseExitedHandler {
-	return b.mouseExitedHandler
-}
-
-// SetMouseExitedHandler implements the Widget interface.
-func (b *Block) SetMouseExitedHandler(handler MouseExitedHandler) {
-	b.mouseExitedHandler = handler
-}
-
-// MouseWheelHandler implements the Widget interface.
-func (b *Block) MouseWheelHandler() MouseWheelHandler {
-	return b.mouseWheelHandler
-}
-
-// SetMouseWheelHandler implements the Widget interface.
-func (b *Block) SetMouseWheelHandler(handler MouseWheelHandler) {
-	b.mouseWheelHandler = handler
-}
-
-// ToolTipHandler implements the Widget interface.
-func (b *Block) ToolTipHandler() ToolTipHandler {
-	return b.tooltipHandler
-}
-
-// SetToolTipHandler implements the Widget interface.
-func (b *Block) SetToolTipHandler(handler ToolTipHandler) {
-	b.tooltipHandler = handler
 }
 
 // Enabled implements the Widget interface.
@@ -423,9 +349,8 @@ func (b *Block) SetBounds(bounds Rect) {
 		if resized {
 			b.bounds.Size = bounds.Size
 			b.SetNeedLayout(true)
-			if b.resizeHandler != nil {
-				b.resizeHandler.Resized()
-			}
+			event := &Event{Type: ResizeEvent, When: time.Now(), Target: b}
+			event.Dispatch()
 		}
 		b.Repaint()
 	}
@@ -456,9 +381,8 @@ func (b *Block) SetSize(size Size) {
 		b.Repaint()
 		b.bounds.Size = size
 		b.SetNeedLayout(true)
-		if b.resizeHandler != nil {
-			b.resizeHandler.Resized()
-		}
+		event := &Event{Type: ResizeEvent, When: time.Now(), Target: b}
+		event.Dispatch()
 		b.Repaint()
 	}
 }
