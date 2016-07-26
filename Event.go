@@ -60,7 +60,8 @@ const (
 	ToolTipEvent
 	// ResizeEvent is generated when a widget is resized.
 	ResizeEvent
-	UserEvent = 100
+	// UserEvent should be used as the base value for application custom events.
+	UserEvent = 10000
 )
 
 // EventHandler is called to handle a single event.
@@ -87,6 +88,12 @@ type Event struct {
 	Done         bool      // Valid for all events. Set to true to stop processing this event.
 }
 
+// Dispatch the event. If there is more than one handler for the event type registered with the
+// target, they will each be given a chance to handle the event in order. Should one of them set
+// the Done flag on the event, processing will halt immediately. Once the target has been given an
+// opportunity to process the event, if the event's CascadeUp flag is set, its parent will then be
+// given the chance. This will continue until there are no more parents, the event's Done flag is
+// set, or the event's CascadeUp flag is unset.
 func (event *Event) Dispatch() {
 	target := event.Target
 	for target != nil {
@@ -105,6 +112,7 @@ func (event *Event) Dispatch() {
 	}
 }
 
+// String implements fmt.Stringer.
 func (event *Event) String() string {
 	var buffer bytes.Buffer
 	switch event.Type {
@@ -142,19 +150,19 @@ func (event *Event) String() string {
 	case PaintEvent:
 		buffer.WriteString(fmt.Sprintf(", DirtyRect: %v", event.DirtyRect))
 	case MouseDownEvent:
-		buffer.WriteString(fmt.Sprintf(", Where: %v, KeyModifiers: %s, Button: %d, Clicks: %d", event.Where, event.KeyModifiersAsString(), event.Button, event.Clicks))
+		buffer.WriteString(fmt.Sprintf(", Where: %v, KeyModifiers: %s, Button: %d, Clicks: %d", event.Where, event.keyModifiersAsString(), event.Button, event.Clicks))
 	case MouseDraggedEvent:
-		buffer.WriteString(fmt.Sprintf(", Where: %v, KeyModifiers: %s", event.Where, event.KeyModifiersAsString()))
+		buffer.WriteString(fmt.Sprintf(", Where: %v, KeyModifiers: %s", event.Where, event.keyModifiersAsString()))
 	case MouseUpEvent:
-		buffer.WriteString(fmt.Sprintf(", Where: %v, KeyModifiers: %s", event.Where, event.KeyModifiersAsString()))
+		buffer.WriteString(fmt.Sprintf(", Where: %v, KeyModifiers: %s", event.Where, event.keyModifiersAsString()))
 	case MouseEnteredEvent:
-		buffer.WriteString(fmt.Sprintf(", Where: %v, KeyModifiers: %s", event.Where, event.KeyModifiersAsString()))
+		buffer.WriteString(fmt.Sprintf(", Where: %v, KeyModifiers: %s", event.Where, event.keyModifiersAsString()))
 	case MouseMovedEvent:
-		buffer.WriteString(fmt.Sprintf(", Where: %v, KeyModifiers: %s", event.Where, event.KeyModifiersAsString()))
+		buffer.WriteString(fmt.Sprintf(", Where: %v, KeyModifiers: %s", event.Where, event.keyModifiersAsString()))
 	case MouseExitedEvent:
-		buffer.WriteString(fmt.Sprintf(", KeyModifiers: %s", event.KeyModifiersAsString()))
+		buffer.WriteString(fmt.Sprintf(", KeyModifiers: %s", event.keyModifiersAsString()))
 	case MouseWheelEvent:
-		buffer.WriteString(fmt.Sprintf(", Where: %v, Delta: %v, KeyModifiers: %s", event.Where, event.Delta, event.KeyModifiersAsString()))
+		buffer.WriteString(fmt.Sprintf(", Where: %v, Delta: %v, KeyModifiers: %s", event.Where, event.Delta, event.keyModifiersAsString()))
 	case KeyDownEvent:
 		buffer.WriteString(fmt.Sprintf(", KeyCode: %d", event.KeyCode))
 		if event.Repeat {
@@ -184,7 +192,7 @@ func (event *Event) String() string {
 	return buffer.String()
 }
 
-func (event *Event) KeyModifiersAsString() string {
+func (event *Event) keyModifiersAsString() string {
 	var buffer bytes.Buffer
 	event.appendKeyModifier(&buffer, CapsLockKeyMask, "CapsLock")
 	event.appendKeyModifier(&buffer, ShiftKeyMask, "Shift")

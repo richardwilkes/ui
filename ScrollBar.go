@@ -52,11 +52,11 @@ type Scrollable interface {
 // ScrollBar represents a widget for controlling scrolling.
 type ScrollBar struct {
 	Block
-	Theme      *ScrollBarTheme // The theme the scrollbar will use to draw itself.
 	Target     Scrollable      // The target of the scrollbar.
+	Theme      *ScrollBarTheme // The theme the scrollbar will use to draw itself.
 	pressed    scrollBarPart
-	thumbDown  float32
 	sequence   int
+	thumbDown  float32
 	horizontal bool
 }
 

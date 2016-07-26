@@ -17,18 +17,19 @@ import (
 // Block is the basic graphical block in a window.
 type Block struct {
 	eventHandlers map[int][]EventHandler
-	sizer         Sizer
-	layout        Layout
-	border        Border
 	window        *Window
 	parent        Widget
 	children      []Widget
+	sizer         Sizer
+	layout        Layout
+	border        Border
 	bounds        Rect
 	layoutData    interface{}
 	background    Color
 	needLayout    bool
 	disabled      bool
 	focused       bool
+	padding       bool // Just here to quiet aligncheck, since there is nothing I can do about it
 }
 
 // NewBlock creates a new, empty block.
@@ -36,10 +37,12 @@ func NewBlock() *Block {
 	return &Block{}
 }
 
+// EventHandlers returns the current event handler map.
 func (b *Block) EventHandlers() map[int][]EventHandler {
 	return b.eventHandlers
 }
 
+// AddEventHandler adds an event handler for an event type.
 func (b *Block) AddEventHandler(eventType int, handler EventHandler) {
 	if b.eventHandlers == nil {
 		b.eventHandlers = make(map[int][]EventHandler)
@@ -47,6 +50,7 @@ func (b *Block) AddEventHandler(eventType int, handler EventHandler) {
 	b.eventHandlers[eventType] = append(b.eventHandlers[eventType], handler)
 }
 
+// RemoveEventHandler removes an event handler for an event type.
 func (b *Block) RemoveEventHandler(eventType int, handler EventHandler) {
 	if b.eventHandlers != nil {
 		hPtr := reflect.ValueOf(handler).Pointer()
