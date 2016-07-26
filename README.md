@@ -3,7 +3,7 @@ A user interface for Go.
 
 Dependencies:
 ```
-go get -u github.com/richardwilkes/errors
+go get -u github.com/richardwilkes/errs
 ```
 
 This is very much a work in progress. At present, this code only runs on the Mac. Over time, I

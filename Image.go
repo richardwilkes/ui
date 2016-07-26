@@ -11,7 +11,7 @@ package ui
 
 import (
 	"fmt"
-	"github.com/richardwilkes/errors"
+	"github.com/richardwilkes/errs"
 	"net/http"
 	"os"
 	"sync"
@@ -60,25 +60,25 @@ func AcquireImageFromFile(fs http.FileSystem, path string) (img *Image, e error)
 	if r, ok = imageRegistry[k]; !ok {
 		var file http.File
 		if file, e = fs.Open(path); e != nil {
-			return nil, errors.Wrap(e)
+			return nil, errs.Wrap(e)
 		}
 		defer file.Close()
 		var fi os.FileInfo
 		if fi, e = file.Stat(); e != nil {
-			return nil, errors.Wrap(e)
+			return nil, errs.Wrap(e)
 		}
 		size := int(fi.Size())
 		buffer := make([]byte, size)
 		var n int
 		if n, e = file.Read(buffer); e != nil {
-			return nil, errors.Wrap(e)
+			return nil, errs.Wrap(e)
 		}
 		if n != size {
-			return nil, errors.New(fmt.Sprintf("Read %d bytes from file, expected %d", n, size))
+			return nil, errs.New(fmt.Sprintf("Read %d bytes from file, expected %d", n, size))
 		}
 		img := platformNewImageFromBytes(buffer)
 		if img == nil {
-			return nil, errors.New(fmt.Sprintf("Unable to load image from %s", path))
+			return nil, errs.New(fmt.Sprintf("Unable to load image from %s", path))
 		}
 		img.key = k
 		img.id = nextImageID
@@ -99,7 +99,7 @@ func AcquireImageFromURL(url string) (img *Image, e error) {
 	if r, ok = imageRegistry[url]; !ok {
 		img := platformNewImageFromURL(url)
 		if img == nil {
-			return nil, errors.New(fmt.Sprintf("Unable to load image from %s", url))
+			return nil, errs.New(fmt.Sprintf("Unable to load image from %s", url))
 		}
 		img.key = url
 		img.id = nextImageID
@@ -127,7 +127,7 @@ func AcquireImageFromID(id int) *Image {
 func AcquireImageFromData(data *ImageData) (img *Image, e error) {
 	img = platformNewImageFromData(data)
 	if img == nil {
-		return nil, errors.New("Unable to load image from data")
+		return nil, errs.New("Unable to load image from data")
 	}
 	imageRegistryLock.Lock()
 	defer imageRegistryLock.Unlock()
@@ -144,7 +144,7 @@ func AcquireImageFromData(data *ImageData) (img *Image, e error) {
 func (img *Image) AcquireImageBounds(bounds Rect) (image *Image, e error) {
 	image = platformNewImageFromImage(img, bounds)
 	if image == nil {
-		return nil, errors.New("Unable to create image")
+		return nil, errs.New("Unable to create image")
 	}
 	imageRegistryLock.Lock()
 	defer imageRegistryLock.Unlock()
