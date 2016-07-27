@@ -9,8 +9,13 @@
 
 package ui
 
+import (
+	"time"
+)
+
 // BaseButtonTheme contains the common theme elements used in all buttons.
 type BaseButtonTheme struct {
+	ClickAnimationTime    time.Duration
 	CornerRadius          float32 // The amount of rounding to use on the corners.
 	Background            Color   // The background color when enabled but not pressed or focused.
 	BackgroundWhenPressed Color   // The background color when enabled and pressed.
@@ -21,6 +26,7 @@ type BaseButtonTheme struct {
 
 // Init initializes the theme with its default values.
 func (theme *BaseButtonTheme) Init() {
+	theme.ClickAnimationTime = time.Millisecond * 100
 	theme.CornerRadius = 6
 	theme.Background = WhiteColor
 	theme.BackgroundWhenPressed = KeyboardFocusColor
