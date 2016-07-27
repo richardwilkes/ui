@@ -15,13 +15,13 @@ import (
 
 // BaseButtonTheme contains the common theme elements used in all buttons.
 type BaseButtonTheme struct {
-	ClickAnimationTime    time.Duration
-	CornerRadius          float32 // The amount of rounding to use on the corners.
-	Background            Color   // The background color when enabled but not pressed or focused.
-	BackgroundWhenPressed Color   // The background color when enabled and pressed.
-	GradientAdjustment    float32 // The amount to vary the color when creating the background gradient.
-	DisabledAdjustment    float32 // The amount to adjust the background brightness when disabled.
-	OutlineAdjustment     float32 // The amount to adjust the background brightness when using it to draw the button outline.
+	ClickAnimationTime    time.Duration // The amount of time to spend animating the click action.
+	CornerRadius          float32       // The amount of rounding to use on the corners.
+	Background            Color         // The background color when enabled but not pressed or focused.
+	BackgroundWhenPressed Color         // The background color when enabled and pressed.
+	GradientAdjustment    float32       // The amount to vary the color when creating the background gradient.
+	DisabledAdjustment    float32       // The amount to adjust the background brightness when disabled.
+	OutlineAdjustment     float32       // The amount to adjust the background brightness when using it to draw the button outline.
 }
 
 // Init initializes the theme with its default values.
