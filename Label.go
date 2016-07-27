@@ -9,12 +9,16 @@
 
 package ui
 
+import (
+	"github.com/richardwilkes/ui/color"
+)
+
 // Label represents a non-interactive piece of text.
 type Label struct {
 	Block
 	text       string
 	font       *Font
-	foreground Color
+	foreground color.Color
 	alignment  Alignment
 }
 
@@ -27,7 +31,7 @@ func NewLabel(text string) *Label {
 func NewLabelWithFont(text string, font *Font) *Label {
 	label := &Label{}
 	label.text = text
-	label.foreground = BlackColor
+	label.foreground = color.Black
 	label.font = font
 	label.alignment = AlignStart
 	label.SetSizer(label)
@@ -50,7 +54,7 @@ func (label *Label) paint(event *Event) {
 }
 
 // SetForeground sets the color used when drawing the text.
-func (label *Label) SetForeground(color Color) {
+func (label *Label) SetForeground(color color.Color) {
 	if label.foreground != color {
 		label.foreground = color
 		label.Repaint()

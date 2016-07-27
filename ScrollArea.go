@@ -10,6 +10,7 @@
 package ui
 
 import (
+	"github.com/richardwilkes/ui/color"
 	"github.com/richardwilkes/ui/keys"
 )
 
@@ -29,7 +30,7 @@ func NewScrollArea(content Widget) *ScrollArea {
 	sa := &ScrollArea{}
 	sa.AddEventHandler(MouseWheelEvent, sa.mouseWheel)
 	sa.view = NewBlock()
-	sa.view.SetBackground(TextBackgroundColor)
+	sa.view.SetBackground(color.TextBackground)
 	sa.view.AddEventHandler(ResizeEvent, sa.viewResized)
 	sa.SetFocusable(true) // RAW: Revist... don't want to be focusable, but do want to participate
 	sa.AddEventHandler(KeyDownEvent, sa.keyDown)

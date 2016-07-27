@@ -15,6 +15,7 @@ package ui
 import "C"
 
 import (
+	"github.com/richardwilkes/ui/color"
 	"math"
 	"unsafe"
 )
@@ -35,7 +36,7 @@ func (a *AttributedString) toPlatform() C.CFMutableAttributedStringRef {
 		case fontAttribute:
 			C.CFAttributedStringSetAttribute(as, r, C.kCTFontAttributeName, C.CFTypeRef(ra.attr.value.(*Font).font))
 		case foregroundAttribute:
-			color := ra.attr.value.(Color)
+			color := ra.attr.value.(color.Color)
 			rgba := C.CGColorCreateGenericRGB(C.CGFloat(color.RedIntensity()), C.CGFloat(color.GreenIntensity()), C.CGFloat(color.BlueIntensity()), C.CGFloat(color.AlphaIntensity()))
 			C.CFAttributedStringSetAttribute(as, r, C.kCTForegroundColorAttributeName, C.CFTypeRef(rgba))
 		case alignmentAttribute:

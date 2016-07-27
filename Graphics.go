@@ -9,6 +9,10 @@
 
 package ui
 
+import (
+	"github.com/richardwilkes/ui/color"
+)
+
 // Possible TextModes.
 const (
 	TextModeFill TextMode = iota
@@ -37,13 +41,13 @@ type Graphics interface {
 	// to 1 (opaque).
 	SetOpacity(opacity float32)
 	// FillColor returns the current fill color.
-	FillColor() Color
+	FillColor() color.Color
 	// SetFillColor sets the current fill color.
-	SetFillColor(color Color)
+	SetFillColor(color color.Color)
 	// StrokeColor returns the current stroke color.
-	StrokeColor() Color
+	StrokeColor() color.Color
 	// SetStrokeColor sets the current stroke color.
-	SetStrokeColor(color Color)
+	SetStrokeColor(color color.Color)
 	// StrokeWidth returns the current stroke width.
 	StrokeWidth() float32
 	// SetStrokeWidth sets the current stroke width.

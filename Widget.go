@@ -9,6 +9,10 @@
 
 package ui
 
+import (
+	"github.com/richardwilkes/ui/color"
+)
+
 // A Widget is the basic user interface block that interacts with the user.
 type Widget interface {
 	EventHandlers() map[int][]EventHandler
@@ -116,7 +120,7 @@ type Widget interface {
 	FromWindow(pt Point) Point
 
 	// Background returns the background color of this widget.
-	Background() Color
+	Background() color.Color
 	// SetBackground sets the background color of this widget.
-	SetBackground(color Color)
+	SetBackground(color color.Color)
 }

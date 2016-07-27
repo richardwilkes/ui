@@ -12,11 +12,12 @@ package ui
 import (
 	"bytes"
 	"fmt"
+	"github.com/richardwilkes/ui/color"
 )
 
 // ColorStop provides information about the color and position of one 'color stop' in a Gradient.
 type ColorStop struct {
-	Color    Color
+	Color    color.Color
 	Location float32
 }
 
@@ -32,7 +33,7 @@ func NewGradient(stops ...ColorStop) *Gradient {
 
 // NewEvenlySpacedGradient creates a new gradient with the specified colors evenly spread across
 // the whole range.
-func NewEvenlySpacedGradient(colors ...Color) *Gradient {
+func NewEvenlySpacedGradient(colors ...color.Color) *Gradient {
 	count := len(colors)
 	gradient := &Gradient{Stops: make([]ColorStop, count)}
 	switch count {

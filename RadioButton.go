@@ -10,6 +10,7 @@
 package ui
 
 import (
+	"github.com/richardwilkes/ui/color"
 	"github.com/richardwilkes/ui/keys"
 	"time"
 )
@@ -90,7 +91,7 @@ func (button *RadioButton) paint(event *Event) {
 	if button.Enabled() {
 		gc.DrawLinearGradient(button.Theme.Gradient(base), bounds.X, bounds.Y, bounds.X, bounds.Y+bounds.Height)
 	} else {
-		gc.SetFillColor(BackgroundColor)
+		gc.SetFillColor(color.Background)
 		gc.FillRect(bounds)
 	}
 	gc.AddPath(path)
@@ -101,7 +102,7 @@ func (button *RadioButton) paint(event *Event) {
 	if button.selected {
 		bounds.InsetUniform(0.2 * box)
 		if button.Enabled() {
-			c = KeyboardFocusColor
+			c = color.KeyboardFocus
 		}
 		gc.SetFillColor(c)
 		gc.FillEllipse(bounds)
@@ -167,21 +168,21 @@ func (button *RadioButton) keyDown(event *Event) {
 }
 
 // BaseBackground returns this button's current base background color.
-func (button *RadioButton) BaseBackground() Color {
+func (button *RadioButton) BaseBackground() color.Color {
 	switch {
 	case !button.Enabled():
 		return button.Theme.Background.AdjustBrightness(button.Theme.DisabledAdjustment)
 	case button.pressed:
 		return button.Theme.BackgroundWhenPressed
 	case button.Focused():
-		return button.Theme.Background.Blend(KeyboardFocusColor, 0.5)
+		return button.Theme.Background.Blend(color.KeyboardFocus, 0.5)
 	default:
 		return button.Theme.Background
 	}
 }
 
 // TextColor returns this button's current text color.
-func (button *RadioButton) TextColor() Color {
+func (button *RadioButton) TextColor() color.Color {
 	if button.Enabled() {
 		return button.Theme.TextWhenLight
 	}

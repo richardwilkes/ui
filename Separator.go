@@ -9,6 +9,10 @@
 
 package ui
 
+import (
+	"github.com/richardwilkes/ui/color"
+)
+
 // Separator provides a simple vertical or horizontal separator line.
 type Separator struct {
 	Block
@@ -72,6 +76,6 @@ func (sep *Separator) paint(event *Event) {
 		}
 	}
 	gc := event.GC
-	gc.SetFillColor(BackgroundColor.AdjustBrightness(-0.25))
+	gc.SetFillColor(color.Background.AdjustBrightness(-0.25))
 	gc.FillRect(bounds)
 }

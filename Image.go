@@ -12,6 +12,7 @@ package ui
 import (
 	"fmt"
 	"github.com/richardwilkes/errs"
+	"github.com/richardwilkes/ui/color"
 	"net/http"
 	"os"
 	"sync"
@@ -41,7 +42,7 @@ type Image struct {
 type ImageData struct {
 	Width  int
 	Height int
-	Pixels []Color
+	Pixels []color.Color
 }
 
 var (
@@ -168,7 +169,7 @@ func (img *Image) AcquireDisabled() (image *Image, e error) {
 	for i := range data.Pixels {
 		p := data.Pixels[i]
 		v := int((p.Luminance() * 255) + 0.5)
-		data.Pixels[i] = RGBA(v, v, v, p.AlphaIntensity()*0.4)
+		data.Pixels[i] = color.RGBA(v, v, v, p.AlphaIntensity()*0.4)
 	}
 	if image, e = AcquireImageFromData(data); e == nil {
 		img.disabledID = image.id

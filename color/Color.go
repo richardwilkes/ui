@@ -7,7 +7,7 @@
 // This Source Code Form is "Incompatible With Secondary Licenses", as
 // defined by the Mozilla Public License, version 2.0.
 
-package ui
+package color
 
 import (
 	"fmt"
@@ -29,7 +29,7 @@ func (c Color) String() string {
 	return fmt.Sprintf("#%06X", uint32(c&0xFFFFFF))
 }
 
-// DecodeColor creates a Color from a string. The string may be in any of the standard CSS formats:
+// Decode creates a Color from a string. The string may be in any of the standard CSS formats:
 //
 // - CSS predefined color name, e.g. "Yellow"
 // - CSS rgb(), e.g. "rgb(255, 255, 0)"
@@ -38,7 +38,7 @@ func (c Color) String() string {
 // - CSS long hexadecimal colors, e.g. "#FFFF00"
 // - CCS hsl(), e.g. "hsl(120, 100%, 50%)"
 // - CSS hsla(), e.g. "hsla(120, 100%, 50%, 0.3)"
-func DecodeColor(buffer string) Color {
+func Decode(buffer string) Color {
 	buffer = strings.ToLower(strings.TrimSpace(buffer))
 	if color, ok := nameToColor[buffer]; ok {
 		return color
@@ -48,42 +48,42 @@ func DecodeColor(buffer string) Color {
 		buffer = buffer[1:]
 		switch len(buffer) {
 		case 3:
-			return RGB(extractColorChannel(buffer[0:1]+buffer[0:1], 16), extractColorChannel(buffer[1:2]+buffer[1:2], 16), extractColorChannel(buffer[2:3]+buffer[2:3], 16))
+			return RGB(extractChannel(buffer[0:1]+buffer[0:1], 16), extractChannel(buffer[1:2]+buffer[1:2], 16), extractChannel(buffer[2:3]+buffer[2:3], 16))
 		case 6:
-			return RGB(extractColorChannel(buffer[0:2], 16), extractColorChannel(buffer[2:4], 16), extractColorChannel(buffer[4:6], 16))
+			return RGB(extractChannel(buffer[0:2], 16), extractChannel(buffer[2:4], 16), extractChannel(buffer[4:6], 16))
 		}
 	case strings.HasPrefix(buffer, "rgb(") && strings.HasSuffix(buffer, ")"):
 		parts := strings.SplitN(strings.TrimSpace(buffer[4:len(buffer)-1]), ",", 4)
 		if len(parts) == 3 {
-			return RGB(extractColorChannel(parts[0], 10), extractColorChannel(parts[1], 10), extractColorChannel(parts[2], 10))
+			return RGB(extractChannel(parts[0], 10), extractChannel(parts[1], 10), extractChannel(parts[2], 10))
 		}
 	case strings.HasPrefix(buffer, "rgba(") && strings.HasSuffix(buffer, ")"):
 		parts := strings.SplitN(strings.TrimSpace(buffer[5:len(buffer)-1]), ",", 5)
 		if len(parts) == 4 {
-			return RGBA(extractColorChannel(parts[0], 10), extractColorChannel(parts[1], 10), extractColorChannel(parts[2], 10), extractColorAlpha(parts[3]))
+			return RGBA(extractChannel(parts[0], 10), extractChannel(parts[1], 10), extractChannel(parts[2], 10), extractAlpha(parts[3]))
 		}
 	case strings.HasPrefix(buffer, "hsl(") && strings.HasSuffix(buffer, ")"):
 		parts := strings.SplitN(strings.TrimSpace(buffer[4:len(buffer)-1]), ",", 4)
 		if len(parts) == 3 {
-			return HSB(float32(extractColorChannel(parts[0], 10))/360, extractColorPercentage(parts[1]), extractColorPercentage(parts[2]))
+			return HSB(float32(extractChannel(parts[0], 10))/360, extractPercentage(parts[1]), extractPercentage(parts[2]))
 		}
 	case strings.HasPrefix(buffer, "hsla(") && strings.HasSuffix(buffer, ")"):
 		parts := strings.SplitN(strings.TrimSpace(buffer[5:len(buffer)-1]), ",", 5)
 		if len(parts) == 4 {
-			return HSBA(float32(extractColorChannel(parts[0], 10))/360, extractColorPercentage(parts[1]), extractColorPercentage(parts[2]), extractColorAlpha(parts[3]))
+			return HSBA(float32(extractChannel(parts[0], 10))/360, extractPercentage(parts[1]), extractPercentage(parts[2]), extractAlpha(parts[3]))
 		}
 	}
 	return 0
 }
 
-func extractColorChannel(buffer string, base int) int {
+func extractChannel(buffer string, base int) int {
 	if value, err := strconv.ParseInt(strings.TrimSpace(buffer), base, 64); err == nil {
 		return int(value)
 	}
 	return 0
 }
 
-func extractColorAlpha(buffer string) float32 {
+func extractAlpha(buffer string) float32 {
 	alpha, err := strconv.ParseFloat(strings.TrimSpace(buffer), 32)
 	if err != nil {
 		return 0
@@ -91,7 +91,7 @@ func extractColorAlpha(buffer string) float32 {
 	return clamp0To1(float32(alpha))
 }
 
-func extractColorPercentage(buffer string) float32 {
+func extractPercentage(buffer string) float32 {
 	buffer = strings.TrimSpace(buffer)
 	if strings.HasSuffix(buffer, "%") {
 		value, err := strconv.Atoi(strings.TrimSpace(buffer[:len(buffer)-1]))

@@ -10,6 +10,7 @@
 package ui
 
 import (
+	"github.com/richardwilkes/ui/color"
 	"reflect"
 	"time"
 )
@@ -25,7 +26,7 @@ type Block struct {
 	border        Border
 	bounds        Rect
 	layoutData    interface{}
-	background    Color
+	background    color.Color
 	needLayout    bool
 	disabled      bool
 	focusable     bool
@@ -433,12 +434,12 @@ func (b *Block) FromWindow(pt Point) Point {
 }
 
 // Background implements the Widget interface.
-func (b *Block) Background() Color {
+func (b *Block) Background() color.Color {
 	return b.background
 }
 
 // SetBackground implements the Widget interface.
-func (b *Block) SetBackground(color Color) {
+func (b *Block) SetBackground(color color.Color) {
 	if color != b.background {
 		b.background = color
 		b.Repaint()

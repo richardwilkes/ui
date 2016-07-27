@@ -9,15 +9,19 @@
 
 package ui
 
+import (
+	"github.com/richardwilkes/ui/color"
+)
+
 // LineBorder is a Border that draws a line along some or all of its sides.
 type LineBorder struct {
 	insets Insets
-	color  Color
+	color  color.Color
 }
 
 // NewLineBorder creates a new Line Border. The insets represent how thick the border will be drawn
 // on that edge.
-func NewLineBorder(color Color, insets Insets) Border {
+func NewLineBorder(color color.Color, insets Insets) Border {
 	return &LineBorder{insets: insets, color: color}
 }
 

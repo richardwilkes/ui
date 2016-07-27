@@ -10,6 +10,7 @@
 package ui
 
 import (
+	"github.com/richardwilkes/ui/color"
 	"time"
 )
 
@@ -396,20 +397,20 @@ func (sb *ScrollBar) drawLineButton(g Graphics, linePart scrollBarPart) {
 	g.FillPath()
 }
 
-func (sb *ScrollBar) baseBackground(part scrollBarPart) Color {
+func (sb *ScrollBar) baseBackground(part scrollBarPart) color.Color {
 	switch {
 	case !sb.Enabled():
 		return sb.Theme.Background.AdjustBrightness(sb.Theme.DisabledAdjustment)
 	case part != scrollBarNone && sb.pressed == part:
 		return sb.Theme.BackgroundWhenPressed
 	case sb.Focused():
-		return sb.Theme.Background.Blend(KeyboardFocusColor, 0.5)
+		return sb.Theme.Background.Blend(color.KeyboardFocus, 0.5)
 	default:
 		return sb.Theme.Background
 	}
 }
 
-func (sb *ScrollBar) markColor(part scrollBarPart) Color {
+func (sb *ScrollBar) markColor(part scrollBarPart) color.Color {
 	if sb.partEnabled(part) {
 		if sb.baseBackground(part).Luminance() > 0.65 {
 			return sb.Theme.MarkWhenLight

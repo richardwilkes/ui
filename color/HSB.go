@@ -7,7 +7,7 @@
 // This Source Code Form is "Incompatible With Secondary Licenses", as
 // defined by the Mozilla Public License, version 2.0.
 
-package ui
+package color
 
 import (
 	"math"
@@ -69,7 +69,7 @@ func (c Color) AdjustHue(amount float32) Color {
 func (c Color) Saturation() float32 {
 	brightness := c.Brightness()
 	if brightness != 0 {
-		return (brightness - (float32(MinOf3int(c.Red(), c.Green(), c.Blue())) / 255)) / brightness
+		return (brightness - (float32(min(c.Red(), c.Green(), c.Blue())) / 255)) / brightness
 	}
 	return 0
 }
@@ -89,7 +89,7 @@ func (c Color) AdjustSaturation(amount float32) Color {
 
 // Brightness of the color, a value from 0-1.
 func (c Color) Brightness() float32 {
-	return float32(MaxOf3int(c.Red(), c.Green(), c.Blue())) / 255
+	return float32(max(c.Red(), c.Green(), c.Blue())) / 255
 }
 
 // SetBrightness creates a new color from this color with the specified brightness.
@@ -110,8 +110,8 @@ func (c Color) HSB() (hue, saturation, brightness float32) {
 	red := c.Red()
 	green := c.Green()
 	blue := c.Blue()
-	cmax := MaxOf3int(red, green, blue)
-	cmin := MinOf3int(red, green, blue)
+	cmax := max(red, green, blue)
+	cmin := min(red, green, blue)
 	if cmax != 0 {
 		saturation = float32(cmax-cmin) / float32(cmax)
 	} else {
@@ -163,4 +163,30 @@ func clamp0To255(value int) int {
 
 func clamp0To1AndScale255(value float32) int {
 	return clamp0To255(int(clamp0To1(value)*255 + 0.5))
+}
+
+func min(a, b, c int) int {
+	if a < b {
+		if a < c {
+			return a
+		}
+		return c
+	}
+	if b < c {
+		return b
+	}
+	return c
+}
+
+func max(a, b, c int) int {
+	if a > b {
+		if a > c {
+			return a
+		}
+		return c
+	}
+	if b > c {
+		return b
+	}
+	return c
 }

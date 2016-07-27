@@ -10,6 +10,7 @@
 package ui
 
 import (
+	"github.com/richardwilkes/ui/color"
 	"time"
 )
 
@@ -17,8 +18,8 @@ import (
 type BaseButtonTheme struct {
 	ClickAnimationTime    time.Duration // The amount of time to spend animating the click action.
 	CornerRadius          float32       // The amount of rounding to use on the corners.
-	Background            Color         // The background color when enabled but not pressed or focused.
-	BackgroundWhenPressed Color         // The background color when enabled and pressed.
+	Background            color.Color   // The background color when enabled but not pressed or focused.
+	BackgroundWhenPressed color.Color   // The background color when enabled and pressed.
 	GradientAdjustment    float32       // The amount to vary the color when creating the background gradient.
 	DisabledAdjustment    float32       // The amount to adjust the background brightness when disabled.
 	OutlineAdjustment     float32       // The amount to adjust the background brightness when using it to draw the button outline.
@@ -28,14 +29,14 @@ type BaseButtonTheme struct {
 func (theme *BaseButtonTheme) Init() {
 	theme.ClickAnimationTime = time.Millisecond * 100
 	theme.CornerRadius = 6
-	theme.Background = WhiteColor
-	theme.BackgroundWhenPressed = KeyboardFocusColor
+	theme.Background = color.White
+	theme.BackgroundWhenPressed = color.KeyboardFocus
 	theme.GradientAdjustment = 0.15
 	theme.DisabledAdjustment = -0.05
 	theme.OutlineAdjustment = -0.5
 }
 
 // Gradient returns a gradient for the specified color.
-func (theme *BaseButtonTheme) Gradient(base Color) *Gradient {
+func (theme *BaseButtonTheme) Gradient(base color.Color) *Gradient {
 	return NewEvenlySpacedGradient(base.AdjustBrightness(theme.GradientAdjustment), base.AdjustBrightness(-theme.GradientAdjustment))
 }

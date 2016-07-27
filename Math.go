@@ -65,34 +65,6 @@ func MaxInt(a, b int) int {
 	return b
 }
 
-// MinOf3int returns the smaller of a, b, or c.
-func MinOf3int(a, b, c int) int {
-	if a < b {
-		if a < c {
-			return a
-		}
-		return c
-	}
-	if b < c {
-		return b
-	}
-	return c
-}
-
-// MaxOf3int returns the larger of a, b, or c.
-func MaxOf3int(a, b, c int) int {
-	if a > b {
-		if a > c {
-			return a
-		}
-		return c
-	}
-	if b > c {
-		return b
-	}
-	return c
-}
-
 // RoundFloat32 returns the closest integer.
 func RoundFloat32(x float32) float32 {
 	return float32(int(x + 0.5))

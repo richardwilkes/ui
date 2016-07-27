@@ -11,6 +11,7 @@ package ui
 
 import (
 	"fmt"
+	"github.com/richardwilkes/ui/color"
 	"github.com/richardwilkes/ui/keys"
 )
 
@@ -225,19 +226,19 @@ func (pm *PopupMenu) SelectIndex(index int) {
 }
 
 // BaseBackground returns this popup menu's current base background color.
-func (pm *PopupMenu) BaseBackground() Color {
+func (pm *PopupMenu) BaseBackground() color.Color {
 	switch {
 	case !pm.Enabled():
 		return pm.Theme.Background.AdjustBrightness(pm.Theme.DisabledAdjustment)
 	case pm.Focused():
-		return pm.Theme.Background.Blend(KeyboardFocusColor, 0.5)
+		return pm.Theme.Background.Blend(color.KeyboardFocus, 0.5)
 	default:
 		return pm.Theme.Background
 	}
 }
 
 // TextColor returns this popup menu's current text color.
-func (pm *PopupMenu) TextColor() Color {
+func (pm *PopupMenu) TextColor() color.Color {
 	if !pm.Enabled() {
 		return pm.Theme.TextWhenDisabled
 	}
@@ -258,7 +259,7 @@ func (pm *PopupMenu) attributedString() *AttributedString {
 func (pm *PopupMenu) measureConstrained(hint Size) Size {
 	var largest Size
 	for _, one := range pm.items {
-		size, _ := NewAttributedString(fmt.Sprintf("%v", one), BlackColor, pm.Theme.Font).MeasureConstrained(hint)
+		size, _ := NewAttributedString(fmt.Sprintf("%v", one), color.Black, pm.Theme.Font).MeasureConstrained(hint)
 		if largest.Width < size.Width {
 			largest.Width = size.Width
 		}

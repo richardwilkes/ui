@@ -10,6 +10,7 @@
 package ui
 
 import (
+	"github.com/richardwilkes/ui/color"
 	"github.com/richardwilkes/ui/keys"
 	"time"
 )
@@ -107,7 +108,7 @@ func (checkbox *CheckBox) paint(event *Event) {
 	if checkbox.Enabled() {
 		gc.DrawLinearGradient(checkbox.Theme.Gradient(base), bounds.X+bounds.Width/2, bounds.Y+1, bounds.X+bounds.Width/2, bounds.Y+bounds.Height-1)
 	} else {
-		gc.SetFillColor(BackgroundColor)
+		gc.SetFillColor(color.Background)
 		gc.FillRect(bounds)
 	}
 	gc.AddPath(path)
@@ -196,7 +197,7 @@ func (checkbox *CheckBox) keyDown(event *Event) {
 	}
 }
 
-func (checkbox *CheckBox) stateColor(base Color) Color {
+func (checkbox *CheckBox) stateColor(base color.Color) color.Color {
 	if !checkbox.Enabled() {
 		return checkbox.Theme.TextWhenDisabled
 	}
@@ -207,21 +208,21 @@ func (checkbox *CheckBox) stateColor(base Color) Color {
 }
 
 // BaseBackground returns this checkbox's current base background color.
-func (checkbox *CheckBox) BaseBackground() Color {
+func (checkbox *CheckBox) BaseBackground() color.Color {
 	switch {
 	case !checkbox.Enabled():
 		return checkbox.Theme.Background.AdjustBrightness(checkbox.Theme.DisabledAdjustment)
 	case checkbox.pressed:
 		return checkbox.Theme.BackgroundWhenPressed
 	case checkbox.Focused():
-		return checkbox.Theme.Background.Blend(KeyboardFocusColor, 0.5)
+		return checkbox.Theme.Background.Blend(color.KeyboardFocus, 0.5)
 	default:
 		return checkbox.Theme.Background
 	}
 }
 
 // TextColor returns this checkbox's current text color.
-func (checkbox *CheckBox) TextColor() Color {
+func (checkbox *CheckBox) TextColor() color.Color {
 	if !checkbox.Enabled() {
 		return checkbox.Theme.TextWhenDisabled
 	}

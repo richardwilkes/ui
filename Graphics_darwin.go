@@ -9,6 +9,10 @@
 
 package ui
 
+import (
+	"github.com/richardwilkes/ui/color"
+)
+
 // #cgo darwin LDFLAGS: -framework Cocoa
 // #include <stdio.h>
 // #include <CoreGraphics/CoreGraphics.h>
@@ -41,15 +45,15 @@ type graphics struct {
 
 type graphicsState struct {
 	opacity     float32
-	fillColor   Color
-	strokeColor Color
+	fillColor   color.Color
+	strokeColor color.Color
 	strokeWidth float32
 	font        *Font
 }
 
 func newGraphics(gc C.uiGraphicsContext) Graphics {
 	c := &graphics{gc: gc}
-	c.stack = append(c.stack, &graphicsState{opacity: 1, fillColor: WhiteColor, strokeColor: BlackColor, strokeWidth: 1})
+	c.stack = append(c.stack, &graphicsState{opacity: 1, fillColor: color.White, strokeColor: color.Black, strokeWidth: 1})
 	return c
 }
 
@@ -84,23 +88,23 @@ func (gc *graphics) SetOpacity(opacity float32) {
 }
 
 // FillColor implements Graphics.
-func (gc *graphics) FillColor() Color {
+func (gc *graphics) FillColor() color.Color {
 	return gc.stack[len(gc.stack)-1].fillColor
 }
 
 // SetFillColor implements Graphics.
-func (gc *graphics) SetFillColor(color Color) {
+func (gc *graphics) SetFillColor(color color.Color) {
 	gc.stack[len(gc.stack)-1].fillColor = color
 	C.CGContextSetRGBFillColor(gc.gc, C.CGFloat(color.RedIntensity()), C.CGFloat(color.GreenIntensity()), C.CGFloat(color.BlueIntensity()), C.CGFloat(color.AlphaIntensity()))
 }
 
 // StrokeColor implements Graphics.
-func (gc *graphics) StrokeColor() Color {
+func (gc *graphics) StrokeColor() color.Color {
 	return gc.stack[len(gc.stack)-1].strokeColor
 }
 
 // SetStrokeColor implements Graphics.
-func (gc *graphics) SetStrokeColor(color Color) {
+func (gc *graphics) SetStrokeColor(color color.Color) {
 	gc.stack[len(gc.stack)-1].strokeColor = color
 	C.CGContextSetRGBStrokeColor(gc.gc, C.CGFloat(color.RedIntensity()), C.CGFloat(color.GreenIntensity()), C.CGFloat(color.BlueIntensity()), C.CGFloat(color.AlphaIntensity()))
 }

@@ -10,6 +10,7 @@
 package ui
 
 import (
+	"github.com/richardwilkes/ui/color"
 	"unsafe"
 )
 
@@ -58,7 +59,7 @@ func platformNewImageFromData(data *ImageData) *Image {
 	size := C.size_t(length * 4)
 	buffer := C.malloc(size)
 	C.memcpy(buffer, unsafe.Pointer(&data.Pixels[0]), size)
-	pixels := (*[1 << 30]Color)(buffer)
+	pixels := (*[1 << 30]color.Color)(buffer)
 
 	// Perform alpha pre-multiplication, since macOS requires it
 	for i := 0; i < length; i++ {
@@ -106,7 +107,7 @@ func (img *Image) Data() *ImageData {
 	size := img.Size()
 	width := C.size_t(size.Width)
 	height := C.size_t(size.Height)
-	pixels := make([]Color, width*height)
+	pixels := make([]color.Color, width*height)
 	colorspace := C.CGColorSpaceCreateWithName(C.kCGColorSpaceGenericRGB)
 	defer C.CGColorSpaceRelease(colorspace)
 	context := C.CGBitmapContextCreate(unsafe.Pointer(&pixels[0]), width, height, 8, width*4, colorspace, C.uint32_t(C.kCGBitmapByteOrder32Host|C.kCGImageAlphaPremultipliedFirst))

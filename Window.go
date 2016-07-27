@@ -11,6 +11,7 @@ package ui
 
 import (
 	"fmt"
+	"github.com/richardwilkes/ui/color"
 	"github.com/richardwilkes/ui/keys"
 	"time"
 	"unsafe"
@@ -66,7 +67,7 @@ func NewWindowWithContentSize(where Point, contentSize Size, styleMask WindowSty
 	window := &Window{window: C.uiNewWindow(toCRect(bounds), C.int(styleMask))}
 	windowMap[window.window] = window
 	window.rootBlock = NewBlock()
-	window.rootBlock.SetBackground(BackgroundColor)
+	window.rootBlock.SetBackground(color.Background)
 	window.rootBlock.window = window
 	window.rootBlock.bounds = window.ContentLocalBounds()
 	return window

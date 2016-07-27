@@ -10,6 +10,7 @@
 package ui
 
 import (
+	"github.com/richardwilkes/ui/color"
 	"github.com/richardwilkes/ui/keys"
 	"time"
 )
@@ -171,14 +172,14 @@ func (button *ImageButton) CurrentImage() *Image {
 }
 
 // BaseBackground returns this button's current base background color.
-func (button *ImageButton) BaseBackground() Color {
+func (button *ImageButton) BaseBackground() color.Color {
 	switch {
 	case !button.Enabled():
 		return button.Theme.Background.AdjustBrightness(button.Theme.DisabledAdjustment)
 	case button.pressed:
 		return button.Theme.BackgroundWhenPressed
 	case button.Focused():
-		return button.Theme.Background.Blend(KeyboardFocusColor, 0.5)
+		return button.Theme.Background.Blend(color.KeyboardFocus, 0.5)
 	default:
 		return button.Theme.Background
 	}

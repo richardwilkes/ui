@@ -7,7 +7,7 @@
 // This Source Code Form is "Incompatible With Secondary Licenses", as
 // defined by the Mozilla Public License, version 2.0.
 
-package ui
+package color
 
 // RGB creates a new opaque Color from RGB values in the range 0-255.
 func RGB(red, green, blue int) Color {
