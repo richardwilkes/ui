@@ -9,6 +9,11 @@
 
 package ui
 
+import (
+	"github.com/richardwilkes/ui/draw"
+	"github.com/richardwilkes/xmath"
+)
+
 const (
 	// NoLayoutHint is passed as a hint value when one or both dimensions have no suggested value.
 	NoLayoutHint = -1
@@ -20,22 +25,11 @@ const (
 	DefaultLayoutMax = 10000
 )
 
-// Alignment constants.
-const (
-	AlignStart Alignment = iota
-	AlignMiddle
-	AlignEnd
-	AlignFill
-)
-
-// Alignment specifies how to align an object within its available space.
-type Alignment uint8
-
 // Sizer is called when no layout has been set for a widget. Returns the minimum, preferred, and
 // maximum sizes of the widget. The hint's values will be either NoLayoutHint or a specific value
 // if that particular dimension has already been determined.
 type Sizer interface {
-	Sizes(hint Size) (min, pref, max Size)
+	Sizes(hint draw.Size) (min, pref, max draw.Size)
 }
 
 // The Layout interface should be implemented by objects that provide layout services.
@@ -48,25 +42,25 @@ type Layout interface {
 var (
 	// NoLayoutHintSize is a convenience for passing to layouts when you don't have any particular
 	// size constraints in mind. Should be treated as read-only.
-	NoLayoutHintSize = Size{Width: NoLayoutHint, Height: NoLayoutHint}
+	NoLayoutHintSize = draw.Size{Width: NoLayoutHint, Height: NoLayoutHint}
 )
 
 // DefaultLayoutMaxSize returns the size that is at least as large as DefaultLayoutMax in both dimensions, but
 // larger if the preferred size that is passed in is larger.
-func DefaultLayoutMaxSize(pref Size) Size {
-	return Size{Width: MaxFloat32(DefaultLayoutMax, pref.Width), Height: MaxFloat32(DefaultLayoutMax, pref.Height)}
+func DefaultLayoutMaxSize(pref draw.Size) draw.Size {
+	return draw.Size{Width: xmath.MaxFloat32(DefaultLayoutMax, pref.Width), Height: xmath.MaxFloat32(DefaultLayoutMax, pref.Height)}
 }
 
 // ComputeSizes returns the minimum, preferred, and maximum sizes 'widget' wishes to be. It does
 // this by asking the widget's Layout. If no Layout is present, then the widget's Sizer is asked.
 // If no Sizer is present, then it finally uses a default set of sizes that are used for all
 // components.
-func ComputeSizes(widget Widget, hint Size) (min, pref, max Size) {
+func ComputeSizes(widget Widget, hint draw.Size) (min, pref, max draw.Size) {
 	if l := widget.Layout(); l != nil {
 		return l.Sizes(hint)
 	}
 	if s := widget.Sizer(); s != nil {
 		return s.Sizes(hint)
 	}
-	return Size{}, Size{}, DefaultLayoutMaxSize(Size{})
+	return draw.Size{}, draw.Size{}, DefaultLayoutMaxSize(draw.Size{})
 }

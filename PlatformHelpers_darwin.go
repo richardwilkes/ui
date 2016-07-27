@@ -9,14 +9,15 @@
 
 package ui
 
+import (
+	"github.com/richardwilkes/ui/draw"
+	"unsafe"
+)
+
 // #cgo darwin LDFLAGS: -framework Cocoa
 // #include <stdlib.h>
 // #include <CoreText/CoreText.h>
 import "C"
-
-import (
-	"unsafe"
-)
 
 func stringFromCFString(cfStr C.CFStringRef) string {
 	var freeUTF8StringPtr *C.char
@@ -42,6 +43,6 @@ func cfStringFromString(str string) C.CFStringRef {
 	return cfstr
 }
 
-func toCGRect(bounds Rect) C.CGRect {
+func toCGRect(bounds draw.Rect) C.CGRect {
 	return C.CGRectMake(C.CGFloat(bounds.X), C.CGFloat(bounds.Y), C.CGFloat(bounds.Width), C.CGFloat(bounds.Height))
 }

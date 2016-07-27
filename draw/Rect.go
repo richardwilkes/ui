@@ -7,10 +7,11 @@
 // This Source Code Form is "Incompatible With Secondary Licenses", as
 // defined by the Mozilla Public License, version 2.0.
 
-package ui
+package draw
 
 import (
 	"fmt"
+	"github.com/richardwilkes/xmath"
 )
 
 // Rect defines a rectangle.
@@ -22,11 +23,11 @@ type Rect struct {
 // Align modifies this rectangle to align with integer coordinates that would encompass the
 // original rectangle.
 func (r *Rect) Align() {
-	x := FloorFloat32(r.X)
-	r.Width = CeilFloat32(r.X+r.Width) - x
+	x := xmath.FloorFloat32(r.X)
+	r.Width = xmath.CeilFloat32(r.X+r.Width) - x
 	r.X = x
-	y := FloorFloat32(r.Y)
-	r.Height = CeilFloat32(r.Y+r.Height) - y
+	y := xmath.FloorFloat32(r.Y)
+	r.Height = xmath.CeilFloat32(r.Y+r.Height) - y
 	r.Y = y
 }
 
@@ -46,10 +47,10 @@ func (r *Rect) Intersect(other Rect) {
 		r.Width = 0
 		r.Height = 0
 	} else {
-		x := MaxFloat32(r.X, other.X)
-		y := MaxFloat32(r.Y, other.Y)
-		w := MinFloat32(r.X+r.Width, other.X+other.Width) - x
-		h := MinFloat32(r.Y+r.Height, other.Y+other.Height) - y
+		x := xmath.MaxFloat32(r.X, other.X)
+		y := xmath.MaxFloat32(r.Y, other.Y)
+		w := xmath.MinFloat32(r.X+r.Width, other.X+other.Width) - x
+		h := xmath.MinFloat32(r.Y+r.Height, other.Y+other.Height) - y
 		if w > 0 && h > 0 {
 			r.X = x
 			r.Y = y
@@ -72,10 +73,10 @@ func (r *Rect) Union(other Rect) {
 	} else if e1 {
 		*r = other
 	} else if !e2 {
-		x := MinFloat32(r.X, other.X)
-		y := MinFloat32(r.Y, other.Y)
-		r.Width = MaxFloat32(r.X+r.Width, other.X+other.Width) - x
-		r.Height = MaxFloat32(r.Y+r.Height, other.Y+other.Height) - y
+		x := xmath.MinFloat32(r.X, other.X)
+		y := xmath.MinFloat32(r.Y, other.Y)
+		r.Width = xmath.MaxFloat32(r.X+r.Width, other.X+other.Width) - x
+		r.Height = xmath.MaxFloat32(r.Y+r.Height, other.Y+other.Height) - y
 		r.X = x
 		r.Y = y
 	}

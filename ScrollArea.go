@@ -12,6 +12,7 @@ package ui
 import (
 	"github.com/richardwilkes/ui/color"
 	"github.com/richardwilkes/ui/keys"
+	"github.com/richardwilkes/xmath"
 )
 
 // ScrollArea provides a widget that can hold another widget and show it through a scrollable
@@ -145,10 +146,10 @@ func (sa *ScrollArea) viewResized(event *Event) {
 		cs := sa.content.Size()
 		nl := cl
 		if cl.Y != 0 && vs.Height > cl.Y+cs.Height {
-			nl.Y = MinFloat32(vs.Height-cs.Height, 0)
+			nl.Y = xmath.MinFloat32(vs.Height-cs.Height, 0)
 		}
 		if cl.X != 0 && vs.Width > cl.X+cs.Width {
-			nl.X = MinFloat32(vs.Width-cs.Width, 0)
+			nl.X = xmath.MinFloat32(vs.Width-cs.Width, 0)
 		}
 		if nl != cl {
 			sa.content.SetLocation(nl)

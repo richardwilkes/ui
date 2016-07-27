@@ -7,7 +7,7 @@
 // This Source Code Form is "Incompatible With Secondary Licenses", as
 // defined by the Mozilla Public License, version 2.0.
 
-package ui
+package draw
 
 // #cgo darwin LDFLAGS: -framework Cocoa
 // #include <stdlib.h>
@@ -21,7 +21,7 @@ import (
 	"unsafe"
 )
 
-func (a *AttributedString) toPlatform() C.CFMutableAttributedStringRef {
+func (a *Text) toPlatform() C.CFMutableAttributedStringRef {
 	as := C.CFAttributedStringCreateMutable(C.kCFAllocatorDefault, 0)
 	C.CFAttributedStringBeginEditing(as)
 	C.CFAttributedStringReplaceString(as, C.CFRangeMake(0, 0), cfStringFromString(a.text))
@@ -65,7 +65,7 @@ func (a *AttributedString) toPlatform() C.CFMutableAttributedStringRef {
 	return as
 }
 
-func (a *AttributedString) platformMeasure(size Size) (actual Size, fit int) {
+func (a *Text) platformMeasure(size Size) (actual Size, fit int) {
 	attrStr := a.toPlatform()
 	setter := C.CTFramesetterCreateWithAttributedString(attrStr)
 	fitRange := C.CFRangeMake(0, 0)
@@ -79,4 +79,11 @@ func (a *AttributedString) platformMeasure(size Size) (actual Size, fit int) {
 	C.CFRelease(setter)
 	C.CFRelease(attrStr)
 	return Size{Width: float32(cSize.width), Height: float32(cSize.height)}, int(fitRange.length)
+}
+
+func cfStringFromString(str string) C.CFStringRef {
+	cstr := C.CString(str)
+	cfstr := C.CFStringCreateWithBytes(nil, (*C.UInt8)(unsafe.Pointer(cstr)), C.CFIndex(len(str)), C.kCFStringEncodingUTF8, 0)
+	C.free(unsafe.Pointer(cstr))
+	return cfstr
 }

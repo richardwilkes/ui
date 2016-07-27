@@ -11,6 +11,8 @@ package ui
 
 import (
 	"github.com/richardwilkes/ui/color"
+	"github.com/richardwilkes/ui/draw"
+	"github.com/richardwilkes/xmath"
 	"time"
 )
 
@@ -76,7 +78,7 @@ func NewScrollBar(horizontal bool, target Scrollable) *ScrollBar {
 }
 
 // Sizes implements the Sizer interface.
-func (sb *ScrollBar) Sizes(hint Size) (min, pref, max Size) {
+func (sb *ScrollBar) Sizes(hint draw.Size) (min, pref, max draw.Size) {
 	if sb.horizontal {
 		min.Width = sb.Theme.Size * 2
 		min.Height = sb.Theme.Size
@@ -176,13 +178,13 @@ func (sb *ScrollBar) scheduleRepeat(part scrollBarPart, delay time.Duration) {
 	current := sb.sequence
 	switch part {
 	case scrollBarLineUp:
-		sb.SetScrolledPosition(sb.Target.ScrolledPosition(sb.horizontal) - AbsFloat32(sb.Target.LineScrollAmount(sb.horizontal, true)))
+		sb.SetScrolledPosition(sb.Target.ScrolledPosition(sb.horizontal) - xmath.AbsFloat32(sb.Target.LineScrollAmount(sb.horizontal, true)))
 	case scrollBarLineDown:
-		sb.SetScrolledPosition(sb.Target.ScrolledPosition(sb.horizontal) + AbsFloat32(sb.Target.LineScrollAmount(sb.horizontal, false)))
+		sb.SetScrolledPosition(sb.Target.ScrolledPosition(sb.horizontal) + xmath.AbsFloat32(sb.Target.LineScrollAmount(sb.horizontal, false)))
 	case scrollBarPageUp:
-		sb.SetScrolledPosition(sb.Target.ScrolledPosition(sb.horizontal) - AbsFloat32(sb.Target.PageScrollAmount(sb.horizontal, true)))
+		sb.SetScrolledPosition(sb.Target.ScrolledPosition(sb.horizontal) - xmath.AbsFloat32(sb.Target.PageScrollAmount(sb.horizontal, true)))
 	case scrollBarPageDown:
-		sb.SetScrolledPosition(sb.Target.ScrolledPosition(sb.horizontal) + AbsFloat32(sb.Target.PageScrollAmount(sb.horizontal, false)))
+		sb.SetScrolledPosition(sb.Target.ScrolledPosition(sb.horizontal) + xmath.AbsFloat32(sb.Target.PageScrollAmount(sb.horizontal, false)))
 	default:
 		return
 	}
@@ -193,7 +195,7 @@ func (sb *ScrollBar) scheduleRepeat(part scrollBarPart, delay time.Duration) {
 	}, delay)
 }
 
-func (sb *ScrollBar) over(where Point) scrollBarPart {
+func (sb *ScrollBar) over(where draw.Point) scrollBarPart {
 	for i := scrollBarThumb; i <= scrollBarPageDown; i++ {
 		rect := sb.partRect(i)
 		if rect.Contains(where) {
@@ -228,8 +230,8 @@ func (sb *ScrollBar) thumbScale() float32 {
 	return scale
 }
 
-func (sb *ScrollBar) partRect(part scrollBarPart) Rect {
-	var result Rect
+func (sb *ScrollBar) partRect(part scrollBarPart) draw.Rect {
+	var result draw.Rect
 	switch part {
 	case scrollBarThumb:
 		if sb.Target != nil {
@@ -314,7 +316,7 @@ func (sb *ScrollBar) partRect(part scrollBarPart) Rect {
 	return result
 }
 
-func (sb *ScrollBar) drawThumb(g Graphics) {
+func (sb *ScrollBar) drawThumb(g draw.Graphics) {
 	bounds := sb.partRect(scrollBarThumb)
 	if !bounds.IsEmpty() {
 		bgColor := sb.baseBackground(scrollBarThumb)
@@ -331,13 +333,13 @@ func (sb *ScrollBar) drawThumb(g Graphics) {
 		g.SetStrokeColor(sb.markColor(scrollBarThumb))
 		var v0, v1, v2 float32
 		if sb.horizontal {
-			v0 = FloorFloat32(bounds.X + bounds.Width/2)
-			d := CeilFloat32(bounds.Height * 0.2)
+			v0 = xmath.FloorFloat32(bounds.X + bounds.Width/2)
+			d := xmath.CeilFloat32(bounds.Height * 0.2)
 			v1 = bounds.Y + d
 			v2 = bounds.Y + bounds.Height - (d + 1)
 		} else {
-			v0 = FloorFloat32(bounds.Y + bounds.Height/2)
-			d := CeilFloat32(bounds.Width * 0.2)
+			v0 = xmath.FloorFloat32(bounds.Y + bounds.Height/2)
+			d := xmath.CeilFloat32(bounds.Width * 0.2)
 			v1 = bounds.X + d
 			v2 = bounds.X + bounds.Width - (d + 1)
 		}
@@ -353,7 +355,7 @@ func (sb *ScrollBar) drawThumb(g Graphics) {
 	}
 }
 
-func (sb *ScrollBar) drawLineButton(g Graphics, linePart scrollBarPart) {
+func (sb *ScrollBar) drawLineButton(g draw.Graphics, linePart scrollBarPart) {
 	bounds := sb.partRect(linePart)
 	g.Save()
 	g.ClipRect(bounds)
@@ -441,7 +443,7 @@ func (sb *ScrollBar) partEnabled(part scrollBarPart) bool {
 // then nothing will happen.
 func (sb *ScrollBar) SetScrolledPosition(position float32) {
 	if sb.Target != nil {
-		position = MaxFloat32(MinFloat32(position, sb.Target.ContentSize(sb.horizontal)-sb.Target.VisibleSize(sb.horizontal)), 0)
+		position = xmath.MaxFloat32(xmath.MinFloat32(position, sb.Target.ContentSize(sb.horizontal)-sb.Target.VisibleSize(sb.horizontal)), 0)
 		if sb.Target.ScrolledPosition(sb.horizontal) != position {
 			sb.Target.SetScrolledPosition(sb.horizontal, position)
 			sb.Repaint()

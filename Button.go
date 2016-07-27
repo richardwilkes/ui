@@ -11,6 +11,7 @@ package ui
 
 import (
 	"github.com/richardwilkes/ui/color"
+	"github.com/richardwilkes/ui/draw"
 	"github.com/richardwilkes/ui/keys"
 	"time"
 )
@@ -42,7 +43,7 @@ func NewButton(title string) *Button {
 }
 
 // Sizes implements Sizer
-func (button *Button) Sizes(hint Size) (min, pref, max Size) {
+func (button *Button) Sizes(hint draw.Size) (min, pref, max draw.Size) {
 	var hSpace = button.Theme.HorizontalMargin*2 + 2
 	var vSpace = button.Theme.VerticalMargin*2 + 2
 	if hint.Width != NoLayoutHint {
@@ -57,7 +58,7 @@ func (button *Button) Sizes(hint Size) (min, pref, max Size) {
 			hint.Height = 1
 		}
 	}
-	size, _ := button.attributedString().MeasureConstrained(hint)
+	size, _ := button.title().MeasureConstrained(hint)
 	size.GrowToInteger()
 	size.Width += hSpace
 	size.Height += vSpace
@@ -71,7 +72,7 @@ func (button *Button) paint(event *Event) {
 	var hSpace = button.Theme.HorizontalMargin*2 + 2
 	var vSpace = button.Theme.VerticalMargin*2 + 2
 	bounds := button.LocalInsetBounds()
-	path := NewPath()
+	path := draw.NewPath()
 	path.MoveTo(bounds.X, bounds.Y+button.Theme.CornerRadius)
 	path.QuadCurveTo(bounds.X, bounds.Y, bounds.X+button.Theme.CornerRadius, bounds.Y)
 	path.LineTo(bounds.X+bounds.Width-button.Theme.CornerRadius, bounds.Y)
@@ -93,7 +94,7 @@ func (button *Button) paint(event *Event) {
 	bounds.Y += button.Theme.VerticalMargin + 1
 	bounds.Width -= hSpace
 	bounds.Height -= vSpace
-	gc.DrawAttributedTextConstrained(bounds, button.attributedString(), TextModeFill)
+	gc.DrawAttributedTextConstrained(bounds, button.title(), draw.TextModeFill)
 }
 
 func (button *Button) mouseDown(event *Event) {
@@ -170,8 +171,8 @@ func (button *Button) TextColor() color.Color {
 	return button.Theme.TextWhenDark
 }
 
-func (button *Button) attributedString() *AttributedString {
-	str := NewAttributedString(button.Title, button.TextColor(), button.Theme.Font)
-	str.SetAlignment(0, 0, AlignMiddle)
+func (button *Button) title() *draw.Text {
+	str := draw.NewText(button.Title, button.TextColor(), button.Theme.Font)
+	str.SetAlignment(0, 0, draw.AlignMiddle)
 	return str
 }

@@ -10,6 +10,7 @@
 package ui
 
 import (
+	"github.com/richardwilkes/ui/draw"
 	"unsafe"
 )
 
@@ -108,7 +109,7 @@ func (menu *Menu) AddSeparator() {
 
 // Popup shows the menu at the specified location. If itemAtLocation is specified, it also tries to
 // position the menu such that the specified menu item is at that location.
-func (menu *Menu) Popup(widget Widget, where Point, itemAtLocation *MenuItem) {
+func (menu *Menu) Popup(widget Widget, where draw.Point, itemAtLocation *MenuItem) {
 	where = widget.ToWindow(where)
 	C.uiPopupMenu(widget.Window().window, menu.menu, C.float(where.X), C.float(where.Y), itemAtLocation.item)
 }

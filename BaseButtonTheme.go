@@ -11,6 +11,7 @@ package ui
 
 import (
 	"github.com/richardwilkes/ui/color"
+	"github.com/richardwilkes/ui/draw"
 	"time"
 )
 
@@ -37,6 +38,6 @@ func (theme *BaseButtonTheme) Init() {
 }
 
 // Gradient returns a gradient for the specified color.
-func (theme *BaseButtonTheme) Gradient(base color.Color) *Gradient {
-	return NewEvenlySpacedGradient(base.AdjustBrightness(theme.GradientAdjustment), base.AdjustBrightness(-theme.GradientAdjustment))
+func (theme *BaseButtonTheme) Gradient(base color.Color) *draw.Gradient {
+	return draw.NewEvenlySpacedGradient(base.AdjustBrightness(theme.GradientAdjustment), base.AdjustBrightness(-theme.GradientAdjustment))
 }

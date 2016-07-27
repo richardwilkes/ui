@@ -13,7 +13,6 @@
 #include <CoreGraphics/CoreGraphics.h>
 
 typedef void *uiWindow;
-typedef void *uiGraphicsContext;
 
 typedef struct {
 	float x, y;

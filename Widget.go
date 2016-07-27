@@ -11,6 +11,7 @@ package ui
 
 import (
 	"github.com/richardwilkes/ui/color"
+	"github.com/richardwilkes/ui/draw"
 )
 
 // A Widget is the basic user interface block that interacts with the user.
@@ -46,11 +47,11 @@ type Widget interface {
 	Repaint()
 	// RepaintBounds marks the area 'bounds' in local coordinates within the widget for painting at
 	// the next update.
-	RepaintBounds(bounds Rect)
+	RepaintBounds(bounds draw.Rect)
 	// Paint is called by its owning window when a widget needs to be drawn. 'g' is the graphics
 	// context to use. It has already had its clip set to the 'dirty' rectangle. 'dirty' is the
 	// area that needs to be drawn.
-	Paint(g Graphics, dirty Rect)
+	Paint(g draw.Graphics, dirty draw.Rect)
 
 	// Enabled returns true if this widget is currently enabled and can receive events.
 	Enabled() bool
@@ -93,31 +94,31 @@ type Widget interface {
 	RootOfWindow() bool
 
 	// Bounds returns the location and size of the widget in its parent's coordinate system.
-	Bounds() Rect
+	Bounds() draw.Rect
 	// LocalBounds returns the location and size of the widget in local coordinates.
-	LocalBounds() Rect
+	LocalBounds() draw.Rect
 	// LocalInsetBounds returns the location and size of the widget in local coordinates after
 	// adjusting for any Border it may have.
-	LocalInsetBounds() Rect
+	LocalInsetBounds() draw.Rect
 	// SetBounds sets the location and size of the widget in its parent's coordinate system.
-	SetBounds(bounds Rect)
+	SetBounds(bounds draw.Rect)
 	// Location returns the location of this widget in its parent's coordinate system.
-	Location() Point
+	Location() draw.Point
 	// SetLocation sets the location of this widget in its parent's coordinate system.
-	SetLocation(pt Point)
+	SetLocation(pt draw.Point)
 	// Size returns the size of this widget.
-	Size() Size
+	Size() draw.Size
 	// SetSize sets the size of this widget.
-	SetSize(size Size)
+	SetSize(size draw.Size)
 
 	// WidgetAt returns the leaf-most child widget containing 'pt', or this widget if no child
 	// is found.
-	WidgetAt(pt Point) Widget
+	WidgetAt(pt draw.Point) Widget
 
 	// ToWindow converts widget-local coordinates into window coordinates.
-	ToWindow(pt Point) Point
+	ToWindow(pt draw.Point) draw.Point
 	// FromWindow converts window coordinates into widget-local coordinates.
-	FromWindow(pt Point) Point
+	FromWindow(pt draw.Point) draw.Point
 
 	// Background returns the background color of this widget.
 	Background() color.Color

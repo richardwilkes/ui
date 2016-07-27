@@ -9,6 +9,10 @@
 
 package ui
 
+import (
+	"github.com/richardwilkes/ui/draw"
+)
+
 // CompoundBorder is a Border that contains other Borders.
 type CompoundBorder struct {
 	borders []Border
@@ -21,8 +25,8 @@ func NewCompoundBorder(borders ...Border) Border {
 }
 
 // Insets implements the Border interface.
-func (c *CompoundBorder) Insets() Insets {
-	insets := Insets{}
+func (c *CompoundBorder) Insets() draw.Insets {
+	insets := draw.Insets{}
 	for _, one := range c.borders {
 		insets.Add(one.Insets())
 	}
@@ -30,7 +34,7 @@ func (c *CompoundBorder) Insets() Insets {
 }
 
 // PaintBorder implements the Border interface.
-func (c *CompoundBorder) PaintBorder(g Graphics, bounds Rect) {
+func (c *CompoundBorder) PaintBorder(g draw.Graphics, bounds draw.Rect) {
 	for _, one := range c.borders {
 		g.Save()
 		one.PaintBorder(g, bounds)

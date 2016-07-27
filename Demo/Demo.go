@@ -13,6 +13,7 @@ import (
 	"fmt"
 	"github.com/richardwilkes/ui"
 	"github.com/richardwilkes/ui/Demo/images"
+	"github.com/richardwilkes/ui/draw"
 	"github.com/richardwilkes/ui/font"
 )
 
@@ -42,11 +43,11 @@ func createMenuBar() {
 }
 
 func createButtonsWindow() {
-	wnd := ui.NewWindow(ui.Point{}, ui.StdWindowMask)
+	wnd := ui.NewWindow(draw.Point{}, ui.StdWindowMask)
 	wnd.SetTitle("Demo")
 
 	root := wnd.RootWidget()
-	root.SetBorder(ui.NewEmptyBorder(ui.Insets{Top: 10, Left: 10, Bottom: 10, Right: 10}))
+	root.SetBorder(ui.NewEmptyBorder(draw.Insets{Top: 10, Left: 10, Bottom: 10, Right: 10}))
 	ui.NewPrecisionLayout(root).SetVerticalSpacing(10)
 
 	buttonsPanel := createButtonsPanel()
@@ -73,13 +74,13 @@ func createButtonsWindow() {
 
 	addSeparator(root)
 
-	img, err := ui.AcquireImageFromURL("http://allwallpapersnew.com/wp-content/gallery/stock-photos-for-free/grassy_field_sunset___free_stock_by_kevron2001-d5blgkr.jpg")
+	img, err := draw.AcquireImageFromURL("http://allwallpapersnew.com/wp-content/gallery/stock-photos-for-free/grassy_field_sunset___free_stock_by_kevron2001-d5blgkr.jpg")
 	if err == nil {
 		content := ui.NewImageLabel(img)
 		_, prefSize, _ := ui.ComputeSizes(content, ui.NoLayoutHintSize)
 		content.SetSize(prefSize)
 		scrollArea := ui.NewScrollArea(content)
-		scrollArea.SetLayoutData(ui.NewPrecisionData().SetHorizontalAlignment(ui.AlignFill).SetVerticalAlignment(ui.AlignFill).SetHorizontalGrab(true).SetVerticalGrab(true))
+		scrollArea.SetLayoutData(ui.NewPrecisionData().SetHorizontalAlignment(draw.AlignFill).SetVerticalAlignment(draw.AlignFill).SetHorizontalGrab(true).SetVerticalGrab(true))
 		root.AddChild(scrollArea)
 	} else {
 		fmt.Println(err)
@@ -91,7 +92,7 @@ func createButtonsWindow() {
 
 func addSeparator(root ui.Widget) {
 	sep := ui.NewSeparator(true)
-	sep.SetLayoutData(ui.NewPrecisionData().SetHorizontalAlignment(ui.AlignFill))
+	sep.SetLayoutData(ui.NewPrecisionData().SetHorizontalAlignment(draw.AlignFill))
 	root.AddChild(sep)
 }
 
@@ -102,7 +103,7 @@ func createButtonsPanel() *ui.Block {
 	createButton("Press Me", panel)
 	createButton("Disabled", panel).SetEnabled(false)
 
-	img, err := ui.AcquireImageFromFile(images.FS, "/home.png")
+	img, err := draw.AcquireImageFromFile(images.FS, "/home.png")
 	if err == nil {
 		createImageButton(img, "Home", panel)
 		createImageButton(img, "Home (disabled)", panel).SetEnabled(false)
@@ -110,7 +111,7 @@ func createButtonsPanel() *ui.Block {
 		fmt.Println(err)
 	}
 
-	img, err = ui.AcquireImageFromFile(images.FS, "/classic-apple-logo.png")
+	img, err = draw.AcquireImageFromFile(images.FS, "/classic-apple-logo.png")
 	if err == nil {
 		createImageButton(img, "Classic Apple Logo", panel)
 		createImageButton(img, "Classic Apple Logo (disabled)", panel).SetEnabled(false)
@@ -131,7 +132,7 @@ func createButton(title string, panel *ui.Block) *ui.Button {
 	return button
 }
 
-func createImageButton(img *ui.Image, name string, panel *ui.Block) *ui.ImageButton {
+func createImageButton(img *draw.Image, name string, panel *ui.Block) *ui.ImageButton {
 	size := img.Size()
 	size.Width /= 2
 	size.Height /= 2
@@ -221,14 +222,14 @@ func createPopupMenu(panel *ui.Block, selection int, titles ...string) *ui.Popup
 
 func createAboutWindow(item *ui.MenuItem) {
 	if aboutWindow == nil {
-		aboutWindow = ui.NewWindow(ui.Point{}, ui.TitledWindowMask|ui.ClosableWindowMask)
+		aboutWindow = ui.NewWindow(draw.Point{}, ui.TitledWindowMask|ui.ClosableWindowMask)
 		aboutWindow.DidClose = func() { aboutWindow = nil }
 		aboutWindow.SetTitle("About " + ui.AppName())
 		root := aboutWindow.RootWidget()
-		root.SetBorder(ui.NewEmptyBorder(ui.Insets{Top: 10, Left: 10, Bottom: 10, Right: 10}))
+		root.SetBorder(ui.NewEmptyBorder(draw.Insets{Top: 10, Left: 10, Bottom: 10, Right: 10}))
 		ui.NewPrecisionLayout(root)
 		title := ui.NewLabelWithFont(ui.AppName(), font.Acquire(font.EmphasizedSystemDesc))
-		title.SetLayoutData(ui.NewPrecisionData().SetHorizontalAlignment(ui.AlignMiddle))
+		title.SetLayoutData(ui.NewPrecisionData().SetHorizontalAlignment(draw.AlignMiddle))
 		root.AddChild(title)
 		desc := ui.NewLabel("Simple app to demonstrate the\ncapabilities of the ui framework.")
 		root.AddChild(desc)

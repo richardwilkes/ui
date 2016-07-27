@@ -11,6 +11,7 @@ package ui
 
 import (
 	"github.com/richardwilkes/ui/color"
+	"github.com/richardwilkes/ui/draw"
 	"github.com/richardwilkes/ui/keys"
 	"time"
 )
@@ -20,20 +21,20 @@ type ImageButton struct {
 	Block
 	Theme         *ImageButtonTheme // The theme the button will use to draw itself.
 	OnClick       func()            // Called when the button is clicked.
-	image         *Image
-	disabledImage *Image
+	image         *draw.Image
+	disabledImage *draw.Image
 	pressed       bool
 }
 
 // NewImageButton creates a new button with the specified Image.
-func NewImageButton(img *Image) *ImageButton {
-	return NewImageButtonWithImageSize(img, Size{})
+func NewImageButton(img *draw.Image) *ImageButton {
+	return NewImageButtonWithImageSize(img, draw.Size{})
 }
 
 // NewImageButtonWithImageSize creates a new button with the specified Image. The image will be set
 // to the specified size. The button itself will be a bit larger, based on the theme settings and
 // border.
-func NewImageButtonWithImageSize(img *Image, size Size) *ImageButton {
+func NewImageButtonWithImageSize(img *draw.Image, size draw.Size) *ImageButton {
 	button := &ImageButton{}
 	button.image = img
 	var err error
@@ -58,7 +59,7 @@ func NewImageButtonWithImageSize(img *Image, size Size) *ImageButton {
 }
 
 // Sizes implements Sizer
-func (button *ImageButton) Sizes(hint Size) (min, pref, max Size) {
+func (button *ImageButton) Sizes(hint draw.Size) (min, pref, max draw.Size) {
 	size := button.image.Size()
 	size.Width += button.Theme.HorizontalMargin*2 + 2
 	size.Height += button.Theme.VerticalMargin*2 + 2
@@ -72,7 +73,7 @@ func (button *ImageButton) paint(event *Event) {
 	var hSpace = button.Theme.HorizontalMargin*2 + 2
 	var vSpace = button.Theme.VerticalMargin*2 + 2
 	bounds := button.LocalInsetBounds()
-	path := NewPath()
+	path := draw.NewPath()
 	path.MoveTo(bounds.X, bounds.Y+button.Theme.CornerRadius)
 	path.QuadCurveTo(bounds.X, bounds.Y, bounds.X+button.Theme.CornerRadius, bounds.Y)
 	path.LineTo(bounds.X+bounds.Width-button.Theme.CornerRadius, bounds.Y)
@@ -159,12 +160,12 @@ func (button *ImageButton) keyDown(event *Event) {
 }
 
 // Image returns this button's base image.
-func (button *ImageButton) Image() *Image {
+func (button *ImageButton) Image() *draw.Image {
 	return button.image
 }
 
 // CurrentImage returns this button's current image.
-func (button *ImageButton) CurrentImage() *Image {
+func (button *ImageButton) CurrentImage() *draw.Image {
 	if button.Enabled() {
 		return button.image
 	}
@@ -187,11 +188,11 @@ func (button *ImageButton) BaseBackground() color.Color {
 
 type imageButtonSizer struct {
 	button *ImageButton
-	size   Size
+	size   draw.Size
 }
 
 // Sizes implements Sizer
-func (ibs *imageButtonSizer) Sizes(hint Size) (min, pref, max Size) {
+func (ibs *imageButtonSizer) Sizes(hint draw.Size) (min, pref, max draw.Size) {
 	pref = ibs.size
 	pref.Width += ibs.button.Theme.HorizontalMargin*2 + 2
 	pref.Height += ibs.button.Theme.VerticalMargin*2 + 2

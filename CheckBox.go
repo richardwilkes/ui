@@ -11,7 +11,9 @@ package ui
 
 import (
 	"github.com/richardwilkes/ui/color"
+	"github.com/richardwilkes/ui/draw"
 	"github.com/richardwilkes/ui/keys"
+	"github.com/richardwilkes/xmath"
 	"time"
 )
 
@@ -53,9 +55,9 @@ func NewCheckBox(title string) *CheckBox {
 }
 
 // Sizes implements Sizer
-func (checkbox *CheckBox) Sizes(hint Size) (min, pref, max Size) {
-	var size Size
-	box := CeilFloat32(checkbox.Theme.Font.Ascent())
+func (checkbox *CheckBox) Sizes(hint draw.Size) (min, pref, max draw.Size) {
+	var size draw.Size
+	box := xmath.CeilFloat32(checkbox.Theme.Font.Ascent())
 	if checkbox.Title != "" {
 		if hint.Width != NoLayoutHint {
 			hint.Width -= checkbox.Theme.HorizontalGap + box
@@ -68,7 +70,7 @@ func (checkbox *CheckBox) Sizes(hint Size) (min, pref, max Size) {
 				hint.Height = 1
 			}
 		}
-		size, _ = checkbox.attributedString().MeasureConstrained(hint)
+		size, _ = checkbox.title().MeasureConstrained(hint)
 		size.GrowToInteger()
 		size.Width += checkbox.Theme.HorizontalGap + box
 		if size.Height < box {
@@ -85,12 +87,12 @@ func (checkbox *CheckBox) Sizes(hint Size) (min, pref, max Size) {
 }
 
 func (checkbox *CheckBox) paint(event *Event) {
-	box := CeilFloat32(checkbox.Theme.Font.Ascent())
+	box := xmath.CeilFloat32(checkbox.Theme.Font.Ascent())
 	bounds := checkbox.LocalInsetBounds()
 	bounds.Width = box
 	bounds.Y += (bounds.Height - box) / 2
 	bounds.Height = box
-	path := NewPath()
+	path := draw.NewPath()
 	path.MoveTo(bounds.X, bounds.Y+checkbox.Theme.CornerRadius)
 	path.QuadCurveTo(bounds.X, bounds.Y, bounds.X+checkbox.Theme.CornerRadius, bounds.Y)
 	path.LineTo(bounds.X+bounds.Width-checkbox.Theme.CornerRadius, bounds.Y)
@@ -138,7 +140,7 @@ func (checkbox *CheckBox) paint(event *Event) {
 		bounds.X += box + checkbox.Theme.HorizontalGap
 		bounds.Width -= box + checkbox.Theme.HorizontalGap
 		if bounds.Width > 0 {
-			gc.DrawAttributedTextConstrained(bounds, checkbox.attributedString(), TextModeFill)
+			gc.DrawAttributedTextConstrained(bounds, checkbox.title(), draw.TextModeFill)
 		}
 	}
 }
@@ -229,9 +231,9 @@ func (checkbox *CheckBox) TextColor() color.Color {
 	return checkbox.Theme.TextWhenLight
 }
 
-func (checkbox *CheckBox) attributedString() *AttributedString {
-	str := NewAttributedString(checkbox.Title, checkbox.TextColor(), checkbox.Theme.Font)
-	str.SetAlignment(0, 0, AlignStart)
+func (checkbox *CheckBox) title() *draw.Text {
+	str := draw.NewText(checkbox.Title, checkbox.TextColor(), checkbox.Theme.Font)
+	str.SetAlignment(0, 0, draw.AlignStart)
 	return str
 }
 

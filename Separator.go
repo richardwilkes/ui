@@ -11,6 +11,7 @@ package ui
 
 import (
 	"github.com/richardwilkes/ui/color"
+	"github.com/richardwilkes/ui/draw"
 )
 
 // Separator provides a simple vertical or horizontal separator line.
@@ -29,7 +30,7 @@ func NewSeparator(horizontal bool) *Separator {
 }
 
 // Sizes implements Sizer
-func (sep *Separator) Sizes(hint Size) (min, pref, max Size) {
+func (sep *Separator) Sizes(hint draw.Size) (min, pref, max draw.Size) {
 	if sep.horizontal {
 		if hint.Width == NoLayoutHint {
 			pref.Width = 1

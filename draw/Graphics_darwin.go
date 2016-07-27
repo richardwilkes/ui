@@ -7,18 +7,18 @@
 // This Source Code Form is "Incompatible With Secondary Licenses", as
 // defined by the Mozilla Public License, version 2.0.
 
-package ui
+package draw
 
 import (
 	"github.com/richardwilkes/ui/color"
 	"github.com/richardwilkes/ui/font"
+	"unsafe"
 )
 
 // #cgo darwin LDFLAGS: -framework Cocoa
 // #include <stdio.h>
 // #include <CoreGraphics/CoreGraphics.h>
 // #include <CoreText/CoreText.h>
-// #include "Window.h"
 import "C"
 
 const (
@@ -40,7 +40,7 @@ const (
 )
 
 type graphics struct {
-	gc    C.uiGraphicsContext
+	gc    unsafe.Pointer
 	stack []*graphicsState
 }
 
@@ -52,7 +52,7 @@ type graphicsState struct {
 	font        *font.Font
 }
 
-func newGraphics(gc C.uiGraphicsContext) Graphics {
+func NewGraphics(gc unsafe.Pointer) Graphics {
 	c := &graphics{gc: gc}
 	c.stack = append(c.stack, &graphicsState{opacity: 1, fillColor: color.White, strokeColor: color.Black, strokeWidth: 1})
 	return c
@@ -309,17 +309,17 @@ func (gc *graphics) DrawText(x, y float32, str string, mode TextMode) Size {
 // DrawTextConstrained implements Graphics.
 func (gc *graphics) DrawTextConstrained(bounds Rect, str string, mode TextMode) (actual Size, fit int) {
 	gs := gc.stack[len(gc.stack)-1]
-	return gc.DrawAttributedTextConstrained(bounds, NewAttributedString(str, gs.fillColor, gs.font), mode)
+	return gc.DrawAttributedTextConstrained(bounds, NewText(str, gs.fillColor, gs.font), mode)
 }
 
 // DrawAttributedText implements Graphics.
-func (gc *graphics) DrawAttributedText(x, y float32, str *AttributedString, mode TextMode) Size {
+func (gc *graphics) DrawAttributedText(x, y float32, str *Text, mode TextMode) Size {
 	size, _ := gc.DrawAttributedTextConstrained(Rect{Point: Point{X: x, Y: y}, Size: Size{Width: unlimitedSize, Height: unlimitedSize}}, str, mode)
 	return size
 }
 
 // DrawAttributedTextConstrained implements Graphics.
-func (gc *graphics) DrawAttributedTextConstrained(bounds Rect, str *AttributedString, mode TextMode) (actual Size, fit int) {
+func (gc *graphics) DrawAttributedTextConstrained(bounds Rect, str *Text, mode TextMode) (actual Size, fit int) {
 	gc.Save()
 	defer gc.Restore()
 	attrStr := str.toPlatform()
@@ -358,7 +358,7 @@ func (gc *graphics) Rotate(angleInRadians float32) {
 	C.CGContextRotateCTM(gc.gc, C.CGFloat(angleInRadians))
 }
 
-func (gc *graphics) createAttributedString(str string) C.CFMutableAttributedStringRef {
+func (gc *graphics) createText(str string) C.CFMutableAttributedStringRef {
 	gs := gc.stack[len(gc.stack)-1]
-	return NewAttributedString(str, gs.fillColor, gs.font).toPlatform()
+	return NewText(str, gs.fillColor, gs.font).toPlatform()
 }

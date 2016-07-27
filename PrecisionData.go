@@ -9,54 +9,58 @@
 
 package ui
 
+import (
+	"github.com/richardwilkes/ui/draw"
+)
+
 // PrecisionData is used to control how an object is laid out by the Precision layout.
 type PrecisionData struct {
 	hSpan        int
 	vSpan        int
-	hAlign       Alignment
-	vAlign       Alignment
-	sizeHint     Size
-	minSize      Size
-	cacheSize    Size
-	minCacheSize Size
+	hAlign       draw.Alignment
+	vAlign       draw.Alignment
+	sizeHint     draw.Size
+	minSize      draw.Size
+	cacheSize    draw.Size
+	minCacheSize draw.Size
 	hGrab        bool
 	vGrab        bool
 }
 
 // NewPrecisionData creates a new PrecisionData.
 func NewPrecisionData() *PrecisionData {
-	return &PrecisionData{hSpan: 1, vSpan: 1, hAlign: AlignStart, vAlign: AlignMiddle, sizeHint: NoLayoutHintSize, minSize: NoLayoutHintSize}
+	return &PrecisionData{hSpan: 1, vSpan: 1, hAlign: draw.AlignStart, vAlign: draw.AlignMiddle, sizeHint: NoLayoutHintSize, minSize: NoLayoutHintSize}
 }
 
 // HorizontalAlignment returns the horizontal alignment of the widget within its space.
-func (pd *PrecisionData) HorizontalAlignment() Alignment {
+func (pd *PrecisionData) HorizontalAlignment() draw.Alignment {
 	return pd.hAlign
 }
 
 // SetHorizontalAlignment sets the horizontal alignment of the widget within its space.
-func (pd *PrecisionData) SetHorizontalAlignment(alignment Alignment) *PrecisionData {
+func (pd *PrecisionData) SetHorizontalAlignment(alignment draw.Alignment) *PrecisionData {
 	pd.hAlign = alignment
 	return pd
 }
 
 // VerticalAlignment returns the vertical alignment of the widget within its space.
-func (pd *PrecisionData) VerticalAlignment() Alignment {
+func (pd *PrecisionData) VerticalAlignment() draw.Alignment {
 	return pd.vAlign
 }
 
 // SetVerticalAlignment sets the vertical alignment of the widget within its space.
-func (pd *PrecisionData) SetVerticalAlignment(alignment Alignment) *PrecisionData {
+func (pd *PrecisionData) SetVerticalAlignment(alignment draw.Alignment) *PrecisionData {
 	pd.vAlign = alignment
 	return pd
 }
 
 // SizeHint returns a hint requesting a particular size of the widget.
-func (pd *PrecisionData) SizeHint() Size {
+func (pd *PrecisionData) SizeHint() draw.Size {
 	return pd.sizeHint
 }
 
 // SetSizeHint sets a hint requesting a particular size of the widget.
-func (pd *PrecisionData) SetSizeHint(size Size) *PrecisionData {
+func (pd *PrecisionData) SetSizeHint(size draw.Size) *PrecisionData {
 	pd.sizeHint = size
 	return pd
 }
@@ -96,12 +100,12 @@ func (pd *PrecisionData) SetVerticalSpan(span int) *PrecisionData {
 }
 
 // MinSize returns an override for the minimum size of the widget.
-func (pd *PrecisionData) MinSize() Size {
+func (pd *PrecisionData) MinSize() draw.Size {
 	return pd.minSize
 }
 
 // SetMinSize sets an override for the minimum size of the widget.
-func (pd *PrecisionData) SetMinSize(size Size) *PrecisionData {
+func (pd *PrecisionData) SetMinSize(size draw.Size) *PrecisionData {
 	pd.minSize = size
 	return pd
 }
@@ -140,7 +144,7 @@ func (pd *PrecisionData) SetVerticalGrab(grab bool) *PrecisionData {
 	return pd
 }
 
-func (pd *PrecisionData) computeCacheSize(target Widget, hint Size, useMinimumSize bool) {
+func (pd *PrecisionData) computeCacheSize(target Widget, hint draw.Size, useMinimumSize bool) {
 	pd.minCacheSize.Width = 0
 	pd.minCacheSize.Height = 0
 	pd.cacheSize.Width = 0

@@ -9,6 +9,10 @@
 
 package ui
 
+import (
+	"github.com/richardwilkes/ui/draw"
+)
+
 type scrollLayout struct {
 	sa *ScrollArea
 }
@@ -20,7 +24,7 @@ func newScrollLayout(sa *ScrollArea) *scrollLayout {
 }
 
 // Sizes implements the Layout interface.
-func (layout *scrollLayout) Sizes(hint Size) (min, pref, max Size) {
+func (layout *scrollLayout) Sizes(hint draw.Size) (min, pref, max draw.Size) {
 	_, hBarSize, _ := ComputeSizes(layout.sa.hBar, NoLayoutHintSize)
 	_, vBarSize, _ := ComputeSizes(layout.sa.vBar, NoLayoutHintSize)
 	min.Width = vBarSize.Width * 2
@@ -43,13 +47,13 @@ func (layout *scrollLayout) Layout() {
 	_, vBarSize, _ := ComputeSizes(layout.sa.vBar, NoLayoutHintSize)
 	needHBar := false
 	needVBar := false
-	var contentSize Size
+	var contentSize draw.Size
 	if layout.sa.content != nil {
 		contentSize = layout.sa.content.Size()
 	}
 	bounds := layout.sa.LocalInsetBounds()
 	visibleSize := bounds.Size
-	var viewInsets Insets
+	var viewInsets draw.Insets
 	if border := layout.sa.view.Border(); border != nil {
 		viewInsets = border.Insets()
 	}
@@ -81,13 +85,13 @@ func (layout *scrollLayout) Layout() {
 		layout.sa.vBar.RemoveFromParent()
 	}
 	visibleSize.AddInsets(viewInsets)
-	layout.sa.view.SetBounds(Rect{Point: bounds.Point, Size: visibleSize})
+	layout.sa.view.SetBounds(draw.Rect{Point: bounds.Point, Size: visibleSize})
 	if needHBar {
 		hBarSize.Width = visibleSize.Width
-		layout.sa.hBar.SetBounds(Rect{Point: Point{X: bounds.X, Y: bounds.Y + visibleSize.Height}, Size: hBarSize})
+		layout.sa.hBar.SetBounds(draw.Rect{Point: draw.Point{X: bounds.X, Y: bounds.Y + visibleSize.Height}, Size: hBarSize})
 	}
 	if needVBar {
 		vBarSize.Height = visibleSize.Height
-		layout.sa.vBar.SetBounds(Rect{Point: Point{X: bounds.X + visibleSize.Width, Y: bounds.Y}, Size: vBarSize})
+		layout.sa.vBar.SetBounds(draw.Rect{Point: draw.Point{X: bounds.X + visibleSize.Width, Y: bounds.Y}, Size: vBarSize})
 	}
 }

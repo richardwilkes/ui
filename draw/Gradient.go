@@ -7,7 +7,7 @@
 // This Source Code Form is "Incompatible With Secondary Licenses", as
 // defined by the Mozilla Public License, version 2.0.
 
-package ui
+package draw
 
 import (
 	"bytes"
@@ -19,6 +19,11 @@ import (
 type ColorStop struct {
 	Color    color.Color
 	Location float32
+}
+
+// String implements the fmt.Stringer interface.
+func (cs ColorStop) String() string {
+	return fmt.Sprintf("%v:%v", cs.Color, cs.Location)
 }
 
 // Gradient defines a smooth transition between colors across an area.
@@ -60,9 +65,9 @@ func NewEvenlySpacedGradient(colors ...color.Color) *Gradient {
 	return gradient
 }
 
-// CreateReversed creates a copy of the current Gradient and inverts the locations of each color
-// stop in that copy.
-func (g *Gradient) CreateReversed() *Gradient {
+// Reversed creates a copy of the current Gradient and inverts the locations of each color stop
+// in that copy.
+func (g *Gradient) Reversed() *Gradient {
 	other := &Gradient{Stops: make([]ColorStop, len(g.Stops))}
 	for i, stop := range g.Stops {
 		stop.Location = 1 - stop.Location
@@ -74,9 +79,13 @@ func (g *Gradient) CreateReversed() *Gradient {
 // String implements the fmt.Stringer interface.
 func (g *Gradient) String() string {
 	var buffer bytes.Buffer
-	buffer.WriteString("Gradient:")
-	for _, stop := range g.Stops {
-		fmt.Fprintf(&buffer, " %v %v", stop.Color, stop.Location)
+	buffer.WriteString("Gradient[")
+	for i, stop := range g.Stops {
+		if i != 0 {
+			buffer.WriteString(", ")
+		}
+		fmt.Fprintf(&buffer, "[%v]", stop)
 	}
+	buffer.WriteString("]")
 	return buffer.String()
 }

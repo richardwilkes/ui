@@ -12,6 +12,7 @@ package ui
 import (
 	"fmt"
 	"github.com/richardwilkes/ui/color"
+	"github.com/richardwilkes/ui/draw"
 	"github.com/richardwilkes/ui/keys"
 	"time"
 	"unsafe"
@@ -57,13 +58,13 @@ var (
 )
 
 // NewWindow creates a new window at the specified location with the specified style.
-func NewWindow(where Point, styleMask WindowStyleMask) *Window {
-	return NewWindowWithContentSize(where, Size{Width: 100, Height: 100}, styleMask)
+func NewWindow(where draw.Point, styleMask WindowStyleMask) *Window {
+	return NewWindowWithContentSize(where, draw.Size{Width: 100, Height: 100}, styleMask)
 }
 
 // NewWindowWithContentSize creates a new window at the specified location with the specified style and content size.
-func NewWindowWithContentSize(where Point, contentSize Size, styleMask WindowStyleMask) *Window {
-	bounds := Rect{Point: where, Size: contentSize}
+func NewWindowWithContentSize(where draw.Point, contentSize draw.Size, styleMask WindowStyleMask) *Window {
+	bounds := draw.Rect{Point: where, Size: contentSize}
 	window := &Window{window: C.uiNewWindow(toCRect(bounds), C.int(styleMask))}
 	windowMap[window.window] = window
 	window.rootBlock = NewBlock()
@@ -74,11 +75,11 @@ func NewWindowWithContentSize(where Point, contentSize Size, styleMask WindowSty
 }
 
 //export drawWindow
-func drawWindow(cWindow C.uiWindow, g C.uiGraphicsContext, bounds C.uiRect, inLiveResize bool) {
+func drawWindow(cWindow C.uiWindow, g unsafe.Pointer, bounds C.uiRect, inLiveResize bool) {
 	if window, ok := windowMap[cWindow]; ok {
 		window.rootBlock.ValidateLayout()
 		window.inLiveResize = inLiveResize
-		window.rootBlock.Paint(newGraphics(g), toRect(bounds))
+		window.rootBlock.Paint(draw.NewGraphics(g), toRect(bounds))
 		window.inLiveResize = false
 	}
 }
@@ -102,7 +103,7 @@ func handleWindowMouseEvent(cWindow C.uiWindow, eventType, keyModifiers, button,
 	if window, ok := windowMap[cWindow]; ok {
 		keyMask := KeyMask(keyModifiers)
 		discardMouseDown := false
-		where := Point{X: x, Y: y}
+		where := draw.Point{X: x, Y: y}
 		var widget Widget
 		if window.inMouseDown {
 			widget = window.lastMouseWidget
@@ -164,10 +165,10 @@ func handleWindowMouseEvent(cWindow C.uiWindow, eventType, keyModifiers, button,
 //export handleWindowMouseWheelEvent
 func handleWindowMouseWheelEvent(cWindow C.uiWindow, eventType, keyModifiers int, x, y, dx, dy float32) {
 	if window, ok := windowMap[cWindow]; ok {
-		where := Point{X: x, Y: y}
+		where := draw.Point{X: x, Y: y}
 		widget := window.rootBlock.WidgetAt(where)
 		if widget != nil {
-			event := &Event{Type: MouseWheelEvent, When: time.Now(), Target: widget, Where: where, Delta: Point{X: dx, Y: dy}, KeyModifiers: KeyMask(keyModifiers), CascadeUp: true}
+			event := &Event{Type: MouseWheelEvent, When: time.Now(), Target: widget, Where: where, Delta: draw.Point{X: dx, Y: dy}, KeyModifiers: KeyMask(keyModifiers), CascadeUp: true}
 			event.Dispatch()
 			if window.inMouseDown {
 				eventType = C.uiMouseDragged
@@ -254,7 +255,7 @@ func (window *Window) SetTitle(title string) {
 	C.free(unsafe.Pointer(cTitle))
 }
 
-func (window *Window) updateToolTip(widget Widget, where Point) {
+func (window *Window) updateToolTip(widget Widget, where draw.Point) {
 	tooltip := ""
 	if widget != nil {
 		event := &Event{Type: ToolTipEvent, When: time.Now(), Target: widget, Where: where}
@@ -275,60 +276,60 @@ func (window *Window) updateToolTip(widget Widget, where Point) {
 
 // Frame returns the boundaries in display coordinates of the frame of this window (i.e. the area
 // that includes both the content and its border and window controls).
-func (window *Window) Frame() Rect {
+func (window *Window) Frame() draw.Rect {
 	return toRect(C.uiGetWindowFrame(window.window))
 }
 
 // Location returns the upper left corner of the window in display coordinates.
-func (window *Window) Location() Point {
+func (window *Window) Location() draw.Point {
 	return toPoint(C.uiGetWindowPosition(window.window))
 }
 
 // SetLocation moves the upper left corner of the window to the specified point in display
 // coordinates.
-func (window *Window) SetLocation(pt Point) {
+func (window *Window) SetLocation(pt draw.Point) {
 	C.uiSetWindowPosition(window.window, C.float(pt.X), C.float(pt.Y))
 }
 
 // Size returns the size of the window, including its frame and window controls.
-func (window *Window) Size() Size {
+func (window *Window) Size() draw.Size {
 	return toSize(C.uiGetWindowSize(window.window))
 }
 
 // SetSize sets the size of the window.
-func (window *Window) SetSize(size Size) {
+func (window *Window) SetSize(size draw.Size) {
 	C.uiSetWindowSize(window.window, C.float(size.Width), C.float(size.Height))
 }
 
 // ContentFrame returns the boundaries of the root content widget of this window.
-func (window *Window) ContentFrame() Rect {
+func (window *Window) ContentFrame() draw.Rect {
 	return toRect(C.uiGetWindowContentFrame(window.window))
 }
 
 // ContentLocalBounds returns the local boundaries of the content widget of this window.
-func (window *Window) ContentLocalBounds() Rect {
+func (window *Window) ContentLocalBounds() draw.Rect {
 	size := C.uiGetWindowContentSize(window.window)
-	return Rect{Size: Size{Width: float32(size.width), Height: float32(size.height)}}
+	return draw.Rect{Size: draw.Size{Width: float32(size.width), Height: float32(size.height)}}
 }
 
 // ContentLocation returns the upper left corner of the content widget in display coordinates.
-func (window *Window) ContentLocation() Point {
+func (window *Window) ContentLocation() draw.Point {
 	return toPoint(C.uiGetWindowContentPosition(window.window))
 }
 
 // SetContentLocation moves the window such that the upper left corner of the content widget is
 // at the specified point in display coordinates.
-func (window *Window) SetContentLocation(pt Point) {
+func (window *Window) SetContentLocation(pt draw.Point) {
 	C.uiSetWindowContentPosition(window.window, C.float(pt.X), C.float(pt.Y))
 }
 
 // ContentSize returns the size of the content widget.
-func (window *Window) ContentSize() Size {
+func (window *Window) ContentSize() draw.Size {
 	return toSize(C.uiGetWindowContentSize(window.window))
 }
 
 // SetContentSize sets the size of the window to fit the specified content size.
-func (window *Window) SetContentSize(size Size) {
+func (window *Window) SetContentSize(size draw.Size) {
 	C.uiSetWindowContentSize(window.window, C.float(size.Width), C.float(size.Height))
 }
 
@@ -369,7 +370,7 @@ func (window *Window) Repaint() {
 }
 
 // RepaintBounds marks the specified bounds within the window for painting at the next update.
-func (window *Window) RepaintBounds(bounds Rect) {
+func (window *Window) RepaintBounds(bounds draw.Rect) {
 	bounds.Intersect(window.ContentLocalBounds())
 	if !bounds.IsEmpty() {
 		C.uiRepaintWindow(window.window, toCRect(bounds))

@@ -7,27 +7,12 @@
 // This Source Code Form is "Incompatible With Secondary Licenses", as
 // defined by the Mozilla Public License, version 2.0.
 
-package ui
+package draw
 
 import (
 	"github.com/richardwilkes/ui/color"
 	"github.com/richardwilkes/ui/font"
 )
-
-// Possible TextModes.
-const (
-	TextModeFill TextMode = iota
-	TextModeStroke
-	TextModeFillStroke
-	TextModeInvisible
-	TextModeFillClip
-	TextModeStrokeClip
-	TextModeFillStrokeClip
-	TextModeClip
-)
-
-// TextMode represents the mode to use when drawing text.
-type TextMode int
 
 // Graphics provides a graphics context for drawing into.
 type Graphics interface {
@@ -124,11 +109,11 @@ type Graphics interface {
 	// that were drawn.
 	DrawTextConstrained(bounds Rect, str string, mode TextMode) (actual Size, fit int)
 	// DrawAttributedText at the specified location. Returns the space taken up by the text.
-	DrawAttributedText(x, y float32, str *AttributedString, mode TextMode) Size
+	DrawAttributedText(x, y float32, str *Text, mode TextMode) Size
 	// DrawAttributedTextConstrained at the specified location. The text will be wrapped to fit
 	// within the specified bounds. Returns the space taken up by the text and the number of bytes
 	// of the text that were drawn.
-	DrawAttributedTextConstrained(bounds Rect, str *AttributedString, mode TextMode) (actual Size, fit int)
+	DrawAttributedTextConstrained(bounds Rect, str *Text, mode TextMode) (actual Size, fit int)
 	// Translate the coordinate system.
 	Translate(x, y float32)
 	// Scale the coordinate system.

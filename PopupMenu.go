@@ -12,6 +12,7 @@ package ui
 import (
 	"fmt"
 	"github.com/richardwilkes/ui/color"
+	"github.com/richardwilkes/ui/draw"
 	"github.com/richardwilkes/ui/keys"
 )
 
@@ -43,7 +44,7 @@ func NewPopupMenu() *PopupMenu {
 }
 
 // Sizes implements Sizer
-func (pm *PopupMenu) Sizes(hint Size) (min, pref, max Size) {
+func (pm *PopupMenu) Sizes(hint draw.Size) (min, pref, max draw.Size) {
 	var hSpace = pm.Theme.HorizontalMargin*3 + 2
 	var vSpace = pm.Theme.VerticalMargin*2 + 2
 	if hint.Width != NoLayoutHint {
@@ -72,7 +73,7 @@ func (pm *PopupMenu) paint(event *Event) {
 	var hSpace = pm.Theme.HorizontalMargin*2 + 2
 	var vSpace = pm.Theme.VerticalMargin*2 + 2
 	bounds := pm.LocalInsetBounds()
-	path := NewPath()
+	path := draw.NewPath()
 	path.MoveTo(bounds.X, bounds.Y+pm.Theme.CornerRadius)
 	path.QuadCurveTo(bounds.X, bounds.Y, bounds.X+pm.Theme.CornerRadius, bounds.Y)
 	path.LineTo(bounds.X+bounds.Width-pm.Theme.CornerRadius, bounds.Y)
@@ -103,7 +104,7 @@ func (pm *PopupMenu) paint(event *Event) {
 	bounds.Y += pm.Theme.VerticalMargin + 1
 	bounds.Height -= vSpace
 	bounds.Width -= hSpace + bounds.Height
-	gc.DrawAttributedTextConstrained(bounds, pm.attributedString(), TextModeFill)
+	gc.DrawAttributedTextConstrained(bounds, pm.title(), draw.TextModeFill)
 }
 
 func (pm *PopupMenu) mouseDown(event *Event) {
@@ -248,18 +249,18 @@ func (pm *PopupMenu) TextColor() color.Color {
 	return pm.Theme.TextWhenDark
 }
 
-func (pm *PopupMenu) attributedString() *AttributedString {
+func (pm *PopupMenu) title() *draw.Text {
 	title := ""
 	if pm.selectedIndex >= 0 && pm.selectedIndex < len(pm.items) {
 		title = fmt.Sprintf("%v", pm.items[pm.selectedIndex])
 	}
-	return NewAttributedString(title, pm.TextColor(), pm.Theme.Font)
+	return draw.NewText(title, pm.TextColor(), pm.Theme.Font)
 }
 
-func (pm *PopupMenu) measureConstrained(hint Size) Size {
-	var largest Size
+func (pm *PopupMenu) measureConstrained(hint draw.Size) draw.Size {
+	var largest draw.Size
 	for _, one := range pm.items {
-		size, _ := NewAttributedString(fmt.Sprintf("%v", one), color.Black, pm.Theme.Font).MeasureConstrained(hint)
+		size, _ := draw.NewText(fmt.Sprintf("%v", one), color.Black, pm.Theme.Font).MeasureConstrained(hint)
 		if largest.Width < size.Width {
 			largest.Width = size.Width
 		}

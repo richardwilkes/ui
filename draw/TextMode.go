@@ -7,14 +7,19 @@
 // This Source Code Form is "Incompatible With Secondary Licenses", as
 // defined by the Mozilla Public License, version 2.0.
 
-package ui
+package draw
 
-import (
-	"github.com/richardwilkes/ui/draw"
+// Possible TextModes.
+const (
+	TextModeFill TextMode = iota
+	TextModeStroke
+	TextModeFillStroke
+	TextModeInvisible
+	TextModeFillClip
+	TextModeStrokeClip
+	TextModeFillStrokeClip
+	TextModeClip
 )
 
-// The Border interface should be implemented by objects that provide a border around an area.
-type Border interface {
-	Insets() draw.Insets
-	PaintBorder(g draw.Graphics, bounds draw.Rect)
-}
+// TextMode represents the mode to use when drawing text.
+type TextMode int

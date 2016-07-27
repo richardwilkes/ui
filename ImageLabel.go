@@ -9,20 +9,24 @@
 
 package ui
 
+import (
+	"github.com/richardwilkes/ui/draw"
+)
+
 // ImageLabel represents a non-interactive image.
 type ImageLabel struct {
 	Block
-	image *Image
+	image *draw.Image
 }
 
 // NewImageLabel creates an ImageLabel with the specified image.
-func NewImageLabel(img *Image) *ImageLabel {
-	return NewImageLabelWithImageSize(img, Size{})
+func NewImageLabel(img *draw.Image) *ImageLabel {
+	return NewImageLabelWithImageSize(img, draw.Size{})
 }
 
 // NewImageLabelWithImageSize creates a new ImageLabel with the specified image. The image will be
 // set to the specified size.
-func NewImageLabelWithImageSize(img *Image, size Size) *ImageLabel {
+func NewImageLabelWithImageSize(img *draw.Image, size draw.Size) *ImageLabel {
 	label := &ImageLabel{image: img}
 	if size.Width <= 0 || size.Height <= 0 {
 		label.SetSizer(label)
@@ -34,7 +38,7 @@ func NewImageLabelWithImageSize(img *Image, size Size) *ImageLabel {
 }
 
 // Sizes implements Sizer
-func (label *ImageLabel) Sizes(hint Size) (min, pref, max Size) {
+func (label *ImageLabel) Sizes(hint draw.Size) (min, pref, max draw.Size) {
 	size := label.image.Size()
 	if border := label.Border(); border != nil {
 		size.AddInsets(border.Insets())
@@ -58,11 +62,11 @@ func (label *ImageLabel) paint(event *Event) {
 
 type imageLabelSizer struct {
 	label *ImageLabel
-	size  Size
+	size  draw.Size
 }
 
 // Sizes implements Sizer
-func (sizer *imageLabelSizer) Sizes(hint Size) (min, pref, max Size) {
+func (sizer *imageLabelSizer) Sizes(hint draw.Size) (min, pref, max draw.Size) {
 	pref = sizer.size
 	if border := sizer.label.Border(); border != nil {
 		pref.AddInsets(border.Insets())

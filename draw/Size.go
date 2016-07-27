@@ -7,10 +7,11 @@
 // This Source Code Form is "Incompatible With Secondary Licenses", as
 // defined by the Mozilla Public License, version 2.0.
 
-package ui
+package draw
 
 import (
 	"fmt"
+	"github.com/richardwilkes/xmath"
 )
 
 // Size defines a width and height.
@@ -45,8 +46,8 @@ func (s *Size) SubtractInsets(insets Insets) {
 // GrowToInteger modifies this Size such that its width and height are both the smallest integers
 // greater than or equal to their original values.
 func (s *Size) GrowToInteger() {
-	s.Width = CeilFloat32(s.Width)
-	s.Height = CeilFloat32(s.Height)
+	s.Width = xmath.CeilFloat32(s.Width)
+	s.Height = xmath.CeilFloat32(s.Height)
 }
 
 // String implements the fmt.Stringer interface.

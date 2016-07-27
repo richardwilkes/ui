@@ -12,6 +12,7 @@ package ui
 import (
 	"bytes"
 	"fmt"
+	"github.com/richardwilkes/ui/draw"
 	"reflect"
 	"time"
 )
@@ -73,23 +74,23 @@ type EventHandler func(event *Event)
 
 // Event holds the data associated with an event.
 type Event struct {
-	Type         int       // Valid for all events.
-	When         time.Time // Valid for all events.
-	Target       Widget    // Valid for all events
-	GC           Graphics  // Valid only for PaintEvent.
-	DirtyRect    Rect      // Valid only for PaintEvent.
-	Where        Point     // In window coordinates. Valid for MouseDownEvent, MouseDraggedEvent, MouseUpEvent, MouseEnteredEvent, MouseMovedEvent, and MouseWheelEvent.
-	Delta        Point     // Valid only for MouseWheelEvent. The amount scrolled in each direction.
-	KeyModifiers KeyMask   // Valid for MouseDownEvent, MouseDraggedEvent, MouseUpEvent, MouseEnteredEvent, MouseMovedEvent, MouseExitedEvent, MouseWheelEvent, KeyDownEvent, KeyTypedEvent, and KeyUpEvent.
-	Button       int       // Valid only for MouseDownEvent. The button that is down.
-	Clicks       int       // Valid only for MouseDownEvent. The number of consecutive clicks in the widget.
-	ToolTip      string    // Valid only for ToolTipEvent. Set this to the text to display for the tooltip.
-	KeyCode      int       // Valid for KeyDownEvent and KeyUpEvent.
-	KeyTyped     rune      // Valid only for KeyTypedEvent.
-	Repeat       bool      // Valid for KeyDownEvent and KeyTypedEvent. Set to true if the key was auto-generated.
-	CascadeUp    bool      // Valid for all events. true if this event should be cascaded up to parents.
-	Discard      bool      // Valid for MouseDownEvent and KeyDownEvent. Set to true to if the event should be ignored (i.e. don't do processing that would have side-effects).
-	Done         bool      // Valid for all events. Set to true to stop processing this event.
+	Type         int           // Valid for all events.
+	When         time.Time     // Valid for all events.
+	Target       Widget        // Valid for all events
+	GC           draw.Graphics // Valid only for PaintEvent.
+	DirtyRect    draw.Rect     // Valid only for PaintEvent.
+	Where        draw.Point    // In window coordinates. Valid for MouseDownEvent, MouseDraggedEvent, MouseUpEvent, MouseEnteredEvent, MouseMovedEvent, and MouseWheelEvent.
+	Delta        draw.Point    // Valid only for MouseWheelEvent. The amount scrolled in each direction.
+	KeyModifiers KeyMask       // Valid for MouseDownEvent, MouseDraggedEvent, MouseUpEvent, MouseEnteredEvent, MouseMovedEvent, MouseExitedEvent, MouseWheelEvent, KeyDownEvent, KeyTypedEvent, and KeyUpEvent.
+	Button       int           // Valid only for MouseDownEvent. The button that is down.
+	Clicks       int           // Valid only for MouseDownEvent. The number of consecutive clicks in the widget.
+	ToolTip      string        // Valid only for ToolTipEvent. Set this to the text to display for the tooltip.
+	KeyCode      int           // Valid for KeyDownEvent and KeyUpEvent.
+	KeyTyped     rune          // Valid only for KeyTypedEvent.
+	Repeat       bool          // Valid for KeyDownEvent and KeyTypedEvent. Set to true if the key was auto-generated.
+	CascadeUp    bool          // Valid for all events. true if this event should be cascaded up to parents.
+	Discard      bool          // Valid for MouseDownEvent and KeyDownEvent. Set to true to if the event should be ignored (i.e. don't do processing that would have side-effects).
+	Done         bool          // Valid for all events. Set to true to stop processing this event.
 }
 
 // Dispatch the event. If there is more than one handler for the event type registered with the

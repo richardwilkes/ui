@@ -11,6 +11,7 @@ package ui
 
 import (
 	"github.com/richardwilkes/ui/color"
+	"github.com/richardwilkes/ui/draw"
 	"github.com/richardwilkes/ui/font"
 )
 
@@ -20,7 +21,7 @@ type Label struct {
 	text       string
 	font       *font.Font
 	foreground color.Color
-	alignment  Alignment
+	alignment  draw.Alignment
 }
 
 // NewLabel creates a label with the specified text.
@@ -34,15 +35,15 @@ func NewLabelWithFont(text string, font *font.Font) *Label {
 	label.text = text
 	label.foreground = color.Black
 	label.font = font
-	label.alignment = AlignStart
+	label.alignment = draw.AlignStart
 	label.SetSizer(label)
 	label.AddEventHandler(PaintEvent, label.paint)
 	return label
 }
 
 // Sizes implements Sizer
-func (label *Label) Sizes(hint Size) (min, pref, max Size) {
-	size, _ := label.attributedString().MeasureConstrained(hint)
+func (label *Label) Sizes(hint draw.Size) (min, pref, max draw.Size) {
+	size, _ := label.title().MeasureConstrained(hint)
 	size.GrowToInteger()
 	if border := label.Border(); border != nil {
 		size.AddInsets(border.Insets())
@@ -51,7 +52,7 @@ func (label *Label) Sizes(hint Size) (min, pref, max Size) {
 }
 
 func (label *Label) paint(event *Event) {
-	event.GC.DrawAttributedTextConstrained(label.LocalInsetBounds(), label.attributedString(), TextModeFill)
+	event.GC.DrawAttributedTextConstrained(label.LocalInsetBounds(), label.title(), draw.TextModeFill)
 }
 
 // SetForeground sets the color used when drawing the text.
@@ -63,15 +64,15 @@ func (label *Label) SetForeground(color color.Color) {
 }
 
 // SetAlignment sets the alignment used when drawing the text.
-func (label *Label) SetAlignment(align Alignment) {
+func (label *Label) SetAlignment(align draw.Alignment) {
 	if label.alignment != align {
 		label.alignment = align
 		label.Repaint()
 	}
 }
 
-func (label *Label) attributedString() *AttributedString {
-	str := NewAttributedString(label.text, label.foreground, label.font)
+func (label *Label) title() *draw.Text {
+	str := draw.NewText(label.text, label.foreground, label.font)
 	str.SetAlignment(0, 0, label.alignment)
 	return str
 }

@@ -7,7 +7,7 @@
 // This Source Code Form is "Incompatible With Secondary Licenses", as
 // defined by the Mozilla Public License, version 2.0.
 
-package ui
+package draw
 
 // #cgo darwin LDFLAGS: -framework Cocoa
 // #include <CoreGraphics/CoreGraphics.h>
@@ -40,4 +40,8 @@ func (p *Path) toPlatform() C.CGPathRef {
 		}
 	}
 	return C.CGPathRef(path)
+}
+
+func toCGRect(bounds Rect) C.CGRect {
+	return C.CGRectMake(C.CGFloat(bounds.X), C.CGFloat(bounds.Y), C.CGFloat(bounds.Width), C.CGFloat(bounds.Height))
 }

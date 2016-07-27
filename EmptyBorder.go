@@ -9,22 +9,26 @@
 
 package ui
 
+import (
+	"github.com/richardwilkes/ui/draw"
+)
+
 // EmptyBorder is a Border that contains empty space, effectively providing an empty margin.
 type EmptyBorder struct {
-	insets Insets
+	insets draw.Insets
 }
 
 // NewEmptyBorder creates a new Empty Border with the specified insets.
-func NewEmptyBorder(insets Insets) Border {
+func NewEmptyBorder(insets draw.Insets) Border {
 	return &EmptyBorder{insets: insets}
 }
 
 // Insets implements the Border interface.
-func (e *EmptyBorder) Insets() Insets {
+func (e *EmptyBorder) Insets() draw.Insets {
 	return e.insets
 }
 
 // PaintBorder implements the Border interface.
-func (e *EmptyBorder) PaintBorder(g Graphics, bounds Rect) {
+func (e *EmptyBorder) PaintBorder(g draw.Graphics, bounds draw.Rect) {
 	// Does nothing
 }

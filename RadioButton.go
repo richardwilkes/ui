@@ -11,7 +11,9 @@ package ui
 
 import (
 	"github.com/richardwilkes/ui/color"
+	"github.com/richardwilkes/ui/draw"
 	"github.com/richardwilkes/ui/keys"
+	"github.com/richardwilkes/xmath"
 	"time"
 )
 
@@ -44,9 +46,9 @@ func NewRadioButton(title string) *RadioButton {
 }
 
 // Sizes implements Sizer
-func (button *RadioButton) Sizes(hint Size) (min, pref, max Size) {
-	var size Size
-	box := CeilFloat32(button.Theme.Font.Ascent())
+func (button *RadioButton) Sizes(hint draw.Size) (min, pref, max draw.Size) {
+	var size draw.Size
+	box := xmath.CeilFloat32(button.Theme.Font.Ascent())
 	if button.Title != "" {
 		if hint.Width != NoLayoutHint {
 			hint.Width -= button.Theme.HorizontalGap + box
@@ -59,7 +61,7 @@ func (button *RadioButton) Sizes(hint Size) (min, pref, max Size) {
 				hint.Height = 1
 			}
 		}
-		size, _ = button.attributedString().MeasureConstrained(hint)
+		size, _ = button.title().MeasureConstrained(hint)
 		size.GrowToInteger()
 		size.Width += button.Theme.HorizontalGap + box
 		if size.Height < box {
@@ -76,12 +78,12 @@ func (button *RadioButton) Sizes(hint Size) (min, pref, max Size) {
 }
 
 func (button *RadioButton) paint(event *Event) {
-	box := CeilFloat32(button.Theme.Font.Ascent())
+	box := xmath.CeilFloat32(button.Theme.Font.Ascent())
 	bounds := button.LocalInsetBounds()
 	bounds.Width = box
 	bounds.Y += (bounds.Height - box) / 2
 	bounds.Height = box
-	path := NewPath()
+	path := draw.NewPath()
 	path.Ellipse(bounds)
 	gc := event.GC
 	gc.AddPath(path)
@@ -112,7 +114,7 @@ func (button *RadioButton) paint(event *Event) {
 		bounds.X += box + button.Theme.HorizontalGap
 		bounds.Width -= box + button.Theme.HorizontalGap
 		if bounds.Width > 0 {
-			gc.DrawAttributedTextConstrained(bounds, button.attributedString(), TextModeFill)
+			gc.DrawAttributedTextConstrained(bounds, button.title(), draw.TextModeFill)
 		}
 	}
 }
@@ -189,9 +191,9 @@ func (button *RadioButton) TextColor() color.Color {
 	return button.Theme.TextWhenDisabled
 }
 
-func (button *RadioButton) attributedString() *AttributedString {
-	str := NewAttributedString(button.Title, button.TextColor(), button.Theme.Font)
-	str.SetAlignment(0, 0, AlignStart)
+func (button *RadioButton) title() *draw.Text {
+	str := draw.NewText(button.Title, button.TextColor(), button.Theme.Font)
+	str.SetAlignment(0, 0, draw.AlignStart)
 	return str
 }
 

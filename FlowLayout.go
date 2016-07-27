@@ -10,6 +10,8 @@
 package ui
 
 import (
+	"github.com/richardwilkes/ui/draw"
+	"github.com/richardwilkes/xmath"
 	"math"
 )
 
@@ -35,7 +37,7 @@ func (flow *FlowLayout) HorizontalSpacing() float32 {
 
 // SetHorizontalSpacing sets the horizontal spacing between widgets.
 func (flow *FlowLayout) SetHorizontalSpacing(spacing float32) *FlowLayout {
-	flow.hSpacing = MaxFloat32(spacing, 0)
+	flow.hSpacing = xmath.MaxFloat32(spacing, 0)
 	return flow
 }
 
@@ -46,13 +48,13 @@ func (flow *FlowLayout) VerticalSpacing() float32 {
 
 // SetVerticalSpacing sets the vertical spacing between rows.
 func (flow *FlowLayout) SetVerticalSpacing(spacing float32) *FlowLayout {
-	flow.vSpacing = MaxFloat32(spacing, 0)
+	flow.vSpacing = xmath.MaxFloat32(spacing, 0)
 	return flow
 }
 
 // Sizes implements the Layout interface.
-func (flow *FlowLayout) Sizes(hint Size) (min, pref, max Size) {
-	var insets Insets
+func (flow *FlowLayout) Sizes(hint draw.Size) (min, pref, max draw.Size) {
+	var insets draw.Insets
 	if border := flow.widget.Border(); border != nil {
 		insets = border.Insets()
 	}
@@ -63,13 +65,13 @@ func (flow *FlowLayout) Sizes(hint Size) (min, pref, max Size) {
 		hint.Height = math.MaxFloat32
 	}
 	width := hint.Width - (insets.Left + insets.Right)
-	pt := Point{X: insets.Left, Y: insets.Top}
-	result := Size{Width: pt.Y, Height: pt.Y}
+	pt := draw.Point{X: insets.Left, Y: insets.Top}
+	result := draw.Size{Width: pt.Y, Height: pt.Y}
 	availWidth := width
 	availHeight := hint.Height - (insets.Top + insets.Bottom)
 	var maxHeight float32
-	var largestChildMin Size
-	noHint := Size{Width: NoLayoutHint, Height: NoLayoutHint}
+	var largestChildMin draw.Size
+	noHint := draw.Size{Width: NoLayoutHint, Height: NoLayoutHint}
 	for _, child := range flow.widget.Children() {
 		min, pref, _ := ComputeSizes(child, noHint)
 		if largestChildMin.Width < min.Width {
@@ -98,7 +100,7 @@ func (flow *FlowLayout) Sizes(hint Size) (min, pref, max Size) {
 				}
 			}
 			savedWidth := pref.Width
-			min, pref, _ = ComputeSizes(child, Size{Width: pref.Width, Height: NoLayoutHint})
+			min, pref, _ = ComputeSizes(child, draw.Size{Width: pref.Width, Height: NoLayoutHint})
 			pref.Width = savedWidth
 			if pref.Height > availHeight {
 				if min.Height <= availHeight {
@@ -139,17 +141,17 @@ func (flow *FlowLayout) Sizes(hint Size) (min, pref, max Size) {
 
 // Layout implements the Layout interface.
 func (flow *FlowLayout) Layout() {
-	var insets Insets
+	var insets draw.Insets
 	if border := flow.widget.Border(); border != nil {
 		insets = border.Insets()
 	}
 	size := flow.widget.Bounds().Size
 	width := size.Width - (insets.Left + insets.Right)
-	pt := Point{X: insets.Left, Y: insets.Top}
+	pt := draw.Point{X: insets.Left, Y: insets.Top}
 	availWidth := width
 	availHeight := size.Height - (insets.Top + insets.Bottom)
 	var maxHeight float32
-	noHint := Size{Width: NoLayoutHint, Height: NoLayoutHint}
+	noHint := draw.Size{Width: NoLayoutHint, Height: NoLayoutHint}
 	for _, child := range flow.widget.Children() {
 		min, pref, _ := ComputeSizes(child, noHint)
 		if pref.Width > availWidth {
@@ -172,7 +174,7 @@ func (flow *FlowLayout) Layout() {
 				}
 			}
 			savedWidth := pref.Width
-			min, pref, _ = ComputeSizes(child, Size{Width: pref.Width, Height: NoLayoutHint})
+			min, pref, _ = ComputeSizes(child, draw.Size{Width: pref.Width, Height: NoLayoutHint})
 			pref.Width = savedWidth
 			if pref.Height > availHeight {
 				if min.Height <= availHeight {
@@ -182,7 +184,7 @@ func (flow *FlowLayout) Layout() {
 				}
 			}
 		}
-		child.SetBounds(Rect{Point: pt, Size: pref})
+		child.SetBounds(draw.Rect{Point: pt, Size: pref})
 		if maxHeight < pref.Height {
 			maxHeight = pref.Height
 		}
