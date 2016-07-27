@@ -116,6 +116,31 @@ func (event *Event) Dispatch() {
 	}
 }
 
+// ShiftDown returns true if the shift key is being pressed.
+func (event *Event) ShiftDown() bool {
+	return event.KeyModifiers&ShiftKeyMask == ShiftKeyMask
+}
+
+// OptionDown returns true if the option/alt key is being pressed.
+func (event *Event) OptionDown() bool {
+	return event.KeyModifiers&OptionKeyMask == OptionKeyMask
+}
+
+// ControlDown returns true if the control key is being pressed.
+func (event *Event) ControlDown() bool {
+	return event.KeyModifiers&ControlKeyMask == ControlKeyMask
+}
+
+// CommandDown returns true if the command/meta key is being pressed.
+func (event *Event) CommandDown() bool {
+	return event.KeyModifiers&CommandKeyMask == CommandKeyMask
+}
+
+// CapsLockDown returns true if the caps lock key is being pressed.
+func (event *Event) CapsLockDown() bool {
+	return event.KeyModifiers&CapsLockKeyMask == CapsLockKeyMask
+}
+
 // String implements fmt.Stringer.
 func (event *Event) String() string {
 	var buffer bytes.Buffer
