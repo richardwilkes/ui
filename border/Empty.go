@@ -7,28 +7,28 @@
 // This Source Code Form is "Incompatible With Secondary Licenses", as
 // defined by the Mozilla Public License, version 2.0.
 
-package ui
+package border
 
 import (
 	"github.com/richardwilkes/ui/draw"
 )
 
-// EmptyBorder is a Border that contains empty space, effectively providing an empty margin.
-type EmptyBorder struct {
+// Empty is a border that contains empty space, effectively providing an empty margin.
+type Empty struct {
 	insets draw.Insets
 }
 
-// NewEmptyBorder creates a new Empty Border with the specified insets.
-func NewEmptyBorder(insets draw.Insets) Border {
-	return &EmptyBorder{insets: insets}
+// NewEmpty creates a new empty border with the specified insets.
+func NewEmpty(insets draw.Insets) Border {
+	return &Empty{insets: insets}
 }
 
 // Insets implements the Border interface.
-func (e *EmptyBorder) Insets() draw.Insets {
+func (e *Empty) Insets() draw.Insets {
 	return e.insets
 }
 
-// PaintBorder implements the Border interface.
-func (e *EmptyBorder) PaintBorder(g draw.Graphics, bounds draw.Rect) {
+// Draw implements the Border interface.
+func (e *Empty) Draw(gc draw.Graphics, bounds draw.Rect) {
 	// Does nothing
 }

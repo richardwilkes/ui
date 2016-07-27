@@ -10,6 +10,7 @@
 package ui
 
 import (
+	"github.com/richardwilkes/ui/border"
 	"github.com/richardwilkes/ui/color"
 	"github.com/richardwilkes/ui/draw"
 )
@@ -39,9 +40,9 @@ type Widget interface {
 	ValidateLayout()
 
 	// Border returns the Border for this widget, if any.
-	Border() Border
+	Border() border.Border
 	// SetBorder sets the Border for this widget. May be nil.
-	SetBorder(border Border)
+	SetBorder(border border.Border)
 
 	// Repaint marks this widget for painting at the next update.
 	Repaint()

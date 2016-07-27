@@ -13,6 +13,7 @@ import (
 	"fmt"
 	"github.com/richardwilkes/ui"
 	"github.com/richardwilkes/ui/Demo/images"
+	"github.com/richardwilkes/ui/border"
 	"github.com/richardwilkes/ui/draw"
 	"github.com/richardwilkes/ui/font"
 )
@@ -47,7 +48,7 @@ func createButtonsWindow() {
 	wnd.SetTitle("Demo")
 
 	root := wnd.RootWidget()
-	root.SetBorder(ui.NewEmptyBorder(draw.Insets{Top: 10, Left: 10, Bottom: 10, Right: 10}))
+	root.SetBorder(border.NewEmpty(draw.Insets{Top: 10, Left: 10, Bottom: 10, Right: 10}))
 	ui.NewPrecisionLayout(root).SetVerticalSpacing(10)
 
 	buttonsPanel := createButtonsPanel()
@@ -226,7 +227,7 @@ func createAboutWindow(item *ui.MenuItem) {
 		aboutWindow.DidClose = func() { aboutWindow = nil }
 		aboutWindow.SetTitle("About " + ui.AppName())
 		root := aboutWindow.RootWidget()
-		root.SetBorder(ui.NewEmptyBorder(draw.Insets{Top: 10, Left: 10, Bottom: 10, Right: 10}))
+		root.SetBorder(border.NewEmpty(draw.Insets{Top: 10, Left: 10, Bottom: 10, Right: 10}))
 		ui.NewPrecisionLayout(root)
 		title := ui.NewLabelWithFont(ui.AppName(), font.Acquire(font.EmphasizedSystemDesc))
 		title.SetLayoutData(ui.NewPrecisionData().SetHorizontalAlignment(draw.AlignMiddle))

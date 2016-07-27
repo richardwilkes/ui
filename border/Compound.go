@@ -7,25 +7,25 @@
 // This Source Code Form is "Incompatible With Secondary Licenses", as
 // defined by the Mozilla Public License, version 2.0.
 
-package ui
+package border
 
 import (
 	"github.com/richardwilkes/ui/draw"
 )
 
-// CompoundBorder is a Border that contains other Borders.
-type CompoundBorder struct {
+// Compound is a border that contains other borders.
+type Compound struct {
 	borders []Border
 }
 
-// NewCompoundBorder creates a Border that contains other Borders. The first one will be drawn in
+// NewCompound creates a border that contains other borders. The first one will be drawn in
 // the outermost position, with each successive one moving further into the interior.
-func NewCompoundBorder(borders ...Border) Border {
-	return &CompoundBorder{borders: borders}
+func NewCompound(borders ...Border) Border {
+	return &Compound{borders: borders}
 }
 
 // Insets implements the Border interface.
-func (c *CompoundBorder) Insets() draw.Insets {
+func (c *Compound) Insets() draw.Insets {
 	insets := draw.Insets{}
 	for _, one := range c.borders {
 		insets.Add(one.Insets())
@@ -33,12 +33,12 @@ func (c *CompoundBorder) Insets() draw.Insets {
 	return insets
 }
 
-// PaintBorder implements the Border interface.
-func (c *CompoundBorder) PaintBorder(g draw.Graphics, bounds draw.Rect) {
+// Draw implements the Border interface.
+func (c *Compound) Draw(gc draw.Graphics, bounds draw.Rect) {
 	for _, one := range c.borders {
-		g.Save()
-		one.PaintBorder(g, bounds)
-		g.Restore()
+		gc.Save()
+		one.Draw(gc, bounds)
+		gc.Restore()
 		bounds.Inset(one.Insets())
 	}
 }

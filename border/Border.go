@@ -7,7 +7,7 @@
 // This Source Code Form is "Incompatible With Secondary Licenses", as
 // defined by the Mozilla Public License, version 2.0.
 
-package ui
+package border
 
 import (
 	"github.com/richardwilkes/ui/draw"
@@ -15,6 +15,8 @@ import (
 
 // The Border interface should be implemented by objects that provide a border around an area.
 type Border interface {
+	// Insets returns the insets describing the space the border occupies on each side.
 	Insets() draw.Insets
-	PaintBorder(g draw.Graphics, bounds draw.Rect)
+	// Draw the border into 'bounds'.
+	Draw(gc draw.Graphics, bounds draw.Rect)
 }

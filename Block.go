@@ -10,6 +10,7 @@
 package ui
 
 import (
+	"github.com/richardwilkes/ui/border"
 	"github.com/richardwilkes/ui/color"
 	"github.com/richardwilkes/ui/draw"
 	"reflect"
@@ -24,7 +25,7 @@ type Block struct {
 	children      []Widget
 	sizer         Sizer
 	layout        Layout
-	border        Border
+	border        border.Border
 	bounds        draw.Rect
 	layoutData    interface{}
 	background    color.Color
@@ -132,12 +133,12 @@ func (b *Block) ValidateLayout() {
 }
 
 // Border implements the Widget interface.
-func (b *Block) Border() Border {
+func (b *Block) Border() border.Border {
 	return b.border
 }
 
 // SetBorder implements the Widget interface.
-func (b *Block) SetBorder(border Border) {
+func (b *Block) SetBorder(border border.Border) {
 	b.border = border
 }
 
@@ -188,11 +189,11 @@ func (b *Block) paintSelf(g draw.Graphics, dirty draw.Rect) {
 	event.Dispatch()
 }
 
-func (b *Block) paintBorder(g draw.Graphics) {
+func (b *Block) paintBorder(gc draw.Graphics) {
 	if border := b.Border(); border != nil {
-		g.Save()
-		defer g.Restore()
-		border.PaintBorder(g, b.LocalBounds())
+		gc.Save()
+		defer gc.Restore()
+		border.Draw(gc, b.LocalBounds())
 	}
 }
 
