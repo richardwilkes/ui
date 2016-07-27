@@ -72,15 +72,6 @@ func createButtonsWindow() {
 
 	addSeparator(root)
 
-	target := &scrollTarget{}
-	scrollbar := ui.NewScrollBar(false, target)
-	scrollbar.SetLayoutData(ui.NewPrecisionData().SetMinSize(ui.Size{Width: ui.NoLayoutHint, Height: 200}))
-	root.AddChild(scrollbar)
-
-	scrollbar = ui.NewScrollBar(true, target)
-	scrollbar.SetLayoutData(ui.NewPrecisionData().SetHorizontalAlignment(ui.AlignFill))
-	root.AddChild(scrollbar)
-
 	img, err := ui.AcquireImageFromURL("http://allwallpapersnew.com/wp-content/gallery/stock-photos-for-free/grassy_field_sunset___free_stock_by_kevron2001-d5blgkr.jpg")
 	if err == nil {
 		content := ui.NewImageLabel(img)
