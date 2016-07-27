@@ -218,12 +218,12 @@ func (b *Block) SetEnabled(enabled bool) {
 	}
 }
 
-// Focused implements the Widget interface.
+// Focusable implements the Widget interface.
 func (b *Block) Focusable() bool {
 	return b.focusable && !b.disabled
 }
 
-// SetFocused implements the Widget interface.
+// SetFocusable implements the Widget interface.
 func (b *Block) SetFocusable(focusable bool) {
 	if b.focusable != focusable {
 		b.focusable = focusable
