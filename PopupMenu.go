@@ -11,6 +11,7 @@ package ui
 
 import (
 	"fmt"
+	"github.com/richardwilkes/ui/keys"
 )
 
 // PopupMenu represents a clickable button that displays a menu of choices.
@@ -30,9 +31,13 @@ func NewPopupMenu() *PopupMenu {
 	pm := &PopupMenu{}
 	pm.selectedIndex = -1
 	pm.Theme = StdPopupMenuTheme
+	pm.SetFocusable(true)
 	pm.SetSizer(pm)
 	pm.AddEventHandler(PaintEvent, pm.paint)
 	pm.AddEventHandler(MouseDownEvent, pm.mouseDown)
+	pm.AddEventHandler(FocusGainedEvent, pm.focusChanged)
+	pm.AddEventHandler(FocusLostEvent, pm.focusChanged)
+	pm.AddEventHandler(KeyDownEvent, pm.keyDown)
 	return pm
 }
 
@@ -101,6 +106,23 @@ func (pm *PopupMenu) paint(event *Event) {
 }
 
 func (pm *PopupMenu) mouseDown(event *Event) {
+	pm.Click()
+	event.Discard = true
+}
+
+func (pm *PopupMenu) focusChanged(event *Event) {
+	pm.Repaint()
+}
+
+func (pm *PopupMenu) keyDown(event *Event) {
+	if event.KeyCode == keys.Return || event.KeyCode == keys.Enter || event.KeyCode == keys.Space {
+		event.Done = true
+		pm.Click()
+	}
+}
+
+// Click performs any animation associated with a click and triggers the popup menu to appear.
+func (pm *PopupMenu) Click() {
 	hasItem := false
 	menu := NewMenu("")
 	defer menu.Dispose()
@@ -111,7 +133,6 @@ func (pm *PopupMenu) mouseDown(event *Event) {
 	}
 	if hasItem {
 		menu.Popup(pm, pm.LocalInsetBounds().Point, menu.Item(pm.selectedIndex))
-		event.Discard = true
 	}
 }
 

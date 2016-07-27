@@ -11,6 +11,7 @@ package ui
 
 import (
 	"github.com/richardwilkes/ui/keys"
+	"time"
 )
 
 // Possible values for CheckBoxState.
@@ -160,16 +161,24 @@ func (checkbox *CheckBox) mouseUp(event *Event) {
 	checkbox.Repaint()
 	bounds := checkbox.LocalInsetBounds()
 	if bounds.Contains(checkbox.FromWindow(event.Where)) {
-		checkbox.doClick()
+		checkbox.Click()
 	}
 }
 
-func (checkbox *CheckBox) doClick() {
+// Click performs any animation associated with a click and calls the OnClick() function if it is
+// set.
+func (checkbox *CheckBox) Click() {
 	if checkbox.state == Checked {
 		checkbox.state = Unchecked
 	} else {
 		checkbox.state = Checked
 	}
+	pressed := checkbox.pressed
+	checkbox.pressed = true
+	checkbox.Repaint()
+	checkbox.Window().FlushPainting()
+	checkbox.pressed = pressed
+	time.Sleep(checkbox.Theme.ClickAnimationTime)
 	checkbox.Repaint()
 	if checkbox.OnClick != nil {
 		checkbox.OnClick()
@@ -182,7 +191,8 @@ func (checkbox *CheckBox) focusChanged(event *Event) {
 
 func (checkbox *CheckBox) keyDown(event *Event) {
 	if event.KeyCode == keys.Return || event.KeyCode == keys.Enter || event.KeyCode == keys.Space {
-		checkbox.doClick()
+		event.Done = true
+		checkbox.Click()
 	}
 }
 

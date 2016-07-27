@@ -11,6 +11,7 @@ package ui
 
 import (
 	"github.com/richardwilkes/ui/keys"
+	"time"
 )
 
 // ImageButton represents a clickable image button.
@@ -124,11 +125,9 @@ func (button *ImageButton) mouseDragged(event *Event) {
 func (button *ImageButton) mouseUp(event *Event) {
 	button.pressed = false
 	button.Repaint()
-	if button.OnClick != nil {
-		bounds := button.LocalInsetBounds()
-		if bounds.Contains(button.FromWindow(event.Where)) {
-			button.OnClick()
-		}
+	bounds := button.LocalInsetBounds()
+	if bounds.Contains(button.FromWindow(event.Where)) {
+		button.Click()
 	}
 }
 
@@ -136,11 +135,25 @@ func (button *ImageButton) focusChanged(event *Event) {
 	button.Repaint()
 }
 
+// Click performs any animation associated with a click and calls the OnClick() function if it is
+// set.
+func (button *ImageButton) Click() {
+	pressed := button.pressed
+	button.pressed = true
+	button.Repaint()
+	button.Window().FlushPainting()
+	button.pressed = pressed
+	time.Sleep(button.Theme.ClickAnimationTime)
+	button.Repaint()
+	if button.OnClick != nil {
+		button.OnClick()
+	}
+}
+
 func (button *ImageButton) keyDown(event *Event) {
 	if event.KeyCode == keys.Return || event.KeyCode == keys.Enter || event.KeyCode == keys.Space {
-		if button.OnClick != nil {
-			button.OnClick()
-		}
+		event.Done = true
+		button.Click()
 	}
 }
 

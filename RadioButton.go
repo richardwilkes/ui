@@ -11,6 +11,7 @@ package ui
 
 import (
 	"github.com/richardwilkes/ui/keys"
+	"time"
 )
 
 // RadioButton represents a radio button with an optional label.
@@ -134,14 +135,7 @@ func (button *RadioButton) mouseUp(event *Event) {
 	button.Repaint()
 	bounds := button.LocalInsetBounds()
 	if bounds.Contains(button.FromWindow(event.Where)) {
-		button.doClick()
-	}
-}
-
-func (button *RadioButton) doClick() {
-	button.SetSelected(true)
-	if button.OnClick != nil {
-		button.OnClick()
+		button.Click()
 	}
 }
 
@@ -149,9 +143,26 @@ func (button *RadioButton) focusChanged(event *Event) {
 	button.Repaint()
 }
 
+// Click performs any animation associated with a click and calls the OnClick() function if it is
+// set.
+func (button *RadioButton) Click() {
+	button.SetSelected(true)
+	pressed := button.pressed
+	button.pressed = true
+	button.Repaint()
+	button.Window().FlushPainting()
+	button.pressed = pressed
+	time.Sleep(button.Theme.ClickAnimationTime)
+	button.Repaint()
+	if button.OnClick != nil {
+		button.OnClick()
+	}
+}
+
 func (button *RadioButton) keyDown(event *Event) {
 	if event.KeyCode == keys.Return || event.KeyCode == keys.Enter || event.KeyCode == keys.Space {
-		button.doClick()
+		event.Done = true
+		button.Click()
 	}
 }
 

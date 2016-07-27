@@ -9,6 +9,10 @@
 
 package ui
 
+import (
+	"github.com/richardwilkes/ui/keys"
+)
+
 // ScrollArea provides a widget that can hold another widget and show it through a scrollable
 // viewport.
 type ScrollArea struct {
@@ -27,6 +31,8 @@ func NewScrollArea(content Widget) *ScrollArea {
 	sa.view = NewBlock()
 	sa.view.SetBackground(TextBackgroundColor)
 	sa.view.AddEventHandler(ResizeEvent, sa.viewResized)
+	sa.SetFocusable(true) // RAW: Revist... don't want to be focusable, but do want to participate
+	sa.AddEventHandler(KeyDownEvent, sa.keyDown)
 	sa.AddChild(sa.view)
 	sa.hBar = NewScrollBar(true, sa)
 	sa.vBar = NewScrollBar(false, sa)
@@ -157,4 +163,60 @@ func (sa *ScrollArea) mouseWheel(event *Event) {
 		sa.hBar.SetScrolledPosition(sa.ScrolledPosition(true) - event.Delta.X*sa.LineScrollAmount(true, event.Delta.X > 0))
 	}
 	event.CascadeUp = false
+}
+
+func (sa *ScrollArea) keyDown(event *Event) {
+	switch event.KeyCode {
+	case keys.Up:
+		event.Done = true
+		sa.vBar.SetScrolledPosition(sa.ScrolledPosition(false) - sa.LineScrollAmount(false, true))
+	case keys.Down:
+		event.Done = true
+		sa.vBar.SetScrolledPosition(sa.ScrolledPosition(false) + sa.LineScrollAmount(false, false))
+	case keys.Left:
+		event.Done = true
+		sa.hBar.SetScrolledPosition(sa.ScrolledPosition(true) - sa.LineScrollAmount(true, true))
+	case keys.Right:
+		event.Done = true
+		sa.hBar.SetScrolledPosition(sa.ScrolledPosition(true) + sa.LineScrollAmount(true, false))
+	case keys.Home:
+		event.Done = true
+		var bar *ScrollBar
+		if event.ShiftDown() {
+			bar = sa.hBar
+		} else {
+			bar = sa.vBar
+		}
+		bar.SetScrolledPosition(0)
+	case keys.End:
+		event.Done = true
+		var bar *ScrollBar
+		horizontal := event.ShiftDown()
+		if horizontal {
+			bar = sa.hBar
+		} else {
+			bar = sa.vBar
+		}
+		bar.SetScrolledPosition(sa.ContentSize(horizontal))
+	case keys.PageUp:
+		event.Done = true
+		var bar *ScrollBar
+		horizontal := event.ShiftDown()
+		if horizontal {
+			bar = sa.hBar
+		} else {
+			bar = sa.vBar
+		}
+		bar.SetScrolledPosition(sa.ScrolledPosition(horizontal) - sa.PageScrollAmount(horizontal, true))
+	case keys.PageDown:
+		event.Done = true
+		var bar *ScrollBar
+		horizontal := event.ShiftDown()
+		if horizontal {
+			bar = sa.hBar
+		} else {
+			bar = sa.vBar
+		}
+		bar.SetScrolledPosition(sa.ScrolledPosition(horizontal) + sa.PageScrollAmount(horizontal, false))
+	}
 }
