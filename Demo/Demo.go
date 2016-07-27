@@ -13,6 +13,7 @@ import (
 	"fmt"
 	"github.com/richardwilkes/ui"
 	"github.com/richardwilkes/ui/Demo/images"
+	"github.com/richardwilkes/ui/font"
 )
 
 var (
@@ -226,7 +227,7 @@ func createAboutWindow(item *ui.MenuItem) {
 		root := aboutWindow.RootWidget()
 		root.SetBorder(ui.NewEmptyBorder(ui.Insets{Top: 10, Left: 10, Bottom: 10, Right: 10}))
 		ui.NewPrecisionLayout(root)
-		title := ui.NewLabelWithFont(ui.AppName(), ui.AcquireFont(ui.EmphasizedSystemFontDesc))
+		title := ui.NewLabelWithFont(ui.AppName(), font.Acquire(font.EmphasizedSystemDesc))
 		title.SetLayoutData(ui.NewPrecisionData().SetHorizontalAlignment(ui.AlignMiddle))
 		root.AddChild(title)
 		desc := ui.NewLabel("Simple app to demonstrate the\ncapabilities of the ui framework.")

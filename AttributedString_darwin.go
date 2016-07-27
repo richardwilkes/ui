@@ -16,6 +16,7 @@ import "C"
 
 import (
 	"github.com/richardwilkes/ui/color"
+	"github.com/richardwilkes/ui/font"
 	"math"
 	"unsafe"
 )
@@ -34,7 +35,7 @@ func (a *AttributedString) toPlatform() C.CFMutableAttributedStringRef {
 		r := C.CFRangeMake(C.CFIndex(begin), C.CFIndex(length))
 		switch ra.attr.key {
 		case fontAttribute:
-			C.CFAttributedStringSetAttribute(as, r, C.kCTFontAttributeName, C.CFTypeRef(ra.attr.value.(*Font).font))
+			C.CFAttributedStringSetAttribute(as, r, C.kCTFontAttributeName, C.CFTypeRef(ra.attr.value.(*font.Font).PlatformPtr()))
 		case foregroundAttribute:
 			color := ra.attr.value.(color.Color)
 			rgba := C.CGColorCreateGenericRGB(C.CGFloat(color.RedIntensity()), C.CGFloat(color.GreenIntensity()), C.CGFloat(color.BlueIntensity()), C.CGFloat(color.AlphaIntensity()))

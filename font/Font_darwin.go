@@ -7,7 +7,7 @@
 // This Source Code Form is "Incompatible With Secondary Licenses", as
 // defined by the Mozilla Public License, version 2.0.
 
-package ui
+package font
 
 // #cgo darwin LDFLAGS: -framework Cocoa
 // #include <stdlib.h>
@@ -35,20 +35,13 @@ func platformAvailableFontFamilies() []string {
 	return names
 }
 
-func stringFromDescAttr(desc C.CTFontDescriptorRef, attrName C.CFStringRef) string {
-	str := C.CFStringRef(C.CTFontDescriptorCopyAttribute(desc, attrName))
-	result := stringFromCFString(str)
-	C.CFRelease(str)
-	return result
-}
-
-func platformNewFont(desc FontDesc) *Font {
-	desc.Flags &= UserSettableStyleMask
+func platformNewFont(desc Desc) *Font {
+	desc.Style &= UserSettable
 	if desc.Condensed() && desc.Expanded() {
-		desc.Flags &= ^FontStyleFlags(ExpandedStyleMask)
+		desc.Style &= ^Expanded
 	}
 	font := C.CTFontCreateWithName(cfStringFromString(desc.Family), C.CGFloat(desc.Size), nil)
-	if (desc.Flags & UserSettableStyleMask) != 0 {
+	if (desc.Style & UserSettable) != 0 {
 		var traits C.CTFontSymbolicTraits
 	tryAgain:
 		if desc.Bold() {
@@ -66,15 +59,15 @@ func platformNewFont(desc FontDesc) *Font {
 		if adjustedFont == nil {
 			traits = 0
 			if desc.Expanded() {
-				desc.Flags &= ^FontStyleFlags(ExpandedStyleMask)
+				desc.Style &= ^Expanded
 			} else if desc.Condensed() {
-				desc.Flags &= ^FontStyleFlags(CondensedStyleMask)
+				desc.Style &= ^Condensed
 			} else if desc.Italic() {
-				desc.Flags &= ^FontStyleFlags(ItalicStyleMask)
+				desc.Style &= ^Italic
 			} else if desc.Bold() {
-				desc.Flags &= ^FontStyleFlags(BoldStyleMask)
+				desc.Style &= ^Bold
 			}
-			if (desc.Flags & UserSettableStyleMask) != 0 {
+			if (desc.Style & UserSettable) != 0 {
 				goto tryAgain
 			}
 			adjustedFont = font
@@ -83,21 +76,21 @@ func platformNewFont(desc FontDesc) *Font {
 	}
 	C.CFRetain(font)
 	traits := C.CTFontGetSymbolicTraits(font)
-	desc.Flags &= ^FontStyleFlags(CondensedStyleMask | ExpandedStyleMask)
+	desc.Style &= ^(Condensed | Expanded)
 	if traits&C.kCTFontBoldTrait == C.kCTFontBoldTrait {
-		desc.Flags |= ActualBoldStyleMask
+		desc.Style |= ActualBold
 	}
 	if traits&C.kCTFontItalicTrait == C.kCTFontItalicTrait {
-		desc.Flags |= ActualItalicStyleMask
+		desc.Style |= ActualItalic
 	}
 	if traits&C.kCTFontCondensedTrait == C.kCTFontCondensedTrait {
-		desc.Flags |= CondensedStyleMask
+		desc.Style |= Condensed
 	}
 	if traits&C.kCTFontExpandedTrait == C.kCTFontExpandedTrait {
-		desc.Flags |= ExpandedStyleMask
+		desc.Style |= Expanded
 	}
 	if traits&C.kCTFontMonoSpaceTrait == C.kCTFontMonoSpaceTrait {
-		desc.Flags |= MonospacedStyleMask
+		desc.Style |= Monospaced
 	}
 	return &Font{font: unsafe.Pointer(font), desc: desc}
 }
@@ -118,28 +111,28 @@ func (f *Font) platformLeading() float32 {
 	return float32(C.CTFontGetLeading(f.font))
 }
 
-func platformFontDesc(id int) FontDesc {
+func platformDesc(id int) Desc {
 	var fontType C.int
 	switch id {
-	case userFontID:
+	case userID:
 		fontType = C.kCTFontUserFontType
-	case userMonospacedFontID:
+	case userMonospacedID:
 		fontType = C.kCTFontUserFixedPitchFontType
-	case systemFontID:
+	case systemID:
 		fontType = C.kCTFontSystemFontType
-	case emphasizedSystemFontID:
+	case emphasizedSystemID:
 		fontType = C.kCTFontEmphasizedSystemFontType
-	case smallSystemFontID:
+	case smallSystemID:
 		fontType = C.kCTFontSmallSystemFontType
-	case smallEmphasizedSystemFontID:
+	case smallEmphasizedSystemID:
 		fontType = C.kCTFontSmallEmphasizedSystemFontType
-	case viewsFontID:
+	case viewsID:
 		fontType = C.kCTFontViewsFontType
-	case labelFontID:
+	case labelID:
 		fontType = C.kCTFontLabelFontType
-	case menuFontID:
+	case menuID:
 		fontType = C.kCTFontMenuItemFontType
-	case menuCmdKeyFontID:
+	case menuCmdKeyID:
 		fontType = C.kCTFontMenuItemCmdKeyFontType
 	default:
 		fontType = C.kCTFontUserFontType
@@ -147,24 +140,55 @@ func platformFontDesc(id int) FontDesc {
 	font := C.CTFontCreateUIFontForLanguage(C.CTFontUIFontType(fontType), 0, nil)
 	C.CFRetain(font)
 	traits := C.CTFontGetSymbolicTraits(font)
-	var desc FontDesc
+	var desc Desc
 	desc.Family = stringFromCFString(C.CTFontCopyFamilyName(font))
 	desc.Size = float32(C.CTFontGetSize(font))
 	if traits&C.kCTFontBoldTrait == C.kCTFontBoldTrait {
-		desc.Flags |= ActualBoldStyleMask | BoldStyleMask
+		desc.Style |= ActualBold | Bold
 	}
 	if traits&C.kCTFontItalicTrait == C.kCTFontItalicTrait {
-		desc.Flags |= ActualItalicStyleMask | ItalicStyleMask
+		desc.Style |= ActualItalic | Italic
 	}
 	if traits&C.kCTFontCondensedTrait == C.kCTFontCondensedTrait {
-		desc.Flags |= CondensedStyleMask
+		desc.Style |= Condensed
 	}
 	if traits&C.kCTFontExpandedTrait == C.kCTFontExpandedTrait {
-		desc.Flags |= ExpandedStyleMask
+		desc.Style |= Expanded
 	}
 	if traits&C.kCTFontMonoSpaceTrait == C.kCTFontMonoSpaceTrait {
-		desc.Flags |= MonospacedStyleMask
+		desc.Style |= Monospaced
 	}
 	C.CFRelease(font)
 	return desc
+}
+
+func stringFromDescAttr(desc C.CTFontDescriptorRef, attrName C.CFStringRef) string {
+	str := C.CFStringRef(C.CTFontDescriptorCopyAttribute(desc, attrName))
+	result := stringFromCFString(str)
+	C.CFRelease(str)
+	return result
+}
+
+func stringFromCFString(cfStr C.CFStringRef) string {
+	var freeUTF8StringPtr *C.char
+	useUTF8StringPtr := C.CFStringGetCStringPtr(cfStr, C.kCFStringEncodingUTF8)
+	if useUTF8StringPtr == nil {
+		stringLength := C.CFStringGetLength(cfStr)
+		maxBytes := 4*stringLength + 1
+		freeUTF8StringPtr = (*C.char)(C.malloc(C.size_t(maxBytes)))
+		C.CFStringGetCString(cfStr, freeUTF8StringPtr, maxBytes, C.kCFStringEncodingUTF8)
+		useUTF8StringPtr = freeUTF8StringPtr
+	}
+	str := C.GoString(useUTF8StringPtr)
+	if freeUTF8StringPtr != nil {
+		C.free(unsafe.Pointer(freeUTF8StringPtr))
+	}
+	return str
+}
+
+func cfStringFromString(str string) C.CFStringRef {
+	cstr := C.CString(str)
+	cfstr := C.CFStringCreateWithBytes(nil, (*C.UInt8)(unsafe.Pointer(cstr)), C.CFIndex(len(str)), C.kCFStringEncodingUTF8, 0)
+	C.free(unsafe.Pointer(cstr))
+	return cfstr
 }

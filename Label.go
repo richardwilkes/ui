@@ -11,24 +11,25 @@ package ui
 
 import (
 	"github.com/richardwilkes/ui/color"
+	"github.com/richardwilkes/ui/font"
 )
 
 // Label represents a non-interactive piece of text.
 type Label struct {
 	Block
 	text       string
-	font       *Font
+	font       *font.Font
 	foreground color.Color
 	alignment  Alignment
 }
 
 // NewLabel creates a label with the specified text.
 func NewLabel(text string) *Label {
-	return NewLabelWithFont(text, AcquireFont(LabelFontDesc))
+	return NewLabelWithFont(text, font.Acquire(font.LabelDesc))
 }
 
 // NewLabelWithFont creates a label with the specified text and font.
-func NewLabelWithFont(text string, font *Font) *Label {
+func NewLabelWithFont(text string, font *font.Font) *Label {
 	label := &Label{}
 	label.text = text
 	label.foreground = color.Black

@@ -11,6 +11,7 @@ package ui
 
 import (
 	"github.com/richardwilkes/ui/color"
+	"github.com/richardwilkes/ui/font"
 )
 
 // Possible TextModes.
@@ -53,9 +54,9 @@ type Graphics interface {
 	// SetStrokeWidth sets the current stroke width.
 	SetStrokeWidth(width float32)
 	// Font returns the current font.
-	Font() *Font
+	Font() *font.Font
 	// SetFont sets the current font.
-	SetFont(font *Font)
+	SetFont(font *font.Font)
 	// StrokeLine draws a line between two points.
 	StrokeLine(x1, y1, x2, y2 float32)
 	// FillRect fills a rectangle in the specified bounds.

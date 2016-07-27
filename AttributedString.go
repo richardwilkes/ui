@@ -11,6 +11,7 @@ package ui
 
 import (
 	"github.com/richardwilkes/ui/color"
+	"github.com/richardwilkes/ui/font"
 )
 
 const (
@@ -38,7 +39,7 @@ type AttributedString struct {
 
 // NewAttributedString creates a new attributed string with the specified font and color for the
 // whole string.
-func NewAttributedString(text string, color color.Color, font *Font) *AttributedString {
+func NewAttributedString(text string, color color.Color, font *font.Font) *AttributedString {
 	as := &AttributedString{text: text}
 	as.SetFont(0, 0, font)
 	as.SetForeground(0, 0, color)
@@ -46,7 +47,7 @@ func NewAttributedString(text string, color color.Color, font *Font) *Attributed
 }
 
 // SetFont sets the font for the specified range.
-func (a *AttributedString) SetFont(begin, length int, font *Font) {
+func (a *AttributedString) SetFont(begin, length int, font *font.Font) {
 	a.set(begin, length, fontAttribute, font)
 }
 

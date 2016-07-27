@@ -11,6 +11,7 @@ package ui
 
 import (
 	"github.com/richardwilkes/ui/color"
+	"github.com/richardwilkes/ui/font"
 )
 
 // #cgo darwin LDFLAGS: -framework Cocoa
@@ -48,7 +49,7 @@ type graphicsState struct {
 	fillColor   color.Color
 	strokeColor color.Color
 	strokeWidth float32
-	font        *Font
+	font        *font.Font
 }
 
 func newGraphics(gc C.uiGraphicsContext) Graphics {
@@ -123,12 +124,12 @@ func (gc *graphics) SetStrokeWidth(width float32) {
 }
 
 // Font implements Graphics.
-func (gc *graphics) Font() *Font {
+func (gc *graphics) Font() *font.Font {
 	return gc.stack[len(gc.stack)-1].font
 }
 
 // SetFont implements Graphics.
-func (gc *graphics) SetFont(font *Font) {
+func (gc *graphics) SetFont(font *font.Font) {
 	gc.stack[len(gc.stack)-1].font = font
 }
 
