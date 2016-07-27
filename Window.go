@@ -16,7 +16,7 @@ import (
 	"unsafe"
 )
 
-// #cgo darwin LDFLAGS: -framework Cocoa
+// #cgo darwin LDFLAGS: -framework Cocoa -framework Quartz
 // #include <stdlib.h>
 // #include "Window.h"
 import "C"
@@ -73,7 +73,7 @@ func NewWindowWithContentSize(where Point, contentSize Size, styleMask WindowSty
 }
 
 //export drawWindow
-func drawWindow(cWindow C.uiWindow, g unsafe.Pointer, bounds C.uiRect, inLiveResize bool) {
+func drawWindow(cWindow C.uiWindow, g C.uiGraphicsContext, bounds C.uiRect, inLiveResize bool) {
 	if window, ok := windowMap[cWindow]; ok {
 		window.rootBlock.ValidateLayout()
 		window.inLiveResize = inLiveResize
@@ -373,6 +373,11 @@ func (window *Window) RepaintBounds(bounds Rect) {
 	if !bounds.IsEmpty() {
 		C.uiRepaintWindow(window.window, toCRect(bounds))
 	}
+}
+
+// FlushPainting causes any areas marked for repainting to be painted.
+func (window *Window) FlushPainting() {
+	C.uiFlushPainting(window.window)
 }
 
 // Focus returns the widget with the keyboard focus in this window.

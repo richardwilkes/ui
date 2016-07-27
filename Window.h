@@ -13,6 +13,7 @@
 #include <CoreGraphics/CoreGraphics.h>
 
 typedef void *uiWindow;
+typedef void *uiGraphicsContext;
 
 typedef struct {
 	float x, y;
@@ -67,6 +68,7 @@ void uiBringWindowToFront(uiWindow window);
 void uiBringAllWindowsToFront();
 uiWindow uiGetKeyWindow();
 void uiRepaintWindow(uiWindow window, uiRect bounds);
+void uiFlushPainting(uiWindow window);
 void uiSetToolTip(uiWindow window, const char *tooltip);
 
 #endif // __RW_GOUI_WINDOW__

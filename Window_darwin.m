@@ -8,6 +8,7 @@
 // defined by the Mozilla Public License, version 2.0.
 
 #include <Cocoa/Cocoa.h>
+#include <Quartz/Quartz.h>
 #include "_cgo_export.h"
 #include "Window.h"
 
@@ -155,6 +156,10 @@ void uiRepaintWindow(uiWindow window, uiRect bounds) {
 	[[((NSWindow *)window) contentView] setNeedsDisplayInRect:NSMakeRect(bounds.x, bounds.y, bounds.width, bounds.height)];
 }
 
+void uiFlushPainting(uiWindow window) {
+	[CATransaction flush];
+}
+
 void uiSetToolTip(uiWindow window, const char *tooltip) {
 	NSView *view = [((NSWindow *)window) contentView];
 	// We always clear the old one out first. Failure to do so results in new tooltips not always showing up.
@@ -180,7 +185,7 @@ void uiSetToolTip(uiWindow window, const char *tooltip) {
 	bounds.y = dirtyRect.origin.y;
 	bounds.width = dirtyRect.size.width;
 	bounds.height = dirtyRect.size.height;
-	drawWindow((uiWindow)[self window], [[NSGraphicsContext currentContext] graphicsPort], bounds, [self inLiveResize]);
+	drawWindow((uiWindow)[self window], [[NSGraphicsContext currentContext] CGContext], bounds, [self inLiveResize]);
 }
 
 -(int)getModifiers:(NSEvent *)theEvent {

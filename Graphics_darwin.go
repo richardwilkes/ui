@@ -13,11 +13,8 @@ package ui
 // #include <stdio.h>
 // #include <CoreGraphics/CoreGraphics.h>
 // #include <CoreText/CoreText.h>
+// #include "Window.h"
 import "C"
-
-import (
-	"unsafe"
-)
 
 const (
 	drawingModeFill = iota
@@ -38,7 +35,7 @@ const (
 )
 
 type graphics struct {
-	gc    unsafe.Pointer
+	gc    C.uiGraphicsContext
 	stack []*graphicsState
 }
 
@@ -50,7 +47,7 @@ type graphicsState struct {
 	font        *Font
 }
 
-func newGraphics(gc unsafe.Pointer) Graphics {
+func newGraphics(gc C.uiGraphicsContext) Graphics {
 	c := &graphics{gc: gc}
 	c.stack = append(c.stack, &graphicsState{opacity: 1, fillColor: WhiteColor, strokeColor: BlackColor, strokeWidth: 1})
 	return c
