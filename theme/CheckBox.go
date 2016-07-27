@@ -7,29 +7,29 @@
 // This Source Code Form is "Incompatible With Secondary Licenses", as
 // defined by the Mozilla Public License, version 2.0.
 
-package ui
+package theme
 
 var (
-	// StdCheckBoxTheme is the theme all new CheckBoxes get by default.
-	StdCheckBoxTheme = NewCheckBoxTheme()
+	// StdCheckBox is the theme all new CheckBoxes get by default.
+	StdCheckBox = NewCheckBox()
 )
 
-// CheckBoxTheme contains the theme elements for CheckBoxes.
-type CheckBoxTheme struct {
-	BaseTextButtonTheme
+// CheckBox contains the theme elements for CheckBoxes.
+type CheckBox struct {
+	BaseTextButton
 	HorizontalGap float32 // The gap between the checkbox graphic and its label.
 }
 
-// NewCheckBoxTheme creates a new checkbox theme.
-func NewCheckBoxTheme() *CheckBoxTheme {
-	theme := &CheckBoxTheme{}
+// NewCheckBox creates a new checkbox theme.
+func NewCheckBox() *CheckBox {
+	theme := &CheckBox{}
 	theme.Init()
 	return theme
 }
 
 // Init initializes the theme with its default values.
-func (theme *CheckBoxTheme) Init() {
-	theme.BaseTextButtonTheme.Init()
+func (theme *CheckBox) Init() {
+	theme.BaseTextButton.Init()
 	theme.CornerRadius = 4
 	theme.HorizontalGap = 4
 }

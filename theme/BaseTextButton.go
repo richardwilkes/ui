@@ -7,16 +7,16 @@
 // This Source Code Form is "Incompatible With Secondary Licenses", as
 // defined by the Mozilla Public License, version 2.0.
 
-package ui
+package theme
 
 import (
 	"github.com/richardwilkes/ui/color"
 	"github.com/richardwilkes/ui/font"
 )
 
-// BaseTextButtonTheme contains the common theme elements used in all buttons that display text.
-type BaseTextButtonTheme struct {
-	BaseButtonTheme
+// BaseTextButton contains the common theme elements used in all buttons that display text.
+type BaseTextButton struct {
+	BaseButton
 	TextWhenLight    color.Color // The text color to use when the background is considered to be 'light'.
 	TextWhenDark     color.Color // The text color to use when the background is considered to be 'dark'.
 	TextWhenDisabled color.Color // The text color to use when disabled.
@@ -24,8 +24,8 @@ type BaseTextButtonTheme struct {
 }
 
 // Init initializes the theme with its default values.
-func (theme *BaseTextButtonTheme) Init() {
-	theme.BaseButtonTheme.Init()
+func (theme *BaseTextButton) Init() {
+	theme.BaseButton.Init()
 	theme.TextWhenLight = color.Black
 	theme.TextWhenDark = color.White
 	theme.TextWhenDisabled = color.Gray

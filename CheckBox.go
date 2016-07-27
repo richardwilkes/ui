@@ -13,6 +13,7 @@ import (
 	"github.com/richardwilkes/ui/color"
 	"github.com/richardwilkes/ui/draw"
 	"github.com/richardwilkes/ui/keys"
+	"github.com/richardwilkes/ui/theme"
 	"github.com/richardwilkes/xmath"
 	"time"
 )
@@ -30,9 +31,9 @@ type CheckBoxState int
 // CheckBox represents a clickable checkbox with an optional label.
 type CheckBox struct {
 	Block
-	Theme   *CheckBoxTheme // The theme the checkbox will use to draw itself.
-	OnClick func()         // Called when the checkbox is clicked.
-	Title   string         // An optional title for the checkbox.
+	Theme   *theme.CheckBox // The theme the checkbox will use to draw itself.
+	OnClick func()          // Called when the checkbox is clicked.
+	Title   string          // An optional title for the checkbox.
 	state   CheckBoxState
 	pressed bool
 }
@@ -41,7 +42,7 @@ type CheckBox struct {
 func NewCheckBox(title string) *CheckBox {
 	checkbox := &CheckBox{}
 	checkbox.Title = title
-	checkbox.Theme = StdCheckBoxTheme
+	checkbox.Theme = theme.StdCheckBox
 	checkbox.SetFocusable(true)
 	checkbox.SetSizer(checkbox)
 	checkbox.AddEventHandler(PaintEvent, checkbox.paint)

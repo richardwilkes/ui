@@ -7,7 +7,7 @@
 // This Source Code Form is "Incompatible With Secondary Licenses", as
 // defined by the Mozilla Public License, version 2.0.
 
-package ui
+package theme
 
 import (
 	"github.com/richardwilkes/ui/color"
@@ -15,29 +15,49 @@ import (
 	"time"
 )
 
-// BaseButtonTheme contains the common theme elements used in all buttons.
-type BaseButtonTheme struct {
-	ClickAnimationTime    time.Duration // The amount of time to spend animating the click action.
-	CornerRadius          float32       // The amount of rounding to use on the corners.
+var (
+	// StdScrollBar is the theme all new ScrollBars get by default.
+	StdScrollBar = NewScrollBar()
+)
+
+// ScrollBar contains the theme elements for ScrollBars.
+type ScrollBar struct {
+	InitialRepeatDelay    time.Duration // The amount of time to wait before triggering the first repeating event.
+	RepeatDelay           time.Duration // The amount of time to wait before triggering a repeating event.
 	Background            color.Color   // The background color when enabled but not pressed or focused.
 	BackgroundWhenPressed color.Color   // The background color when enabled and pressed.
+	MarkWhenLight         color.Color   // The color to use for control marks when the background is considered to be 'light'.
+	MarkWhenDark          color.Color   // The color to use for control marks when the background is considered to be 'dark'.
+	MarkWhenDisabled      color.Color   // The color to use for control marks when disabled.
 	GradientAdjustment    float32       // The amount to vary the color when creating the background gradient.
 	DisabledAdjustment    float32       // The amount to adjust the background brightness when disabled.
 	OutlineAdjustment     float32       // The amount to adjust the background brightness when using it to draw the button outline.
+	Size                  float32       // The height of a horizontal scrollbar or the width of a vertical scrollbar.
+}
+
+// NewScrollBar creates a new image button theme.
+func NewScrollBar() *ScrollBar {
+	theme := &ScrollBar{}
+	theme.Init()
+	return theme
 }
 
 // Init initializes the theme with its default values.
-func (theme *BaseButtonTheme) Init() {
-	theme.ClickAnimationTime = time.Millisecond * 100
-	theme.CornerRadius = 6
+func (theme *ScrollBar) Init() {
+	theme.InitialRepeatDelay = time.Millisecond * 250
+	theme.RepeatDelay = time.Millisecond * 75
 	theme.Background = color.White
 	theme.BackgroundWhenPressed = color.KeyboardFocus
+	theme.MarkWhenLight = color.Black
+	theme.MarkWhenDark = color.White
+	theme.MarkWhenDisabled = color.Gray
 	theme.GradientAdjustment = 0.15
 	theme.DisabledAdjustment = -0.05
 	theme.OutlineAdjustment = -0.5
+	theme.Size = 16
 }
 
 // Gradient returns a gradient for the specified color.
-func (theme *BaseButtonTheme) Gradient(base color.Color) *draw.Gradient {
+func (theme *ScrollBar) Gradient(base color.Color) *draw.Gradient {
 	return draw.NewEvenlySpacedGradient(base.AdjustBrightness(theme.GradientAdjustment), base.AdjustBrightness(-theme.GradientAdjustment))
 }

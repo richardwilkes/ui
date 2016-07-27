@@ -7,31 +7,31 @@
 // This Source Code Form is "Incompatible With Secondary Licenses", as
 // defined by the Mozilla Public License, version 2.0.
 
-package ui
+package theme
 
 var (
-	// StdButtonTheme is the theme all new Buttons get by default.
-	StdButtonTheme = NewButtonTheme()
+	// StdButton is the theme all new Buttons get by default.
+	StdButton = NewButton()
 )
 
-// ButtonTheme contains the theme elements for Buttons.
-type ButtonTheme struct {
-	BaseTextButtonTheme
+// Button contains the theme elements for Buttons.
+type Button struct {
+	BaseTextButton
 	HorizontalMargin float32 // The margin on the left and right side of the text.
 	VerticalMargin   float32 // The margin on the top and bottom of the text.
 	MinimumTextWidth float32 // The minimum space to permit for text.
 }
 
-// NewButtonTheme creates a new button theme.
-func NewButtonTheme() *ButtonTheme {
-	theme := &ButtonTheme{}
+// NewButton creates a new button theme.
+func NewButton() *Button {
+	theme := &Button{}
 	theme.Init()
 	return theme
 }
 
 // Init initializes the theme with its default values.
-func (theme *ButtonTheme) Init() {
-	theme.BaseTextButtonTheme.Init()
+func (theme *Button) Init() {
+	theme.BaseTextButton.Init()
 	theme.HorizontalMargin = 8
 	theme.VerticalMargin = 1
 	theme.MinimumTextWidth = 10

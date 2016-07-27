@@ -13,14 +13,15 @@ import (
 	"github.com/richardwilkes/ui/color"
 	"github.com/richardwilkes/ui/draw"
 	"github.com/richardwilkes/ui/keys"
+	"github.com/richardwilkes/ui/theme"
 	"time"
 )
 
 // ImageButton represents a clickable image button.
 type ImageButton struct {
 	Block
-	Theme         *ImageButtonTheme // The theme the button will use to draw itself.
-	OnClick       func()            // Called when the button is clicked.
+	Theme         *theme.ImageButton // The theme the button will use to draw itself.
+	OnClick       func()             // Called when the button is clicked.
 	image         *draw.Image
 	disabledImage *draw.Image
 	pressed       bool
@@ -41,7 +42,7 @@ func NewImageButtonWithImageSize(img *draw.Image, size draw.Size) *ImageButton {
 	if button.disabledImage, err = img.AcquireDisabled(); err != nil {
 		button.disabledImage = img
 	}
-	button.Theme = StdImageButtonTheme
+	button.Theme = theme.StdImageButton
 	button.SetFocusable(true)
 	if size.Width <= 0 || size.Height <= 0 {
 		button.SetSizer(button)

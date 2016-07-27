@@ -12,6 +12,7 @@ package ui
 import (
 	"github.com/richardwilkes/ui/color"
 	"github.com/richardwilkes/ui/draw"
+	"github.com/richardwilkes/ui/theme"
 	"github.com/richardwilkes/xmath"
 	"time"
 )
@@ -55,8 +56,8 @@ type Scrollable interface {
 // ScrollBar represents a widget for controlling scrolling.
 type ScrollBar struct {
 	Block
-	Target     Scrollable      // The target of the scrollbar.
-	Theme      *ScrollBarTheme // The theme the scrollbar will use to draw itself.
+	Target     Scrollable       // The target of the scrollbar.
+	Theme      *theme.ScrollBar // The theme the scrollbar will use to draw itself.
 	pressed    scrollBarPart
 	sequence   int
 	thumbDown  float32
@@ -66,7 +67,7 @@ type ScrollBar struct {
 // NewScrollBar creates a new scrollbar.
 func NewScrollBar(horizontal bool, target Scrollable) *ScrollBar {
 	sb := &ScrollBar{}
-	sb.Theme = StdScrollBarTheme
+	sb.Theme = theme.StdScrollBar
 	sb.Target = target
 	sb.horizontal = horizontal
 	sb.SetSizer(sb)

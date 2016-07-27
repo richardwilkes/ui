@@ -14,13 +14,14 @@ import (
 	"github.com/richardwilkes/ui/color"
 	"github.com/richardwilkes/ui/draw"
 	"github.com/richardwilkes/ui/keys"
+	"github.com/richardwilkes/ui/theme"
 )
 
 // PopupMenu represents a clickable button that displays a menu of choices.
 type PopupMenu struct {
 	Block
-	Theme         *PopupMenuTheme // The theme the popup menu will use to draw itself.
-	OnSelection   func()          // Called when a new item is chosen by the user.
+	Theme         *theme.PopupMenu // The theme the popup menu will use to draw itself.
+	OnSelection   func()           // Called when a new item is chosen by the user.
 	items         []interface{}
 	selectedIndex int
 }
@@ -32,7 +33,7 @@ type separationMarker struct {
 func NewPopupMenu() *PopupMenu {
 	pm := &PopupMenu{}
 	pm.selectedIndex = -1
-	pm.Theme = StdPopupMenuTheme
+	pm.Theme = theme.StdPopupMenu
 	pm.SetFocusable(true)
 	pm.SetSizer(pm)
 	pm.AddEventHandler(PaintEvent, pm.paint)

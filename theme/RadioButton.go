@@ -7,28 +7,28 @@
 // This Source Code Form is "Incompatible With Secondary Licenses", as
 // defined by the Mozilla Public License, version 2.0.
 
-package ui
+package theme
 
 var (
-	// StdRadioButtonTheme is the theme all new RadioButtons get by default.
-	StdRadioButtonTheme = NewRadioButtonTheme()
+	// StdRadioButton is the theme all new RadioButtons get by default.
+	StdRadioButton = NewRadioButton()
 )
 
-// RadioButtonTheme contains the theme elements for RadioButtons.
-type RadioButtonTheme struct {
-	BaseTextButtonTheme
+// RadioButton contains the theme elements for RadioButtons.
+type RadioButton struct {
+	BaseTextButton
 	HorizontalGap float32 // The gap between the radio button graphic and its label.
 }
 
-// NewRadioButtonTheme creates a new radio button theme.
-func NewRadioButtonTheme() *RadioButtonTheme {
-	theme := &RadioButtonTheme{}
+// NewRadioButton creates a new radio button theme.
+func NewRadioButton() *RadioButton {
+	theme := &RadioButton{}
 	theme.Init()
 	return theme
 }
 
 // Init initializes the theme with its default values.
-func (theme *RadioButtonTheme) Init() {
-	theme.BaseTextButtonTheme.Init()
+func (theme *RadioButton) Init() {
+	theme.BaseTextButton.Init()
 	theme.HorizontalGap = 4
 }

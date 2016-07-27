@@ -7,26 +7,26 @@
 // This Source Code Form is "Incompatible With Secondary Licenses", as
 // defined by the Mozilla Public License, version 2.0.
 
-package ui
+package theme
 
 var (
-	// StdPopupMenuTheme is the theme all new PopupMenus get by default.
-	StdPopupMenuTheme = NewPopupMenuTheme()
+	// StdPopupMenu is the theme all new PopupMenus get by default.
+	StdPopupMenu = NewPopupMenu()
 )
 
-// PopupMenuTheme contains the theme elements for PopupMenus.
-type PopupMenuTheme struct {
-	ButtonTheme
+// PopupMenu contains the theme elements for PopupMenus.
+type PopupMenu struct {
+	Button
 }
 
-// NewPopupMenuTheme creates a new button theme.
-func NewPopupMenuTheme() *PopupMenuTheme {
-	theme := &PopupMenuTheme{}
+// NewPopupMenu creates a new button theme.
+func NewPopupMenu() *PopupMenu {
+	theme := &PopupMenu{}
 	theme.Init()
 	return theme
 }
 
 // Init initializes the theme with its default values.
-func (theme *PopupMenuTheme) Init() {
-	theme.ButtonTheme.Init()
+func (theme *PopupMenu) Init() {
+	theme.Button.Init()
 }

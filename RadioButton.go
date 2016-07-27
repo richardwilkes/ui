@@ -13,6 +13,7 @@ import (
 	"github.com/richardwilkes/ui/color"
 	"github.com/richardwilkes/ui/draw"
 	"github.com/richardwilkes/ui/keys"
+	"github.com/richardwilkes/ui/theme"
 	"github.com/richardwilkes/xmath"
 	"time"
 )
@@ -20,9 +21,9 @@ import (
 // RadioButton represents a radio button with an optional label.
 type RadioButton struct {
 	Block
-	Theme    *RadioButtonTheme // The theme the button will use to draw itself.
-	OnClick  func()            // Called when the button is clicked.
-	Title    string            // An optional title for the button.
+	Theme    *theme.RadioButton // The theme the button will use to draw itself.
+	OnClick  func()             // Called when the button is clicked.
+	Title    string             // An optional title for the button.
 	group    *RadioButtonGroup
 	selected bool
 	pressed  bool
@@ -32,7 +33,7 @@ type RadioButton struct {
 func NewRadioButton(title string) *RadioButton {
 	button := &RadioButton{}
 	button.Title = title
-	button.Theme = StdRadioButtonTheme
+	button.Theme = theme.StdRadioButton
 	button.SetFocusable(true)
 	button.SetSizer(button)
 	button.AddEventHandler(PaintEvent, button.paint)

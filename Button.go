@@ -13,15 +13,16 @@ import (
 	"github.com/richardwilkes/ui/color"
 	"github.com/richardwilkes/ui/draw"
 	"github.com/richardwilkes/ui/keys"
+	"github.com/richardwilkes/ui/theme"
 	"time"
 )
 
 // Button represents a clickable text button.
 type Button struct {
 	Block
-	Theme   *ButtonTheme // The theme the button will use to draw itself.
-	OnClick func()       // Called when the button is clicked.
-	Title   string       // The title of the button.
+	Theme   *theme.Button // The theme the button will use to draw itself.
+	OnClick func()        // Called when the button is clicked.
+	Title   string        // The title of the button.
 	pressed bool
 }
 
@@ -29,7 +30,7 @@ type Button struct {
 func NewButton(title string) *Button {
 	button := &Button{}
 	button.Title = title
-	button.Theme = StdButtonTheme
+	button.Theme = theme.StdButton
 	button.SetFocusable(true)
 	button.SetSizer(button)
 	button.AddEventHandler(PaintEvent, button.paint)
