@@ -42,7 +42,7 @@ func createMenuBar() {
 
 func createButtonsWindow() {
 	wnd := ui.NewWindow(ui.Point{}, ui.StdWindowMask)
-	wnd.SetTitle("Buttons")
+	wnd.SetTitle("Demo")
 
 	root := wnd.RootWidget()
 	root.SetBorder(ui.NewEmptyBorder(ui.Insets{Top: 10, Left: 10, Bottom: 10, Right: 10}))
@@ -108,7 +108,6 @@ func createButtonsPanel() *ui.Block {
 	ui.NewFlowLayout(panel).SetHorizontalSpacing(5).SetVerticalSpacing(5)
 
 	createButton("Press Me", panel)
-	createButton("Default", panel).SetFocused(true)
 	createButton("Disabled", panel).SetEnabled(false)
 
 	img, err := ui.AcquireImageFromFile(images.FS, "/home.png")

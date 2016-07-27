@@ -9,6 +9,10 @@
 
 package ui
 
+import (
+	"github.com/richardwilkes/ui/keys"
+)
+
 // RadioButton represents a radio button with an optional label.
 type RadioButton struct {
 	Block
@@ -25,11 +29,15 @@ func NewRadioButton(title string) *RadioButton {
 	button := &RadioButton{}
 	button.Title = title
 	button.Theme = StdRadioButtonTheme
+	button.SetFocusable(true)
 	button.SetSizer(button)
 	button.AddEventHandler(PaintEvent, button.paint)
 	button.AddEventHandler(MouseDownEvent, button.mouseDown)
 	button.AddEventHandler(MouseDraggedEvent, button.mouseDragged)
 	button.AddEventHandler(MouseUpEvent, button.mouseUp)
+	button.AddEventHandler(FocusGainedEvent, button.focusChanged)
+	button.AddEventHandler(FocusLostEvent, button.focusChanged)
+	button.AddEventHandler(KeyDownEvent, button.keyDown)
 	return button
 }
 
@@ -126,10 +134,24 @@ func (button *RadioButton) mouseUp(event *Event) {
 	button.Repaint()
 	bounds := button.LocalInsetBounds()
 	if bounds.Contains(button.FromWindow(event.Where)) {
-		button.SetSelected(true)
-		if button.OnClick != nil {
-			button.OnClick()
-		}
+		button.doClick()
+	}
+}
+
+func (button *RadioButton) doClick() {
+	button.SetSelected(true)
+	if button.OnClick != nil {
+		button.OnClick()
+	}
+}
+
+func (button *RadioButton) focusChanged(event *Event) {
+	button.Repaint()
+}
+
+func (button *RadioButton) keyDown(event *Event) {
+	if event.KeyCode == keys.Return || event.KeyCode == keys.Enter || event.KeyCode == keys.Space {
+		button.doClick()
 	}
 }
 

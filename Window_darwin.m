@@ -260,6 +260,9 @@ void uiSetToolTip(uiWindow window, const char *tooltip) {
 
 - (void)keyDown:(NSEvent *)theEvent {
 	[self deliverKeyEvent:theEvent ofType:uiKeyDown];
+	if ([theEvent.characters length] > 0) {
+		[self deliverKeyEvent:theEvent ofType:uiKeyTyped];
+	}
 }
 
 - (void)keyUp:(NSEvent *)theEvent {

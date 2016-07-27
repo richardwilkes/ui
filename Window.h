@@ -35,6 +35,7 @@ enum {
 	uiMouseExited,
 	uiMouseWheel,
 	uiKeyDown,
+	uiKeyTyped,
 	uiKeyUp
 };
 

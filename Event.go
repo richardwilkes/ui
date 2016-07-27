@@ -50,6 +50,10 @@ const (
 	MouseExitedEvent
 	// MouseWheelEvent is generated when the mouse wheel is used over a widget.
 	MouseWheelEvent
+	// FocusGainedEvent is generated when a widget gains the keyboard focus.
+	FocusGainedEvent
+	// FocusLostEvent is generated when a widget loses the keyboard focus.
+	FocusLostEvent
 	// KeyDownEvent is generated when a key is pressed.
 	KeyDownEvent
 	// KeyTypedEvent is generated when a rune has been generated on the keyboard.
@@ -76,7 +80,7 @@ type Event struct {
 	DirtyRect    Rect      // Valid only for PaintEvent.
 	Where        Point     // In window coordinates. Valid for MouseDownEvent, MouseDraggedEvent, MouseUpEvent, MouseEnteredEvent, MouseMovedEvent, and MouseWheelEvent.
 	Delta        Point     // Valid only for MouseWheelEvent. The amount scrolled in each direction.
-	KeyModifiers KeyMask   // Valid for MouseDownEvent, MouseDraggedEvent, MouseUpEvent, MouseEnteredEvent, MouseMovedEvent, MouseExitedEvent and MouseWheelEvent.
+	KeyModifiers KeyMask   // Valid for MouseDownEvent, MouseDraggedEvent, MouseUpEvent, MouseEnteredEvent, MouseMovedEvent, MouseExitedEvent, MouseWheelEvent, KeyDownEvent, KeyTypedEvent, and KeyUpEvent.
 	Button       int       // Valid only for MouseDownEvent. The button that is down.
 	Clicks       int       // Valid only for MouseDownEvent. The number of consecutive clicks in the widget.
 	ToolTip      string    // Valid only for ToolTipEvent. Set this to the text to display for the tooltip.
@@ -84,7 +88,7 @@ type Event struct {
 	KeyTyped     rune      // Valid only for KeyTypedEvent.
 	Repeat       bool      // Valid for KeyDownEvent and KeyTypedEvent. Set to true if the key was auto-generated.
 	CascadeUp    bool      // Valid for all events. true if this event should be cascaded up to parents.
-	Discard      bool      // Valid for MouseDownEvent. Set to true to if the mouse down should be ignored.
+	Discard      bool      // Valid for MouseDownEvent and KeyDownEvent. Set to true to if the event should be ignored (i.e. don't do processing that would have side-effects).
 	Done         bool      // Valid for all events. Set to true to stop processing this event.
 }
 
@@ -132,16 +136,20 @@ func (event *Event) String() string {
 		buffer.WriteString("MouseExitedEvent")
 	case MouseWheelEvent:
 		buffer.WriteString("MouseWheelEvent")
-	case ToolTipEvent:
-		buffer.WriteString("ToolTipEvent")
-	case ResizeEvent:
-		buffer.WriteString("ResizeEvent")
+	case FocusGainedEvent:
+		buffer.WriteString("FocusGainedEvent")
+	case FocusLostEvent:
+		buffer.WriteString("FocusLostEvent")
 	case KeyDownEvent:
 		buffer.WriteString("KeyDownEvent")
 	case KeyTypedEvent:
 		buffer.WriteString("KeyTypedEvent")
 	case KeyUpEvent:
 		buffer.WriteString("KeyUpEvent")
+	case ToolTipEvent:
+		buffer.WriteString("ToolTipEvent")
+	case ResizeEvent:
+		buffer.WriteString("ResizeEvent")
 	default:
 		buffer.WriteString(fmt.Sprintf("Custom%dEvent", event.Type))
 	}
@@ -164,17 +172,17 @@ func (event *Event) String() string {
 	case MouseWheelEvent:
 		buffer.WriteString(fmt.Sprintf(", Where: %v, Delta: %v, KeyModifiers: %s", event.Where, event.Delta, event.keyModifiersAsString()))
 	case KeyDownEvent:
-		buffer.WriteString(fmt.Sprintf(", KeyCode: %d", event.KeyCode))
+		buffer.WriteString(fmt.Sprintf(", KeyModifiers: %s, KeyCode: %d", event.keyModifiersAsString(), event.KeyCode))
 		if event.Repeat {
 			buffer.WriteString(", Repeat")
 		}
 	case KeyTypedEvent:
-		buffer.WriteString(fmt.Sprintf(", KeyCode: %d, KeyTyped: %v", event.KeyCode, event.KeyTyped))
+		buffer.WriteString(fmt.Sprintf(", KeyModifiers: %s, KeyCode: %d, KeyTyped: %v", event.keyModifiersAsString(), event.KeyCode, event.KeyTyped))
 		if event.Repeat {
 			buffer.WriteString(", Repeat")
 		}
 	case KeyUpEvent:
-		buffer.WriteString(fmt.Sprintf(", KeyCode: %d", event.KeyCode))
+		buffer.WriteString(fmt.Sprintf(", KeyModifiers: %s, KeyCode: %d", event.keyModifiersAsString(), event.KeyCode))
 		if event.Repeat {
 			buffer.WriteString(", Repeat")
 		}
@@ -182,7 +190,7 @@ func (event *Event) String() string {
 	if event.CascadeUp {
 		buffer.WriteString(", CascadeUp")
 	}
-	if event.Type == MouseDownEvent && event.Discard {
+	if event.Discard && (event.Type == MouseDownEvent || event.Type == KeyDownEvent) {
 		buffer.WriteString(", Discard")
 	}
 	if event.Done {

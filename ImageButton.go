@@ -9,6 +9,10 @@
 
 package ui
 
+import (
+	"github.com/richardwilkes/ui/keys"
+)
+
 // ImageButton represents a clickable image button.
 type ImageButton struct {
 	Block
@@ -35,6 +39,7 @@ func NewImageButtonWithImageSize(img *Image, size Size) *ImageButton {
 		button.disabledImage = img
 	}
 	button.Theme = StdImageButtonTheme
+	button.SetFocusable(true)
 	if size.Width <= 0 || size.Height <= 0 {
 		button.SetSizer(button)
 	} else {
@@ -44,6 +49,9 @@ func NewImageButtonWithImageSize(img *Image, size Size) *ImageButton {
 	button.AddEventHandler(MouseDownEvent, button.mouseDown)
 	button.AddEventHandler(MouseDraggedEvent, button.mouseDragged)
 	button.AddEventHandler(MouseUpEvent, button.mouseUp)
+	button.AddEventHandler(FocusGainedEvent, button.focusChanged)
+	button.AddEventHandler(FocusLostEvent, button.focusChanged)
+	button.AddEventHandler(KeyDownEvent, button.keyDown)
 	return button
 }
 
@@ -119,6 +127,18 @@ func (button *ImageButton) mouseUp(event *Event) {
 	if button.OnClick != nil {
 		bounds := button.LocalInsetBounds()
 		if bounds.Contains(button.FromWindow(event.Where)) {
+			button.OnClick()
+		}
+	}
+}
+
+func (button *ImageButton) focusChanged(event *Event) {
+	button.Repaint()
+}
+
+func (button *ImageButton) keyDown(event *Event) {
+	if event.KeyCode == keys.Return || event.KeyCode == keys.Enter || event.KeyCode == keys.Space {
+		if button.OnClick != nil {
 			button.OnClick()
 		}
 	}

@@ -9,6 +9,10 @@
 
 package ui
 
+import (
+	"github.com/richardwilkes/ui/keys"
+)
+
 // Possible values for CheckBoxState.
 const (
 	Unchecked CheckBoxState = iota
@@ -34,11 +38,15 @@ func NewCheckBox(title string) *CheckBox {
 	checkbox := &CheckBox{}
 	checkbox.Title = title
 	checkbox.Theme = StdCheckBoxTheme
+	checkbox.SetFocusable(true)
 	checkbox.SetSizer(checkbox)
 	checkbox.AddEventHandler(PaintEvent, checkbox.paint)
 	checkbox.AddEventHandler(MouseDownEvent, checkbox.mouseDown)
 	checkbox.AddEventHandler(MouseDraggedEvent, checkbox.mouseDragged)
 	checkbox.AddEventHandler(MouseUpEvent, checkbox.mouseUp)
+	checkbox.AddEventHandler(FocusGainedEvent, checkbox.focusChanged)
+	checkbox.AddEventHandler(FocusLostEvent, checkbox.focusChanged)
+	checkbox.AddEventHandler(KeyDownEvent, checkbox.keyDown)
 	return checkbox
 }
 
@@ -152,14 +160,29 @@ func (checkbox *CheckBox) mouseUp(event *Event) {
 	checkbox.Repaint()
 	bounds := checkbox.LocalInsetBounds()
 	if bounds.Contains(checkbox.FromWindow(event.Where)) {
-		if checkbox.state == Checked {
-			checkbox.state = Unchecked
-		} else {
-			checkbox.state = Checked
-		}
-		if checkbox.OnClick != nil {
-			checkbox.OnClick()
-		}
+		checkbox.doClick()
+	}
+}
+
+func (checkbox *CheckBox) doClick() {
+	if checkbox.state == Checked {
+		checkbox.state = Unchecked
+	} else {
+		checkbox.state = Checked
+	}
+	checkbox.Repaint()
+	if checkbox.OnClick != nil {
+		checkbox.OnClick()
+	}
+}
+
+func (checkbox *CheckBox) focusChanged(event *Event) {
+	checkbox.Repaint()
+}
+
+func (checkbox *CheckBox) keyDown(event *Event) {
+	if event.KeyCode == keys.Return || event.KeyCode == keys.Enter || event.KeyCode == keys.Space {
+		checkbox.doClick()
 	}
 }
 

@@ -9,6 +9,10 @@
 
 package ui
 
+import (
+	"github.com/richardwilkes/ui/keys"
+)
+
 // Button represents a clickable text button.
 type Button struct {
 	Block
@@ -23,11 +27,15 @@ func NewButton(title string) *Button {
 	button := &Button{}
 	button.Title = title
 	button.Theme = StdButtonTheme
+	button.SetFocusable(true)
 	button.SetSizer(button)
 	button.AddEventHandler(PaintEvent, button.paint)
 	button.AddEventHandler(MouseDownEvent, button.mouseDown)
 	button.AddEventHandler(MouseDraggedEvent, button.mouseDragged)
 	button.AddEventHandler(MouseUpEvent, button.mouseUp)
+	button.AddEventHandler(FocusGainedEvent, button.focusChanged)
+	button.AddEventHandler(FocusLostEvent, button.focusChanged)
+	button.AddEventHandler(KeyDownEvent, button.keyDown)
 	return button
 }
 
@@ -106,6 +114,18 @@ func (button *Button) mouseUp(event *Event) {
 	if button.OnClick != nil {
 		bounds := button.LocalInsetBounds()
 		if bounds.Contains(button.FromWindow(event.Where)) {
+			button.OnClick()
+		}
+	}
+}
+
+func (button *Button) focusChanged(event *Event) {
+	button.Repaint()
+}
+
+func (button *Button) keyDown(event *Event) {
+	if event.KeyCode == keys.Return || event.KeyCode == keys.Enter || event.KeyCode == keys.Space {
+		if button.OnClick != nil {
 			button.OnClick()
 		}
 	}

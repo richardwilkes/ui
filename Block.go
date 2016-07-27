@@ -28,7 +28,7 @@ type Block struct {
 	background    Color
 	needLayout    bool
 	disabled      bool
-	focused       bool
+	focusable     bool
 	padding       bool // Just here to quiet aligncheck, since there is nothing I can do about it
 }
 
@@ -219,16 +219,23 @@ func (b *Block) SetEnabled(enabled bool) {
 }
 
 // Focused implements the Widget interface.
-func (b *Block) Focused() bool {
-	return b.focused && !b.disabled
+func (b *Block) Focusable() bool {
+	return b.focusable && !b.disabled
 }
 
 // SetFocused implements the Widget interface.
-func (b *Block) SetFocused(focused bool) {
-	if b.focused != focused {
-		b.focused = focused
-		b.Repaint()
+func (b *Block) SetFocusable(focusable bool) {
+	if b.focusable != focusable {
+		b.focusable = focusable
 	}
+}
+
+// Focused implements the Widget interface.
+func (b *Block) Focused() bool {
+	if window := b.Window(); window != nil {
+		return reflect.ValueOf(Widget(b)).Pointer() == reflect.ValueOf(window.Focus()).Pointer()
+	}
+	return false
 }
 
 // Children implements the Widget interface.

@@ -52,10 +52,12 @@ type Widget interface {
 	Enabled() bool
 	// SetEnabled sets this widget's enabled state.
 	SetEnabled(enabled bool)
-	// Focused returns true if this widget's has the keyboard focus.
+	// Focusable returns true if this widget can have the keyboard focus.
+	Focusable() bool
+	// SetFocusable sets whether this widget can have the keyboard focus.
+	SetFocusable(focusable bool)
+	// Focused returns true if this widget has the keyboard focus.
 	Focused() bool
-	// SetFocused sets this widget's focus state.
-	SetFocused(focused bool)
 
 	// Children returns the direct descendents of this widget.
 	Children() []Widget

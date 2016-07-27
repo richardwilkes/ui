@@ -11,6 +11,7 @@ package ui
 
 import (
 	"fmt"
+	"github.com/richardwilkes/ui/keys"
 	"time"
 	"unsafe"
 )
@@ -43,6 +44,7 @@ type Window struct {
 	ShouldClose     func() bool // Called to ask if closing the window is permitted. Return true if it is.
 	DidClose        func()      // Called when the window has been closed.
 	rootBlock       *Block
+	focus           Widget
 	lastMouseWidget Widget
 	lastToolTip     string
 	inMouseDown     bool
@@ -178,17 +180,31 @@ func handleWindowMouseWheelEvent(cWindow C.uiWindow, eventType, keyModifiers int
 
 //export handleWindowKeyEvent
 func handleWindowKeyEvent(cWindow C.uiWindow, eventType, keyModifiers, keyCode int, chars *C.char, repeat bool) {
-	// TODO: Implement key dispatch along with the concept of keyboard focus
-	var keyType string
-	switch eventType {
-	case C.uiKeyDown:
-		keyType = "down"
-	case C.uiKeyUp:
-		keyType = "up"
-	default:
-		keyType = "unknown"
+	if window, ok := windowMap[cWindow]; ok {
+		keyMask := KeyMask(keyModifiers)
+		switch eventType {
+		case C.uiKeyDown:
+			event := &Event{Type: KeyDownEvent, When: time.Now(), Target: window.Focus(), KeyModifiers: keyMask, KeyCode: keyCode, Repeat: repeat, CascadeUp: true}
+			event.Dispatch()
+			if !event.Discard && keyCode == keys.Tab && (keyMask&(AllKeyMask & ^ShiftKeyMask)) == 0 {
+				if keyMask&ShiftKeyMask == 0 {
+					window.FocusNext()
+				} else {
+					window.FocusPrevious()
+				}
+			}
+		case C.uiKeyTyped:
+			for _, r := range C.GoString(chars) {
+				event := &Event{Type: KeyTypedEvent, When: time.Now(), Target: window.Focus(), KeyModifiers: keyMask, KeyTyped: r, Repeat: repeat, CascadeUp: true}
+				event.Dispatch()
+			}
+		case C.uiKeyUp:
+			event := &Event{Type: KeyUpEvent, When: time.Now(), Target: window.Focus(), KeyModifiers: keyMask, KeyCode: keyCode, Repeat: repeat, CascadeUp: true}
+			event.Dispatch()
+		default:
+			panic(fmt.Sprintf("Unknown event type: %d", eventType))
+		}
 	}
-	fmt.Printf("key %s, code: %d, repeat: %v, chars: %s\n", keyType, keyCode, repeat, C.GoString(chars))
 }
 
 //export windowShouldClose
@@ -357,4 +373,81 @@ func (window *Window) RepaintBounds(bounds Rect) {
 	if !bounds.IsEmpty() {
 		C.uiRepaintWindow(window.window, toCRect(bounds))
 	}
+}
+
+// Focus returns the widget with the keyboard focus in this window.
+func (window *Window) Focus() Widget {
+	if window.focus == nil {
+		window.FocusNext()
+	}
+	return window.focus
+}
+
+// SetFocus sets the keyboard focus to the specified target.
+func (window *Window) SetFocus(target Widget) {
+	if target != nil && target.Window() == window && target != window.focus {
+		if window.focus != nil {
+			event := &Event{Type: FocusLostEvent, When: time.Now(), Target: window.focus}
+			event.Dispatch()
+		}
+		window.focus = target
+		if target != nil {
+			event := &Event{Type: FocusGainedEvent, When: time.Now(), Target: target}
+			event.Dispatch()
+		}
+	}
+}
+
+func collectFocusables(current Widget, target Widget, focusables []Widget) (int, []Widget) {
+	match := -1
+	if current.Focusable() {
+		if current == target {
+			match = len(focusables)
+		}
+		focusables = append(focusables, current)
+	}
+	for _, child := range current.Children() {
+		var m int
+		m, focusables = collectFocusables(child, target, focusables)
+		if match == -1 && m != -1 {
+			match = m
+		}
+	}
+	return match, focusables
+}
+
+// FocusNext moves the keyboard focus to the next focusable widget.
+func (window *Window) FocusNext() {
+	current := window.focus
+	if current == nil {
+		current = window.rootBlock
+	}
+	i, focusables := collectFocusables(window.rootBlock, current, make([]Widget, 0))
+	size := len(focusables)
+	if size > 0 {
+		i++
+		if i >= size {
+			i = 0
+		}
+		current = focusables[i]
+	}
+	window.SetFocus(current)
+}
+
+// FocusPrevious moves the keyboard focus to the previous focusable widget.
+func (window *Window) FocusPrevious() {
+	current := window.focus
+	if current == nil {
+		current = window.rootBlock
+	}
+	i, focusables := collectFocusables(window.rootBlock, current, make([]Widget, 0))
+	size := len(focusables)
+	if size > 0 {
+		i--
+		if i < 0 {
+			i = size - 1
+		}
+		current = focusables[i]
+	}
+	window.SetFocus(current)
 }
