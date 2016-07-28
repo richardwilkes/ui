@@ -11,7 +11,16 @@ package event
 
 // The event types
 const (
-	PaintType Type = iota
+	AppWillFinishStartupType Type = iota
+	AppDidFinishStartupType
+	AppWillActivateType
+	AppDidActivateType
+	AppWillDeactivateType
+	AppDidDeactivateType
+	AppTerminationRequestedType
+	AppWillTerminateType
+	AppLastWindowClosedType
+	PaintType
 	MouseDownType
 	MouseDraggedType
 	MouseUpType

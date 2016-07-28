@@ -29,11 +29,12 @@ var (
 )
 
 func main() {
-	app.WillFinishStartup = func() {
+	// event.TraceAllEvents = true
+	// event.TraceEventTypes = append(event.TraceEventTypes, event.MouseDownType, event.MouseDraggedType, event.MouseUpType)
+	app.App.EventHandlers().Add(event.AppWillFinishStartupType, func(evt event.Event) {
 		createMenuBar()
 		createButtonsWindow()
-	}
-	app.ShouldTerminateAfterLastWindowClosed = func() bool { return true }
+	})
 	app.Start()
 }
 

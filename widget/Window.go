@@ -12,6 +12,7 @@ package widget
 import (
 	"fmt"
 	"github.com/richardwilkes/ui"
+	"github.com/richardwilkes/ui/app"
 	"github.com/richardwilkes/ui/color"
 	"github.com/richardwilkes/ui/draw"
 	"github.com/richardwilkes/ui/event"
@@ -101,7 +102,7 @@ func (window *Window) EventHandlers() *event.Handlers {
 
 // ParentTarget implements the event.Target interface.
 func (window *Window) ParentTarget() event.Target {
-	return nil
+	return &app.App
 }
 
 // Title implements the ui.Window interface.

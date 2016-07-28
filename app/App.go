@@ -10,6 +10,7 @@
 package app
 
 import (
+	"github.com/richardwilkes/ui/event"
 	"runtime"
 )
 
@@ -19,38 +20,33 @@ import (
 import "C"
 
 const (
-	// TerminateCancel indicates the termination sequence should be aborted
-	TerminateCancel TerminationResponse = iota
-	// TerminateNow indicates the termination sequence should proceed immediately
-	TerminateNow
-	// TerminateLater indicates the termination sequence should proceed only after a call is
-	// made to MayTerminateNow()
-	TerminateLater
+	terminateCancel terminationResponse = iota
+	terminateNow
+	terminateLater
 )
 
-// TerminationResponse is used to determine what will occur when AttemptQuit() is called.
-type TerminationResponse int
+type terminationResponse int
+
+// Application represents the overall application.
+type Application struct {
+	eventHandlers event.Handlers
+}
+
+// EventHandlers implements the event.Target interface.
+func (app *Application) EventHandlers() *event.Handlers {
+	return &app.eventHandlers
+}
+
+// ParentTarget implements the event.Target interface.
+func (app *Application) ParentTarget() event.Target {
+	return nil
+}
 
 var (
-	// WillFinishStartup is called prior to the application finishing its startup sequence.
-	WillFinishStartup func()
-	// DidFinishStartup is called after the application has finished its startup sequence.
-	DidFinishStartup func()
-	// ShouldTerminate is called to determine whether it is permitted to quit at this point in time.
-	ShouldTerminate func() TerminationResponse
-	// ShouldTerminateAfterLastWindowClosed is called when the last open window is closed to
-	// determine if the application should attempt to quit.
-	ShouldTerminateAfterLastWindowClosed func() bool
-	// WillTerminate is called just prior to the application's termination.
-	WillTerminate func()
-	// WillBecomeActive is called prior to the application transitioning to the foreground.
-	WillBecomeActive func()
-	// DidBecomeActive is called after the application has transitioned to the foreground.
-	DidBecomeActive func()
-	// WillResignActive is called prior to the application transitioning to the background.
-	WillResignActive func()
-	// DidResignActive is called after the application has transitioned to the background.
-	DidResignActive func()
+	// App provides the top-level event distribution point. Events that cascade will flow from the
+	// widgets, to their parents, to their window, then finally to this app if not handled somewhere
+	// along the line.
+	App Application
 )
 
 // Start the ui.
@@ -86,28 +82,29 @@ func ShowAll() {
 
 //export appWillFinishStartup
 func appWillFinishStartup() {
-	if WillFinishStartup != nil {
-		WillFinishStartup()
-	}
+	event.Dispatch(event.NewAppWillFinishStartup(&App))
 }
 
 //export appDidFinishStartup
 func appDidFinishStartup() {
-	if DidFinishStartup != nil {
-		DidFinishStartup()
-	}
+	event.Dispatch(event.NewAppDidFinishStartup(&App))
 }
 
 //export appShouldTerminate
-func appShouldTerminate() TerminationResponse {
-	if ShouldTerminate != nil {
-		return ShouldTerminate()
+func appShouldTerminate() terminationResponse {
+	e := event.NewAppTerminationRequested(&App)
+	event.Dispatch(e)
+	if e.Cancelled() {
+		return terminateCancel
 	}
-	return TerminateNow
+	if e.Delayed() {
+		return terminateLater
+	}
+	return terminateNow
 }
 
-// MayTerminateNow resumes the termination sequence that was paused by responding with
-// TerminateLater when ShouldTerminate() was called..
+// MayTerminateNow resumes the termination sequence that was delayed by calling Delay() on the
+// AppTerminationRequested event.
 func MayTerminateNow(terminate bool) {
 	var value C.int
 	if terminate {
@@ -120,43 +117,32 @@ func MayTerminateNow(terminate bool) {
 
 //export appShouldTerminateAfterLastWindowClosed
 func appShouldTerminateAfterLastWindowClosed() bool {
-	if ShouldTerminateAfterLastWindowClosed != nil {
-		return ShouldTerminateAfterLastWindowClosed()
-	}
-	return true
+	e := event.NewAppLastWindowClosed(&App)
+	event.Dispatch(e)
+	return e.Terminate()
 }
 
 //export appWillTerminate
 func appWillTerminate() {
-	if WillTerminate != nil {
-		WillTerminate()
-	}
+	event.Dispatch(event.NewAppWillTerminate(&App))
 }
 
 //export appWillBecomeActive
 func appWillBecomeActive() {
-	if WillBecomeActive != nil {
-		WillBecomeActive()
-	}
+	event.Dispatch(event.NewAppWillActivate(&App))
 }
 
 //export appDidBecomeActive
 func appDidBecomeActive() {
-	if DidBecomeActive != nil {
-		DidBecomeActive()
-	}
+	event.Dispatch(event.NewAppDidActivate(&App))
 }
 
 //export appWillResignActive
 func appWillResignActive() {
-	if WillResignActive != nil {
-		WillResignActive()
-	}
+	event.Dispatch(event.NewAppWillDeactivate(&App))
 }
 
 //export appDidResignActive
 func appDidResignActive() {
-	if DidResignActive != nil {
-		DidResignActive()
-	}
+	event.Dispatch(event.NewAppDidDeactivate(&App))
 }

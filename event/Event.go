@@ -9,6 +9,10 @@
 
 package event
 
+import (
+	"log"
+)
+
 // Event is the minimal interface that must be implemented for events.
 type Event interface {
 	// Type returns the event type ID.
@@ -23,6 +27,13 @@ type Event interface {
 	Finish()
 }
 
+var (
+	// TraceAllEvents will cause all events to be logged if true. Overrides TraceEventTypes.
+	TraceAllEvents bool
+	// TraceEventTypes will cause the types present in the slice to be logged.
+	TraceEventTypes []Type
+)
+
 // Dispatch an event. If there is more than one handler for the event type registered with the
 // target, they will each be given a chance to handle the event in order. Should one of them set
 // the Finished flag on the event, processing will halt immediately. Once the target has been given
@@ -30,9 +41,20 @@ type Event interface {
 // given the chance. This will continue until there are no more parents or the event's Finished
 // flag is set.
 func Dispatch(e Event) {
+	eventType := e.Type()
+	if TraceAllEvents {
+		log.Println(e)
+	} else if len(TraceEventTypes) > 0 {
+		for _, t := range TraceEventTypes {
+			if t == eventType {
+				log.Println(e)
+				break
+			}
+		}
+	}
 	target := e.Target()
 	for target != nil {
-		if handlers, ok := target.EventHandlers().Lookup(e.Type()); ok {
+		if handlers, ok := target.EventHandlers().Lookup(eventType); ok {
 			for _, handler := range handlers {
 				handler(e)
 				if e.Finished() {
