@@ -48,7 +48,6 @@ type WindowStyleMask int
 type Window struct {
 	window          C.uiWindow
 	eventHandlers   *event.Handlers
-	closeHandler    ui.CloseHandler
 	root            ui.Widget
 	focus           ui.Widget
 	lastMouseWidget ui.Widget
@@ -116,16 +115,6 @@ func (window *Window) SetTitle(title string) {
 	cTitle := C.CString(title)
 	C.uiSetWindowTitle(window.window, cTitle)
 	C.free(unsafe.Pointer(cTitle))
-}
-
-// CloseHandler implements the ui.Window interface.
-func (window *Window) CloseHandler() ui.CloseHandler {
-	return window.closeHandler
-}
-
-// SetCloseHandler implements the ui.Window interface.
-func (window *Window) SetCloseHandler(handler ui.CloseHandler) {
-	window.closeHandler = handler
 }
 
 // Frame implements the ui.Window interface.
@@ -470,9 +459,9 @@ func handleWindowKeyEvent(cWindow C.uiWindow, eventType, keyModifiers, keyCode i
 //export windowShouldClose
 func windowShouldClose(cWindow C.uiWindow) bool {
 	if window, ok := windowMap[cWindow]; ok {
-		if window.closeHandler != nil {
-			return window.closeHandler.WillClose()
-		}
+		event := &event.Event{Type: event.ClosingEvent, When: time.Now(), Target: window}
+		event.Dispatch()
+		return !event.Discard
 	}
 	return true
 }
@@ -480,9 +469,8 @@ func windowShouldClose(cWindow C.uiWindow) bool {
 //export windowDidClose
 func windowDidClose(cWindow C.uiWindow) {
 	if window, ok := windowMap[cWindow]; ok {
-		if window.closeHandler != nil {
-			window.closeHandler.DidClose()
-		}
+		event := &event.Event{Type: event.ClosedEvent, When: time.Now(), Target: window}
+		event.Dispatch()
 	}
 	delete(windowMap, cWindow)
 }

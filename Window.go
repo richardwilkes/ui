@@ -24,11 +24,6 @@ type Window interface {
 	// SetTitle sets the title of this window.
 	SetTitle(title string)
 
-	// CloseHandler returns the CloseHandler set for this window, if any.
-	CloseHandler() CloseHandler
-	// SetCloseHandler sets the CloseHandler for this window.
-	SetCloseHandler(handler CloseHandler)
-
 	// Frame returns the boundaries in display coordinates of the frame of this window (i.e. the
 	// area that includes both the content and its border and window controls).
 	Frame() geom.Rect
@@ -92,12 +87,4 @@ type Window interface {
 
 	// PlatformPtr returns a pointer to the underlying platform-specific data.
 	PlatformPtr() unsafe.Pointer
-}
-
-// CloseHandler provides opportunities to respond to the closing of a window.
-type CloseHandler interface {
-	// WillClose is called prior to the closing the object. Return false to prevent closing.
-	WillClose() bool
-	// DidClose is called when the object has been closed.
-	DidClose()
 }

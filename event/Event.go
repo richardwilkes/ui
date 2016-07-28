@@ -52,6 +52,11 @@ const (
 	ToolTipEvent
 	// ResizeEvent is generated when a widget is resized.
 	ResizeEvent
+	// ClosingEvent is generated when a window is asked to close. Set Discard to true to cancel the
+	// closing.
+	ClosingEvent
+	// ClosedEvent is generated when a window is closed.
+	ClosedEvent
 	// UserEvent should be used as the base value for application custom events.
 	UserEvent = 10000
 )
@@ -73,7 +78,7 @@ type Event struct {
 	KeyTyped     rune          // Valid only for KeyTypedEvent.
 	Repeat       bool          // Valid for KeyDownEvent and KeyTypedEvent. Set to true if the key was auto-generated.
 	CascadeUp    bool          // Valid for all events. true if this event should be cascaded up to parents.
-	Discard      bool          // Valid for MouseDownEvent and KeyDownEvent. Set to true to if the event should be ignored (i.e. don't do processing that would have side-effects).
+	Discard      bool          // Valid for MouseDownEvent, KeyDownEvent, and ClosingEvent. Set to true to if the event should be ignored (i.e. don't do processing that would have side-effects).
 	Done         bool          // Valid for all events. Set to true to stop processing this event.
 }
 

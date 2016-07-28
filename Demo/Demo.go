@@ -230,7 +230,7 @@ func createPopupMenu(panel ui.Widget, selection int, titles ...string) *menu.Pop
 func createAboutWindow(item *menu.Item) {
 	if aboutWindow == nil {
 		aboutWindow = widget.NewWindow(geom.Point{}, widget.TitledWindowMask|widget.ClosableWindowMask)
-		aboutWindow.SetCloseHandler(&closeHandler{})
+		aboutWindow.EventHandlers().Add(event.ClosedEvent, func(event *event.Event) { aboutWindow = nil })
 		aboutWindow.SetTitle("About " + app.Name())
 		root := aboutWindow.RootWidget()
 		root.SetBorder(border.NewEmpty(geom.Insets{Top: 10, Left: 10, Bottom: 10, Right: 10}))
@@ -243,17 +243,6 @@ func createAboutWindow(item *menu.Item) {
 		aboutWindow.Pack()
 	}
 	aboutWindow.ToFront()
-}
-
-type closeHandler struct {
-}
-
-func (h *closeHandler) WillClose() bool {
-	return true
-}
-
-func (h *closeHandler) DidClose() {
-	aboutWindow = nil
 }
 
 func createPreferencesWindow(item *menu.Item) {
