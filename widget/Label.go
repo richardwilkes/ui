@@ -39,7 +39,7 @@ func NewLabelWithFont(text string, font *font.Font) *Label {
 	label.font = font
 	label.alignment = draw.AlignStart
 	label.SetSizer(label)
-	label.EventHandlers().Add(event.PaintEvent, label.paint)
+	label.EventHandlers().Add(event.Paint, label.paint)
 	return label
 }
 

@@ -52,13 +52,13 @@ func NewImageButtonWithImageSize(img *draw.Image, size geom.Size) *ImageButton {
 		button.SetSizer(&imageButtonSizer{button: button, size: size})
 	}
 	handlers := button.EventHandlers()
-	handlers.Add(event.PaintEvent, button.paint)
-	handlers.Add(event.MouseDownEvent, button.mouseDown)
-	handlers.Add(event.MouseDraggedEvent, button.mouseDragged)
-	handlers.Add(event.MouseUpEvent, button.mouseUp)
-	handlers.Add(event.FocusGainedEvent, button.focusChanged)
-	handlers.Add(event.FocusLostEvent, button.focusChanged)
-	handlers.Add(event.KeyDownEvent, button.keyDown)
+	handlers.Add(event.Paint, button.paint)
+	handlers.Add(event.MouseDown, button.mouseDown)
+	handlers.Add(event.MouseDragged, button.mouseDragged)
+	handlers.Add(event.MouseUp, button.mouseUp)
+	handlers.Add(event.FocusGained, button.focusChanged)
+	handlers.Add(event.FocusLost, button.focusChanged)
+	handlers.Add(event.KeyDown, button.keyDown)
 	return button
 }
 

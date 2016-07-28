@@ -75,10 +75,10 @@ func NewScrollBar(horizontal bool, target Scrollable) *ScrollBar {
 	sb.horizontal = horizontal
 	sb.SetSizer(sb)
 	handlers := sb.EventHandlers()
-	handlers.Add(event.PaintEvent, sb.paint)
-	handlers.Add(event.MouseDownEvent, sb.mouseDown)
-	handlers.Add(event.MouseDraggedEvent, sb.mouseDragged)
-	handlers.Add(event.MouseUpEvent, sb.mouseUp)
+	handlers.Add(event.Paint, sb.paint)
+	handlers.Add(event.MouseDown, sb.mouseDown)
+	handlers.Add(event.MouseDragged, sb.mouseDragged)
+	handlers.Add(event.MouseUp, sb.mouseUp)
 	return sb
 }
 

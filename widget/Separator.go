@@ -27,7 +27,7 @@ func NewSeparator(horizontal bool) *Separator {
 	sep := &Separator{}
 	sep.horizontal = horizontal
 	sep.SetSizer(sep)
-	sep.EventHandlers().Add(event.PaintEvent, sep.paint)
+	sep.EventHandlers().Add(event.Paint, sep.paint)
 	return sep
 }
 

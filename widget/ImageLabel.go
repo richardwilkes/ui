@@ -35,7 +35,7 @@ func NewImageLabelWithImageSize(img *draw.Image, size geom.Size) *ImageLabel {
 	} else {
 		label.SetSizer(&imageLabelSizer{label: label, size: size})
 	}
-	label.EventHandlers().Add(event.PaintEvent, label.paint)
+	label.EventHandlers().Add(event.Paint, label.paint)
 	return label
 }
 

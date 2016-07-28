@@ -41,11 +41,11 @@ func NewPopupMenu() *PopupMenu {
 	pm.SetFocusable(true)
 	pm.SetSizer(pm)
 	handlers := pm.EventHandlers()
-	handlers.Add(event.PaintEvent, pm.paint)
-	handlers.Add(event.MouseDownEvent, pm.mouseDown)
-	handlers.Add(event.FocusGainedEvent, pm.focusChanged)
-	handlers.Add(event.FocusLostEvent, pm.focusChanged)
-	handlers.Add(event.KeyDownEvent, pm.keyDown)
+	handlers.Add(event.Paint, pm.paint)
+	handlers.Add(event.MouseDown, pm.mouseDown)
+	handlers.Add(event.FocusGained, pm.focusChanged)
+	handlers.Add(event.FocusLost, pm.focusChanged)
+	handlers.Add(event.KeyDown, pm.keyDown)
 	return pm
 }
 

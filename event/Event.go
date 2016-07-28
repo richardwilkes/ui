@@ -19,46 +19,46 @@ import (
 )
 
 const (
-	// PaintEvent is generated when a widget needs to be drawn.
-	PaintEvent = iota
-	// MouseDownEvent is generated when a mouse button is pressed on a widget.
-	MouseDownEvent
-	// MouseDraggedEvent is generated when the mouse is moved within a widget while a mouse button
+	// Paint is generated when a widget needs to be drawn.
+	Paint = iota
+	// MouseDown is generated when a mouse button is pressed on a widget.
+	MouseDown
+	// MouseDragged is generated when the mouse is moved within a widget while a mouse button
 	// is down.
-	MouseDraggedEvent
-	// MouseUpEvent is generated when the mouse button is released after a mouse button press
+	MouseDragged
+	// MouseUp is generated when the mouse button is released after a mouse button press
 	// occurred within a widget.
-	MouseUpEvent
-	// MouseEnteredEvent is generated when the mouse enters a widget.
-	MouseEnteredEvent
-	// MouseMovedEvent is generated when the mouse moves within a widget, except when a mouse
-	// button is also down (a MouseDraggedEvent is generated for that).
-	MouseMovedEvent
-	// MouseExitedEvent is generated when the mouse exits a widget.
-	MouseExitedEvent
-	// MouseWheelEvent is generated when the mouse wheel is used over a widget.
-	MouseWheelEvent
-	// FocusGainedEvent is generated when a widget gains the keyboard focus.
-	FocusGainedEvent
-	// FocusLostEvent is generated when a widget loses the keyboard focus.
-	FocusLostEvent
-	// KeyDownEvent is generated when a key is pressed.
-	KeyDownEvent
-	// KeyTypedEvent is generated when a rune has been generated on the keyboard.
-	KeyTypedEvent
-	// KeyUpEvent is generated when a key is released.
-	KeyUpEvent
-	// ToolTipEvent is generated when a tooltip is being requested for the widget.
-	ToolTipEvent
-	// ResizeEvent is generated when a widget is resized.
-	ResizeEvent
-	// ClosingEvent is generated when a window is asked to close. Set Discard to true to cancel the
+	MouseUp
+	// MouseEntered is generated when the mouse enters a widget.
+	MouseEntered
+	// MouseMoved is generated when the mouse moves within a widget, except when a mouse button is
+	// also down (a MouseDragged is generated for that).
+	MouseMoved
+	// MouseExited is generated when the mouse exits a widget.
+	MouseExited
+	// MouseWheel is generated when the mouse wheel is used over a widget.
+	MouseWheel
+	// FocusGained is generated when a widget gains the keyboard focus.
+	FocusGained
+	// FocusLost is generated when a widget loses the keyboard focus.
+	FocusLost
+	// KeyDown is generated when a key is pressed.
+	KeyDown
+	// KeyTyped is generated when a rune has been generated on the keyboard.
+	KeyTyped
+	// KeyUp is generated when a key is released.
+	KeyUp
+	// ToolTip is generated when a tooltip is being requested for the widget.
+	ToolTip
+	// Resize is generated when a widget is resized.
+	Resize
+	// Closing is generated when a window is asked to close. Set Discard to true to cancel the
 	// closing.
-	ClosingEvent
-	// ClosedEvent is generated when a window is closed.
-	ClosedEvent
-	// UserEvent should be used as the base value for application custom events.
-	UserEvent = 10000
+	Closing
+	// Closed is generated when a window is closed.
+	Closed
+	// User should be used as the base value for application custom events.
+	User = 10000
 )
 
 // Event holds the data associated with an event.
@@ -94,7 +94,7 @@ func (event *Event) Dispatch() {
 		if handlers, ok := target.EventHandlers().Lookup(event.Type); ok {
 			for _, handler := range handlers {
 				handler(event)
-				if event.Done {
+				if event.Done || event.Discard {
 					return
 				}
 			}
@@ -135,68 +135,68 @@ func (event *Event) CapsLockDown() bool {
 func (event *Event) String() string {
 	var buffer bytes.Buffer
 	switch event.Type {
-	case PaintEvent:
-		buffer.WriteString("PaintEvent")
-	case MouseDownEvent:
-		buffer.WriteString("MouseDownEvent")
-	case MouseDraggedEvent:
-		buffer.WriteString("MouseDraggedEvent")
-	case MouseUpEvent:
-		buffer.WriteString("MouseUpEvent")
-	case MouseEnteredEvent:
-		buffer.WriteString("MouseEnteredEvent")
-	case MouseMovedEvent:
-		buffer.WriteString("MouseMovedEvent")
-	case MouseExitedEvent:
-		buffer.WriteString("MouseExitedEvent")
-	case MouseWheelEvent:
-		buffer.WriteString("MouseWheelEvent")
-	case FocusGainedEvent:
-		buffer.WriteString("FocusGainedEvent")
-	case FocusLostEvent:
-		buffer.WriteString("FocusLostEvent")
-	case KeyDownEvent:
-		buffer.WriteString("KeyDownEvent")
-	case KeyTypedEvent:
-		buffer.WriteString("KeyTypedEvent")
-	case KeyUpEvent:
-		buffer.WriteString("KeyUpEvent")
-	case ToolTipEvent:
-		buffer.WriteString("ToolTipEvent")
-	case ResizeEvent:
-		buffer.WriteString("ResizeEvent")
+	case Paint:
+		buffer.WriteString("Paint")
+	case MouseDown:
+		buffer.WriteString("MouseDown")
+	case MouseDragged:
+		buffer.WriteString("MouseDragged")
+	case MouseUp:
+		buffer.WriteString("MouseUp")
+	case MouseEntered:
+		buffer.WriteString("MouseEntered")
+	case MouseMoved:
+		buffer.WriteString("MouseMoved")
+	case MouseExited:
+		buffer.WriteString("MouseExited")
+	case MouseWheel:
+		buffer.WriteString("MouseWheel")
+	case FocusGained:
+		buffer.WriteString("FocusGained")
+	case FocusLost:
+		buffer.WriteString("FocusLost")
+	case KeyDown:
+		buffer.WriteString("KeyDown")
+	case KeyTyped:
+		buffer.WriteString("KeyTyped")
+	case KeyUp:
+		buffer.WriteString("KeyUp")
+	case ToolTip:
+		buffer.WriteString("ToolTip")
+	case Resize:
+		buffer.WriteString("Resize")
 	default:
-		buffer.WriteString(fmt.Sprintf("Custom%dEvent", event.Type))
+		buffer.WriteString(fmt.Sprintf("User%d", event.Type))
 	}
 	buffer.WriteString(fmt.Sprintf("[When: %v, Target: %v", event.When, reflect.ValueOf(event.Target).Pointer()))
 	switch event.Type {
-	case PaintEvent:
+	case Paint:
 		buffer.WriteString(fmt.Sprintf(", DirtyRect: %v", event.DirtyRect))
-	case MouseDownEvent:
+	case MouseDown:
 		buffer.WriteString(fmt.Sprintf(", Where: %v, KeyModifiers: %s, Button: %d, Clicks: %d", event.Where, event.keyModifiersAsString(), event.Button, event.Clicks))
-	case MouseDraggedEvent:
+	case MouseDragged:
 		buffer.WriteString(fmt.Sprintf(", Where: %v, KeyModifiers: %s", event.Where, event.keyModifiersAsString()))
-	case MouseUpEvent:
+	case MouseUp:
 		buffer.WriteString(fmt.Sprintf(", Where: %v, KeyModifiers: %s", event.Where, event.keyModifiersAsString()))
-	case MouseEnteredEvent:
+	case MouseEntered:
 		buffer.WriteString(fmt.Sprintf(", Where: %v, KeyModifiers: %s", event.Where, event.keyModifiersAsString()))
-	case MouseMovedEvent:
+	case MouseMoved:
 		buffer.WriteString(fmt.Sprintf(", Where: %v, KeyModifiers: %s", event.Where, event.keyModifiersAsString()))
-	case MouseExitedEvent:
+	case MouseExited:
 		buffer.WriteString(fmt.Sprintf(", KeyModifiers: %s", event.keyModifiersAsString()))
-	case MouseWheelEvent:
+	case MouseWheel:
 		buffer.WriteString(fmt.Sprintf(", Where: %v, Delta: %v, KeyModifiers: %s", event.Where, event.Delta, event.keyModifiersAsString()))
-	case KeyDownEvent:
+	case KeyDown:
 		buffer.WriteString(fmt.Sprintf(", KeyModifiers: %s, KeyCode: %d", event.keyModifiersAsString(), event.KeyCode))
 		if event.Repeat {
 			buffer.WriteString(", Repeat")
 		}
-	case KeyTypedEvent:
+	case KeyTyped:
 		buffer.WriteString(fmt.Sprintf(", KeyModifiers: %s, KeyCode: %d, KeyTyped: %v", event.keyModifiersAsString(), event.KeyCode, event.KeyTyped))
 		if event.Repeat {
 			buffer.WriteString(", Repeat")
 		}
-	case KeyUpEvent:
+	case KeyUp:
 		buffer.WriteString(fmt.Sprintf(", KeyModifiers: %s, KeyCode: %d", event.keyModifiersAsString(), event.KeyCode))
 		if event.Repeat {
 			buffer.WriteString(", Repeat")
@@ -205,7 +205,7 @@ func (event *Event) String() string {
 	if event.CascadeUp {
 		buffer.WriteString(", CascadeUp")
 	}
-	if event.Discard && (event.Type == MouseDownEvent || event.Type == KeyDownEvent) {
+	if event.Discard && (event.Type == MouseDown || event.Type == KeyDown || event.Type == Closing) {
 		buffer.WriteString(", Discard")
 	}
 	if event.Done {

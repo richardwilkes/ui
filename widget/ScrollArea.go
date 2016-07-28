@@ -32,12 +32,12 @@ type ScrollArea struct {
 func NewScrollArea(content ui.Widget) *ScrollArea {
 	sa := &ScrollArea{}
 	handlers := sa.EventHandlers()
-	handlers.Add(event.MouseWheelEvent, sa.mouseWheel)
+	handlers.Add(event.MouseWheel, sa.mouseWheel)
 	sa.view = NewBlock()
 	sa.view.SetBackground(color.TextBackground)
-	sa.view.EventHandlers().Add(event.ResizeEvent, sa.viewResized)
+	sa.view.EventHandlers().Add(event.Resize, sa.viewResized)
 	sa.SetFocusable(true) // RAW: Revist... don't want to be focusable, but do want to participate
-	handlers.Add(event.KeyDownEvent, sa.keyDown)
+	handlers.Add(event.KeyDown, sa.keyDown)
 	sa.AddChild(sa.view)
 	sa.hBar = NewScrollBar(true, sa)
 	sa.vBar = NewScrollBar(false, sa)

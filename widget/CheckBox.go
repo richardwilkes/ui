@@ -49,13 +49,13 @@ func NewCheckBox(title string) *CheckBox {
 	checkbox.SetFocusable(true)
 	checkbox.SetSizer(checkbox)
 	handlers := checkbox.EventHandlers()
-	handlers.Add(event.PaintEvent, checkbox.paint)
-	handlers.Add(event.MouseDownEvent, checkbox.mouseDown)
-	handlers.Add(event.MouseDraggedEvent, checkbox.mouseDragged)
-	handlers.Add(event.MouseUpEvent, checkbox.mouseUp)
-	handlers.Add(event.FocusGainedEvent, checkbox.focusChanged)
-	handlers.Add(event.FocusLostEvent, checkbox.focusChanged)
-	handlers.Add(event.KeyDownEvent, checkbox.keyDown)
+	handlers.Add(event.Paint, checkbox.paint)
+	handlers.Add(event.MouseDown, checkbox.mouseDown)
+	handlers.Add(event.MouseDragged, checkbox.mouseDragged)
+	handlers.Add(event.MouseUp, checkbox.mouseUp)
+	handlers.Add(event.FocusGained, checkbox.focusChanged)
+	handlers.Add(event.FocusLost, checkbox.focusChanged)
+	handlers.Add(event.KeyDown, checkbox.keyDown)
 	return checkbox
 }
 
