@@ -14,16 +14,19 @@ import (
 	"github.com/richardwilkes/ui/event"
 )
 
+// SimpleToolTip provides an easy way to add a static tooltip to a widget.
 type SimpleToolTip struct {
-	text string
+	// Text is the text that will be used for the tooltip.
+	Text string
 }
 
+// NewSimpleToolTip adds a tooltip to the target.
 func NewSimpleToolTip(target ui.Widget, text string) *SimpleToolTip {
-	st := &SimpleToolTip{text: text}
+	st := &SimpleToolTip{Text: text}
 	target.EventHandlers().Add(event.ToolTipType, st.tooltip)
 	return st
 }
 
 func (st *SimpleToolTip) tooltip(evt event.Event) {
-	evt.(*event.ToolTip).SetToolTip(st.text)
+	evt.(*event.ToolTip).SetToolTip(st.Text)
 }
