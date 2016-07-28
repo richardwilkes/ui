@@ -58,7 +58,7 @@ func (e *MouseWheel) Finish() {
 	e.finished = true
 }
 
-// Where returns the amount the wheel was moved on each axis.
+// Delta returns the amount the wheel was moved on each axis.
 func (e *MouseWheel) Delta() geom.Point {
 	return e.delta
 }
