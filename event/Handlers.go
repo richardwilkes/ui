@@ -13,29 +13,29 @@ import (
 	"reflect"
 )
 
-// EventHandler is called to handle a single event.
-type EventHandler func(event *Event)
+// Handler is called to handle a single event.
+type Handler func(event *Event)
 
 type Handlers struct {
-	handlers map[int][]EventHandler
+	handlers map[int][]Handler
 }
 
 // Lookup returns an event handler list for the 'eventType'.
-func (eh *Handlers) Lookup(eventType int) ([]EventHandler, bool) {
+func (eh *Handlers) Lookup(eventType int) ([]Handler, bool) {
 	handlers, ok := eh.handlers[eventType]
 	return handlers, ok
 }
 
 // Add an event handler for an event type.
-func (eh *Handlers) Add(eventType int, handler EventHandler) {
+func (eh *Handlers) Add(eventType int, handler Handler) {
 	if eh.handlers == nil {
-		eh.handlers = make(map[int][]EventHandler)
+		eh.handlers = make(map[int][]Handler)
 	}
 	eh.handlers[eventType] = append(eh.handlers[eventType], handler)
 }
 
 // Remove an event handler for an event type.
-func (eh *Handlers) Remove(eventType int, handler EventHandler) {
+func (eh *Handlers) Remove(eventType int, handler Handler) {
 	if eh.handlers != nil {
 		hPtr := reflect.ValueOf(handler).Pointer()
 		handlers := eh.handlers[eventType]
