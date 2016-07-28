@@ -13,6 +13,7 @@ import (
 	"github.com/richardwilkes/ui/color"
 	"github.com/richardwilkes/ui/draw"
 	"github.com/richardwilkes/ui/event"
+	"github.com/richardwilkes/ui/geom"
 	"github.com/richardwilkes/ui/keys"
 	"github.com/richardwilkes/ui/layout"
 	"github.com/richardwilkes/ui/theme"
@@ -47,7 +48,7 @@ func NewButton(title string) *Button {
 }
 
 // Sizes implements Sizer
-func (button *Button) Sizes(hint draw.Size) (min, pref, max draw.Size) {
+func (button *Button) Sizes(hint geom.Size) (min, pref, max geom.Size) {
 	var hSpace = button.Theme.HorizontalMargin*2 + 2
 	var vSpace = button.Theme.VerticalMargin*2 + 2
 	if hint.Width != layout.NoHint {
@@ -76,7 +77,7 @@ func (button *Button) paint(event *event.Event) {
 	var hSpace = button.Theme.HorizontalMargin*2 + 2
 	var vSpace = button.Theme.VerticalMargin*2 + 2
 	bounds := button.LocalInsetBounds()
-	path := draw.NewPath()
+	path := geom.NewPath()
 	path.MoveTo(bounds.X, bounds.Y+button.Theme.CornerRadius)
 	path.QuadCurveTo(bounds.X, bounds.Y, bounds.X+button.Theme.CornerRadius, bounds.Y)
 	path.LineTo(bounds.X+bounds.Width-button.Theme.CornerRadius, bounds.Y)

@@ -13,6 +13,7 @@ import (
 	"fmt"
 	"github.com/richardwilkes/errs"
 	"github.com/richardwilkes/ui/color"
+	"github.com/richardwilkes/ui/geom"
 	"net/http"
 	"os"
 	"sync"
@@ -33,7 +34,7 @@ type fsKey struct {
 type Image struct {
 	id         int
 	disabledID int
-	size       Size
+	size       geom.Size
 	img        unsafe.Pointer
 	key        interface{}
 }
@@ -142,7 +143,7 @@ func AcquireImageFromData(data *ImageData) (img *Image, e error) {
 }
 
 // AcquireImageBounds creates a new image from a region within this image.
-func (img *Image) AcquireImageBounds(bounds Rect) (image *Image, e error) {
+func (img *Image) AcquireImageBounds(bounds geom.Rect) (image *Image, e error) {
 	image = platformNewImageFromImage(img, bounds)
 	if image == nil {
 		return nil, errs.New("Unable to create image")
@@ -183,7 +184,7 @@ func (img *Image) ID() int {
 }
 
 // Size returns the size of the image.
-func (img *Image) Size() Size {
+func (img *Image) Size() geom.Size {
 	return img.size
 }
 

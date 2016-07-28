@@ -12,27 +12,28 @@ package border
 import (
 	"github.com/richardwilkes/ui/color"
 	"github.com/richardwilkes/ui/draw"
+	"github.com/richardwilkes/ui/geom"
 )
 
 // Line is a border that draws a line along some or all of its sides.
 type Line struct {
-	insets draw.Insets
+	insets geom.Insets
 	color  color.Color
 }
 
 // NewLine creates a new line border. The insets represent how thick the border will be drawn
 // on that edge.
-func NewLine(color color.Color, insets draw.Insets) Border {
+func NewLine(color color.Color, insets geom.Insets) Border {
 	return &Line{insets: insets, color: color}
 }
 
 // Insets implements the Border interface.
-func (line *Line) Insets() draw.Insets {
+func (line *Line) Insets() geom.Insets {
 	return line.insets
 }
 
 // Draw implements the Border interface.
-func (line *Line) Draw(gc draw.Graphics, bounds draw.Rect) {
+func (line *Line) Draw(gc draw.Graphics, bounds geom.Rect) {
 	clip := bounds
 	clip.Inset(line.insets)
 	gc.Save()

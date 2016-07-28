@@ -11,7 +11,7 @@ package menu
 
 import (
 	"github.com/richardwilkes/ui"
-	"github.com/richardwilkes/ui/draw"
+	"github.com/richardwilkes/ui/geom"
 	"unsafe"
 )
 
@@ -110,7 +110,7 @@ func (menu *Menu) AddSeparator() {
 
 // Popup shows the menu at the specified location. If itemAtLocation is specified, it also tries to
 // position the menu such that the specified menu item is at that location.
-func (menu *Menu) Popup(widget ui.Widget, where draw.Point, itemAtLocation *Item) {
+func (menu *Menu) Popup(widget ui.Widget, where geom.Point, itemAtLocation *Item) {
 	where = widget.ToWindow(where)
 	C.uiPopupMenu(widget.Window().PlatformPtr(), menu.menu, C.float(where.X), C.float(where.Y), itemAtLocation.item)
 }

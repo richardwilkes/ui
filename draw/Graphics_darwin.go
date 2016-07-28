@@ -12,6 +12,7 @@ package draw
 import (
 	"github.com/richardwilkes/ui/color"
 	"github.com/richardwilkes/ui/font"
+	"github.com/richardwilkes/ui/geom"
 	"unsafe"
 )
 
@@ -144,14 +145,14 @@ func (gc *graphics) StrokeLine(x1, y1, x2, y2 float32) {
 }
 
 // FillRect implements Graphics.
-func (gc *graphics) FillRect(bounds Rect) {
+func (gc *graphics) FillRect(bounds geom.Rect) {
 	C.CGContextFillRect(gc.gc, toCGRect(bounds))
 }
 
 // StrokeRect implements Graphics.
 // To ensure the rectangle is aligned to pixel boundaries, 0.5 is added to the origin coordinates
 // and 1 is subtracted from the size values.
-func (gc *graphics) StrokeRect(bounds Rect) {
+func (gc *graphics) StrokeRect(bounds geom.Rect) {
 	if bounds.Width <= 1 || bounds.Height <= 1 {
 		savedColor := gc.FillColor()
 		gc.SetFillColor(gc.StrokeColor())
@@ -164,14 +165,14 @@ func (gc *graphics) StrokeRect(bounds Rect) {
 }
 
 // FillEllipse implements Graphics.
-func (gc *graphics) FillEllipse(bounds Rect) {
+func (gc *graphics) FillEllipse(bounds geom.Rect) {
 	C.CGContextFillEllipseInRect(gc.gc, toCGRect(bounds))
 }
 
 // StrokeEllipse implements Graphics.
 // To ensure the ellipse is aligned to pixel boundaries, 0.5 is added to the origin coordinates
 // and 1 is subtracted from the size values.
-func (gc *graphics) StrokeEllipse(bounds Rect) {
+func (gc *graphics) StrokeEllipse(bounds geom.Rect) {
 	if bounds.Width <= 1 || bounds.Height <= 1 {
 		savedColor := gc.FillColor()
 		gc.SetFillColor(gc.StrokeColor())
@@ -251,8 +252,8 @@ func (gc *graphics) QuadCurveTo(cpx, cpy, x, y float32) {
 }
 
 // AddPath implements Graphics.
-func (gc *graphics) AddPath(path *Path) {
-	platformPath := path.toPlatform()
+func (gc *graphics) AddPath(path *geom.Path) {
+	platformPath := path.PlatformPtr()
 	C.CGContextAddPath(gc.gc, platformPath)
 	C.CGPathRelease(platformPath)
 }
@@ -268,7 +269,7 @@ func (gc *graphics) ClipEvenOdd() {
 }
 
 // ClipRect implements Graphics.
-func (gc *graphics) ClipRect(bounds Rect) {
+func (gc *graphics) ClipRect(bounds geom.Rect) {
 	C.CGContextClipToRect(gc.gc, toCGRect(bounds))
 }
 
@@ -287,12 +288,12 @@ func (gc *graphics) DrawRadialGradient(gradient *Gradient, scx, scy, startRadius
 }
 
 // DrawImage implements Graphics.
-func (gc *graphics) DrawImage(img *Image, where Point) {
-	gc.DrawImageInRect(img, Rect{Point: where, Size: img.Size()})
+func (gc *graphics) DrawImage(img *Image, where geom.Point) {
+	gc.DrawImageInRect(img, geom.Rect{Point: where, Size: img.Size()})
 }
 
 // DrawImageInRect implements Graphics.
-func (gc *graphics) DrawImageInRect(img *Image, bounds Rect) {
+func (gc *graphics) DrawImageInRect(img *Image, bounds geom.Rect) {
 	gc.Save()
 	defer gc.Restore()
 	C.CGContextTranslateCTM(gc.gc, 0, C.CGFloat(bounds.Y+bounds.Height))
@@ -302,25 +303,25 @@ func (gc *graphics) DrawImageInRect(img *Image, bounds Rect) {
 }
 
 // DrawText implements Graphics.
-func (gc *graphics) DrawText(x, y float32, str string, mode TextMode) Size {
-	size, _ := gc.DrawTextConstrained(Rect{Point: Point{X: x, Y: y}, Size: Size{Width: unlimitedSize, Height: unlimitedSize}}, str, mode)
+func (gc *graphics) DrawText(x, y float32, str string, mode TextMode) geom.Size {
+	size, _ := gc.DrawTextConstrained(geom.Rect{Point: geom.Point{X: x, Y: y}, Size: geom.Size{Width: unlimitedSize, Height: unlimitedSize}}, str, mode)
 	return size
 }
 
 // DrawTextConstrained implements Graphics.
-func (gc *graphics) DrawTextConstrained(bounds Rect, str string, mode TextMode) (actual Size, fit int) {
+func (gc *graphics) DrawTextConstrained(bounds geom.Rect, str string, mode TextMode) (actual geom.Size, fit int) {
 	gs := gc.stack[len(gc.stack)-1]
 	return gc.DrawAttributedTextConstrained(bounds, NewText(str, gs.fillColor, gs.font), mode)
 }
 
 // DrawAttributedText implements Graphics.
-func (gc *graphics) DrawAttributedText(x, y float32, str *Text, mode TextMode) Size {
-	size, _ := gc.DrawAttributedTextConstrained(Rect{Point: Point{X: x, Y: y}, Size: Size{Width: unlimitedSize, Height: unlimitedSize}}, str, mode)
+func (gc *graphics) DrawAttributedText(x, y float32, str *Text, mode TextMode) geom.Size {
+	size, _ := gc.DrawAttributedTextConstrained(geom.Rect{Point: geom.Point{X: x, Y: y}, Size: geom.Size{Width: unlimitedSize, Height: unlimitedSize}}, str, mode)
 	return size
 }
 
 // DrawAttributedTextConstrained implements Graphics.
-func (gc *graphics) DrawAttributedTextConstrained(bounds Rect, str *Text, mode TextMode) (actual Size, fit int) {
+func (gc *graphics) DrawAttributedTextConstrained(bounds geom.Rect, str *Text, mode TextMode) (actual geom.Size, fit int) {
 	gc.Save()
 	defer gc.Restore()
 	attrStr := str.toPlatform()
@@ -341,7 +342,7 @@ func (gc *graphics) DrawAttributedTextConstrained(bounds Rect, str *Text, mode T
 	C.CFRelease(frame)
 	C.CFRelease(setter)
 	C.CFRelease(attrStr)
-	return Size{Width: float32(size.width), Height: float32(size.height)}, int(fitRange.length)
+	return geom.Size{Width: float32(size.width), Height: float32(size.height)}, int(fitRange.length)
 }
 
 // Translate implements Graphics.
@@ -362,4 +363,8 @@ func (gc *graphics) Rotate(angleInRadians float32) {
 func (gc *graphics) createText(str string) C.CFMutableAttributedStringRef {
 	gs := gc.stack[len(gc.stack)-1]
 	return NewText(str, gs.fillColor, gs.font).toPlatform()
+}
+
+func toCGRect(bounds geom.Rect) C.CGRect {
+	return C.CGRectMake(C.CGFloat(bounds.X), C.CGFloat(bounds.Y), C.CGFloat(bounds.Width), C.CGFloat(bounds.Height))
 }

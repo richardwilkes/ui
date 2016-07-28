@@ -13,6 +13,7 @@ import (
 	"github.com/richardwilkes/ui/color"
 	"github.com/richardwilkes/ui/draw"
 	"github.com/richardwilkes/ui/event"
+	"github.com/richardwilkes/ui/geom"
 	"github.com/richardwilkes/ui/keys"
 	"github.com/richardwilkes/ui/layout"
 	"github.com/richardwilkes/ui/theme"
@@ -59,8 +60,8 @@ func NewCheckBox(title string) *CheckBox {
 }
 
 // Sizes implements Sizer
-func (checkbox *CheckBox) Sizes(hint draw.Size) (min, pref, max draw.Size) {
-	var size draw.Size
+func (checkbox *CheckBox) Sizes(hint geom.Size) (min, pref, max geom.Size) {
+	var size geom.Size
 	box := xmath.CeilFloat32(checkbox.Theme.Font.Ascent())
 	if checkbox.Title != "" {
 		if hint.Width != layout.NoHint {
@@ -96,7 +97,7 @@ func (checkbox *CheckBox) paint(event *event.Event) {
 	bounds.Width = box
 	bounds.Y += (bounds.Height - box) / 2
 	bounds.Height = box
-	path := draw.NewPath()
+	path := geom.NewPath()
 	path.MoveTo(bounds.X, bounds.Y+checkbox.Theme.CornerRadius)
 	path.QuadCurveTo(bounds.X, bounds.Y, bounds.X+checkbox.Theme.CornerRadius, bounds.Y)
 	path.LineTo(bounds.X+bounds.Width-checkbox.Theme.CornerRadius, bounds.Y)

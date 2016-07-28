@@ -17,6 +17,7 @@ import "C"
 import (
 	"github.com/richardwilkes/ui/color"
 	"github.com/richardwilkes/ui/font"
+	"github.com/richardwilkes/ui/geom"
 	"math"
 	"unsafe"
 )
@@ -65,7 +66,7 @@ func (a *Text) toPlatform() C.CFMutableAttributedStringRef {
 	return as
 }
 
-func (a *Text) platformMeasure(size Size) (actual Size, fit int) {
+func (a *Text) platformMeasure(size geom.Size) (actual geom.Size, fit int) {
 	attrStr := a.toPlatform()
 	setter := C.CTFramesetterCreateWithAttributedString(attrStr)
 	fitRange := C.CFRangeMake(0, 0)
@@ -78,7 +79,7 @@ func (a *Text) platformMeasure(size Size) (actual Size, fit int) {
 	cSize := C.CTFramesetterSuggestFrameSizeWithConstraints(setter, C.CFRangeMake(0, 0), nil, C.CGSizeMake(C.CGFloat(size.Width), C.CGFloat(size.Height)), &fitRange)
 	C.CFRelease(setter)
 	C.CFRelease(attrStr)
-	return Size{Width: float32(cSize.width), Height: float32(cSize.height)}, int(fitRange.length)
+	return geom.Size{Width: float32(cSize.width), Height: float32(cSize.height)}, int(fitRange.length)
 }
 
 func cfStringFromString(str string) C.CFStringRef {

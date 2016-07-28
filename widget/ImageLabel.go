@@ -12,6 +12,7 @@ package widget
 import (
 	"github.com/richardwilkes/ui/draw"
 	"github.com/richardwilkes/ui/event"
+	"github.com/richardwilkes/ui/geom"
 )
 
 // ImageLabel represents a non-interactive image.
@@ -22,12 +23,12 @@ type ImageLabel struct {
 
 // NewImageLabel creates an ImageLabel with the specified image.
 func NewImageLabel(img *draw.Image) *ImageLabel {
-	return NewImageLabelWithImageSize(img, draw.Size{})
+	return NewImageLabelWithImageSize(img, geom.Size{})
 }
 
 // NewImageLabelWithImageSize creates a new ImageLabel with the specified image. The image will be
 // set to the specified size.
-func NewImageLabelWithImageSize(img *draw.Image, size draw.Size) *ImageLabel {
+func NewImageLabelWithImageSize(img *draw.Image, size geom.Size) *ImageLabel {
 	label := &ImageLabel{image: img}
 	if size.Width <= 0 || size.Height <= 0 {
 		label.SetSizer(label)
@@ -39,7 +40,7 @@ func NewImageLabelWithImageSize(img *draw.Image, size draw.Size) *ImageLabel {
 }
 
 // Sizes implements Sizer
-func (label *ImageLabel) Sizes(hint draw.Size) (min, pref, max draw.Size) {
+func (label *ImageLabel) Sizes(hint geom.Size) (min, pref, max geom.Size) {
 	size := label.image.Size()
 	if border := label.Border(); border != nil {
 		size.AddInsets(border.Insets())
@@ -63,11 +64,11 @@ func (label *ImageLabel) paint(event *event.Event) {
 
 type imageLabelSizer struct {
 	label *ImageLabel
-	size  draw.Size
+	size  geom.Size
 }
 
 // Sizes implements Sizer
-func (sizer *imageLabelSizer) Sizes(hint draw.Size) (min, pref, max draw.Size) {
+func (sizer *imageLabelSizer) Sizes(hint geom.Size) (min, pref, max geom.Size) {
 	pref = sizer.size
 	if border := sizer.label.Border(); border != nil {
 		pref.AddInsets(border.Insets())

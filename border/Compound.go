@@ -11,6 +11,7 @@ package border
 
 import (
 	"github.com/richardwilkes/ui/draw"
+	"github.com/richardwilkes/ui/geom"
 )
 
 // Compound is a border that contains other borders.
@@ -25,8 +26,8 @@ func NewCompound(borders ...Border) Border {
 }
 
 // Insets implements the Border interface.
-func (c *Compound) Insets() draw.Insets {
-	insets := draw.Insets{}
+func (c *Compound) Insets() geom.Insets {
+	insets := geom.Insets{}
 	for _, one := range c.borders {
 		insets.Add(one.Insets())
 	}
@@ -34,7 +35,7 @@ func (c *Compound) Insets() draw.Insets {
 }
 
 // Draw implements the Border interface.
-func (c *Compound) Draw(gc draw.Graphics, bounds draw.Rect) {
+func (c *Compound) Draw(gc draw.Graphics, bounds geom.Rect) {
 	for _, one := range c.borders {
 		gc.Save()
 		one.Draw(gc, bounds)

@@ -14,6 +14,7 @@ import (
 	"github.com/richardwilkes/ui/color"
 	"github.com/richardwilkes/ui/draw"
 	"github.com/richardwilkes/ui/event"
+	"github.com/richardwilkes/ui/geom"
 	"github.com/richardwilkes/ui/keys"
 	"github.com/richardwilkes/ui/layout"
 	"github.com/richardwilkes/ui/theme"
@@ -49,7 +50,7 @@ func NewPopupMenu() *PopupMenu {
 }
 
 // Sizes implements Sizer
-func (pm *PopupMenu) Sizes(hint draw.Size) (min, pref, max draw.Size) {
+func (pm *PopupMenu) Sizes(hint geom.Size) (min, pref, max geom.Size) {
 	var hSpace = pm.Theme.HorizontalMargin*3 + 2
 	var vSpace = pm.Theme.VerticalMargin*2 + 2
 	if hint.Width != layout.NoHint {
@@ -78,7 +79,7 @@ func (pm *PopupMenu) paint(event *event.Event) {
 	var hSpace = pm.Theme.HorizontalMargin*2 + 2
 	var vSpace = pm.Theme.VerticalMargin*2 + 2
 	bounds := pm.LocalInsetBounds()
-	path := draw.NewPath()
+	path := geom.NewPath()
 	path.MoveTo(bounds.X, bounds.Y+pm.Theme.CornerRadius)
 	path.QuadCurveTo(bounds.X, bounds.Y, bounds.X+pm.Theme.CornerRadius, bounds.Y)
 	path.LineTo(bounds.X+bounds.Width-pm.Theme.CornerRadius, bounds.Y)
@@ -262,8 +263,8 @@ func (pm *PopupMenu) title() *draw.Text {
 	return draw.NewText(title, pm.TextColor(), pm.Theme.Font)
 }
 
-func (pm *PopupMenu) measureConstrained(hint draw.Size) draw.Size {
-	var largest draw.Size
+func (pm *PopupMenu) measureConstrained(hint geom.Size) geom.Size {
+	var largest geom.Size
 	for _, one := range pm.items {
 		size, _ := draw.NewText(fmt.Sprintf("%v", one), color.Black, pm.Theme.Font).MeasureConstrained(hint)
 		if largest.Width < size.Width {

@@ -14,6 +14,7 @@ import (
 	"github.com/richardwilkes/ui/draw"
 	"github.com/richardwilkes/ui/event"
 	"github.com/richardwilkes/ui/font"
+	"github.com/richardwilkes/ui/geom"
 )
 
 // Label represents a non-interactive piece of text.
@@ -43,7 +44,7 @@ func NewLabelWithFont(text string, font *font.Font) *Label {
 }
 
 // Sizes implements Sizer
-func (label *Label) Sizes(hint draw.Size) (min, pref, max draw.Size) {
+func (label *Label) Sizes(hint geom.Size) (min, pref, max geom.Size) {
 	size, _ := label.title().MeasureConstrained(hint)
 	size.GrowToInteger()
 	if border := label.Border(); border != nil {

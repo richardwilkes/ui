@@ -15,6 +15,7 @@ import (
 	"github.com/richardwilkes/ui/color"
 	"github.com/richardwilkes/ui/draw"
 	"github.com/richardwilkes/ui/event"
+	"github.com/richardwilkes/ui/geom"
 	"github.com/richardwilkes/ui/keys"
 	"github.com/richardwilkes/ui/layout"
 	"time"
@@ -75,13 +76,13 @@ func KeyWindow() ui.Window {
 }
 
 // NewWindow creates a new window at the specified location with the specified style.
-func NewWindow(where draw.Point, styleMask WindowStyleMask) *Window {
-	return NewWindowWithContentSize(where, draw.Size{Width: 100, Height: 100}, styleMask)
+func NewWindow(where geom.Point, styleMask WindowStyleMask) *Window {
+	return NewWindowWithContentSize(where, geom.Size{Width: 100, Height: 100}, styleMask)
 }
 
 // NewWindowWithContentSize creates a new window at the specified location with the specified style and content size.
-func NewWindowWithContentSize(where draw.Point, contentSize draw.Size, styleMask WindowStyleMask) *Window {
-	bounds := draw.Rect{Point: where, Size: contentSize}
+func NewWindowWithContentSize(where geom.Point, contentSize geom.Size, styleMask WindowStyleMask) *Window {
+	bounds := geom.Rect{Point: where, Size: contentSize}
 	window := &Window{window: C.uiNewWindow(toCRect(bounds), C.int(styleMask))}
 	windowMap[window.window] = window
 	root := NewBlock()
@@ -127,58 +128,58 @@ func (window *Window) SetCloseHandler(handler ui.CloseHandler) {
 }
 
 // Frame implements the ui.Window interface.
-func (window *Window) Frame() draw.Rect {
+func (window *Window) Frame() geom.Rect {
 	return toRect(C.uiGetWindowFrame(window.window))
 }
 
 // Location implements the ui.Window interface.
-func (window *Window) Location() draw.Point {
+func (window *Window) Location() geom.Point {
 	return toPoint(C.uiGetWindowPosition(window.window))
 }
 
 // SetLocation implements the ui.Window interface.
-func (window *Window) SetLocation(pt draw.Point) {
+func (window *Window) SetLocation(pt geom.Point) {
 	C.uiSetWindowPosition(window.window, C.float(pt.X), C.float(pt.Y))
 }
 
 // Size implements the ui.Window interface.
-func (window *Window) Size() draw.Size {
+func (window *Window) Size() geom.Size {
 	return toSize(C.uiGetWindowSize(window.window))
 }
 
 // SetSize implements the ui.Window interface.
-func (window *Window) SetSize(size draw.Size) {
+func (window *Window) SetSize(size geom.Size) {
 	C.uiSetWindowSize(window.window, C.float(size.Width), C.float(size.Height))
 }
 
 // ContentFrame implements the ui.Window interface.
-func (window *Window) ContentFrame() draw.Rect {
+func (window *Window) ContentFrame() geom.Rect {
 	return toRect(C.uiGetWindowContentFrame(window.window))
 }
 
 // ContentLocalBounds implements the ui.Window interface.
-func (window *Window) ContentLocalBounds() draw.Rect {
+func (window *Window) ContentLocalBounds() geom.Rect {
 	size := C.uiGetWindowContentSize(window.window)
-	return draw.Rect{Size: draw.Size{Width: float32(size.width), Height: float32(size.height)}}
+	return geom.Rect{Size: geom.Size{Width: float32(size.width), Height: float32(size.height)}}
 }
 
 // ContentLocation implements the ui.Window interface.
-func (window *Window) ContentLocation() draw.Point {
+func (window *Window) ContentLocation() geom.Point {
 	return toPoint(C.uiGetWindowContentPosition(window.window))
 }
 
 // SetContentLocation implements the ui.Window interface.
-func (window *Window) SetContentLocation(pt draw.Point) {
+func (window *Window) SetContentLocation(pt geom.Point) {
 	C.uiSetWindowContentPosition(window.window, C.float(pt.X), C.float(pt.Y))
 }
 
 // ContentSize implements the ui.Window interface.
-func (window *Window) ContentSize() draw.Size {
+func (window *Window) ContentSize() geom.Size {
 	return toSize(C.uiGetWindowContentSize(window.window))
 }
 
 // SetContentSize implements the ui.Window interface.
-func (window *Window) SetContentSize(size draw.Size) {
+func (window *Window) SetContentSize(size geom.Size) {
 	C.uiSetWindowContentSize(window.window, C.float(size.Width), C.float(size.Height))
 }
 
@@ -281,7 +282,7 @@ func (window *Window) Repaint() {
 }
 
 // RepaintBounds implements the ui.Window interface.
-func (window *Window) RepaintBounds(bounds draw.Rect) {
+func (window *Window) RepaintBounds(bounds geom.Rect) {
 	bounds.Intersect(window.ContentLocalBounds())
 	if !bounds.IsEmpty() {
 		C.uiRepaintWindow(window.window, toCRect(bounds))
@@ -318,7 +319,7 @@ func (window *Window) PlatformPtr() unsafe.Pointer {
 	return unsafe.Pointer(window.window)
 }
 
-func (window *Window) updateToolTip(widget ui.Widget, where draw.Point) {
+func (window *Window) updateToolTip(widget ui.Widget, where geom.Point) {
 	tooltip := ""
 	if widget != nil {
 		event := &event.Event{Type: event.ToolTipEvent, When: time.Now(), Target: widget, Where: where}
@@ -359,7 +360,7 @@ func handleWindowMouseEvent(cWindow C.uiWindow, eventType, keyModifiers, button,
 	if window, ok := windowMap[cWindow]; ok {
 		keyMask := event.KeyMask(keyModifiers)
 		discardMouseDown := false
-		where := draw.Point{X: x, Y: y}
+		where := geom.Point{X: x, Y: y}
 		var widget ui.Widget
 		if window.inMouseDown {
 			widget = window.lastMouseWidget
@@ -421,10 +422,10 @@ func handleWindowMouseEvent(cWindow C.uiWindow, eventType, keyModifiers, button,
 //export handleWindowMouseWheelEvent
 func handleWindowMouseWheelEvent(cWindow C.uiWindow, eventType, keyModifiers int, x, y, dx, dy float32) {
 	if window, ok := windowMap[cWindow]; ok {
-		where := draw.Point{X: x, Y: y}
+		where := geom.Point{X: x, Y: y}
 		widget := window.root.WidgetAt(where)
 		if widget != nil {
-			event := &event.Event{Type: event.MouseWheelEvent, When: time.Now(), Target: widget, Where: where, Delta: draw.Point{X: dx, Y: dy}, KeyModifiers: event.KeyMask(keyModifiers), CascadeUp: true}
+			event := &event.Event{Type: event.MouseWheelEvent, When: time.Now(), Target: widget, Where: where, Delta: geom.Point{X: dx, Y: dy}, KeyModifiers: event.KeyMask(keyModifiers), CascadeUp: true}
 			event.Dispatch()
 			if window.inMouseDown {
 				eventType = C.uiMouseDragged
@@ -485,18 +486,18 @@ func windowDidClose(cWindow C.uiWindow) {
 	delete(windowMap, cWindow)
 }
 
-func toRect(bounds C.uiRect) draw.Rect {
-	return draw.Rect{Point: draw.Point{X: float32(bounds.x), Y: float32(bounds.y)}, Size: draw.Size{Width: float32(bounds.width), Height: float32(bounds.height)}}
+func toRect(bounds C.uiRect) geom.Rect {
+	return geom.Rect{Point: geom.Point{X: float32(bounds.x), Y: float32(bounds.y)}, Size: geom.Size{Width: float32(bounds.width), Height: float32(bounds.height)}}
 }
 
-func toCRect(bounds draw.Rect) C.uiRect {
+func toCRect(bounds geom.Rect) C.uiRect {
 	return C.uiRect{x: C.float(bounds.X), y: C.float(bounds.Y), width: C.float(bounds.Width), height: C.float(bounds.Height)}
 }
 
-func toPoint(pt C.uiPoint) draw.Point {
-	return draw.Point{X: float32(pt.x), Y: float32(pt.y)}
+func toPoint(pt C.uiPoint) geom.Point {
+	return geom.Point{X: float32(pt.x), Y: float32(pt.y)}
 }
 
-func toSize(size C.uiSize) draw.Size {
-	return draw.Size{Width: float32(size.width), Height: float32(size.height)}
+func toSize(size C.uiSize) geom.Size {
+	return geom.Size{Width: float32(size.width), Height: float32(size.height)}
 }

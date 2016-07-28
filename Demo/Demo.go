@@ -18,6 +18,7 @@ import (
 	"github.com/richardwilkes/ui/draw"
 	"github.com/richardwilkes/ui/event"
 	"github.com/richardwilkes/ui/font"
+	"github.com/richardwilkes/ui/geom"
 	"github.com/richardwilkes/ui/layout"
 	"github.com/richardwilkes/ui/menu"
 	"github.com/richardwilkes/ui/widget"
@@ -49,11 +50,11 @@ func createMenuBar() {
 }
 
 func createButtonsWindow() {
-	wnd := widget.NewWindow(draw.Point{}, widget.StdWindowMask)
+	wnd := widget.NewWindow(geom.Point{}, widget.StdWindowMask)
 	wnd.SetTitle("Demo")
 
 	root := wnd.RootWidget()
-	root.SetBorder(border.NewEmpty(draw.Insets{Top: 10, Left: 10, Bottom: 10, Right: 10}))
+	root.SetBorder(border.NewEmpty(geom.Insets{Top: 10, Left: 10, Bottom: 10, Right: 10}))
 	layout.NewPrecision(root).SetVerticalSpacing(10)
 
 	buttonsPanel := createButtonsPanel()
@@ -228,11 +229,11 @@ func createPopupMenu(panel ui.Widget, selection int, titles ...string) *menu.Pop
 
 func createAboutWindow(item *menu.Item) {
 	if aboutWindow == nil {
-		aboutWindow = widget.NewWindow(draw.Point{}, widget.TitledWindowMask|widget.ClosableWindowMask)
+		aboutWindow = widget.NewWindow(geom.Point{}, widget.TitledWindowMask|widget.ClosableWindowMask)
 		aboutWindow.SetCloseHandler(&closeHandler{})
 		aboutWindow.SetTitle("About " + app.Name())
 		root := aboutWindow.RootWidget()
-		root.SetBorder(border.NewEmpty(draw.Insets{Top: 10, Left: 10, Bottom: 10, Right: 10}))
+		root.SetBorder(border.NewEmpty(geom.Insets{Top: 10, Left: 10, Bottom: 10, Right: 10}))
 		layout.NewPrecision(root)
 		title := widget.NewLabelWithFont(app.Name(), font.Acquire(font.EmphasizedSystemDesc))
 		title.SetLayoutData(layout.NewPrecisionData().SetHorizontalAlignment(draw.AlignMiddle))

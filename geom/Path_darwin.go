@@ -7,13 +7,17 @@
 // This Source Code Form is "Incompatible With Secondary Licenses", as
 // defined by the Mozilla Public License, version 2.0.
 
-package draw
+package geom
+
+import (
+	"unsafe"
+)
 
 // #cgo darwin LDFLAGS: -framework Cocoa
 // #include <CoreGraphics/CoreGraphics.h>
 import "C"
 
-func (p *Path) toPlatform() C.CGPathRef {
+func (p *Path) PlatformPtr() unsafe.Pointer {
 	path := C.CGPathCreateMutable()
 	for _, node := range p.data {
 		switch t := node.(type) {
@@ -39,7 +43,7 @@ func (p *Path) toPlatform() C.CGPathRef {
 			panic("Unknown path node type")
 		}
 	}
-	return C.CGPathRef(path)
+	return unsafe.Pointer(path)
 }
 
 func toCGRect(bounds Rect) C.CGRect {

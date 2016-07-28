@@ -10,14 +10,14 @@
 package ui
 
 import (
-	"github.com/richardwilkes/ui/draw"
+	"github.com/richardwilkes/ui/geom"
 )
 
 // Sizer is called when no layout has been set for a widget. Returns the minimum, preferred, and
 // maximum sizes of the widget. The hint's values will be either NoHint or a specific value
 // if that particular dimension has already been determined.
 type Sizer interface {
-	Sizes(hint draw.Size) (min, pref, max draw.Size)
+	Sizes(hint geom.Size) (min, pref, max geom.Size)
 }
 
 // The Layout interface should be implemented by objects that provide layout services.

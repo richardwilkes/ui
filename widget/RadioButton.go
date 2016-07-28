@@ -13,6 +13,7 @@ import (
 	"github.com/richardwilkes/ui/color"
 	"github.com/richardwilkes/ui/draw"
 	"github.com/richardwilkes/ui/event"
+	"github.com/richardwilkes/ui/geom"
 	"github.com/richardwilkes/ui/keys"
 	"github.com/richardwilkes/ui/layout"
 	"github.com/richardwilkes/ui/theme"
@@ -50,8 +51,8 @@ func NewRadioButton(title string) *RadioButton {
 }
 
 // Sizes implements Sizer
-func (button *RadioButton) Sizes(hint draw.Size) (min, pref, max draw.Size) {
-	var size draw.Size
+func (button *RadioButton) Sizes(hint geom.Size) (min, pref, max geom.Size) {
+	var size geom.Size
 	box := xmath.CeilFloat32(button.Theme.Font.Ascent())
 	if button.Title != "" {
 		if hint.Width != layout.NoHint {
@@ -87,7 +88,7 @@ func (button *RadioButton) paint(event *event.Event) {
 	bounds.Width = box
 	bounds.Y += (bounds.Height - box) / 2
 	bounds.Height = box
-	path := draw.NewPath()
+	path := geom.NewPath()
 	path.Ellipse(bounds)
 	gc := event.GC
 	gc.AddPath(path)

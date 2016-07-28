@@ -13,6 +13,7 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/richardwilkes/ui/draw"
+	"github.com/richardwilkes/ui/geom"
 	"reflect"
 	"time"
 )
@@ -61,9 +62,9 @@ type Event struct {
 	When         time.Time     // Valid for all events.
 	Target       Target        // Valid for all events
 	GC           draw.Graphics // Valid only for PaintEvent.
-	DirtyRect    draw.Rect     // Valid only for PaintEvent.
-	Where        draw.Point    // In window coordinates. Valid for MouseDownEvent, MouseDraggedEvent, MouseUpEvent, MouseEnteredEvent, MouseMovedEvent, and MouseWheelEvent.
-	Delta        draw.Point    // Valid only for MouseWheelEvent. The amount scrolled in each direction.
+	DirtyRect    geom.Rect     // Valid only for PaintEvent.
+	Where        geom.Point    // In window coordinates. Valid for MouseDownEvent, MouseDraggedEvent, MouseUpEvent, MouseEnteredEvent, MouseMovedEvent, and MouseWheelEvent.
+	Delta        geom.Point    // Valid only for MouseWheelEvent. The amount scrolled in each direction.
 	KeyModifiers KeyMask       // Valid for MouseDownEvent, MouseDraggedEvent, MouseUpEvent, MouseEnteredEvent, MouseMovedEvent, MouseExitedEvent, MouseWheelEvent, KeyDownEvent, KeyTypedEvent, and KeyUpEvent.
 	Button       int           // Valid only for MouseDownEvent. The button that is down.
 	Clicks       int           // Valid only for MouseDownEvent. The number of consecutive clicks in the widget.

@@ -11,6 +11,7 @@ package draw
 
 import (
 	"github.com/richardwilkes/ui/color"
+	"github.com/richardwilkes/ui/geom"
 	"unsafe"
 )
 
@@ -82,7 +83,7 @@ func platformNewImageFromData(data *ImageData) *Image {
 	return nil
 }
 
-func platformNewImageFromImage(other *Image, bounds Rect) *Image {
+func platformNewImageFromImage(other *Image, bounds geom.Rect) *Image {
 	if image := C.CGImageCreateWithImageInRect(other.img, C.CGRectMake(C.CGFloat(bounds.X), C.CGFloat(bounds.Y), C.CGFloat(bounds.Width), C.CGFloat(bounds.Height))); image != nil {
 		return platformCreateImage(image)
 	}
@@ -90,7 +91,7 @@ func platformNewImageFromImage(other *Image, bounds Rect) *Image {
 }
 
 func platformCreateImage(img C.CGImageRef) *Image {
-	return &Image{size: Size{Width: float32(C.CGImageGetWidth(img)), Height: float32(C.CGImageGetHeight(img))}, img: unsafe.Pointer(img)}
+	return &Image{size: geom.Size{Width: float32(C.CGImageGetWidth(img)), Height: float32(C.CGImageGetHeight(img))}, img: unsafe.Pointer(img)}
 }
 
 func (img *Image) dispose() {

@@ -11,7 +11,7 @@ package layout
 
 import (
 	"github.com/richardwilkes/ui"
-	"github.com/richardwilkes/ui/draw"
+	"github.com/richardwilkes/ui/geom"
 	"github.com/richardwilkes/xmath"
 )
 
@@ -29,25 +29,25 @@ const (
 var (
 	// NoHintSize is a convenience for passing to layouts when you don't have any particular
 	// size constraints in mind. Should be treated as read-only.
-	NoHintSize = draw.Size{Width: NoHint, Height: NoHint}
+	NoHintSize = geom.Size{Width: NoHint, Height: NoHint}
 )
 
 // DefaultMaxSize returns the size that is at least as large as DefaultMax in both dimensions, but
 // larger if the preferred size that is passed in is larger.
-func DefaultMaxSize(pref draw.Size) draw.Size {
-	return draw.Size{Width: xmath.MaxFloat32(DefaultMax, pref.Width), Height: xmath.MaxFloat32(DefaultMax, pref.Height)}
+func DefaultMaxSize(pref geom.Size) geom.Size {
+	return geom.Size{Width: xmath.MaxFloat32(DefaultMax, pref.Width), Height: xmath.MaxFloat32(DefaultMax, pref.Height)}
 }
 
 // Sizes returns the minimum, preferred, and maximum sizes the 'widget' wishes to be. It does
 // this by asking the widget's Layout. If no Layout is present, then the widget's Sizer is asked.
 // If no Sizer is present, then it finally uses a default set of sizes that are used for all
 // components.
-func Sizes(widget ui.Widget, hint draw.Size) (min, pref, max draw.Size) {
+func Sizes(widget ui.Widget, hint geom.Size) (min, pref, max geom.Size) {
 	if l := widget.Layout(); l != nil {
 		return l.Sizes(hint)
 	}
 	if s := widget.Sizer(); s != nil {
 		return s.Sizes(hint)
 	}
-	return draw.Size{}, draw.Size{}, DefaultMaxSize(draw.Size{})
+	return geom.Size{}, geom.Size{}, DefaultMaxSize(geom.Size{})
 }

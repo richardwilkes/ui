@@ -15,6 +15,7 @@ import (
 	"github.com/richardwilkes/ui/color"
 	"github.com/richardwilkes/ui/draw"
 	"github.com/richardwilkes/ui/event"
+	"github.com/richardwilkes/ui/geom"
 	"reflect"
 	"time"
 )
@@ -28,7 +29,7 @@ type Block struct {
 	sizer         ui.Sizer
 	layout        ui.Layout
 	border        border.Border
-	bounds        draw.Rect
+	bounds        geom.Rect
 	layoutData    interface{}
 	background    color.Color
 	needLayout    bool
@@ -131,7 +132,7 @@ func (b *Block) Repaint() {
 }
 
 // RepaintBounds implements the Widget interface.
-func (b *Block) RepaintBounds(bounds draw.Rect) {
+func (b *Block) RepaintBounds(bounds geom.Rect) {
 	bounds.Intersect(b.LocalBounds())
 	if !bounds.IsEmpty() {
 		if p := b.Parent(); p != nil {
@@ -145,7 +146,7 @@ func (b *Block) RepaintBounds(bounds draw.Rect) {
 }
 
 // Paint implements the Widget interface.
-func (b *Block) Paint(g draw.Graphics, dirty draw.Rect) {
+func (b *Block) Paint(g draw.Graphics, dirty geom.Rect) {
 	dirty.Intersect(b.LocalBounds())
 	if !dirty.IsEmpty() {
 		b.paintSelf(g, dirty)
@@ -159,7 +160,7 @@ func (b *Block) Paint(g draw.Graphics, dirty draw.Rect) {
 	}
 }
 
-func (b *Block) paintSelf(g draw.Graphics, dirty draw.Rect) {
+func (b *Block) paintSelf(g draw.Graphics, dirty geom.Rect) {
 	g.Save()
 	defer g.Restore()
 	g.ClipRect(dirty)
@@ -180,7 +181,7 @@ func (b *Block) paintBorder(gc draw.Graphics) {
 	}
 }
 
-func (b *Block) paintChild(child ui.Widget, g draw.Graphics, dirty draw.Rect) {
+func (b *Block) paintChild(child ui.Widget, g draw.Graphics, dirty geom.Rect) {
 	g.Save()
 	defer g.Restore()
 	bounds := child.Bounds()
@@ -316,17 +317,17 @@ func (b *Block) RootOfWindow() bool {
 }
 
 // Bounds implements the Widget interface.
-func (b *Block) Bounds() draw.Rect {
+func (b *Block) Bounds() geom.Rect {
 	return b.bounds
 }
 
 // LocalBounds implements the Widget interface.
-func (b *Block) LocalBounds() draw.Rect {
+func (b *Block) LocalBounds() geom.Rect {
 	return b.bounds.CopyAndZeroLocation()
 }
 
 // LocalInsetBounds implements the Widget interface.
-func (b *Block) LocalInsetBounds() draw.Rect {
+func (b *Block) LocalInsetBounds() geom.Rect {
 	bounds := b.LocalBounds()
 	if border := b.Border(); border != nil {
 		bounds.Inset(border.Insets())
@@ -335,7 +336,7 @@ func (b *Block) LocalInsetBounds() draw.Rect {
 }
 
 // SetBounds implements the Widget interface.
-func (b *Block) SetBounds(bounds draw.Rect) {
+func (b *Block) SetBounds(bounds geom.Rect) {
 	moved := b.bounds.X != bounds.X || b.bounds.Y != bounds.Y
 	resized := b.bounds.Width != bounds.Width || b.bounds.Height != bounds.Height
 	if moved || resized {
@@ -354,12 +355,12 @@ func (b *Block) SetBounds(bounds draw.Rect) {
 }
 
 // Location implements the Widget interface.
-func (b *Block) Location() draw.Point {
+func (b *Block) Location() geom.Point {
 	return b.bounds.Point
 }
 
 // SetLocation implements the Widget interface.
-func (b *Block) SetLocation(pt draw.Point) {
+func (b *Block) SetLocation(pt geom.Point) {
 	if b.bounds.Point != pt {
 		b.Repaint()
 		b.bounds.Point = pt
@@ -368,12 +369,12 @@ func (b *Block) SetLocation(pt draw.Point) {
 }
 
 // Size implements the Widget interface.
-func (b *Block) Size() draw.Size {
+func (b *Block) Size() geom.Size {
 	return b.bounds.Size
 }
 
 // SetSize implements the Widget interface.
-func (b *Block) SetSize(size draw.Size) {
+func (b *Block) SetSize(size geom.Size) {
 	if b.bounds.Size != size {
 		b.Repaint()
 		b.bounds.Size = size
@@ -385,7 +386,7 @@ func (b *Block) SetSize(size draw.Size) {
 }
 
 // WidgetAt implements the Widget interface.
-func (b *Block) WidgetAt(pt draw.Point) ui.Widget {
+func (b *Block) WidgetAt(pt geom.Point) ui.Widget {
 	for _, child := range b.children {
 		bounds := child.Bounds()
 		if bounds.Contains(pt) {
@@ -397,7 +398,7 @@ func (b *Block) WidgetAt(pt draw.Point) ui.Widget {
 }
 
 // ToWindow implements the Widget interface.
-func (b *Block) ToWindow(pt draw.Point) draw.Point {
+func (b *Block) ToWindow(pt geom.Point) geom.Point {
 	pt.Add(b.bounds.Point)
 	parent := b.parent
 	for parent != nil {
@@ -408,7 +409,7 @@ func (b *Block) ToWindow(pt draw.Point) draw.Point {
 }
 
 // FromWindow implements the Widget interface.
-func (b *Block) FromWindow(pt draw.Point) draw.Point {
+func (b *Block) FromWindow(pt geom.Point) geom.Point {
 	pt.Subtract(b.bounds.Point)
 	parent := b.parent
 	for parent != nil {

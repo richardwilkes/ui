@@ -12,6 +12,7 @@ package layout
 import (
 	"github.com/richardwilkes/ui"
 	"github.com/richardwilkes/ui/draw"
+	"github.com/richardwilkes/ui/geom"
 	"github.com/richardwilkes/xmath"
 )
 
@@ -101,9 +102,9 @@ func (p *Precision) SetVerticalAlignment(alignment draw.Alignment) *Precision {
 }
 
 // Sizes implements the Layout interface.
-func (p *Precision) Sizes(hint draw.Size) (min, pref, max draw.Size) {
-	min = p.layout(draw.Point{}, NoHintSize, false, true)
-	pref = p.layout(draw.Point{}, NoHintSize, false, false)
+func (p *Precision) Sizes(hint geom.Size) (min, pref, max geom.Size) {
+	min = p.layout(geom.Point{}, NoHintSize, false, true)
+	pref = p.layout(geom.Point{}, NoHintSize, false, false)
 	if border := p.widget.Border(); border != nil {
 		insets := border.Insets()
 		min.AddInsets(insets)
@@ -114,17 +115,17 @@ func (p *Precision) Sizes(hint draw.Size) (min, pref, max draw.Size) {
 
 // Layout implements the Layout interface.
 func (p *Precision) Layout() {
-	var insets draw.Insets
+	var insets geom.Insets
 	if border := p.widget.Border(); border != nil {
 		insets = border.Insets()
 	}
 	hint := p.widget.Bounds().Size
 	hint.SubtractInsets(insets)
-	p.layout(draw.Point{X: insets.Left, Y: insets.Top}, hint, true, false)
+	p.layout(geom.Point{X: insets.Left, Y: insets.Top}, hint, true, false)
 }
 
-func (p *Precision) layout(location draw.Point, hint draw.Size, move, useMinimumSize bool) draw.Size {
-	var totalSize draw.Size
+func (p *Precision) layout(location geom.Point, hint geom.Size, move, useMinimumSize bool) geom.Size {
+	var totalSize geom.Size
 	if p.columns > 0 {
 		children := p.prepChildren(useMinimumSize)
 		if len(children) > 0 {
@@ -451,7 +452,7 @@ func (p *Precision) wrap(width float32, grid [][]ui.Widget, widths []float32, us
 						}
 						currentWidth += float32(hSpan-1) * p.hSpacing
 						if currentWidth != data.cacheSize.Width && data.hAlign == draw.AlignFill || data.cacheSize.Width > currentWidth {
-							data.computeCacheSize(grid[i][j], draw.Size{Width: xmath.MaxFloat32(data.minCacheSize.Width, currentWidth), Height: NoHint}, useMinimumSize)
+							data.computeCacheSize(grid[i][j], geom.Size{Width: xmath.MaxFloat32(data.minCacheSize.Width, currentWidth), Height: NoHint}, useMinimumSize)
 							minimumHeight := data.minSize.Height
 							if data.vGrab && minimumHeight > 0 && data.cacheSize.Height < minimumHeight {
 								data.cacheSize.Height = minimumHeight
@@ -612,7 +613,7 @@ func (p *Precision) adjustRowHeights(height float32, grid [][]ui.Widget) []float
 	return heights
 }
 
-func (p *Precision) positionChildren(location draw.Point, grid [][]ui.Widget, widths []float32, heights []float32) {
+func (p *Precision) positionChildren(location geom.Point, grid [][]ui.Widget, widths []float32, heights []float32) {
 	gridY := location.Y
 	for i := 0; i < p.rows; i++ {
 		gridX := location.X
@@ -654,7 +655,7 @@ func (p *Precision) positionChildren(location draw.Point, grid [][]ui.Widget, wi
 				}
 				child := grid[i][j]
 				if child != nil {
-					child.SetBounds(draw.Rect{Point: draw.Point{X: childX, Y: childY}, Size: draw.Size{Width: childWidth, Height: childHeight}})
+					child.SetBounds(geom.Rect{Point: geom.Point{X: childX, Y: childY}, Size: geom.Size{Width: childWidth, Height: childHeight}})
 				}
 			}
 			gridX += widths[j] + p.hSpacing

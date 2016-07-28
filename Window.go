@@ -10,8 +10,8 @@
 package ui
 
 import (
-	"github.com/richardwilkes/ui/draw"
 	"github.com/richardwilkes/ui/event"
+	"github.com/richardwilkes/ui/geom"
 	"unsafe"
 )
 
@@ -31,30 +31,30 @@ type Window interface {
 
 	// Frame returns the boundaries in display coordinates of the frame of this window (i.e. the
 	// area that includes both the content and its border and window controls).
-	Frame() draw.Rect
+	Frame() geom.Rect
 	// Location returns the upper left corner of the window in display coordinates.
-	Location() draw.Point
+	Location() geom.Point
 	// SetLocation moves the upper left corner of the window to the specified point in display
 	// coordinates.
-	SetLocation(pt draw.Point)
+	SetLocation(pt geom.Point)
 	// Size returns the size of the window, including its frame and window controls.
-	Size() draw.Size
+	Size() geom.Size
 	// SetSize sets the size of the window.
-	SetSize(size draw.Size)
+	SetSize(size geom.Size)
 
 	// ContentFrame returns the boundaries of the root content widget of this window.
-	ContentFrame() draw.Rect
+	ContentFrame() geom.Rect
 	// ContentLocalBounds returns the local boundaries of the content widget of this window.
-	ContentLocalBounds() draw.Rect
+	ContentLocalBounds() geom.Rect
 	// ContentLocation returns the upper left corner of the content widget in display coordinates.
-	ContentLocation() draw.Point
+	ContentLocation() geom.Point
 	// SetContentLocation moves the window such that the upper left corner of the content widget is
 	// at the specified point in display coordinates.
-	SetContentLocation(pt draw.Point)
+	SetContentLocation(pt geom.Point)
 	// ContentSize returns the size of the content widget.
-	ContentSize() draw.Size
+	ContentSize() geom.Size
 	// SetContentSize sets the size of the window to fit the specified content size.
-	SetContentSize(size draw.Size)
+	SetContentSize(size geom.Size)
 	// Pack sets the window's content size to match the preferred size of the root widget.
 	Pack()
 
@@ -75,7 +75,7 @@ type Window interface {
 	// Repaint marks this window for painting at the next update.
 	Repaint()
 	// RepaintBounds marks the specified bounds within the window for painting at the next update.
-	RepaintBounds(bounds draw.Rect)
+	RepaintBounds(bounds geom.Rect)
 	// FlushPainting causes any areas marked for repainting to be painted.
 	FlushPainting()
 	// InLiveResize returns true if the window is being actively resized by the user at this point

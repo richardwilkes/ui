@@ -12,6 +12,7 @@ package draw
 import (
 	"github.com/richardwilkes/ui/color"
 	"github.com/richardwilkes/ui/font"
+	"github.com/richardwilkes/ui/geom"
 )
 
 // Graphics provides a graphics context for drawing into.
@@ -45,13 +46,13 @@ type Graphics interface {
 	// StrokeLine draws a line between two points.
 	StrokeLine(x1, y1, x2, y2 float32)
 	// FillRect fills a rectangle in the specified bounds.
-	FillRect(bounds Rect)
+	FillRect(bounds geom.Rect)
 	// StrokeRect draws a rectangle in the specified bounds.
-	StrokeRect(bounds Rect)
+	StrokeRect(bounds geom.Rect)
 	// FillEllipse fills an ellipse in the specified bounds.
-	FillEllipse(bounds Rect)
+	FillEllipse(bounds geom.Rect)
 	// StrokeEllipse draws an ellipse in the specified bounds.
-	StrokeEllipse(bounds Rect)
+	StrokeEllipse(bounds geom.Rect)
 	// FillPath fills the current path using the Non-Zero winding rule
 	// (https://en.wikipedia.org/wiki/Nonzero-rule), then clears the current path state.
 	FillPath()
@@ -82,7 +83,7 @@ type Graphics interface {
 	// and an end point.
 	QuadCurveTo(cpx, cpy, x, y float32)
 	// AddPath adds a previously created Path object to the current path.
-	AddPath(path *Path)
+	AddPath(path *geom.Path)
 	// Clip sets the clipping path to the intersection of the current clipping path with the area
 	// defined by the current path using the Non-Zero winding rule
 	// (https://en.wikipedia.org/wiki/Nonzero-rule), then clears the current path state.
@@ -93,27 +94,27 @@ type Graphics interface {
 	ClipEvenOdd()
 	// ClipRect sets the clipping path to the intersection of the current clipping path with the
 	// area defined by the specified rectangle, then clears the current path state.
-	ClipRect(bounds Rect)
+	ClipRect(bounds geom.Rect)
 	// DrawLinearGradient from sx, sy to ex, ey.
 	DrawLinearGradient(gradient *Gradient, sx, sy, ex, ey float32)
 	// DrawRadialGradient from sx, sy to ex, ey.
 	DrawRadialGradient(gradient *Gradient, scx, scy, startRadius, ecx, ecy, endRadius float32)
 	// DragImage at the specified location.
-	DrawImage(img *Image, where Point)
+	DrawImage(img *Image, where geom.Point)
 	// DragImage in the bounds, scaling if necessary.
-	DrawImageInRect(img *Image, bounds Rect)
+	DrawImageInRect(img *Image, bounds geom.Rect)
 	// DrawText at the specified location. Returns the space taken up by the text.
-	DrawText(x, y float32, str string, mode TextMode) Size
+	DrawText(x, y float32, str string, mode TextMode) geom.Size
 	// DrawTextConstrained at the specified location. The text will be wrapped to fit within the
 	// specified bounds. Returns the space taken up by the text and the number of bytes of the text
 	// that were drawn.
-	DrawTextConstrained(bounds Rect, str string, mode TextMode) (actual Size, fit int)
+	DrawTextConstrained(bounds geom.Rect, str string, mode TextMode) (actual geom.Size, fit int)
 	// DrawAttributedText at the specified location. Returns the space taken up by the text.
-	DrawAttributedText(x, y float32, str *Text, mode TextMode) Size
+	DrawAttributedText(x, y float32, str *Text, mode TextMode) geom.Size
 	// DrawAttributedTextConstrained at the specified location. The text will be wrapped to fit
 	// within the specified bounds. Returns the space taken up by the text and the number of bytes
 	// of the text that were drawn.
-	DrawAttributedTextConstrained(bounds Rect, str *Text, mode TextMode) (actual Size, fit int)
+	DrawAttributedTextConstrained(bounds geom.Rect, str *Text, mode TextMode) (actual geom.Size, fit int)
 	// Translate the coordinate system.
 	Translate(x, y float32)
 	// Scale the coordinate system.

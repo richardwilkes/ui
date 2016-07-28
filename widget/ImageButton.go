@@ -13,6 +13,7 @@ import (
 	"github.com/richardwilkes/ui/color"
 	"github.com/richardwilkes/ui/draw"
 	"github.com/richardwilkes/ui/event"
+	"github.com/richardwilkes/ui/geom"
 	"github.com/richardwilkes/ui/keys"
 	"github.com/richardwilkes/ui/theme"
 	"time"
@@ -30,13 +31,13 @@ type ImageButton struct {
 
 // NewImageButton creates a new button with the specified Image.
 func NewImageButton(img *draw.Image) *ImageButton {
-	return NewImageButtonWithImageSize(img, draw.Size{})
+	return NewImageButtonWithImageSize(img, geom.Size{})
 }
 
 // NewImageButtonWithImageSize creates a new button with the specified Image. The image will be set
 // to the specified size. The button itself will be a bit larger, based on the theme settings and
 // border.
-func NewImageButtonWithImageSize(img *draw.Image, size draw.Size) *ImageButton {
+func NewImageButtonWithImageSize(img *draw.Image, size geom.Size) *ImageButton {
 	button := &ImageButton{}
 	button.image = img
 	var err error
@@ -62,7 +63,7 @@ func NewImageButtonWithImageSize(img *draw.Image, size draw.Size) *ImageButton {
 }
 
 // Sizes implements Sizer
-func (button *ImageButton) Sizes(hint draw.Size) (min, pref, max draw.Size) {
+func (button *ImageButton) Sizes(hint geom.Size) (min, pref, max geom.Size) {
 	size := button.image.Size()
 	size.Width += button.Theme.HorizontalMargin*2 + 2
 	size.Height += button.Theme.VerticalMargin*2 + 2
@@ -76,7 +77,7 @@ func (button *ImageButton) paint(event *event.Event) {
 	var hSpace = button.Theme.HorizontalMargin*2 + 2
 	var vSpace = button.Theme.VerticalMargin*2 + 2
 	bounds := button.LocalInsetBounds()
-	path := draw.NewPath()
+	path := geom.NewPath()
 	path.MoveTo(bounds.X, bounds.Y+button.Theme.CornerRadius)
 	path.QuadCurveTo(bounds.X, bounds.Y, bounds.X+button.Theme.CornerRadius, bounds.Y)
 	path.LineTo(bounds.X+bounds.Width-button.Theme.CornerRadius, bounds.Y)
@@ -191,11 +192,11 @@ func (button *ImageButton) BaseBackground() color.Color {
 
 type imageButtonSizer struct {
 	button *ImageButton
-	size   draw.Size
+	size   geom.Size
 }
 
 // Sizes implements Sizer
-func (ibs *imageButtonSizer) Sizes(hint draw.Size) (min, pref, max draw.Size) {
+func (ibs *imageButtonSizer) Sizes(hint geom.Size) (min, pref, max geom.Size) {
 	pref = ibs.size
 	pref.Width += ibs.button.Theme.HorizontalMargin*2 + 2
 	pref.Height += ibs.button.Theme.VerticalMargin*2 + 2

@@ -11,24 +11,25 @@ package border
 
 import (
 	"github.com/richardwilkes/ui/draw"
+	"github.com/richardwilkes/ui/geom"
 )
 
 // Empty is a border that contains empty space, effectively providing an empty margin.
 type Empty struct {
-	insets draw.Insets
+	insets geom.Insets
 }
 
 // NewEmpty creates a new empty border with the specified insets.
-func NewEmpty(insets draw.Insets) Border {
+func NewEmpty(insets geom.Insets) Border {
 	return &Empty{insets: insets}
 }
 
 // Insets implements the Border interface.
-func (e *Empty) Insets() draw.Insets {
+func (e *Empty) Insets() geom.Insets {
 	return e.insets
 }
 
 // Draw implements the Border interface.
-func (e *Empty) Draw(gc draw.Graphics, bounds draw.Rect) {
+func (e *Empty) Draw(gc draw.Graphics, bounds geom.Rect) {
 	// Does nothing
 }

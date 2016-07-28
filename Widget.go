@@ -14,6 +14,7 @@ import (
 	"github.com/richardwilkes/ui/color"
 	"github.com/richardwilkes/ui/draw"
 	"github.com/richardwilkes/ui/event"
+	"github.com/richardwilkes/ui/geom"
 )
 
 // A Widget is the basic user interface block that interacts with the user.
@@ -49,11 +50,11 @@ type Widget interface {
 	Repaint()
 	// RepaintBounds marks the area 'bounds' in local coordinates within the widget for painting at
 	// the next update.
-	RepaintBounds(bounds draw.Rect)
+	RepaintBounds(bounds geom.Rect)
 	// Paint is called by its owning window when a widget needs to be drawn. 'g' is the graphics
 	// context to use. It has already had its clip set to the 'dirty' rectangle. 'dirty' is the
 	// area that needs to be drawn.
-	Paint(g draw.Graphics, dirty draw.Rect)
+	Paint(g draw.Graphics, dirty geom.Rect)
 
 	// Enabled returns true if this widget is currently enabled and can receive events.
 	Enabled() bool
@@ -96,31 +97,31 @@ type Widget interface {
 	RootOfWindow() bool
 
 	// Bounds returns the location and size of the widget in its parent's coordinate system.
-	Bounds() draw.Rect
+	Bounds() geom.Rect
 	// LocalBounds returns the location and size of the widget in local coordinates.
-	LocalBounds() draw.Rect
+	LocalBounds() geom.Rect
 	// LocalInsetBounds returns the location and size of the widget in local coordinates after
 	// adjusting for any Border it may have.
-	LocalInsetBounds() draw.Rect
+	LocalInsetBounds() geom.Rect
 	// SetBounds sets the location and size of the widget in its parent's coordinate system.
-	SetBounds(bounds draw.Rect)
+	SetBounds(bounds geom.Rect)
 	// Location returns the location of this widget in its parent's coordinate system.
-	Location() draw.Point
+	Location() geom.Point
 	// SetLocation sets the location of this widget in its parent's coordinate system.
-	SetLocation(pt draw.Point)
+	SetLocation(pt geom.Point)
 	// Size returns the size of this widget.
-	Size() draw.Size
+	Size() geom.Size
 	// SetSize sets the size of this widget.
-	SetSize(size draw.Size)
+	SetSize(size geom.Size)
 
 	// WidgetAt returns the leaf-most child widget containing 'pt', or this widget if no child
 	// is found.
-	WidgetAt(pt draw.Point) Widget
+	WidgetAt(pt geom.Point) Widget
 
 	// ToWindow converts widget-local coordinates into window coordinates.
-	ToWindow(pt draw.Point) draw.Point
+	ToWindow(pt geom.Point) geom.Point
 	// FromWindow converts window coordinates into widget-local coordinates.
-	FromWindow(pt draw.Point) draw.Point
+	FromWindow(pt geom.Point) geom.Point
 
 	// Background returns the background color of this widget.
 	Background() color.Color

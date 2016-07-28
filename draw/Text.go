@@ -12,6 +12,7 @@ package draw
 import (
 	"github.com/richardwilkes/ui/color"
 	"github.com/richardwilkes/ui/font"
+	"github.com/richardwilkes/ui/geom"
 )
 
 const (
@@ -66,8 +67,8 @@ func (a *Text) set(begin, length int, key string, value interface{}) {
 }
 
 // Measure determines the space required to display the specified text.
-func (a *Text) Measure() Size {
-	size, _ := a.MeasureConstrained(Size{Width: -1, Height: -1})
+func (a *Text) Measure() geom.Size {
+	size, _ := a.MeasureConstrained(geom.Size{Width: -1, Height: -1})
 	return size
 }
 
@@ -75,6 +76,6 @@ func (a *Text) Measure() Size {
 // parameter allow you to constrain the space, wrapping the text within. If the size parameter
 // contains a negative number, it will be treated as if no constrait were passed in for that value.
 // Returns the space required as well as the amount of text that fits in that space.
-func (a *Text) MeasureConstrained(size Size) (actual Size, fit int) {
+func (a *Text) MeasureConstrained(size geom.Size) (actual geom.Size, fit int) {
 	return a.platformMeasure(size)
 }

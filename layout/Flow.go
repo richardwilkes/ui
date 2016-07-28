@@ -11,7 +11,7 @@ package layout
 
 import (
 	"github.com/richardwilkes/ui"
-	"github.com/richardwilkes/ui/draw"
+	"github.com/richardwilkes/ui/geom"
 	"github.com/richardwilkes/xmath"
 	"math"
 )
@@ -54,8 +54,8 @@ func (flow *Flow) SetVerticalSpacing(spacing float32) *Flow {
 }
 
 // Sizes implements the Layout interface.
-func (flow *Flow) Sizes(hint draw.Size) (min, pref, max draw.Size) {
-	var insets draw.Insets
+func (flow *Flow) Sizes(hint geom.Size) (min, pref, max geom.Size) {
+	var insets geom.Insets
 	if border := flow.widget.Border(); border != nil {
 		insets = border.Insets()
 	}
@@ -66,13 +66,13 @@ func (flow *Flow) Sizes(hint draw.Size) (min, pref, max draw.Size) {
 		hint.Height = math.MaxFloat32
 	}
 	width := hint.Width - (insets.Left + insets.Right)
-	pt := draw.Point{X: insets.Left, Y: insets.Top}
-	result := draw.Size{Width: pt.Y, Height: pt.Y}
+	pt := geom.Point{X: insets.Left, Y: insets.Top}
+	result := geom.Size{Width: pt.Y, Height: pt.Y}
 	availWidth := width
 	availHeight := hint.Height - (insets.Top + insets.Bottom)
 	var maxHeight float32
-	var largestChildMin draw.Size
-	noHint := draw.Size{Width: NoHint, Height: NoHint}
+	var largestChildMin geom.Size
+	noHint := geom.Size{Width: NoHint, Height: NoHint}
 	for _, child := range flow.widget.Children() {
 		min, pref, _ := Sizes(child, noHint)
 		if largestChildMin.Width < min.Width {
@@ -101,7 +101,7 @@ func (flow *Flow) Sizes(hint draw.Size) (min, pref, max draw.Size) {
 				}
 			}
 			savedWidth := pref.Width
-			min, pref, _ = Sizes(child, draw.Size{Width: pref.Width, Height: NoHint})
+			min, pref, _ = Sizes(child, geom.Size{Width: pref.Width, Height: NoHint})
 			pref.Width = savedWidth
 			if pref.Height > availHeight {
 				if min.Height <= availHeight {
@@ -142,17 +142,17 @@ func (flow *Flow) Sizes(hint draw.Size) (min, pref, max draw.Size) {
 
 // Layout implements the Layout interface.
 func (flow *Flow) Layout() {
-	var insets draw.Insets
+	var insets geom.Insets
 	if border := flow.widget.Border(); border != nil {
 		insets = border.Insets()
 	}
 	size := flow.widget.Bounds().Size
 	width := size.Width - (insets.Left + insets.Right)
-	pt := draw.Point{X: insets.Left, Y: insets.Top}
+	pt := geom.Point{X: insets.Left, Y: insets.Top}
 	availWidth := width
 	availHeight := size.Height - (insets.Top + insets.Bottom)
 	var maxHeight float32
-	noHint := draw.Size{Width: NoHint, Height: NoHint}
+	noHint := geom.Size{Width: NoHint, Height: NoHint}
 	for _, child := range flow.widget.Children() {
 		min, pref, _ := Sizes(child, noHint)
 		if pref.Width > availWidth {
@@ -175,7 +175,7 @@ func (flow *Flow) Layout() {
 				}
 			}
 			savedWidth := pref.Width
-			min, pref, _ = Sizes(child, draw.Size{Width: pref.Width, Height: NoHint})
+			min, pref, _ = Sizes(child, geom.Size{Width: pref.Width, Height: NoHint})
 			pref.Width = savedWidth
 			if pref.Height > availHeight {
 				if min.Height <= availHeight {
@@ -185,7 +185,7 @@ func (flow *Flow) Layout() {
 				}
 			}
 		}
-		child.SetBounds(draw.Rect{Point: pt, Size: pref})
+		child.SetBounds(geom.Rect{Point: pt, Size: pref})
 		if maxHeight < pref.Height {
 			maxHeight = pref.Height
 		}

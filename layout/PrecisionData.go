@@ -12,6 +12,7 @@ package layout
 import (
 	"github.com/richardwilkes/ui"
 	"github.com/richardwilkes/ui/draw"
+	"github.com/richardwilkes/ui/geom"
 )
 
 // PrecisionData is used to control how an object is laid out by the Precision layout.
@@ -20,10 +21,10 @@ type PrecisionData struct {
 	vSpan        int
 	hAlign       draw.Alignment
 	vAlign       draw.Alignment
-	sizeHint     draw.Size
-	minSize      draw.Size
-	cacheSize    draw.Size
-	minCacheSize draw.Size
+	sizeHint     geom.Size
+	minSize      geom.Size
+	cacheSize    geom.Size
+	minCacheSize geom.Size
 	hGrab        bool
 	vGrab        bool
 }
@@ -56,12 +57,12 @@ func (pd *PrecisionData) SetVerticalAlignment(alignment draw.Alignment) *Precisi
 }
 
 // SizeHint returns a hint requesting a particular size of the widget.
-func (pd *PrecisionData) SizeHint() draw.Size {
+func (pd *PrecisionData) SizeHint() geom.Size {
 	return pd.sizeHint
 }
 
 // SetSizeHint sets a hint requesting a particular size of the widget.
-func (pd *PrecisionData) SetSizeHint(size draw.Size) *PrecisionData {
+func (pd *PrecisionData) SetSizeHint(size geom.Size) *PrecisionData {
 	pd.sizeHint = size
 	return pd
 }
@@ -101,12 +102,12 @@ func (pd *PrecisionData) SetVerticalSpan(span int) *PrecisionData {
 }
 
 // MinSize returns an override for the minimum size of the widget.
-func (pd *PrecisionData) MinSize() draw.Size {
+func (pd *PrecisionData) MinSize() geom.Size {
 	return pd.minSize
 }
 
 // SetMinSize sets an override for the minimum size of the widget.
-func (pd *PrecisionData) SetMinSize(size draw.Size) *PrecisionData {
+func (pd *PrecisionData) SetMinSize(size geom.Size) *PrecisionData {
 	pd.minSize = size
 	return pd
 }
@@ -145,7 +146,7 @@ func (pd *PrecisionData) SetVerticalGrab(grab bool) *PrecisionData {
 	return pd
 }
 
-func (pd *PrecisionData) computeCacheSize(target ui.Widget, hint draw.Size, useMinimumSize bool) {
+func (pd *PrecisionData) computeCacheSize(target ui.Widget, hint geom.Size, useMinimumSize bool) {
 	pd.minCacheSize.Width = 0
 	pd.minCacheSize.Height = 0
 	pd.cacheSize.Width = 0

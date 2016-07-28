@@ -11,12 +11,13 @@ package border
 
 import (
 	"github.com/richardwilkes/ui/draw"
+	"github.com/richardwilkes/ui/geom"
 )
 
 // The Border interface should be implemented by objects that provide a border around an area.
 type Border interface {
 	// Insets returns the insets describing the space the border occupies on each side.
-	Insets() draw.Insets
+	Insets() geom.Insets
 	// Draw the border into 'bounds'.
-	Draw(gc draw.Graphics, bounds draw.Rect)
+	Draw(gc draw.Graphics, bounds geom.Rect)
 }

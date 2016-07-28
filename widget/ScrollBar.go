@@ -13,6 +13,7 @@ import (
 	"github.com/richardwilkes/ui/color"
 	"github.com/richardwilkes/ui/draw"
 	"github.com/richardwilkes/ui/event"
+	"github.com/richardwilkes/ui/geom"
 	"github.com/richardwilkes/ui/layout"
 	"github.com/richardwilkes/ui/theme"
 	"github.com/richardwilkes/xmath"
@@ -82,7 +83,7 @@ func NewScrollBar(horizontal bool, target Scrollable) *ScrollBar {
 }
 
 // Sizes implements the Sizer interface.
-func (sb *ScrollBar) Sizes(hint draw.Size) (min, pref, max draw.Size) {
+func (sb *ScrollBar) Sizes(hint geom.Size) (min, pref, max geom.Size) {
 	if sb.horizontal {
 		min.Width = sb.Theme.Size * 2
 		min.Height = sb.Theme.Size
@@ -199,7 +200,7 @@ func (sb *ScrollBar) scheduleRepeat(part scrollBarPart, delay time.Duration) {
 	}, delay)
 }
 
-func (sb *ScrollBar) over(where draw.Point) scrollBarPart {
+func (sb *ScrollBar) over(where geom.Point) scrollBarPart {
 	for i := scrollBarThumb; i <= scrollBarPageDown; i++ {
 		rect := sb.partRect(i)
 		if rect.Contains(where) {
@@ -234,8 +235,8 @@ func (sb *ScrollBar) thumbScale() float32 {
 	return scale
 }
 
-func (sb *ScrollBar) partRect(part scrollBarPart) draw.Rect {
-	var result draw.Rect
+func (sb *ScrollBar) partRect(part scrollBarPart) geom.Rect {
+	var result geom.Rect
 	switch part {
 	case scrollBarThumb:
 		if sb.Target != nil {

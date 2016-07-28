@@ -11,8 +11,8 @@ package widget
 
 import (
 	"github.com/richardwilkes/ui/color"
-	"github.com/richardwilkes/ui/draw"
 	"github.com/richardwilkes/ui/event"
+	"github.com/richardwilkes/ui/geom"
 	"github.com/richardwilkes/ui/layout"
 )
 
@@ -32,7 +32,7 @@ func NewSeparator(horizontal bool) *Separator {
 }
 
 // Sizes implements Sizer
-func (sep *Separator) Sizes(hint draw.Size) (min, pref, max draw.Size) {
+func (sep *Separator) Sizes(hint geom.Size) (min, pref, max geom.Size) {
 	if sep.horizontal {
 		if hint.Width == layout.NoHint {
 			pref.Width = 1
