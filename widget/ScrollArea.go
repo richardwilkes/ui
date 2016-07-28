@@ -7,10 +7,12 @@
 // This Source Code Form is "Incompatible With Secondary Licenses", as
 // defined by the Mozilla Public License, version 2.0.
 
-package ui
+package widget
 
 import (
+	"github.com/richardwilkes/ui"
 	"github.com/richardwilkes/ui/color"
+	"github.com/richardwilkes/ui/event"
 	"github.com/richardwilkes/ui/keys"
 	"github.com/richardwilkes/xmath"
 )
@@ -22,19 +24,20 @@ type ScrollArea struct {
 	hBar    *ScrollBar
 	vBar    *ScrollBar
 	view    *Block
-	content Widget
+	content ui.Widget
 }
 
 // NewScrollArea creates a new ScrollArea with the specified block as its content. The content may
 // be nil.
-func NewScrollArea(content Widget) *ScrollArea {
+func NewScrollArea(content ui.Widget) *ScrollArea {
 	sa := &ScrollArea{}
-	sa.AddEventHandler(MouseWheelEvent, sa.mouseWheel)
+	handlers := sa.EventHandlers()
+	handlers.Add(event.MouseWheelEvent, sa.mouseWheel)
 	sa.view = NewBlock()
 	sa.view.SetBackground(color.TextBackground)
-	sa.view.AddEventHandler(ResizeEvent, sa.viewResized)
+	sa.view.EventHandlers().Add(event.ResizeEvent, sa.viewResized)
 	sa.SetFocusable(true) // RAW: Revist... don't want to be focusable, but do want to participate
-	sa.AddEventHandler(KeyDownEvent, sa.keyDown)
+	handlers.Add(event.KeyDownEvent, sa.keyDown)
 	sa.AddChild(sa.view)
 	sa.hBar = NewScrollBar(true, sa)
 	sa.vBar = NewScrollBar(false, sa)
@@ -52,12 +55,12 @@ func (sa *ScrollArea) View() *Block {
 }
 
 // Content returns the content block.
-func (sa *ScrollArea) Content() Widget {
+func (sa *ScrollArea) Content() ui.Widget {
 	return sa.content
 }
 
 // SetContent sets the content block, replacing any existing one.
-func (sa *ScrollArea) SetContent(content Widget) {
+func (sa *ScrollArea) SetContent(content ui.Widget) {
 	if sa.content != nil {
 		sa.content.RemoveFromParent()
 	}
@@ -139,7 +142,7 @@ func (sa *ScrollArea) ContentSize(horizontal bool) float32 {
 	return size.Height
 }
 
-func (sa *ScrollArea) viewResized(event *Event) {
+func (sa *ScrollArea) viewResized(event *event.Event) {
 	if sa.content != nil {
 		vs := sa.view.Size()
 		cl := sa.content.Location()
@@ -157,7 +160,7 @@ func (sa *ScrollArea) viewResized(event *Event) {
 	}
 }
 
-func (sa *ScrollArea) mouseWheel(event *Event) {
+func (sa *ScrollArea) mouseWheel(event *event.Event) {
 	if event.Delta.Y != 0 {
 		sa.vBar.SetScrolledPosition(sa.ScrolledPosition(false) - event.Delta.Y*sa.LineScrollAmount(false, event.Delta.Y > 0))
 	}
@@ -167,7 +170,7 @@ func (sa *ScrollArea) mouseWheel(event *Event) {
 	event.CascadeUp = false
 }
 
-func (sa *ScrollArea) keyDown(event *Event) {
+func (sa *ScrollArea) keyDown(event *event.Event) {
 	switch event.KeyCode {
 	case keys.Up:
 		event.Done = true

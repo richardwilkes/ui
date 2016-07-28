@@ -7,10 +7,11 @@
 // This Source Code Form is "Incompatible With Secondary Licenses", as
 // defined by the Mozilla Public License, version 2.0.
 
-package ui
+package widget
 
 import (
 	"github.com/richardwilkes/ui/draw"
+	"github.com/richardwilkes/ui/event"
 )
 
 // ImageLabel represents a non-interactive image.
@@ -33,7 +34,7 @@ func NewImageLabelWithImageSize(img *draw.Image, size draw.Size) *ImageLabel {
 	} else {
 		label.SetSizer(&imageLabelSizer{label: label, size: size})
 	}
-	label.AddEventHandler(PaintEvent, label.paint)
+	label.EventHandlers().Add(event.PaintEvent, label.paint)
 	return label
 }
 
@@ -46,7 +47,7 @@ func (label *ImageLabel) Sizes(hint draw.Size) (min, pref, max draw.Size) {
 	return size, size, size
 }
 
-func (label *ImageLabel) paint(event *Event) {
+func (label *ImageLabel) paint(event *event.Event) {
 	bounds := label.LocalInsetBounds()
 	size := label.image.Size()
 	if size.Width < bounds.Width {

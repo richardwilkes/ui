@@ -7,24 +7,26 @@
 // This Source Code Form is "Incompatible With Secondary Licenses", as
 // defined by the Mozilla Public License, version 2.0.
 
-package ui
+package widget
 
 import (
+	"github.com/richardwilkes/ui"
 	"github.com/richardwilkes/ui/border"
 	"github.com/richardwilkes/ui/color"
 	"github.com/richardwilkes/ui/draw"
+	"github.com/richardwilkes/ui/event"
 	"reflect"
 	"time"
 )
 
 // Block is the basic graphical block in a window.
 type Block struct {
-	eventHandlers map[int][]EventHandler
-	window        *Window
-	parent        Widget
-	children      []Widget
-	sizer         Sizer
-	layout        Layout
+	eventHandlers *event.Handlers
+	window        ui.Window
+	parent        ui.Widget
+	children      []ui.Widget
+	sizer         ui.Sizer
+	layout        ui.Layout
 	border        border.Border
 	bounds        draw.Rect
 	layoutData    interface{}
@@ -40,57 +42,38 @@ func NewBlock() *Block {
 	return &Block{}
 }
 
-// EventHandlers returns the current event handler map.
-func (b *Block) EventHandlers() map[int][]EventHandler {
+// EventHandlers returns the current event.Handlers.
+func (b *Block) EventHandlers() *event.Handlers {
+	if b.eventHandlers == nil {
+		b.eventHandlers = &event.Handlers{}
+	}
 	return b.eventHandlers
 }
 
-// AddEventHandler adds an event handler for an event type.
-func (b *Block) AddEventHandler(eventType int, handler EventHandler) {
-	if b.eventHandlers == nil {
-		b.eventHandlers = make(map[int][]EventHandler)
+func (b *Block) ParentTarget() event.Target {
+	if b.parent != nil {
+		return b.parent
 	}
-	b.eventHandlers[eventType] = append(b.eventHandlers[eventType], handler)
-}
-
-// RemoveEventHandler removes an event handler for an event type.
-func (b *Block) RemoveEventHandler(eventType int, handler EventHandler) {
-	if b.eventHandlers != nil {
-		hPtr := reflect.ValueOf(handler).Pointer()
-		handlers := b.eventHandlers[eventType]
-		for i, one := range handlers {
-			if reflect.ValueOf(one).Pointer() == hPtr {
-				if len(handlers) == 1 {
-					delete(b.eventHandlers, eventType)
-				} else {
-					copy(handlers[i:], handlers[i+1:])
-					length := len(handlers) - 1
-					handlers[length] = nil
-					b.eventHandlers[eventType] = handlers[:length]
-				}
-				break
-			}
-		}
-	}
+	return b.window
 }
 
 // Sizer implements the Widget interface.
-func (b *Block) Sizer() Sizer {
+func (b *Block) Sizer() ui.Sizer {
 	return b.sizer
 }
 
 // SetSizer implements the Widget interface.
-func (b *Block) SetSizer(sizer Sizer) {
+func (b *Block) SetSizer(sizer ui.Sizer) {
 	b.sizer = sizer
 }
 
 // Layout implements the Widget interface.
-func (b *Block) Layout() Layout {
+func (b *Block) Layout() ui.Layout {
 	return b.layout
 }
 
 // SetLayout implements the Widget interface.
-func (b *Block) SetLayout(layout Layout) {
+func (b *Block) SetLayout(layout ui.Layout) {
 	b.layout = layout
 	b.SetNeedLayout(true)
 }
@@ -185,7 +168,7 @@ func (b *Block) paintSelf(g draw.Graphics, dirty draw.Rect) {
 		g.FillRect(dirty)
 	}
 	b.paintBorder(g)
-	event := &Event{Type: PaintEvent, When: time.Now(), Target: b, GC: g, DirtyRect: dirty}
+	event := &event.Event{Type: event.PaintEvent, When: time.Now(), Target: b, GC: g, DirtyRect: dirty}
 	event.Dispatch()
 }
 
@@ -197,7 +180,7 @@ func (b *Block) paintBorder(gc draw.Graphics) {
 	}
 }
 
-func (b *Block) paintChild(child Widget, g draw.Graphics, dirty draw.Rect) {
+func (b *Block) paintChild(child ui.Widget, g draw.Graphics, dirty draw.Rect) {
 	g.Save()
 	defer g.Restore()
 	bounds := child.Bounds()
@@ -236,18 +219,18 @@ func (b *Block) SetFocusable(focusable bool) {
 // Focused implements the Widget interface.
 func (b *Block) Focused() bool {
 	if window := b.Window(); window != nil {
-		return reflect.ValueOf(Widget(b)).Pointer() == reflect.ValueOf(window.Focus()).Pointer()
+		return reflect.ValueOf(ui.Widget(b)).Pointer() == reflect.ValueOf(window.Focus()).Pointer()
 	}
 	return false
 }
 
 // Children implements the Widget interface.
-func (b *Block) Children() []Widget {
+func (b *Block) Children() []ui.Widget {
 	return b.children
 }
 
 // IndexOfChild implements the Widget interface.
-func (b *Block) IndexOfChild(child Widget) int {
+func (b *Block) IndexOfChild(child ui.Widget) int {
 	for i, one := range b.children {
 		if one == child {
 			return i
@@ -257,7 +240,7 @@ func (b *Block) IndexOfChild(child Widget) int {
 }
 
 // AddChild implements the Widget interface.
-func (b *Block) AddChild(child Widget) {
+func (b *Block) AddChild(child ui.Widget) {
 	child.RemoveFromParent()
 	b.children = append(b.children, child)
 	child.SetParent(b)
@@ -265,7 +248,7 @@ func (b *Block) AddChild(child Widget) {
 }
 
 // AddChildAtIndex implements the Widget interface.
-func (b *Block) AddChildAtIndex(child Widget, index int) {
+func (b *Block) AddChildAtIndex(child ui.Widget, index int) {
 	child.RemoveFromParent()
 	if index < 0 {
 		index = 0
@@ -282,7 +265,7 @@ func (b *Block) AddChildAtIndex(child Widget, index int) {
 }
 
 // RemoveChild implements the Widget interface.
-func (b *Block) RemoveChild(child Widget) {
+func (b *Block) RemoveChild(child ui.Widget) {
 	b.RemoveChildAtIndex(b.IndexOfChild(child))
 }
 
@@ -307,17 +290,17 @@ func (b *Block) RemoveFromParent() {
 }
 
 // Parent implements the Widget interface.
-func (b *Block) Parent() Widget {
+func (b *Block) Parent() ui.Widget {
 	return b.parent
 }
 
 // SetParent implements the Widget interface.
-func (b *Block) SetParent(parent Widget) {
+func (b *Block) SetParent(parent ui.Widget) {
 	b.parent = parent
 }
 
 // Window implements the Widget interface.
-func (b *Block) Window() *Window {
+func (b *Block) Window() ui.Window {
 	if b.window != nil {
 		return b.window
 	}
@@ -363,7 +346,7 @@ func (b *Block) SetBounds(bounds draw.Rect) {
 		if resized {
 			b.bounds.Size = bounds.Size
 			b.SetNeedLayout(true)
-			event := &Event{Type: ResizeEvent, When: time.Now(), Target: b}
+			event := &event.Event{Type: event.ResizeEvent, When: time.Now(), Target: b}
 			event.Dispatch()
 		}
 		b.Repaint()
@@ -395,14 +378,14 @@ func (b *Block) SetSize(size draw.Size) {
 		b.Repaint()
 		b.bounds.Size = size
 		b.SetNeedLayout(true)
-		event := &Event{Type: ResizeEvent, When: time.Now(), Target: b}
+		event := &event.Event{Type: event.ResizeEvent, When: time.Now(), Target: b}
 		event.Dispatch()
 		b.Repaint()
 	}
 }
 
 // WidgetAt implements the Widget interface.
-func (b *Block) WidgetAt(pt draw.Point) Widget {
+func (b *Block) WidgetAt(pt draw.Point) ui.Widget {
 	for _, child := range b.children {
 		bounds := child.Bounds()
 		if bounds.Contains(pt) {

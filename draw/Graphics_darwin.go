@@ -52,6 +52,7 @@ type graphicsState struct {
 	font        *font.Font
 }
 
+// NewGraphics creates a new Graphics object with the platform-specific graphics context.
 func NewGraphics(gc unsafe.Pointer) Graphics {
 	c := &graphics{gc: gc}
 	c.stack = append(c.stack, &graphicsState{opacity: 1, fillColor: color.White, strokeColor: color.Black, strokeWidth: 1})

@@ -7,19 +7,22 @@
 // This Source Code Form is "Incompatible With Secondary Licenses", as
 // defined by the Mozilla Public License, version 2.0.
 
-package ui
+package menu
 
 import (
 	"fmt"
+	"github.com/richardwilkes/ui"
 	"github.com/richardwilkes/ui/color"
 	"github.com/richardwilkes/ui/draw"
+	"github.com/richardwilkes/ui/event"
 	"github.com/richardwilkes/ui/keys"
 	"github.com/richardwilkes/ui/theme"
+	"github.com/richardwilkes/ui/widget"
 )
 
 // PopupMenu represents a clickable button that displays a menu of choices.
 type PopupMenu struct {
-	Block
+	widget.Block
 	Theme         *theme.PopupMenu // The theme the popup menu will use to draw itself.
 	OnSelection   func()           // Called when a new item is chosen by the user.
 	items         []interface{}
@@ -36,11 +39,12 @@ func NewPopupMenu() *PopupMenu {
 	pm.Theme = theme.StdPopupMenu
 	pm.SetFocusable(true)
 	pm.SetSizer(pm)
-	pm.AddEventHandler(PaintEvent, pm.paint)
-	pm.AddEventHandler(MouseDownEvent, pm.mouseDown)
-	pm.AddEventHandler(FocusGainedEvent, pm.focusChanged)
-	pm.AddEventHandler(FocusLostEvent, pm.focusChanged)
-	pm.AddEventHandler(KeyDownEvent, pm.keyDown)
+	handlers := pm.EventHandlers()
+	handlers.Add(event.PaintEvent, pm.paint)
+	handlers.Add(event.MouseDownEvent, pm.mouseDown)
+	handlers.Add(event.FocusGainedEvent, pm.focusChanged)
+	handlers.Add(event.FocusLostEvent, pm.focusChanged)
+	handlers.Add(event.KeyDownEvent, pm.keyDown)
 	return pm
 }
 
@@ -48,13 +52,13 @@ func NewPopupMenu() *PopupMenu {
 func (pm *PopupMenu) Sizes(hint draw.Size) (min, pref, max draw.Size) {
 	var hSpace = pm.Theme.HorizontalMargin*3 + 2
 	var vSpace = pm.Theme.VerticalMargin*2 + 2
-	if hint.Width != NoLayoutHint {
+	if hint.Width != ui.NoLayoutHint {
 		hint.Width -= hSpace
 		if hint.Width < pm.Theme.MinimumTextWidth {
 			hint.Width = pm.Theme.MinimumTextWidth
 		}
 	}
-	if hint.Height != NoLayoutHint {
+	if hint.Height != ui.NoLayoutHint {
 		hint.Height -= vSpace
 		if hint.Height < 1 {
 			hint.Height = 1
@@ -67,10 +71,10 @@ func (pm *PopupMenu) Sizes(hint draw.Size) (min, pref, max draw.Size) {
 	if border := pm.Border(); border != nil {
 		size.AddInsets(border.Insets())
 	}
-	return size, size, DefaultLayoutMaxSize(size)
+	return size, size, ui.DefaultLayoutMaxSize(size)
 }
 
-func (pm *PopupMenu) paint(event *Event) {
+func (pm *PopupMenu) paint(event *event.Event) {
 	var hSpace = pm.Theme.HorizontalMargin*2 + 2
 	var vSpace = pm.Theme.VerticalMargin*2 + 2
 	bounds := pm.LocalInsetBounds()
@@ -108,16 +112,16 @@ func (pm *PopupMenu) paint(event *Event) {
 	gc.DrawAttributedTextConstrained(bounds, pm.title(), draw.TextModeFill)
 }
 
-func (pm *PopupMenu) mouseDown(event *Event) {
+func (pm *PopupMenu) mouseDown(event *event.Event) {
 	pm.Click()
 	event.Discard = true
 }
 
-func (pm *PopupMenu) focusChanged(event *Event) {
+func (pm *PopupMenu) focusChanged(event *event.Event) {
 	pm.Repaint()
 }
 
-func (pm *PopupMenu) keyDown(event *Event) {
+func (pm *PopupMenu) keyDown(event *event.Event) {
 	if event.KeyCode == keys.Return || event.KeyCode == keys.Enter || event.KeyCode == keys.Space {
 		event.Done = true
 		pm.Click()
@@ -146,7 +150,7 @@ func (pm *PopupMenu) addItemToMenu(menu *Menu, index int) bool {
 		menu.AddSeparator()
 		return false
 	default:
-		menu.AddItem(fmt.Sprintf("%v", one), "", func(item *MenuItem) {
+		menu.AddItem(fmt.Sprintf("%v", one), "", func(item *Item) {
 			pm.SelectIndex(index)
 			if pm.OnSelection != nil {
 				pm.OnSelection()

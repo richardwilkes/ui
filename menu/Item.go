@@ -7,39 +7,43 @@
 // This Source Code Form is "Incompatible With Secondary Licenses", as
 // defined by the Mozilla Public License, version 2.0.
 
-package ui
+package menu
+
+import (
+	"github.com/richardwilkes/ui/event"
+)
 
 // #cgo darwin LDFLAGS: -framework Cocoa
 // #include "Menu.h"
 import "C"
 
-// MenuAction that an MenuItem can take.
-type MenuAction func(item *MenuItem)
+// Action that an Item can take.
+type Action func(item *Item)
 
-// MenuValidator determines whether the specified MenuItem should be enabled or not.
-type MenuValidator func(item *MenuItem) bool
+// Validator determines whether the specified Item should be enabled or not.
+type Validator func(item *Item) bool
 
-// MenuItem represents individual actions that can be issued from a Menu.
-type MenuItem struct {
+// Item represents individual actions that can be issued from a Menu.
+type Item struct {
 	item      C.uiMenuItem
 	title     string
-	action    MenuAction
-	validator MenuValidator
+	action    Action
+	validator Validator
 }
 
 // Title returns this item's title.
-func (item *MenuItem) Title() string {
+func (item *Item) Title() string {
 	return item.title
 }
 
-// SetKeyModifiers sets the MenuItem's key equivalent modifiers. By default, a MenuItem's modifier is set
+// SetKeyModifiers sets the Item's key equivalent modifiers. By default, a Item's modifier is set
 // to event.CommandKeyMask.
-func (item *MenuItem) SetKeyModifiers(modifierMask KeyMask) {
+func (item *Item) SetKeyModifiers(modifierMask event.KeyMask) {
 	C.uiSetKeyModifierMask(item.item, C.int(modifierMask))
 }
 
-// SubMenu of this MenuItem or nil.
-func (item *MenuItem) SubMenu() *Menu {
+// SubMenu of this Item or nil.
+func (item *Item) SubMenu() *Menu {
 	if menu, ok := menuMap[C.uiGetSubMenu(item.item)]; ok {
 		return menu
 	}
@@ -48,7 +52,7 @@ func (item *MenuItem) SubMenu() *Menu {
 
 //export validateMenuItem
 func validateMenuItem(cMenuItem C.uiMenuItem) bool {
-	if item, ok := menuItemMap[cMenuItem]; ok {
+	if item, ok := itemMap[cMenuItem]; ok {
 		if item.validator != nil {
 			return item.validator(item)
 		}
@@ -58,7 +62,7 @@ func validateMenuItem(cMenuItem C.uiMenuItem) bool {
 
 //export handleMenuItem
 func handleMenuItem(cMenuItem C.uiMenuItem) {
-	if item, ok := menuItemMap[cMenuItem]; ok {
+	if item, ok := itemMap[cMenuItem]; ok {
 		if item.action != nil {
 			item.action(item)
 		}

@@ -7,9 +7,10 @@
 // This Source Code Form is "Incompatible With Secondary Licenses", as
 // defined by the Mozilla Public License, version 2.0.
 
-package ui
+package menu
 
 import (
+	"github.com/richardwilkes/ui"
 	"github.com/richardwilkes/ui/draw"
 	"unsafe"
 )
@@ -20,8 +21,8 @@ import (
 import "C"
 
 var (
-	menuMap     = make(map[C.uiMenu]*Menu)
-	menuItemMap = make(map[C.uiMenuItem]*MenuItem)
+	menuMap = make(map[C.uiMenu]*Menu)
+	itemMap = make(map[C.uiMenuItem]*Item)
 )
 
 // Menu represents a set of menu items.
@@ -30,8 +31,8 @@ type Menu struct {
 	title string
 }
 
-// MenuBar returns the application menu bar.
-func MenuBar() *Menu {
+// Bar returns the application menu bar.
+func Bar() *Menu {
 	if menu, ok := menuMap[C.getMainMenu()]; ok {
 		return menu
 	}
@@ -69,27 +70,27 @@ func (menu *Menu) Title() string {
 	return menu.title
 }
 
-// Count of MenuItems in this Menu.
+// Count of Items in this Menu.
 func (menu *Menu) Count() int {
 	return int(C.uiMenuItemCount(menu.menu))
 }
 
 // Item at the specified index, or nil.
-func (menu *Menu) Item(index int) *MenuItem {
-	if item, ok := menuItemMap[C.uiGetMenuItem(menu.menu, C.int(index))]; ok {
+func (menu *Menu) Item(index int) *Item {
+	if item, ok := itemMap[C.uiGetMenuItem(menu.menu, C.int(index))]; ok {
 		return item
 	}
 	return nil
 }
 
-// AddItem creates a new MenuItem and appends it to the end of the Menu.
-func (menu *Menu) AddItem(title string, key string, action MenuAction, validator MenuValidator) *MenuItem {
+// AddItem creates a new Item and appends it to the end of the Menu.
+func (menu *Menu) AddItem(title string, key string, action Action, validator Validator) *Item {
 	cTitle := C.CString(title)
 	cKey := C.CString(key)
-	item := &MenuItem{item: C.uiAddMenuItem(menu.menu, cTitle, cKey), title: title, action: action, validator: validator}
+	item := &Item{item: C.uiAddMenuItem(menu.menu, cTitle, cKey), title: title, action: action, validator: validator}
 	C.free(unsafe.Pointer(cTitle))
 	C.free(unsafe.Pointer(cKey))
-	menuItemMap[item.item] = item
+	itemMap[item.item] = item
 	return item
 }
 
@@ -103,15 +104,15 @@ func (menu *Menu) AddMenu(title string) *Menu {
 
 // AddSeparator creates a new separator and appends it to the end of the Menu.
 func (menu *Menu) AddSeparator() {
-	item := &MenuItem{item: C.uiAddSeparator(menu.menu)}
-	menuItemMap[item.item] = item
+	item := &Item{item: C.uiAddSeparator(menu.menu)}
+	itemMap[item.item] = item
 }
 
 // Popup shows the menu at the specified location. If itemAtLocation is specified, it also tries to
 // position the menu such that the specified menu item is at that location.
-func (menu *Menu) Popup(widget Widget, where draw.Point, itemAtLocation *MenuItem) {
+func (menu *Menu) Popup(widget ui.Widget, where draw.Point, itemAtLocation *Item) {
 	where = widget.ToWindow(where)
-	C.uiPopupMenu(widget.Window().window, menu.menu, C.float(where.X), C.float(where.Y), itemAtLocation.item)
+	C.uiPopupMenu(widget.Window().PlatformPtr(), menu.menu, C.float(where.X), C.float(where.Y), itemAtLocation.item)
 }
 
 // Dispose of the Menu, releasing any operating system resources it consumed.
@@ -125,7 +126,7 @@ func (menu *Menu) Dispose() {
 			if subMenu != nil {
 				subMenu.Dispose()
 			}
-			delete(menuItemMap, item)
+			delete(itemMap, item)
 		}
 		delete(menuMap, menu.menu)
 		C.uiDisposeMenu(menu.menu)

@@ -13,75 +13,80 @@ import (
 	"fmt"
 	"github.com/richardwilkes/ui"
 	"github.com/richardwilkes/ui/Demo/images"
+	"github.com/richardwilkes/ui/app"
 	"github.com/richardwilkes/ui/border"
 	"github.com/richardwilkes/ui/draw"
+	"github.com/richardwilkes/ui/event"
 	"github.com/richardwilkes/ui/font"
+	"github.com/richardwilkes/ui/layout"
+	"github.com/richardwilkes/ui/menu"
+	"github.com/richardwilkes/ui/widget"
 )
 
 var (
-	aboutWindow *ui.Window
+	aboutWindow ui.Window
 )
 
 func main() {
-	ui.AppWillFinishStartup = func() {
+	app.AppWillFinishStartup = func() {
 		createMenuBar()
 		createButtonsWindow()
 	}
-	ui.AppShouldTerminateAfterLastWindowClosed = func() bool { return true }
-	ui.Start()
+	app.AppShouldTerminateAfterLastWindowClosed = func() bool { return true }
+	app.Start()
 }
 
 func createMenuBar() {
-	ui.AddAppMenu(createAboutWindow, createPreferencesWindow)
+	menu.AddAppMenu(createAboutWindow, createPreferencesWindow)
 
-	fileMenu := ui.MenuBar().AddMenu("File")
+	fileMenu := menu.Bar().AddMenu("File")
 	fileMenu.AddItem("Open", "o", nil, nil)
 
-	ui.MenuBar().AddMenu("Edit")
+	menu.Bar().AddMenu("Edit")
 
-	ui.AddWindowMenu()
-	ui.AddHelpMenu()
+	menu.AddWindowMenu()
+	menu.AddHelpMenu()
 }
 
 func createButtonsWindow() {
-	wnd := ui.NewWindow(draw.Point{}, ui.StdWindowMask)
+	wnd := widget.NewWindow(draw.Point{}, widget.StdWindowMask)
 	wnd.SetTitle("Demo")
 
 	root := wnd.RootWidget()
 	root.SetBorder(border.NewEmpty(draw.Insets{Top: 10, Left: 10, Bottom: 10, Right: 10}))
-	ui.NewPrecisionLayout(root).SetVerticalSpacing(10)
+	layout.NewPrecision(root).SetVerticalSpacing(10)
 
 	buttonsPanel := createButtonsPanel()
-	buttonsPanel.SetLayoutData(ui.NewPrecisionData().SetHorizontalGrab(true))
+	buttonsPanel.SetLayoutData(layout.NewPrecisionData().SetHorizontalGrab(true))
 	root.AddChild(buttonsPanel)
 
 	addSeparator(root)
 
 	checkBoxPanel := createCheckBoxPanel()
-	checkBoxPanel.SetLayoutData(ui.NewPrecisionData().SetHorizontalGrab(true))
+	checkBoxPanel.SetLayoutData(layout.NewPrecisionData().SetHorizontalGrab(true))
 	root.AddChild(checkBoxPanel)
 
 	addSeparator(root)
 
 	radioButtonsPanel := createRadioButtonsPanel()
-	radioButtonsPanel.SetLayoutData(ui.NewPrecisionData().SetHorizontalGrab(true))
+	radioButtonsPanel.SetLayoutData(layout.NewPrecisionData().SetHorizontalGrab(true))
 	root.AddChild(radioButtonsPanel)
 
 	addSeparator(root)
 
 	popupMenusPanel := createPopupMenusPanel()
-	popupMenusPanel.SetLayoutData(ui.NewPrecisionData().SetHorizontalGrab(true))
+	popupMenusPanel.SetLayoutData(layout.NewPrecisionData().SetHorizontalGrab(true))
 	root.AddChild(popupMenusPanel)
 
 	addSeparator(root)
 
 	img, err := draw.AcquireImageFromURL("http://allwallpapersnew.com/wp-content/gallery/stock-photos-for-free/grassy_field_sunset___free_stock_by_kevron2001-d5blgkr.jpg")
 	if err == nil {
-		content := ui.NewImageLabel(img)
+		content := widget.NewImageLabel(img)
 		_, prefSize, _ := ui.ComputeSizes(content, ui.NoLayoutHintSize)
 		content.SetSize(prefSize)
-		scrollArea := ui.NewScrollArea(content)
-		scrollArea.SetLayoutData(ui.NewPrecisionData().SetHorizontalAlignment(draw.AlignFill).SetVerticalAlignment(draw.AlignFill).SetHorizontalGrab(true).SetVerticalGrab(true))
+		scrollArea := widget.NewScrollArea(content)
+		scrollArea.SetLayoutData(layout.NewPrecisionData().SetHorizontalAlignment(draw.AlignFill).SetVerticalAlignment(draw.AlignFill).SetHorizontalGrab(true).SetVerticalGrab(true))
 		root.AddChild(scrollArea)
 	} else {
 		fmt.Println(err)
@@ -92,14 +97,14 @@ func createButtonsWindow() {
 }
 
 func addSeparator(root ui.Widget) {
-	sep := ui.NewSeparator(true)
-	sep.SetLayoutData(ui.NewPrecisionData().SetHorizontalAlignment(draw.AlignFill))
+	sep := widget.NewSeparator(true)
+	sep.SetLayoutData(layout.NewPrecisionData().SetHorizontalAlignment(draw.AlignFill))
 	root.AddChild(sep)
 }
 
-func createButtonsPanel() *ui.Block {
-	panel := ui.NewBlock()
-	ui.NewFlowLayout(panel).SetHorizontalSpacing(5).SetVerticalSpacing(5)
+func createButtonsPanel() ui.Widget {
+	panel := widget.NewBlock()
+	layout.NewFlow(panel).SetHorizontalSpacing(5).SetVerticalSpacing(5)
 
 	createButton("Press Me", panel)
 	createButton("Disabled", panel).SetEnabled(false)
@@ -123,54 +128,54 @@ func createButtonsPanel() *ui.Block {
 	return panel
 }
 
-func createButton(title string, panel *ui.Block) *ui.Button {
-	button := ui.NewButton(title)
+func createButton(title string, panel ui.Widget) *widget.Button {
+	button := widget.NewButton(title)
 	button.OnClick = func() { fmt.Printf("The button '%s' was clicked.\n", title) }
-	button.AddEventHandler(ui.ToolTipEvent, func(event *ui.Event) {
+	button.EventHandlers().Add(event.ToolTipEvent, func(event *event.Event) {
 		event.ToolTip = fmt.Sprintf("This is the tooltip for the '%s' button.", title)
 	})
 	panel.AddChild(button)
 	return button
 }
 
-func createImageButton(img *draw.Image, name string, panel *ui.Block) *ui.ImageButton {
+func createImageButton(img *draw.Image, name string, panel ui.Widget) *widget.ImageButton {
 	size := img.Size()
 	size.Width /= 2
 	size.Height /= 2
-	button := ui.NewImageButtonWithImageSize(img, size)
+	button := widget.NewImageButtonWithImageSize(img, size)
 	button.OnClick = func() { fmt.Printf("The button '%s' was clicked.\n", name) }
-	button.AddEventHandler(ui.ToolTipEvent, func(event *ui.Event) { event.ToolTip = name })
+	button.EventHandlers().Add(event.ToolTipEvent, func(event *event.Event) { event.ToolTip = name })
 	panel.AddChild(button)
 	return button
 }
 
-func createCheckBoxPanel() *ui.Block {
-	panel := ui.NewBlock()
-	ui.NewPrecisionLayout(panel)
+func createCheckBoxPanel() ui.Widget {
+	panel := widget.NewBlock()
+	layout.NewPrecision(panel)
 	createCheckBox("Press Me", panel)
-	createCheckBox("Initially Mixed", panel).SetState(ui.Mixed)
+	createCheckBox("Initially Mixed", panel).SetState(widget.Mixed)
 	createCheckBox("Disabled", panel).SetEnabled(false)
 	checkbox := createCheckBox("Disabled w/Check", panel)
 	checkbox.SetEnabled(false)
-	checkbox.SetState(ui.Checked)
+	checkbox.SetState(widget.Checked)
 	return panel
 }
 
-func createCheckBox(title string, panel *ui.Block) *ui.CheckBox {
-	checkbox := ui.NewCheckBox(title)
+func createCheckBox(title string, panel ui.Widget) *widget.CheckBox {
+	checkbox := widget.NewCheckBox(title)
 	checkbox.OnClick = func() { fmt.Printf("The checkbox '%s' was clicked.\n", title) }
-	checkbox.AddEventHandler(ui.ToolTipEvent, func(event *ui.Event) {
+	checkbox.EventHandlers().Add(event.ToolTipEvent, func(event *event.Event) {
 		event.ToolTip = fmt.Sprintf("This is the tooltip for the '%s' checkbox.", title)
 	})
 	panel.AddChild(checkbox)
 	return checkbox
 }
 
-func createRadioButtonsPanel() *ui.Block {
-	panel := ui.NewBlock()
-	ui.NewPrecisionLayout(panel)
+func createRadioButtonsPanel() ui.Widget {
+	panel := widget.NewBlock()
+	layout.NewPrecision(panel)
 
-	group := ui.NewRadioButtonGroup()
+	group := widget.NewRadioButtonGroup()
 	first := createRadioButton("First", panel, group)
 	createRadioButton("Second", panel, group)
 	createRadioButton("Third (disabled)", panel, group).SetEnabled(false)
@@ -180,10 +185,10 @@ func createRadioButtonsPanel() *ui.Block {
 	return panel
 }
 
-func createRadioButton(title string, panel *ui.Block, group *ui.RadioButtonGroup) *ui.RadioButton {
-	rb := ui.NewRadioButton(title)
+func createRadioButton(title string, panel ui.Widget, group *widget.RadioButtonGroup) *widget.RadioButton {
+	rb := widget.NewRadioButton(title)
 	rb.OnClick = func() { fmt.Printf("The radio button '%s' was clicked.\n", title) }
-	rb.AddEventHandler(ui.ToolTipEvent, func(event *ui.Event) {
+	rb.EventHandlers().Add(event.ToolTipEvent, func(event *event.Event) {
 		event.ToolTip = fmt.Sprintf("This is the tooltip for the '%s' radio button.", title)
 	})
 	panel.AddChild(rb)
@@ -191,9 +196,9 @@ func createRadioButton(title string, panel *ui.Block, group *ui.RadioButtonGroup
 	return rb
 }
 
-func createPopupMenusPanel() *ui.Block {
-	panel := ui.NewBlock()
-	ui.NewPrecisionLayout(panel)
+func createPopupMenusPanel() ui.Widget {
+	panel := widget.NewBlock()
+	layout.NewPrecision(panel)
 
 	createPopupMenu(panel, 1, "One", "Two", "Three", "", "Four", "Five", "Six")
 	createPopupMenu(panel, 2, "Red", "Blue", "Green").SetEnabled(false)
@@ -201,9 +206,9 @@ func createPopupMenusPanel() *ui.Block {
 	return panel
 }
 
-func createPopupMenu(panel *ui.Block, selection int, titles ...string) *ui.PopupMenu {
-	p := ui.NewPopupMenu()
-	p.AddEventHandler(ui.ToolTipEvent, func(event *ui.Event) {
+func createPopupMenu(panel ui.Widget, selection int, titles ...string) *menu.PopupMenu {
+	p := menu.NewPopupMenu()
+	p.EventHandlers().Add(event.ToolTipEvent, func(event *event.Event) {
 		event.ToolTip = fmt.Sprintf("This is the tooltip for the PopupMenu with %d items.", len(titles))
 	})
 	for _, title := range titles {
@@ -221,25 +226,36 @@ func createPopupMenu(panel *ui.Block, selection int, titles ...string) *ui.Popup
 	return p
 }
 
-func createAboutWindow(item *ui.MenuItem) {
+func createAboutWindow(item *menu.Item) {
 	if aboutWindow == nil {
-		aboutWindow = ui.NewWindow(draw.Point{}, ui.TitledWindowMask|ui.ClosableWindowMask)
-		aboutWindow.DidClose = func() { aboutWindow = nil }
-		aboutWindow.SetTitle("About " + ui.AppName())
+		aboutWindow = widget.NewWindow(draw.Point{}, widget.TitledWindowMask|widget.ClosableWindowMask)
+		aboutWindow.SetCloseHandler(&closeHandler{})
+		aboutWindow.SetTitle("About " + app.Name())
 		root := aboutWindow.RootWidget()
 		root.SetBorder(border.NewEmpty(draw.Insets{Top: 10, Left: 10, Bottom: 10, Right: 10}))
-		ui.NewPrecisionLayout(root)
-		title := ui.NewLabelWithFont(ui.AppName(), font.Acquire(font.EmphasizedSystemDesc))
-		title.SetLayoutData(ui.NewPrecisionData().SetHorizontalAlignment(draw.AlignMiddle))
+		layout.NewPrecision(root)
+		title := widget.NewLabelWithFont(app.Name(), font.Acquire(font.EmphasizedSystemDesc))
+		title.SetLayoutData(layout.NewPrecisionData().SetHorizontalAlignment(draw.AlignMiddle))
 		root.AddChild(title)
-		desc := ui.NewLabel("Simple app to demonstrate the\ncapabilities of the ui framework.")
+		desc := widget.NewLabel("Simple app to demonstrate the\ncapabilities of the ui framework.")
 		root.AddChild(desc)
 		aboutWindow.Pack()
 	}
 	aboutWindow.ToFront()
 }
 
-func createPreferencesWindow(item *ui.MenuItem) {
+type closeHandler struct {
+}
+
+func (h *closeHandler) WillClose() bool {
+	return true
+}
+
+func (h *closeHandler) DidClose() {
+	aboutWindow = nil
+}
+
+func createPreferencesWindow(item *menu.Item) {
 	fmt.Println("Preferences...")
 }
 

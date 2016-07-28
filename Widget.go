@@ -13,11 +13,12 @@ import (
 	"github.com/richardwilkes/ui/border"
 	"github.com/richardwilkes/ui/color"
 	"github.com/richardwilkes/ui/draw"
+	"github.com/richardwilkes/ui/event"
 )
 
 // A Widget is the basic user interface block that interacts with the user.
 type Widget interface {
-	EventHandlers() map[int][]EventHandler
+	event.Target
 
 	// Sizer returns the Sizer for this widget, if any.
 	Sizer() Sizer
@@ -90,7 +91,7 @@ type Widget interface {
 	// parent as a child. Call AddChild or AddChildAtIndex for that.
 	SetParent(parent Widget)
 	// Window returns the containing window, if any.
-	Window() *Window
+	Window() Window
 	// RootOfWindow returns true if this widget is the root widget of a window.
 	RootOfWindow() bool
 

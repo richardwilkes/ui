@@ -7,11 +7,13 @@
 // This Source Code Form is "Incompatible With Secondary Licenses", as
 // defined by the Mozilla Public License, version 2.0.
 
-package ui
+package widget
 
 import (
+	"github.com/richardwilkes/ui"
 	"github.com/richardwilkes/ui/color"
 	"github.com/richardwilkes/ui/draw"
+	"github.com/richardwilkes/ui/event"
 )
 
 // Separator provides a simple vertical or horizontal separator line.
@@ -25,31 +27,31 @@ func NewSeparator(horizontal bool) *Separator {
 	sep := &Separator{}
 	sep.horizontal = horizontal
 	sep.SetSizer(sep)
-	sep.AddEventHandler(PaintEvent, sep.paint)
+	sep.EventHandlers().Add(event.PaintEvent, sep.paint)
 	return sep
 }
 
 // Sizes implements Sizer
 func (sep *Separator) Sizes(hint draw.Size) (min, pref, max draw.Size) {
 	if sep.horizontal {
-		if hint.Width == NoLayoutHint {
+		if hint.Width == ui.NoLayoutHint {
 			pref.Width = 1
 		} else {
 			pref.Width = hint.Width
 		}
 		min.Width = 1
-		max.Width = DefaultLayoutMax
+		max.Width = ui.DefaultLayoutMax
 		min.Height = 1
 		pref.Height = 1
 		max.Height = 1
 	} else {
-		if hint.Height == NoLayoutHint {
+		if hint.Height == ui.NoLayoutHint {
 			pref.Height = 1
 		} else {
 			pref.Height = hint.Height
 		}
 		min.Height = 1
-		max.Height = DefaultLayoutMax
+		max.Height = ui.DefaultLayoutMax
 		min.Width = 1
 		pref.Width = 1
 		max.Width = 1
@@ -63,7 +65,7 @@ func (sep *Separator) Sizes(hint draw.Size) (min, pref, max draw.Size) {
 	return min, pref, max
 }
 
-func (sep *Separator) paint(event *Event) {
+func (sep *Separator) paint(event *event.Event) {
 	bounds := sep.LocalInsetBounds()
 	if sep.horizontal {
 		if bounds.Height > 1 {

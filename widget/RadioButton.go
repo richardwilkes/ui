@@ -7,11 +7,13 @@
 // This Source Code Form is "Incompatible With Secondary Licenses", as
 // defined by the Mozilla Public License, version 2.0.
 
-package ui
+package widget
 
 import (
+	"github.com/richardwilkes/ui"
 	"github.com/richardwilkes/ui/color"
 	"github.com/richardwilkes/ui/draw"
+	"github.com/richardwilkes/ui/event"
 	"github.com/richardwilkes/ui/keys"
 	"github.com/richardwilkes/ui/theme"
 	"github.com/richardwilkes/xmath"
@@ -36,13 +38,14 @@ func NewRadioButton(title string) *RadioButton {
 	button.Theme = theme.StdRadioButton
 	button.SetFocusable(true)
 	button.SetSizer(button)
-	button.AddEventHandler(PaintEvent, button.paint)
-	button.AddEventHandler(MouseDownEvent, button.mouseDown)
-	button.AddEventHandler(MouseDraggedEvent, button.mouseDragged)
-	button.AddEventHandler(MouseUpEvent, button.mouseUp)
-	button.AddEventHandler(FocusGainedEvent, button.focusChanged)
-	button.AddEventHandler(FocusLostEvent, button.focusChanged)
-	button.AddEventHandler(KeyDownEvent, button.keyDown)
+	handlers := button.EventHandlers()
+	handlers.Add(event.PaintEvent, button.paint)
+	handlers.Add(event.MouseDownEvent, button.mouseDown)
+	handlers.Add(event.MouseDraggedEvent, button.mouseDragged)
+	handlers.Add(event.MouseUpEvent, button.mouseUp)
+	handlers.Add(event.FocusGainedEvent, button.focusChanged)
+	handlers.Add(event.FocusLostEvent, button.focusChanged)
+	handlers.Add(event.KeyDownEvent, button.keyDown)
 	return button
 }
 
@@ -51,13 +54,13 @@ func (button *RadioButton) Sizes(hint draw.Size) (min, pref, max draw.Size) {
 	var size draw.Size
 	box := xmath.CeilFloat32(button.Theme.Font.Ascent())
 	if button.Title != "" {
-		if hint.Width != NoLayoutHint {
+		if hint.Width != ui.NoLayoutHint {
 			hint.Width -= button.Theme.HorizontalGap + box
 			if hint.Width < 1 {
 				hint.Width = 1
 			}
 		}
-		if hint.Height != NoLayoutHint {
+		if hint.Height != ui.NoLayoutHint {
 			if hint.Height < 1 {
 				hint.Height = 1
 			}
@@ -75,10 +78,10 @@ func (button *RadioButton) Sizes(hint draw.Size) (min, pref, max draw.Size) {
 	if border := button.Border(); border != nil {
 		size.AddInsets(border.Insets())
 	}
-	return size, size, DefaultLayoutMaxSize(size)
+	return size, size, ui.DefaultLayoutMaxSize(size)
 }
 
-func (button *RadioButton) paint(event *Event) {
+func (button *RadioButton) paint(event *event.Event) {
 	box := xmath.CeilFloat32(button.Theme.Font.Ascent())
 	bounds := button.LocalInsetBounds()
 	bounds.Width = box
@@ -120,12 +123,12 @@ func (button *RadioButton) paint(event *Event) {
 	}
 }
 
-func (button *RadioButton) mouseDown(event *Event) {
+func (button *RadioButton) mouseDown(event *event.Event) {
 	button.pressed = true
 	button.Repaint()
 }
 
-func (button *RadioButton) mouseDragged(event *Event) {
+func (button *RadioButton) mouseDragged(event *event.Event) {
 	bounds := button.LocalInsetBounds()
 	pressed := bounds.Contains(button.FromWindow(event.Where))
 	if button.pressed != pressed {
@@ -134,7 +137,7 @@ func (button *RadioButton) mouseDragged(event *Event) {
 	}
 }
 
-func (button *RadioButton) mouseUp(event *Event) {
+func (button *RadioButton) mouseUp(event *event.Event) {
 	button.pressed = false
 	button.Repaint()
 	bounds := button.LocalInsetBounds()
@@ -143,7 +146,7 @@ func (button *RadioButton) mouseUp(event *Event) {
 	}
 }
 
-func (button *RadioButton) focusChanged(event *Event) {
+func (button *RadioButton) focusChanged(event *event.Event) {
 	button.Repaint()
 }
 
@@ -163,7 +166,7 @@ func (button *RadioButton) Click() {
 	}
 }
 
-func (button *RadioButton) keyDown(event *Event) {
+func (button *RadioButton) keyDown(event *event.Event) {
 	if event.KeyCode == keys.Return || event.KeyCode == keys.Enter || event.KeyCode == keys.Space {
 		event.Done = true
 		button.Click()

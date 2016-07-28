@@ -7,11 +7,13 @@
 // This Source Code Form is "Incompatible With Secondary Licenses", as
 // defined by the Mozilla Public License, version 2.0.
 
-package ui
+package widget
 
 import (
+	"github.com/richardwilkes/ui"
 	"github.com/richardwilkes/ui/color"
 	"github.com/richardwilkes/ui/draw"
+	"github.com/richardwilkes/ui/event"
 	"github.com/richardwilkes/ui/theme"
 	"github.com/richardwilkes/xmath"
 	"time"
@@ -71,10 +73,11 @@ func NewScrollBar(horizontal bool, target Scrollable) *ScrollBar {
 	sb.Target = target
 	sb.horizontal = horizontal
 	sb.SetSizer(sb)
-	sb.AddEventHandler(PaintEvent, sb.paint)
-	sb.AddEventHandler(MouseDownEvent, sb.mouseDown)
-	sb.AddEventHandler(MouseDraggedEvent, sb.mouseDragged)
-	sb.AddEventHandler(MouseUpEvent, sb.mouseUp)
+	handlers := sb.EventHandlers()
+	handlers.Add(event.PaintEvent, sb.paint)
+	handlers.Add(event.MouseDownEvent, sb.mouseDown)
+	handlers.Add(event.MouseDraggedEvent, sb.mouseDragged)
+	handlers.Add(event.MouseUpEvent, sb.mouseUp)
 	return sb
 }
 
@@ -85,7 +88,7 @@ func (sb *ScrollBar) Sizes(hint draw.Size) (min, pref, max draw.Size) {
 		min.Height = sb.Theme.Size
 		pref.Width = sb.Theme.Size * 2
 		pref.Height = sb.Theme.Size
-		max.Width = DefaultLayoutMax
+		max.Width = ui.DefaultLayoutMax
 		max.Height = sb.Theme.Size
 	} else {
 		min.Width = sb.Theme.Size
@@ -93,7 +96,7 @@ func (sb *ScrollBar) Sizes(hint draw.Size) (min, pref, max draw.Size) {
 		pref.Width = sb.Theme.Size
 		pref.Height = sb.Theme.Size * 2
 		max.Width = sb.Theme.Size
-		max.Height = DefaultLayoutMax
+		max.Height = ui.DefaultLayoutMax
 	}
 	if border := sb.Border(); border != nil {
 		insets := border.Insets()
@@ -104,7 +107,7 @@ func (sb *ScrollBar) Sizes(hint draw.Size) (min, pref, max draw.Size) {
 	return min, pref, max
 }
 
-func (sb *ScrollBar) paint(event *Event) {
+func (sb *ScrollBar) paint(event *event.Event) {
 	bounds := sb.LocalInsetBounds()
 	if sb.horizontal {
 		bounds.Height = sb.Theme.Size
@@ -136,7 +139,7 @@ func (sb *ScrollBar) paint(event *Event) {
 	sb.drawThumb(gc)
 }
 
-func (sb *ScrollBar) mouseDown(event *Event) {
+func (sb *ScrollBar) mouseDown(event *event.Event) {
 	sb.sequence++
 	where := sb.FromWindow(event.Where)
 	part := sb.over(where)
@@ -156,7 +159,7 @@ func (sb *ScrollBar) mouseDown(event *Event) {
 	}
 }
 
-func (sb *ScrollBar) mouseDragged(event *Event) {
+func (sb *ScrollBar) mouseDragged(event *event.Event) {
 	if sb.pressed == scrollBarThumb {
 		var pos float32
 		rect := sb.partRect(scrollBarLineUp)
@@ -170,7 +173,7 @@ func (sb *ScrollBar) mouseDragged(event *Event) {
 	}
 }
 
-func (sb *ScrollBar) mouseUp(event *Event) {
+func (sb *ScrollBar) mouseUp(event *event.Event) {
 	sb.pressed = scrollBarNone
 	sb.Repaint()
 }
@@ -189,7 +192,7 @@ func (sb *ScrollBar) scheduleRepeat(part scrollBarPart, delay time.Duration) {
 	default:
 		return
 	}
-	InvokeAfter(func() {
+	event.InvokeAfter(func() {
 		if current == sb.sequence && sb.pressed == part {
 			sb.scheduleRepeat(part, sb.Theme.RepeatDelay)
 		}

@@ -7,7 +7,7 @@
 // This Source Code Form is "Incompatible With Secondary Licenses", as
 // defined by the Mozilla Public License, version 2.0.
 
-package ui
+package event
 
 import (
 	"bytes"
@@ -16,20 +16,6 @@ import (
 	"reflect"
 	"time"
 )
-
-// Possible KeyMask values.
-const (
-	CapsLockKeyMask KeyMask = 1 << iota
-	ShiftKeyMask
-	ControlKeyMask
-	OptionKeyMask
-	CommandKeyMask   // On platforms that don't have a distinct command key, this will also be set if the Control key is pressed.
-	NonStickyKeyMask = ShiftKeyMask | ControlKeyMask | OptionKeyMask | CommandKeyMask
-	AllKeyMask       = CapsLockKeyMask | NonStickyKeyMask
-)
-
-// KeyMask contains flags indicating which modifier keys were down when an event occurred.
-type KeyMask int
 
 const (
 	// PaintEvent is generated when a widget needs to be drawn.
@@ -69,14 +55,11 @@ const (
 	UserEvent = 10000
 )
 
-// EventHandler is called to handle a single event.
-type EventHandler func(event *Event)
-
 // Event holds the data associated with an event.
 type Event struct {
 	Type         int           // Valid for all events.
 	When         time.Time     // Valid for all events.
-	Target       Widget        // Valid for all events
+	Target       Target        // Valid for all events
 	GC           draw.Graphics // Valid only for PaintEvent.
 	DirtyRect    draw.Rect     // Valid only for PaintEvent.
 	Where        draw.Point    // In window coordinates. Valid for MouseDownEvent, MouseDraggedEvent, MouseUpEvent, MouseEnteredEvent, MouseMovedEvent, and MouseWheelEvent.
@@ -102,7 +85,7 @@ type Event struct {
 func (event *Event) Dispatch() {
 	target := event.Target
 	for target != nil {
-		if handlers, ok := target.EventHandlers()[event.Type]; ok {
+		if handlers, ok := target.EventHandlers().Lookup(event.Type); ok {
 			for _, handler := range handlers {
 				handler(event)
 				if event.Done {
@@ -113,7 +96,7 @@ func (event *Event) Dispatch() {
 		if !event.CascadeUp {
 			return
 		}
-		target = target.Parent()
+		target = target.ParentTarget()
 	}
 }
 

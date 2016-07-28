@@ -7,9 +7,10 @@
 // This Source Code Form is "Incompatible With Secondary Licenses", as
 // defined by the Mozilla Public License, version 2.0.
 
-package ui
+package widget
 
 import (
+	"github.com/richardwilkes/ui"
 	"github.com/richardwilkes/ui/draw"
 )
 
@@ -25,12 +26,12 @@ func newScrollLayout(sa *ScrollArea) *scrollLayout {
 
 // Sizes implements the Layout interface.
 func (layout *scrollLayout) Sizes(hint draw.Size) (min, pref, max draw.Size) {
-	_, hBarSize, _ := ComputeSizes(layout.sa.hBar, NoLayoutHintSize)
-	_, vBarSize, _ := ComputeSizes(layout.sa.vBar, NoLayoutHintSize)
+	_, hBarSize, _ := ui.ComputeSizes(layout.sa.hBar, ui.NoLayoutHintSize)
+	_, vBarSize, _ := ui.ComputeSizes(layout.sa.vBar, ui.NoLayoutHintSize)
 	min.Width = vBarSize.Width * 2
 	min.Height = hBarSize.Height * 2
 	if layout.sa.content != nil {
-		_, pref, _ = ComputeSizes(layout.sa.content, hint)
+		_, pref, _ = ui.ComputeSizes(layout.sa.content, hint)
 	}
 	if border := layout.sa.view.Border(); border != nil {
 		insets := border.Insets()
@@ -38,13 +39,13 @@ func (layout *scrollLayout) Sizes(hint draw.Size) (min, pref, max draw.Size) {
 		pref.AddInsets(insets)
 		max.AddInsets(insets)
 	}
-	return min, pref, DefaultLayoutMaxSize(pref)
+	return min, pref, ui.DefaultLayoutMaxSize(pref)
 }
 
 // Layout implements the Layout interface.
 func (layout *scrollLayout) Layout() {
-	_, hBarSize, _ := ComputeSizes(layout.sa.hBar, NoLayoutHintSize)
-	_, vBarSize, _ := ComputeSizes(layout.sa.vBar, NoLayoutHintSize)
+	_, hBarSize, _ := ui.ComputeSizes(layout.sa.hBar, ui.NoLayoutHintSize)
+	_, vBarSize, _ := ui.ComputeSizes(layout.sa.vBar, ui.NoLayoutHintSize)
 	needHBar := false
 	needVBar := false
 	var contentSize draw.Size

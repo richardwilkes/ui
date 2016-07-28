@@ -7,70 +7,72 @@
 // This Source Code Form is "Incompatible With Secondary Licenses", as
 // defined by the Mozilla Public License, version 2.0.
 
-package ui
+package widget
 
 import (
+	"github.com/richardwilkes/ui"
 	"github.com/richardwilkes/ui/color"
 	"github.com/richardwilkes/ui/draw"
+	"github.com/richardwilkes/ui/event"
 	"github.com/richardwilkes/ui/keys"
 	"github.com/richardwilkes/ui/theme"
 	"time"
 )
 
-// ImageButton represents a clickable image button.
-type ImageButton struct {
+// Button represents a clickable text button.
+type Button struct {
 	Block
-	Theme         *theme.ImageButton // The theme the button will use to draw itself.
-	OnClick       func()             // Called when the button is clicked.
-	image         *draw.Image
-	disabledImage *draw.Image
-	pressed       bool
+	Theme   *theme.Button // The theme the button will use to draw itself.
+	OnClick func()        // Called when the button is clicked.
+	Title   string        // The title of the button.
+	pressed bool
 }
 
-// NewImageButton creates a new button with the specified Image.
-func NewImageButton(img *draw.Image) *ImageButton {
-	return NewImageButtonWithImageSize(img, draw.Size{})
-}
-
-// NewImageButtonWithImageSize creates a new button with the specified Image. The image will be set
-// to the specified size. The button itself will be a bit larger, based on the theme settings and
-// border.
-func NewImageButtonWithImageSize(img *draw.Image, size draw.Size) *ImageButton {
-	button := &ImageButton{}
-	button.image = img
-	var err error
-	if button.disabledImage, err = img.AcquireDisabled(); err != nil {
-		button.disabledImage = img
-	}
-	button.Theme = theme.StdImageButton
+// NewButton creates a new button with the specified title.
+func NewButton(title string) *Button {
+	button := &Button{}
+	button.Title = title
+	button.Theme = theme.StdButton
 	button.SetFocusable(true)
-	if size.Width <= 0 || size.Height <= 0 {
-		button.SetSizer(button)
-	} else {
-		button.SetSizer(&imageButtonSizer{button: button, size: size})
-	}
-	button.AddEventHandler(PaintEvent, button.paint)
-	button.AddEventHandler(MouseDownEvent, button.mouseDown)
-	button.AddEventHandler(MouseDraggedEvent, button.mouseDragged)
-	button.AddEventHandler(MouseUpEvent, button.mouseUp)
-	button.AddEventHandler(FocusGainedEvent, button.focusChanged)
-	button.AddEventHandler(FocusLostEvent, button.focusChanged)
-	button.AddEventHandler(KeyDownEvent, button.keyDown)
+	button.SetSizer(button)
+	handlers := button.EventHandlers()
+	handlers.Add(event.PaintEvent, button.paint)
+	handlers.Add(event.MouseDownEvent, button.mouseDown)
+	handlers.Add(event.MouseDraggedEvent, button.mouseDragged)
+	handlers.Add(event.MouseUpEvent, button.mouseUp)
+	handlers.Add(event.FocusGainedEvent, button.focusChanged)
+	handlers.Add(event.FocusLostEvent, button.focusChanged)
+	handlers.Add(event.KeyDownEvent, button.keyDown)
 	return button
 }
 
 // Sizes implements Sizer
-func (button *ImageButton) Sizes(hint draw.Size) (min, pref, max draw.Size) {
-	size := button.image.Size()
-	size.Width += button.Theme.HorizontalMargin*2 + 2
-	size.Height += button.Theme.VerticalMargin*2 + 2
+func (button *Button) Sizes(hint draw.Size) (min, pref, max draw.Size) {
+	var hSpace = button.Theme.HorizontalMargin*2 + 2
+	var vSpace = button.Theme.VerticalMargin*2 + 2
+	if hint.Width != ui.NoLayoutHint {
+		hint.Width -= hSpace
+		if hint.Width < button.Theme.MinimumTextWidth {
+			hint.Width = button.Theme.MinimumTextWidth
+		}
+	}
+	if hint.Height != ui.NoLayoutHint {
+		hint.Height -= vSpace
+		if hint.Height < 1 {
+			hint.Height = 1
+		}
+	}
+	size, _ := button.title().MeasureConstrained(hint)
+	size.GrowToInteger()
+	size.Width += hSpace
+	size.Height += vSpace
 	if border := button.Border(); border != nil {
 		size.AddInsets(border.Insets())
 	}
-	return size, size, size
+	return size, size, ui.DefaultLayoutMaxSize(size)
 }
 
-func (button *ImageButton) paint(event *Event) {
+func (button *Button) paint(event *event.Event) {
 	var hSpace = button.Theme.HorizontalMargin*2 + 2
 	var vSpace = button.Theme.VerticalMargin*2 + 2
 	bounds := button.LocalInsetBounds()
@@ -96,27 +98,15 @@ func (button *ImageButton) paint(event *Event) {
 	bounds.Y += button.Theme.VerticalMargin + 1
 	bounds.Width -= hSpace
 	bounds.Height -= vSpace
-	if !bounds.IsEmpty() {
-		img := button.CurrentImage()
-		size := img.Size()
-		if size.Width < bounds.Width {
-			bounds.X += (bounds.Width - size.Width) / 2
-			bounds.Width = size.Width
-		}
-		if size.Height < bounds.Height {
-			bounds.Y += (bounds.Height - size.Height) / 2
-			bounds.Height = size.Height
-		}
-		gc.DrawImageInRect(img, bounds)
-	}
+	gc.DrawAttributedTextConstrained(bounds, button.title(), draw.TextModeFill)
 }
 
-func (button *ImageButton) mouseDown(event *Event) {
+func (button *Button) mouseDown(event *event.Event) {
 	button.pressed = true
 	button.Repaint()
 }
 
-func (button *ImageButton) mouseDragged(event *Event) {
+func (button *Button) mouseDragged(event *event.Event) {
 	bounds := button.LocalInsetBounds()
 	pressed := bounds.Contains(button.FromWindow(event.Where))
 	if button.pressed != pressed {
@@ -125,7 +115,7 @@ func (button *ImageButton) mouseDragged(event *Event) {
 	}
 }
 
-func (button *ImageButton) mouseUp(event *Event) {
+func (button *Button) mouseUp(event *event.Event) {
 	button.pressed = false
 	button.Repaint()
 	bounds := button.LocalInsetBounds()
@@ -134,13 +124,13 @@ func (button *ImageButton) mouseUp(event *Event) {
 	}
 }
 
-func (button *ImageButton) focusChanged(event *Event) {
+func (button *Button) focusChanged(event *event.Event) {
 	button.Repaint()
 }
 
 // Click performs any animation associated with a click and calls the OnClick() function if it is
 // set.
-func (button *ImageButton) Click() {
+func (button *Button) Click() {
 	pressed := button.pressed
 	button.pressed = true
 	button.Repaint()
@@ -153,28 +143,15 @@ func (button *ImageButton) Click() {
 	}
 }
 
-func (button *ImageButton) keyDown(event *Event) {
+func (button *Button) keyDown(event *event.Event) {
 	if event.KeyCode == keys.Return || event.KeyCode == keys.Enter || event.KeyCode == keys.Space {
 		event.Done = true
 		button.Click()
 	}
 }
 
-// Image returns this button's base image.
-func (button *ImageButton) Image() *draw.Image {
-	return button.image
-}
-
-// CurrentImage returns this button's current image.
-func (button *ImageButton) CurrentImage() *draw.Image {
-	if button.Enabled() {
-		return button.image
-	}
-	return button.disabledImage
-}
-
 // BaseBackground returns this button's current base background color.
-func (button *ImageButton) BaseBackground() color.Color {
+func (button *Button) BaseBackground() color.Color {
 	switch {
 	case !button.Enabled():
 		return button.Theme.Background.AdjustBrightness(button.Theme.DisabledAdjustment)
@@ -187,18 +164,19 @@ func (button *ImageButton) BaseBackground() color.Color {
 	}
 }
 
-type imageButtonSizer struct {
-	button *ImageButton
-	size   draw.Size
+// TextColor returns this button's current text color.
+func (button *Button) TextColor() color.Color {
+	if !button.Enabled() {
+		return button.Theme.TextWhenDisabled
+	}
+	if button.BaseBackground().Luminance() > 0.65 {
+		return button.Theme.TextWhenLight
+	}
+	return button.Theme.TextWhenDark
 }
 
-// Sizes implements Sizer
-func (ibs *imageButtonSizer) Sizes(hint draw.Size) (min, pref, max draw.Size) {
-	pref = ibs.size
-	pref.Width += ibs.button.Theme.HorizontalMargin*2 + 2
-	pref.Height += ibs.button.Theme.VerticalMargin*2 + 2
-	if border := ibs.button.Border(); border != nil {
-		pref.AddInsets(border.Insets())
-	}
-	return pref, pref, pref
+func (button *Button) title() *draw.Text {
+	str := draw.NewText(button.Title, button.TextColor(), button.Theme.Font)
+	str.SetAlignment(0, 0, draw.AlignMiddle)
+	return str
 }

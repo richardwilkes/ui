@@ -10,10 +10,9 @@
 #ifndef __RW_GOUI_MENU__
 #define __RW_GOUI_MENU__
 
-#include "Window.h"
-
 typedef void *uiMenu;
 typedef void *uiMenuItem;
+typedef void *uiWindow;
 
 uiMenu getMainMenu();
 void setMainMenu(uiMenu menuBar);

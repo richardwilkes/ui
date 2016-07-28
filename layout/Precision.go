@@ -7,17 +7,17 @@
 // This Source Code Form is "Incompatible With Secondary Licenses", as
 // defined by the Mozilla Public License, version 2.0.
 
-package ui
+package layout
 
 import (
+	"github.com/richardwilkes/ui"
 	"github.com/richardwilkes/ui/draw"
 	"github.com/richardwilkes/xmath"
 )
 
-// PrecisionLayout lays out the children of its widget based on the PrecisionData assigned to each
-// child.
-type PrecisionLayout struct {
-	widget   Widget
+// Precision lays out the children of its widget based on the PrecisionData assigned to each child.
+type Precision struct {
+	widget   ui.Widget
 	rows     int
 	columns  int
 	hSpacing float32
@@ -27,93 +27,93 @@ type PrecisionLayout struct {
 	equal    bool
 }
 
-// NewPrecisionLayout creates a new PrecisionLayout and sets it on the widget.
-func NewPrecisionLayout(widget Widget) *PrecisionLayout {
-	layout := &PrecisionLayout{widget: widget, columns: 1, hSpacing: 4, vSpacing: 2, hAlign: draw.AlignStart, vAlign: draw.AlignStart}
+// NewPrecision creates a new Precision layout and sets it on the widget.
+func NewPrecision(widget ui.Widget) *Precision {
+	layout := &Precision{widget: widget, columns: 1, hSpacing: 4, vSpacing: 2, hAlign: draw.AlignStart, vAlign: draw.AlignStart}
 	widget.SetLayout(layout)
 	return layout
 }
 
 //Columns returns the number of columns.
-func (p *PrecisionLayout) Columns() int {
+func (p *Precision) Columns() int {
 	return p.columns
 }
 
 // SetColumns sets the number of columns.
-func (p *PrecisionLayout) SetColumns(columns int) *PrecisionLayout {
+func (p *Precision) SetColumns(columns int) *Precision {
 	p.columns = columns
 	return p
 }
 
 // EqualColumns returns true if each column will use the same amount of horizontal space.
-func (p *PrecisionLayout) EqualColumns() bool {
+func (p *Precision) EqualColumns() bool {
 	return p.equal
 }
 
 // SetEqualColumns sets each column to use the same amount of horizontal space if true.
-func (p *PrecisionLayout) SetEqualColumns(equal bool) *PrecisionLayout {
+func (p *Precision) SetEqualColumns(equal bool) *Precision {
 	p.equal = equal
 	return p
 }
 
 // HorizontalSpacing returns the horizontal spacing between columns.
-func (p *PrecisionLayout) HorizontalSpacing() float32 {
+func (p *Precision) HorizontalSpacing() float32 {
 	return p.hSpacing
 }
 
 // SetHorizontalSpacing sets the horizontal spacing between columns.
-func (p *PrecisionLayout) SetHorizontalSpacing(spacing float32) *PrecisionLayout {
+func (p *Precision) SetHorizontalSpacing(spacing float32) *Precision {
 	p.hSpacing = spacing
 	return p
 }
 
 // VerticalSpacing returns the vertical spacing between rows.
-func (p *PrecisionLayout) VerticalSpacing() float32 {
+func (p *Precision) VerticalSpacing() float32 {
 	return p.vSpacing
 }
 
 // SetVerticalSpacing sets the vertical spacing between rows.
-func (p *PrecisionLayout) SetVerticalSpacing(spacing float32) *PrecisionLayout {
+func (p *Precision) SetVerticalSpacing(spacing float32) *Precision {
 	p.vSpacing = spacing
 	return p
 }
 
 // HorizontalAlignment returns the horizontal alignment of the widget within its space.
-func (p *PrecisionLayout) HorizontalAlignment() draw.Alignment {
+func (p *Precision) HorizontalAlignment() draw.Alignment {
 	return p.hAlign
 }
 
 // SetHorizontalAlignment sets the horizontal alignment of the widget within its space.
-func (p *PrecisionLayout) SetHorizontalAlignment(alignment draw.Alignment) *PrecisionLayout {
+func (p *Precision) SetHorizontalAlignment(alignment draw.Alignment) *Precision {
 	p.hAlign = alignment
 	return p
 }
 
 // VerticalAlignment returns the vertical alignment of the widget within its space.
-func (p *PrecisionLayout) VerticalAlignment() draw.Alignment {
+func (p *Precision) VerticalAlignment() draw.Alignment {
 	return p.vAlign
 }
 
 // SetVerticalAlignment sets the vertical alignment of the widget within its space.
-func (p *PrecisionLayout) SetVerticalAlignment(alignment draw.Alignment) *PrecisionLayout {
+func (p *Precision) SetVerticalAlignment(alignment draw.Alignment) *Precision {
 	p.vAlign = alignment
 	return p
 }
 
 // Sizes implements the Layout interface.
-func (p *PrecisionLayout) Sizes(hint draw.Size) (min, pref, max draw.Size) {
-	min = p.layout(draw.Point{}, NoLayoutHintSize, false, true)
-	pref = p.layout(draw.Point{}, NoLayoutHintSize, false, false)
+func (p *Precision) Sizes(hint draw.Size) (min, pref, max draw.Size) {
+	min = p.layout(draw.Point{}, ui.NoLayoutHintSize, false, true)
+	pref = p.layout(draw.Point{}, ui.NoLayoutHintSize, false, false)
 	if border := p.widget.Border(); border != nil {
 		insets := border.Insets()
 		min.AddInsets(insets)
 		pref.AddInsets(insets)
 	}
-	return min, pref, DefaultLayoutMaxSize(pref)
+	return min, pref, ui.DefaultLayoutMaxSize(pref)
 }
 
 // Layout implements the Layout interface.
-func (p *PrecisionLayout) Layout() {
+func (p *Precision) Layout() {
 	var insets draw.Insets
 	if border := p.widget.Border(); border != nil {
 		insets = border.Insets()
@@ -123,7 +123,7 @@ func (p *PrecisionLayout) Layout() {
 	p.layout(draw.Point{X: insets.Left, Y: insets.Top}, hint, true, false)
 }
 
-func (p *PrecisionLayout) layout(location draw.Point, hint draw.Size, move, useMinimumSize bool) draw.Size {
+func (p *Precision) layout(location draw.Point, hint draw.Size, move, useMinimumSize bool) draw.Size {
 	var totalSize draw.Size
 	if p.columns > 0 {
 		children := p.prepChildren(useMinimumSize)
@@ -162,7 +162,7 @@ func (p *PrecisionLayout) layout(location draw.Point, hint draw.Size, move, useM
 	return totalSize
 }
 
-func (p *PrecisionLayout) prepChildren(useMinimumSize bool) []Widget {
+func (p *Precision) prepChildren(useMinimumSize bool) []ui.Widget {
 	children := p.widget.Children()
 	for _, child := range children {
 		var layoutData *PrecisionData
@@ -171,13 +171,13 @@ func (p *PrecisionLayout) prepChildren(useMinimumSize bool) []Widget {
 			layoutData = NewPrecisionData()
 			child.SetLayoutData(layoutData)
 		}
-		layoutData.computeCacheSize(child, NoLayoutHintSize, useMinimumSize)
+		layoutData.computeCacheSize(child, ui.NoLayoutHintSize, useMinimumSize)
 	}
 	return children
 }
 
-func (p *PrecisionLayout) buildGrid(children []Widget) [][]Widget {
-	var grid [][]Widget
+func (p *Precision) buildGrid(children []ui.Widget) [][]ui.Widget {
+	var grid [][]ui.Widget
 	var row, column int
 	p.rows = 0
 	for _, child := range children {
@@ -187,7 +187,7 @@ func (p *PrecisionLayout) buildGrid(children []Widget) [][]Widget {
 		for {
 			lastRow := row + vSpan
 			if lastRow >= len(grid) {
-				grid = append(grid, make([]Widget, p.columns))
+				grid = append(grid, make([]ui.Widget, p.columns))
 			}
 			for column < p.columns && grid[row][column] != nil {
 				column++
@@ -220,7 +220,7 @@ func (p *PrecisionLayout) buildGrid(children []Widget) [][]Widget {
 	return grid
 }
 
-func (p *PrecisionLayout) adjustColumnWidths(width float32, grid [][]Widget) []float32 {
+func (p *Precision) adjustColumnWidths(width float32, grid [][]ui.Widget) []float32 {
 	availableWidth := width - p.hSpacing*float32(p.columns-1)
 	expandCount := 0
 	widths := make([]float32, p.columns)
@@ -244,7 +244,7 @@ func (p *PrecisionLayout) adjustColumnWidths(width float32, grid [][]Widget) []f
 					}
 					minimumWidth := data.minCacheSize.Width
 					if !data.hGrab || minimumWidth != 0 {
-						if minimumWidth == NoLayoutHint {
+						if minimumWidth == ui.NoLayoutHint {
 							w = data.cacheSize.Width
 						} else {
 							w = minimumWidth
@@ -289,7 +289,7 @@ func (p *PrecisionLayout) adjustColumnWidths(width float32, grid [][]Widget) []f
 					}
 					minimumWidth := data.minCacheSize.Width
 					if !data.hGrab || minimumWidth != 0 {
-						if !data.hGrab || minimumWidth == NoLayoutHint {
+						if !data.hGrab || minimumWidth == ui.NoLayoutHint {
 							w = data.cacheSize.Width
 						} else {
 							w = minimumWidth
@@ -313,7 +313,7 @@ func (p *PrecisionLayout) adjustColumnWidths(width float32, grid [][]Widget) []f
 				columnWidth = widths[i]
 			}
 		}
-		if width != NoLayoutHint && expandCount != 0 {
+		if width != ui.NoLayoutHint && expandCount != 0 {
 			columnWidth = xmath.MaxFloat32(minColumnWidth, xmath.FloorFloat32(availableWidth/float32(p.columns)))
 		}
 		for i := 0; i < p.columns; i++ {
@@ -321,7 +321,7 @@ func (p *PrecisionLayout) adjustColumnWidths(width float32, grid [][]Widget) []f
 			widths[i] = columnWidth
 		}
 	} else {
-		if width != NoLayoutHint && expandCount > 0 {
+		if width != ui.NoLayoutHint && expandCount > 0 {
 			var totalWidth float32
 			for i := 0; i < p.columns; i++ {
 				totalWidth += widths[i]
@@ -357,7 +357,7 @@ func (p *PrecisionLayout) adjustColumnWidths(width float32, grid [][]Widget) []f
 										}
 									}
 									var w float32
-									if !data.hGrab || minimumWidth == NoLayoutHint {
+									if !data.hGrab || minimumWidth == ui.NoLayoutHint {
 										w = data.cacheSize.Width
 									} else {
 										w = minimumWidth
@@ -384,7 +384,7 @@ func (p *PrecisionLayout) adjustColumnWidths(width float32, grid [][]Widget) []f
 	return widths
 }
 
-func (p *PrecisionLayout) apportionExtra(extra float32, base, count, span int, expand []bool, values []float32) {
+func (p *Precision) apportionExtra(extra float32, base, count, span int, expand []bool, values []float32) {
 	if count == 0 {
 		values[base] += extra
 	} else {
@@ -412,7 +412,7 @@ func (p *PrecisionLayout) apportionExtra(extra float32, base, count, span int, e
 	}
 }
 
-func (p *PrecisionLayout) getData(grid [][]Widget, row, column int, first bool) *PrecisionData {
+func (p *Precision) getData(grid [][]ui.Widget, row, column int, first bool) *PrecisionData {
 	block := grid[row][column]
 	if block != nil {
 		data := block.LayoutData().(*PrecisionData)
@@ -437,13 +437,13 @@ func (p *PrecisionLayout) getData(grid [][]Widget, row, column int, first bool) 
 	return nil
 }
 
-func (p *PrecisionLayout) wrap(width float32, grid [][]Widget, widths []float32, useMinimumSize bool) {
-	if width != NoLayoutHint {
+func (p *Precision) wrap(width float32, grid [][]ui.Widget, widths []float32, useMinimumSize bool) {
+	if width != ui.NoLayoutHint {
 		for j := 0; j < p.columns; j++ {
 			for i := 0; i < p.rows; i++ {
 				data := p.getData(grid, i, j, false)
 				if data != nil {
-					if data.sizeHint.Height == NoLayoutHint {
+					if data.sizeHint.Height == ui.NoLayoutHint {
 						hSpan := xmath.MaxInt(1, xmath.MinInt(data.hSpan, p.columns))
 						var currentWidth float32
 						for k := 0; k < hSpan; k++ {
@@ -451,7 +451,7 @@ func (p *PrecisionLayout) wrap(width float32, grid [][]Widget, widths []float32,
 						}
 						currentWidth += float32(hSpan-1) * p.hSpacing
 						if currentWidth != data.cacheSize.Width && data.hAlign == draw.AlignFill || data.cacheSize.Width > currentWidth {
-							data.computeCacheSize(grid[i][j], draw.Size{Width: xmath.MaxFloat32(data.minCacheSize.Width, currentWidth), Height: NoLayoutHint}, useMinimumSize)
+							data.computeCacheSize(grid[i][j], draw.Size{Width: xmath.MaxFloat32(data.minCacheSize.Width, currentWidth), Height: ui.NoLayoutHint}, useMinimumSize)
 							minimumHeight := data.minSize.Height
 							if data.vGrab && minimumHeight > 0 && data.cacheSize.Height < minimumHeight {
 								data.cacheSize.Height = minimumHeight
@@ -464,7 +464,7 @@ func (p *PrecisionLayout) wrap(width float32, grid [][]Widget, widths []float32,
 	}
 }
 
-func (p *PrecisionLayout) adjustRowHeights(height float32, grid [][]Widget) []float32 {
+func (p *Precision) adjustRowHeights(height float32, grid [][]ui.Widget) []float32 {
 	availableHeight := height - p.vSpacing*float32(p.rows-1)
 	expandCount := 0
 	heights := make([]float32, p.rows)
@@ -489,7 +489,7 @@ func (p *PrecisionLayout) adjustRowHeights(height float32, grid [][]Widget) []fl
 					minimumHeight := data.minSize.Height
 					if !data.vGrab || minimumHeight != 0 {
 						var h float32
-						if !data.vGrab || minimumHeight == NoLayoutHint {
+						if !data.vGrab || minimumHeight == ui.NoLayoutHint {
 							h = data.minCacheSize.Height
 						} else {
 							h = minimumHeight
@@ -535,7 +535,7 @@ func (p *PrecisionLayout) adjustRowHeights(height float32, grid [][]Widget) []fl
 					minimumHeight := data.minSize.Height
 					if !data.vGrab || minimumHeight != 0 {
 						var h float32
-						if !data.vGrab || minimumHeight == NoLayoutHint {
+						if !data.vGrab || minimumHeight == ui.NoLayoutHint {
 							h = data.minCacheSize.Height
 						} else {
 							h = minimumHeight
@@ -549,7 +549,7 @@ func (p *PrecisionLayout) adjustRowHeights(height float32, grid [][]Widget) []fl
 			}
 		}
 	}
-	if height != NoLayoutHint && expandCount > 0 {
+	if height != ui.NoLayoutHint && expandCount > 0 {
 		var totalHeight float32
 		for i := 0; i < p.rows; i++ {
 			totalHeight += heights[i]
@@ -585,7 +585,7 @@ func (p *PrecisionLayout) adjustRowHeights(height float32, grid [][]Widget) []fl
 									}
 								}
 								var h float32
-								if !data.vGrab || minimumHeight == NoLayoutHint {
+								if !data.vGrab || minimumHeight == ui.NoLayoutHint {
 									h = data.minCacheSize.Height
 								} else {
 									h = minimumHeight
@@ -612,7 +612,7 @@ func (p *PrecisionLayout) adjustRowHeights(height float32, grid [][]Widget) []fl
 	return heights
 }
 
-func (p *PrecisionLayout) positionChildren(location draw.Point, grid [][]Widget, widths []float32, heights []float32) {
+func (p *Precision) positionChildren(location draw.Point, grid [][]ui.Widget, widths []float32, heights []float32) {
 	gridY := location.Y
 	for i := 0; i < p.rows; i++ {
 		gridX := location.X

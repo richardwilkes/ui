@@ -7,11 +7,13 @@
 // This Source Code Form is "Incompatible With Secondary Licenses", as
 // defined by the Mozilla Public License, version 2.0.
 
-package ui
+package widget
 
 import (
+	"github.com/richardwilkes/ui"
 	"github.com/richardwilkes/ui/color"
 	"github.com/richardwilkes/ui/draw"
+	"github.com/richardwilkes/ui/event"
 	"github.com/richardwilkes/ui/keys"
 	"github.com/richardwilkes/ui/theme"
 	"github.com/richardwilkes/xmath"
@@ -45,13 +47,14 @@ func NewCheckBox(title string) *CheckBox {
 	checkbox.Theme = theme.StdCheckBox
 	checkbox.SetFocusable(true)
 	checkbox.SetSizer(checkbox)
-	checkbox.AddEventHandler(PaintEvent, checkbox.paint)
-	checkbox.AddEventHandler(MouseDownEvent, checkbox.mouseDown)
-	checkbox.AddEventHandler(MouseDraggedEvent, checkbox.mouseDragged)
-	checkbox.AddEventHandler(MouseUpEvent, checkbox.mouseUp)
-	checkbox.AddEventHandler(FocusGainedEvent, checkbox.focusChanged)
-	checkbox.AddEventHandler(FocusLostEvent, checkbox.focusChanged)
-	checkbox.AddEventHandler(KeyDownEvent, checkbox.keyDown)
+	handlers := checkbox.EventHandlers()
+	handlers.Add(event.PaintEvent, checkbox.paint)
+	handlers.Add(event.MouseDownEvent, checkbox.mouseDown)
+	handlers.Add(event.MouseDraggedEvent, checkbox.mouseDragged)
+	handlers.Add(event.MouseUpEvent, checkbox.mouseUp)
+	handlers.Add(event.FocusGainedEvent, checkbox.focusChanged)
+	handlers.Add(event.FocusLostEvent, checkbox.focusChanged)
+	handlers.Add(event.KeyDownEvent, checkbox.keyDown)
 	return checkbox
 }
 
@@ -60,13 +63,13 @@ func (checkbox *CheckBox) Sizes(hint draw.Size) (min, pref, max draw.Size) {
 	var size draw.Size
 	box := xmath.CeilFloat32(checkbox.Theme.Font.Ascent())
 	if checkbox.Title != "" {
-		if hint.Width != NoLayoutHint {
+		if hint.Width != ui.NoLayoutHint {
 			hint.Width -= checkbox.Theme.HorizontalGap + box
 			if hint.Width < 1 {
 				hint.Width = 1
 			}
 		}
-		if hint.Height != NoLayoutHint {
+		if hint.Height != ui.NoLayoutHint {
 			if hint.Height < 1 {
 				hint.Height = 1
 			}
@@ -84,10 +87,10 @@ func (checkbox *CheckBox) Sizes(hint draw.Size) (min, pref, max draw.Size) {
 	if border := checkbox.Border(); border != nil {
 		size.AddInsets(border.Insets())
 	}
-	return size, size, DefaultLayoutMaxSize(size)
+	return size, size, ui.DefaultLayoutMaxSize(size)
 }
 
-func (checkbox *CheckBox) paint(event *Event) {
+func (checkbox *CheckBox) paint(event *event.Event) {
 	box := xmath.CeilFloat32(checkbox.Theme.Font.Ascent())
 	bounds := checkbox.LocalInsetBounds()
 	bounds.Width = box
@@ -146,12 +149,12 @@ func (checkbox *CheckBox) paint(event *Event) {
 	}
 }
 
-func (checkbox *CheckBox) mouseDown(event *Event) {
+func (checkbox *CheckBox) mouseDown(event *event.Event) {
 	checkbox.pressed = true
 	checkbox.Repaint()
 }
 
-func (checkbox *CheckBox) mouseDragged(event *Event) {
+func (checkbox *CheckBox) mouseDragged(event *event.Event) {
 	bounds := checkbox.LocalInsetBounds()
 	pressed := bounds.Contains(checkbox.FromWindow(event.Where))
 	if checkbox.pressed != pressed {
@@ -160,7 +163,7 @@ func (checkbox *CheckBox) mouseDragged(event *Event) {
 	}
 }
 
-func (checkbox *CheckBox) mouseUp(event *Event) {
+func (checkbox *CheckBox) mouseUp(event *event.Event) {
 	checkbox.pressed = false
 	checkbox.Repaint()
 	bounds := checkbox.LocalInsetBounds()
@@ -189,11 +192,11 @@ func (checkbox *CheckBox) Click() {
 	}
 }
 
-func (checkbox *CheckBox) focusChanged(event *Event) {
+func (checkbox *CheckBox) focusChanged(event *event.Event) {
 	checkbox.Repaint()
 }
 
-func (checkbox *CheckBox) keyDown(event *Event) {
+func (checkbox *CheckBox) keyDown(event *event.Event) {
 	if event.KeyCode == keys.Return || event.KeyCode == keys.Enter || event.KeyCode == keys.Space {
 		event.Done = true
 		checkbox.Click()

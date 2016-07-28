@@ -7,7 +7,7 @@
 // This Source Code Form is "Incompatible With Secondary Licenses", as
 // defined by the Mozilla Public License, version 2.0.
 
-package ui
+package app
 
 import (
 	"runtime"
@@ -60,8 +60,8 @@ func Start() {
 	C.uiStart()
 }
 
-// AppName returns the application's name.
-func AppName() string {
+// Name returns the application's name.
+func Name() string {
 	return C.GoString(C.uiAppName())
 }
 
@@ -70,18 +70,18 @@ func AttemptQuit() {
 	C.uiAttemptTerminate()
 }
 
-// HideApp attempts to hide this application.
-func HideApp() {
+// Hide attempts to hide this application.
+func Hide() {
 	C.uiHideApp()
 }
 
-// HideOtherApps attempts to hide other applications, leaving just this application visible.
-func HideOtherApps() {
+// HideOthers attempts to hide other applications, leaving just this application visible.
+func HideOthers() {
 	C.uiHideOtherApps()
 }
 
-// ShowAllApps attempts to show all applications that are currently hidden.
-func ShowAllApps() {
+// ShowAll attempts to show all applications that are currently hidden.
+func ShowAll() {
 	C.uiShowAllApps()
 }
 

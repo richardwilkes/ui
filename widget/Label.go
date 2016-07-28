@@ -7,11 +7,12 @@
 // This Source Code Form is "Incompatible With Secondary Licenses", as
 // defined by the Mozilla Public License, version 2.0.
 
-package ui
+package widget
 
 import (
 	"github.com/richardwilkes/ui/color"
 	"github.com/richardwilkes/ui/draw"
+	"github.com/richardwilkes/ui/event"
 	"github.com/richardwilkes/ui/font"
 )
 
@@ -37,7 +38,7 @@ func NewLabelWithFont(text string, font *font.Font) *Label {
 	label.font = font
 	label.alignment = draw.AlignStart
 	label.SetSizer(label)
-	label.AddEventHandler(PaintEvent, label.paint)
+	label.EventHandlers().Add(event.PaintEvent, label.paint)
 	return label
 }
 
@@ -51,7 +52,7 @@ func (label *Label) Sizes(hint draw.Size) (min, pref, max draw.Size) {
 	return size, size, size
 }
 
-func (label *Label) paint(event *Event) {
+func (label *Label) paint(event *event.Event) {
 	event.GC.DrawAttributedTextConstrained(label.LocalInsetBounds(), label.title(), draw.TextModeFill)
 }
 

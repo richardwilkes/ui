@@ -7,9 +7,10 @@
 // This Source Code Form is "Incompatible With Secondary Licenses", as
 // defined by the Mozilla Public License, version 2.0.
 
-package ui
+package layout
 
 import (
+	"github.com/richardwilkes/ui"
 	"github.com/richardwilkes/ui/draw"
 )
 
@@ -29,7 +30,7 @@ type PrecisionData struct {
 
 // NewPrecisionData creates a new PrecisionData.
 func NewPrecisionData() *PrecisionData {
-	return &PrecisionData{hSpan: 1, vSpan: 1, hAlign: draw.AlignStart, vAlign: draw.AlignMiddle, sizeHint: NoLayoutHintSize, minSize: NoLayoutHintSize}
+	return &PrecisionData{hSpan: 1, vSpan: 1, hAlign: draw.AlignStart, vAlign: draw.AlignMiddle, sizeHint: ui.NoLayoutHintSize, minSize: ui.NoLayoutHintSize}
 }
 
 // HorizontalAlignment returns the horizontal alignment of the widget within its space.
@@ -144,45 +145,45 @@ func (pd *PrecisionData) SetVerticalGrab(grab bool) *PrecisionData {
 	return pd
 }
 
-func (pd *PrecisionData) computeCacheSize(target Widget, hint draw.Size, useMinimumSize bool) {
+func (pd *PrecisionData) computeCacheSize(target ui.Widget, hint draw.Size, useMinimumSize bool) {
 	pd.minCacheSize.Width = 0
 	pd.minCacheSize.Height = 0
 	pd.cacheSize.Width = 0
 	pd.cacheSize.Height = 0
-	min, pref, max := ComputeSizes(target, hint)
-	if hint.Width != NoLayoutHint || hint.Height != NoLayoutHint {
-		if pd.minSize.Width != NoLayoutHint {
+	min, pref, max := ui.ComputeSizes(target, hint)
+	if hint.Width != ui.NoLayoutHint || hint.Height != ui.NoLayoutHint {
+		if pd.minSize.Width != ui.NoLayoutHint {
 			pd.minCacheSize.Width = pd.minSize.Width
 		} else {
 			pd.minCacheSize.Width = min.Width
 		}
-		if hint.Width != NoLayoutHint && hint.Width < pd.minCacheSize.Width {
+		if hint.Width != ui.NoLayoutHint && hint.Width < pd.minCacheSize.Width {
 			hint.Width = pd.minCacheSize.Width
 		}
-		if hint.Width != NoLayoutHint && hint.Width > max.Width {
+		if hint.Width != ui.NoLayoutHint && hint.Width > max.Width {
 			hint.Width = max.Width
 		}
 
-		if pd.minSize.Height != NoLayoutHint {
+		if pd.minSize.Height != ui.NoLayoutHint {
 			pd.minCacheSize.Height = pd.minSize.Height
 		} else {
 			pd.minCacheSize.Height = min.Height
 		}
-		if hint.Height != NoLayoutHint && hint.Height < pd.minCacheSize.Height {
+		if hint.Height != ui.NoLayoutHint && hint.Height < pd.minCacheSize.Height {
 			hint.Height = pd.minCacheSize.Height
 		}
-		if hint.Height != NoLayoutHint && hint.Height > max.Height {
+		if hint.Height != ui.NoLayoutHint && hint.Height > max.Height {
 			hint.Height = max.Height
 		}
 	}
 	if useMinimumSize {
 		pd.cacheSize = min
-		if pd.minSize.Width != NoLayoutHint {
+		if pd.minSize.Width != ui.NoLayoutHint {
 			pd.minCacheSize.Width = pd.minSize.Width
 		} else {
 			pd.minCacheSize.Width = min.Width
 		}
-		if pd.minSize.Height != NoLayoutHint {
+		if pd.minSize.Height != ui.NoLayoutHint {
 			pd.minCacheSize.Height = pd.minSize.Height
 		} else {
 			pd.minCacheSize.Height = min.Height
@@ -190,22 +191,22 @@ func (pd *PrecisionData) computeCacheSize(target Widget, hint draw.Size, useMini
 	} else {
 		pd.cacheSize = pref
 	}
-	if hint.Width != NoLayoutHint {
+	if hint.Width != ui.NoLayoutHint {
 		pd.cacheSize.Width = hint.Width
 	}
-	if pd.minSize.Width != NoLayoutHint && pd.cacheSize.Width < pd.minSize.Width {
+	if pd.minSize.Width != ui.NoLayoutHint && pd.cacheSize.Width < pd.minSize.Width {
 		pd.cacheSize.Width = pd.minSize.Width
 	}
-	if pd.sizeHint.Width != NoLayoutHint {
+	if pd.sizeHint.Width != ui.NoLayoutHint {
 		pd.cacheSize.Width = pd.sizeHint.Width
 	}
-	if hint.Height != NoLayoutHint {
+	if hint.Height != ui.NoLayoutHint {
 		pd.cacheSize.Height = hint.Height
 	}
-	if pd.minSize.Height != NoLayoutHint && pd.cacheSize.Height < pd.minSize.Height {
+	if pd.minSize.Height != ui.NoLayoutHint && pd.cacheSize.Height < pd.minSize.Height {
 		pd.cacheSize.Height = pd.minSize.Height
 	}
-	if pd.sizeHint.Height != NoLayoutHint {
+	if pd.sizeHint.Height != ui.NoLayoutHint {
 		pd.cacheSize.Height = pd.sizeHint.Height
 	}
 }
