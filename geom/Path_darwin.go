@@ -17,6 +17,7 @@ import (
 // #include <CoreGraphics/CoreGraphics.h>
 import "C"
 
+// PlatformPtr returns a pointer to the underlying platform-specific data.
 func (p *Path) PlatformPtr() unsafe.Pointer {
 	path := C.CGPathCreateMutable()
 	for _, node := range p.data {
