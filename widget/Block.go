@@ -43,7 +43,7 @@ func NewBlock() *Block {
 	return &Block{}
 }
 
-// EventHandlers returns the current event.Handlers.
+// EventHandlers implements the event.Target interface.
 func (b *Block) EventHandlers() *event.Handlers {
 	if b.eventHandlers == nil {
 		b.eventHandlers = &event.Handlers{}
@@ -51,6 +51,7 @@ func (b *Block) EventHandlers() *event.Handlers {
 	return b.eventHandlers
 }
 
+// ParentTarget implements the event.Target interface.
 func (b *Block) ParentTarget() event.Target {
 	if b.parent != nil {
 		return b.parent

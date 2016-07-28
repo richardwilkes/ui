@@ -93,7 +93,7 @@ func NewWindowWithContentSize(where geom.Point, contentSize geom.Size, styleMask
 	return window
 }
 
-// EventHandlers returns the current event.Handlers.
+// EventHandlers implements the event.Target interface.
 func (window *Window) EventHandlers() *event.Handlers {
 	if window.eventHandlers == nil {
 		window.eventHandlers = &event.Handlers{}
@@ -101,6 +101,7 @@ func (window *Window) EventHandlers() *event.Handlers {
 	return window.eventHandlers
 }
 
+// ParentTarget implements the event.Target interface.
 func (window *Window) ParentTarget() event.Target {
 	return nil
 }
