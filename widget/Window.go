@@ -18,7 +18,6 @@ import (
 	"github.com/richardwilkes/ui/geom"
 	"github.com/richardwilkes/ui/keys"
 	"github.com/richardwilkes/ui/layout"
-	"time"
 	"unsafe"
 )
 
@@ -196,12 +195,12 @@ func (window *Window) Focus() ui.Widget {
 func (window *Window) SetFocus(target ui.Widget) {
 	if target != nil && target.Window() == window && target != window.focus {
 		if window.focus != nil {
-			event := &event.Event{Type: event.FocusLost, When: time.Now(), Target: window.focus}
+			event := &event.Event{Type: event.FocusLost, Target: window.focus}
 			event.Dispatch()
 		}
 		window.focus = target
 		if target != nil {
-			event := &event.Event{Type: event.FocusGained, When: time.Now(), Target: target}
+			event := &event.Event{Type: event.FocusGained, Target: target}
 			event.Dispatch()
 		}
 	}
@@ -312,7 +311,7 @@ func (window *Window) PlatformPtr() unsafe.Pointer {
 func (window *Window) updateToolTip(widget ui.Widget, where geom.Point) {
 	tooltip := ""
 	if widget != nil {
-		event := &event.Event{Type: event.ToolTip, When: time.Now(), Target: widget, Where: where}
+		event := &event.Event{Type: event.ToolTip, Target: widget, Where: where}
 		event.Dispatch()
 		tooltip = event.ToolTip
 	}
@@ -361,7 +360,7 @@ func handleWindowMouseEvent(cWindow C.uiWindow, eventType, keyModifiers, button,
 			}
 			if eventType == C.uiMouseMoved && widget != window.lastMouseWidget {
 				if window.lastMouseWidget != nil {
-					event := &event.Event{Type: event.MouseExited, When: time.Now(), Target: window.lastMouseWidget, KeyModifiers: keyMask}
+					event := &event.Event{Type: event.MouseExited, Target: window.lastMouseWidget, KeyModifiers: keyMask}
 					event.Dispatch()
 				}
 				eventType = C.uiMouseEntered
@@ -370,30 +369,30 @@ func handleWindowMouseEvent(cWindow C.uiWindow, eventType, keyModifiers, button,
 		switch eventType {
 		case C.uiMouseDown:
 			if widget.Enabled() {
-				event := &event.Event{Type: event.MouseDown, When: time.Now(), Target: widget, Where: where, KeyModifiers: keyMask, Button: button, Clicks: clickCount}
+				event := &event.Event{Type: event.MouseDown, Target: widget, Where: where, KeyModifiers: keyMask, Button: button, Clicks: clickCount}
 				event.Dispatch()
 				discardMouseDown = event.Discard
 			}
 		case C.uiMouseDragged:
 			if widget.Enabled() {
-				event := &event.Event{Type: event.MouseDragged, When: time.Now(), Target: widget, Where: where, KeyModifiers: keyMask}
+				event := &event.Event{Type: event.MouseDragged, Target: widget, Where: where, KeyModifiers: keyMask}
 				event.Dispatch()
 			}
 		case C.uiMouseUp:
 			if widget.Enabled() {
-				event := &event.Event{Type: event.MouseUp, When: time.Now(), Target: widget, Where: where, KeyModifiers: keyMask}
+				event := &event.Event{Type: event.MouseUp, Target: widget, Where: where, KeyModifiers: keyMask}
 				event.Dispatch()
 			}
 		case C.uiMouseEntered:
-			event := &event.Event{Type: event.MouseEntered, When: time.Now(), Target: widget, Where: where, KeyModifiers: keyMask}
+			event := &event.Event{Type: event.MouseEntered, Target: widget, Where: where, KeyModifiers: keyMask}
 			event.Dispatch()
 			window.updateToolTip(widget, where)
 		case C.uiMouseMoved:
-			event := &event.Event{Type: event.MouseMoved, When: time.Now(), Target: widget, Where: where, KeyModifiers: keyMask}
+			event := &event.Event{Type: event.MouseMoved, Target: widget, Where: where, KeyModifiers: keyMask}
 			event.Dispatch()
 			window.updateToolTip(widget, where)
 		case C.uiMouseExited:
-			event := &event.Event{Type: event.MouseExited, When: time.Now(), Target: widget, KeyModifiers: keyMask}
+			event := &event.Event{Type: event.MouseExited, Target: widget, KeyModifiers: keyMask}
 			event.Dispatch()
 		default:
 			panic(fmt.Sprintf("Unknown event type: %d", eventType))
@@ -415,7 +414,7 @@ func handleWindowMouseWheelEvent(cWindow C.uiWindow, eventType, keyModifiers int
 		where := geom.Point{X: x, Y: y}
 		widget := window.root.WidgetAt(where)
 		if widget != nil {
-			event := &event.Event{Type: event.MouseWheel, When: time.Now(), Target: widget, Where: where, Delta: geom.Point{X: dx, Y: dy}, KeyModifiers: event.KeyMask(keyModifiers), CascadeUp: true}
+			event := &event.Event{Type: event.MouseWheel, Target: widget, Where: where, Delta: geom.Point{X: dx, Y: dy}, KeyModifiers: event.KeyMask(keyModifiers), CascadeUp: true}
 			event.Dispatch()
 			if window.inMouseDown {
 				eventType = C.uiMouseDragged
@@ -433,7 +432,7 @@ func handleWindowKeyEvent(cWindow C.uiWindow, eventType, keyModifiers, keyCode i
 		keyMask := event.KeyMask(keyModifiers)
 		switch eventType {
 		case C.uiKeyDown:
-			evt := &event.Event{Type: event.KeyDown, When: time.Now(), Target: window.Focus(), KeyModifiers: keyMask, KeyCode: keyCode, Repeat: repeat, CascadeUp: true}
+			evt := &event.Event{Type: event.KeyDown, Target: window.Focus(), KeyModifiers: keyMask, KeyCode: keyCode, Repeat: repeat, CascadeUp: true}
 			evt.Dispatch()
 			if !evt.Discard && keyCode == keys.Tab && (keyMask&(event.AllKeyMask & ^event.ShiftKeyMask)) == 0 {
 				if keyMask&event.ShiftKeyMask == 0 {
@@ -444,11 +443,11 @@ func handleWindowKeyEvent(cWindow C.uiWindow, eventType, keyModifiers, keyCode i
 			}
 		case C.uiKeyTyped:
 			for _, r := range C.GoString(chars) {
-				event := &event.Event{Type: event.KeyTyped, When: time.Now(), Target: window.Focus(), KeyModifiers: keyMask, KeyTyped: r, Repeat: repeat, CascadeUp: true}
+				event := &event.Event{Type: event.KeyTyped, Target: window.Focus(), KeyModifiers: keyMask, KeyTyped: r, Repeat: repeat, CascadeUp: true}
 				event.Dispatch()
 			}
 		case C.uiKeyUp:
-			event := &event.Event{Type: event.KeyUp, When: time.Now(), Target: window.Focus(), KeyModifiers: keyMask, KeyCode: keyCode, Repeat: repeat, CascadeUp: true}
+			event := &event.Event{Type: event.KeyUp, Target: window.Focus(), KeyModifiers: keyMask, KeyCode: keyCode, Repeat: repeat, CascadeUp: true}
 			event.Dispatch()
 		default:
 			panic(fmt.Sprintf("Unknown event type: %d", eventType))
@@ -459,7 +458,7 @@ func handleWindowKeyEvent(cWindow C.uiWindow, eventType, keyModifiers, keyCode i
 //export windowShouldClose
 func windowShouldClose(cWindow C.uiWindow) bool {
 	if window, ok := windowMap[cWindow]; ok {
-		event := &event.Event{Type: event.Closing, When: time.Now(), Target: window}
+		event := &event.Event{Type: event.Closing, Target: window}
 		event.Dispatch()
 		return !event.Discard
 	}
@@ -469,7 +468,7 @@ func windowShouldClose(cWindow C.uiWindow) bool {
 //export windowDidClose
 func windowDidClose(cWindow C.uiWindow) {
 	if window, ok := windowMap[cWindow]; ok {
-		event := &event.Event{Type: event.Closed, When: time.Now(), Target: window}
+		event := &event.Event{Type: event.Closed, Target: window}
 		event.Dispatch()
 	}
 	delete(windowMap, cWindow)

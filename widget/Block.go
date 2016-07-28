@@ -17,7 +17,6 @@ import (
 	"github.com/richardwilkes/ui/event"
 	"github.com/richardwilkes/ui/geom"
 	"reflect"
-	"time"
 )
 
 // Block is the basic graphical block in a window.
@@ -170,7 +169,7 @@ func (b *Block) paintSelf(g draw.Graphics, dirty geom.Rect) {
 		g.FillRect(dirty)
 	}
 	b.paintBorder(g)
-	event := &event.Event{Type: event.Paint, When: time.Now(), Target: b, GC: g, DirtyRect: dirty}
+	event := &event.Event{Type: event.Paint, Target: b, GC: g, DirtyRect: dirty}
 	event.Dispatch()
 }
 
@@ -348,7 +347,7 @@ func (b *Block) SetBounds(bounds geom.Rect) {
 		if resized {
 			b.bounds.Size = bounds.Size
 			b.SetNeedLayout(true)
-			event := &event.Event{Type: event.Resize, When: time.Now(), Target: b}
+			event := &event.Event{Type: event.Resize, Target: b}
 			event.Dispatch()
 		}
 		b.Repaint()
@@ -380,7 +379,7 @@ func (b *Block) SetSize(size geom.Size) {
 		b.Repaint()
 		b.bounds.Size = size
 		b.SetNeedLayout(true)
-		event := &event.Event{Type: event.Resize, When: time.Now(), Target: b}
+		event := &event.Event{Type: event.Resize, Target: b}
 		event.Dispatch()
 		b.Repaint()
 	}

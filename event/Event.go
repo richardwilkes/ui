@@ -15,7 +15,6 @@ import (
 	"github.com/richardwilkes/ui/draw"
 	"github.com/richardwilkes/ui/geom"
 	"reflect"
-	"time"
 )
 
 const (
@@ -64,7 +63,6 @@ const (
 // Event holds the data associated with an event.
 type Event struct {
 	Type         int           // Valid for all events.
-	When         time.Time     // Valid for all events.
 	Target       Target        // Valid for all events
 	GC           draw.Graphics // Valid only for PaintEvent.
 	DirtyRect    geom.Rect     // Valid only for PaintEvent.
@@ -168,7 +166,7 @@ func (event *Event) String() string {
 	default:
 		buffer.WriteString(fmt.Sprintf("User%d", event.Type))
 	}
-	buffer.WriteString(fmt.Sprintf("[When: %v, Target: %v", event.When, reflect.ValueOf(event.Target).Pointer()))
+	buffer.WriteString(fmt.Sprintf("[Target: %v", reflect.ValueOf(event.Target).Pointer()))
 	switch event.Type {
 	case Paint:
 		buffer.WriteString(fmt.Sprintf(", DirtyRect: %v", event.DirtyRect))
