@@ -11,11 +11,11 @@ package menu
 
 import (
 	"fmt"
-	"github.com/richardwilkes/ui"
 	"github.com/richardwilkes/ui/color"
 	"github.com/richardwilkes/ui/draw"
 	"github.com/richardwilkes/ui/event"
 	"github.com/richardwilkes/ui/keys"
+	"github.com/richardwilkes/ui/layout"
 	"github.com/richardwilkes/ui/theme"
 	"github.com/richardwilkes/ui/widget"
 )
@@ -52,13 +52,13 @@ func NewPopupMenu() *PopupMenu {
 func (pm *PopupMenu) Sizes(hint draw.Size) (min, pref, max draw.Size) {
 	var hSpace = pm.Theme.HorizontalMargin*3 + 2
 	var vSpace = pm.Theme.VerticalMargin*2 + 2
-	if hint.Width != ui.NoLayoutHint {
+	if hint.Width != layout.NoHint {
 		hint.Width -= hSpace
 		if hint.Width < pm.Theme.MinimumTextWidth {
 			hint.Width = pm.Theme.MinimumTextWidth
 		}
 	}
-	if hint.Height != ui.NoLayoutHint {
+	if hint.Height != layout.NoHint {
 		hint.Height -= vSpace
 		if hint.Height < 1 {
 			hint.Height = 1
@@ -71,7 +71,7 @@ func (pm *PopupMenu) Sizes(hint draw.Size) (min, pref, max draw.Size) {
 	if border := pm.Border(); border != nil {
 		size.AddInsets(border.Insets())
 	}
-	return size, size, ui.DefaultLayoutMaxSize(size)
+	return size, size, layout.DefaultMaxSize(size)
 }
 
 func (pm *PopupMenu) paint(event *event.Event) {

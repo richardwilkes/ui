@@ -16,6 +16,7 @@ import (
 	"github.com/richardwilkes/ui/draw"
 	"github.com/richardwilkes/ui/event"
 	"github.com/richardwilkes/ui/keys"
+	"github.com/richardwilkes/ui/layout"
 	"time"
 	"unsafe"
 )
@@ -183,7 +184,7 @@ func (window *Window) SetContentSize(size draw.Size) {
 
 // Pack implements the ui.Window interface.
 func (window *Window) Pack() {
-	_, pref, _ := ui.ComputeSizes(window.root, ui.NoLayoutHintSize)
+	_, pref, _ := layout.Sizes(window.root, layout.NoHintSize)
 	window.SetContentSize(pref)
 }
 

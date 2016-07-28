@@ -10,8 +10,8 @@
 package widget
 
 import (
-	"github.com/richardwilkes/ui"
 	"github.com/richardwilkes/ui/draw"
+	"github.com/richardwilkes/ui/layout"
 )
 
 type scrollLayout struct {
@@ -25,37 +25,37 @@ func newScrollLayout(sa *ScrollArea) *scrollLayout {
 }
 
 // Sizes implements the Layout interface.
-func (layout *scrollLayout) Sizes(hint draw.Size) (min, pref, max draw.Size) {
-	_, hBarSize, _ := ui.ComputeSizes(layout.sa.hBar, ui.NoLayoutHintSize)
-	_, vBarSize, _ := ui.ComputeSizes(layout.sa.vBar, ui.NoLayoutHintSize)
+func (sl *scrollLayout) Sizes(hint draw.Size) (min, pref, max draw.Size) {
+	_, hBarSize, _ := layout.Sizes(sl.sa.hBar, layout.NoHintSize)
+	_, vBarSize, _ := layout.Sizes(sl.sa.vBar, layout.NoHintSize)
 	min.Width = vBarSize.Width * 2
 	min.Height = hBarSize.Height * 2
-	if layout.sa.content != nil {
-		_, pref, _ = ui.ComputeSizes(layout.sa.content, hint)
+	if sl.sa.content != nil {
+		_, pref, _ = layout.Sizes(sl.sa.content, hint)
 	}
-	if border := layout.sa.view.Border(); border != nil {
+	if border := sl.sa.view.Border(); border != nil {
 		insets := border.Insets()
 		min.AddInsets(insets)
 		pref.AddInsets(insets)
 		max.AddInsets(insets)
 	}
-	return min, pref, ui.DefaultLayoutMaxSize(pref)
+	return min, pref, layout.DefaultMaxSize(pref)
 }
 
 // Layout implements the Layout interface.
-func (layout *scrollLayout) Layout() {
-	_, hBarSize, _ := ui.ComputeSizes(layout.sa.hBar, ui.NoLayoutHintSize)
-	_, vBarSize, _ := ui.ComputeSizes(layout.sa.vBar, ui.NoLayoutHintSize)
+func (sl *scrollLayout) Layout() {
+	_, hBarSize, _ := layout.Sizes(sl.sa.hBar, layout.NoHintSize)
+	_, vBarSize, _ := layout.Sizes(sl.sa.vBar, layout.NoHintSize)
 	needHBar := false
 	needVBar := false
 	var contentSize draw.Size
-	if layout.sa.content != nil {
-		contentSize = layout.sa.content.Size()
+	if sl.sa.content != nil {
+		contentSize = sl.sa.content.Size()
 	}
-	bounds := layout.sa.LocalInsetBounds()
+	bounds := sl.sa.LocalInsetBounds()
 	visibleSize := bounds.Size
 	var viewInsets draw.Insets
-	if border := layout.sa.view.Border(); border != nil {
+	if border := sl.sa.view.Border(); border != nil {
 		viewInsets = border.Insets()
 	}
 	visibleSize.SubtractInsets(viewInsets)
@@ -72,27 +72,27 @@ func (layout *scrollLayout) Layout() {
 		needHBar = true
 	}
 	if needHBar {
-		if layout.sa.hBar.parent == nil {
-			layout.sa.AddChild(&layout.sa.hBar.Block)
+		if sl.sa.hBar.parent == nil {
+			sl.sa.AddChild(&sl.sa.hBar.Block)
 		}
 	} else {
-		layout.sa.hBar.RemoveFromParent()
+		sl.sa.hBar.RemoveFromParent()
 	}
 	if needVBar {
-		if layout.sa.vBar.parent == nil {
-			layout.sa.AddChild(&layout.sa.vBar.Block)
+		if sl.sa.vBar.parent == nil {
+			sl.sa.AddChild(&sl.sa.vBar.Block)
 		}
 	} else {
-		layout.sa.vBar.RemoveFromParent()
+		sl.sa.vBar.RemoveFromParent()
 	}
 	visibleSize.AddInsets(viewInsets)
-	layout.sa.view.SetBounds(draw.Rect{Point: bounds.Point, Size: visibleSize})
+	sl.sa.view.SetBounds(draw.Rect{Point: bounds.Point, Size: visibleSize})
 	if needHBar {
 		hBarSize.Width = visibleSize.Width
-		layout.sa.hBar.SetBounds(draw.Rect{Point: draw.Point{X: bounds.X, Y: bounds.Y + visibleSize.Height}, Size: hBarSize})
+		sl.sa.hBar.SetBounds(draw.Rect{Point: draw.Point{X: bounds.X, Y: bounds.Y + visibleSize.Height}, Size: hBarSize})
 	}
 	if needVBar {
 		vBarSize.Height = visibleSize.Height
-		layout.sa.vBar.SetBounds(draw.Rect{Point: draw.Point{X: bounds.X + visibleSize.Width, Y: bounds.Y}, Size: vBarSize})
+		sl.sa.vBar.SetBounds(draw.Rect{Point: draw.Point{X: bounds.X + visibleSize.Width, Y: bounds.Y}, Size: vBarSize})
 	}
 }

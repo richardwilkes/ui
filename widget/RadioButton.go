@@ -10,11 +10,11 @@
 package widget
 
 import (
-	"github.com/richardwilkes/ui"
 	"github.com/richardwilkes/ui/color"
 	"github.com/richardwilkes/ui/draw"
 	"github.com/richardwilkes/ui/event"
 	"github.com/richardwilkes/ui/keys"
+	"github.com/richardwilkes/ui/layout"
 	"github.com/richardwilkes/ui/theme"
 	"github.com/richardwilkes/xmath"
 	"time"
@@ -54,13 +54,13 @@ func (button *RadioButton) Sizes(hint draw.Size) (min, pref, max draw.Size) {
 	var size draw.Size
 	box := xmath.CeilFloat32(button.Theme.Font.Ascent())
 	if button.Title != "" {
-		if hint.Width != ui.NoLayoutHint {
+		if hint.Width != layout.NoHint {
 			hint.Width -= button.Theme.HorizontalGap + box
 			if hint.Width < 1 {
 				hint.Width = 1
 			}
 		}
-		if hint.Height != ui.NoLayoutHint {
+		if hint.Height != layout.NoHint {
 			if hint.Height < 1 {
 				hint.Height = 1
 			}
@@ -78,7 +78,7 @@ func (button *RadioButton) Sizes(hint draw.Size) (min, pref, max draw.Size) {
 	if border := button.Border(); border != nil {
 		size.AddInsets(border.Insets())
 	}
-	return size, size, ui.DefaultLayoutMaxSize(size)
+	return size, size, layout.DefaultMaxSize(size)
 }
 
 func (button *RadioButton) paint(event *event.Event) {

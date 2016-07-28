@@ -10,10 +10,10 @@
 package widget
 
 import (
-	"github.com/richardwilkes/ui"
 	"github.com/richardwilkes/ui/color"
 	"github.com/richardwilkes/ui/draw"
 	"github.com/richardwilkes/ui/event"
+	"github.com/richardwilkes/ui/layout"
 	"github.com/richardwilkes/ui/theme"
 	"github.com/richardwilkes/xmath"
 	"time"
@@ -88,7 +88,7 @@ func (sb *ScrollBar) Sizes(hint draw.Size) (min, pref, max draw.Size) {
 		min.Height = sb.Theme.Size
 		pref.Width = sb.Theme.Size * 2
 		pref.Height = sb.Theme.Size
-		max.Width = ui.DefaultLayoutMax
+		max.Width = layout.DefaultMax
 		max.Height = sb.Theme.Size
 	} else {
 		min.Width = sb.Theme.Size
@@ -96,7 +96,7 @@ func (sb *ScrollBar) Sizes(hint draw.Size) (min, pref, max draw.Size) {
 		pref.Width = sb.Theme.Size
 		pref.Height = sb.Theme.Size * 2
 		max.Width = sb.Theme.Size
-		max.Height = ui.DefaultLayoutMax
+		max.Height = layout.DefaultMax
 	}
 	if border := sb.Border(); border != nil {
 		insets := border.Insets()

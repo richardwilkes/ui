@@ -30,7 +30,7 @@ type PrecisionData struct {
 
 // NewPrecisionData creates a new PrecisionData.
 func NewPrecisionData() *PrecisionData {
-	return &PrecisionData{hSpan: 1, vSpan: 1, hAlign: draw.AlignStart, vAlign: draw.AlignMiddle, sizeHint: ui.NoLayoutHintSize, minSize: ui.NoLayoutHintSize}
+	return &PrecisionData{hSpan: 1, vSpan: 1, hAlign: draw.AlignStart, vAlign: draw.AlignMiddle, sizeHint: NoHintSize, minSize: NoHintSize}
 }
 
 // HorizontalAlignment returns the horizontal alignment of the widget within its space.
@@ -150,40 +150,40 @@ func (pd *PrecisionData) computeCacheSize(target ui.Widget, hint draw.Size, useM
 	pd.minCacheSize.Height = 0
 	pd.cacheSize.Width = 0
 	pd.cacheSize.Height = 0
-	min, pref, max := ui.ComputeSizes(target, hint)
-	if hint.Width != ui.NoLayoutHint || hint.Height != ui.NoLayoutHint {
-		if pd.minSize.Width != ui.NoLayoutHint {
+	min, pref, max := Sizes(target, hint)
+	if hint.Width != NoHint || hint.Height != NoHint {
+		if pd.minSize.Width != NoHint {
 			pd.minCacheSize.Width = pd.minSize.Width
 		} else {
 			pd.minCacheSize.Width = min.Width
 		}
-		if hint.Width != ui.NoLayoutHint && hint.Width < pd.minCacheSize.Width {
+		if hint.Width != NoHint && hint.Width < pd.minCacheSize.Width {
 			hint.Width = pd.minCacheSize.Width
 		}
-		if hint.Width != ui.NoLayoutHint && hint.Width > max.Width {
+		if hint.Width != NoHint && hint.Width > max.Width {
 			hint.Width = max.Width
 		}
 
-		if pd.minSize.Height != ui.NoLayoutHint {
+		if pd.minSize.Height != NoHint {
 			pd.minCacheSize.Height = pd.minSize.Height
 		} else {
 			pd.minCacheSize.Height = min.Height
 		}
-		if hint.Height != ui.NoLayoutHint && hint.Height < pd.minCacheSize.Height {
+		if hint.Height != NoHint && hint.Height < pd.minCacheSize.Height {
 			hint.Height = pd.minCacheSize.Height
 		}
-		if hint.Height != ui.NoLayoutHint && hint.Height > max.Height {
+		if hint.Height != NoHint && hint.Height > max.Height {
 			hint.Height = max.Height
 		}
 	}
 	if useMinimumSize {
 		pd.cacheSize = min
-		if pd.minSize.Width != ui.NoLayoutHint {
+		if pd.minSize.Width != NoHint {
 			pd.minCacheSize.Width = pd.minSize.Width
 		} else {
 			pd.minCacheSize.Width = min.Width
 		}
-		if pd.minSize.Height != ui.NoLayoutHint {
+		if pd.minSize.Height != NoHint {
 			pd.minCacheSize.Height = pd.minSize.Height
 		} else {
 			pd.minCacheSize.Height = min.Height
@@ -191,22 +191,22 @@ func (pd *PrecisionData) computeCacheSize(target ui.Widget, hint draw.Size, useM
 	} else {
 		pd.cacheSize = pref
 	}
-	if hint.Width != ui.NoLayoutHint {
+	if hint.Width != NoHint {
 		pd.cacheSize.Width = hint.Width
 	}
-	if pd.minSize.Width != ui.NoLayoutHint && pd.cacheSize.Width < pd.minSize.Width {
+	if pd.minSize.Width != NoHint && pd.cacheSize.Width < pd.minSize.Width {
 		pd.cacheSize.Width = pd.minSize.Width
 	}
-	if pd.sizeHint.Width != ui.NoLayoutHint {
+	if pd.sizeHint.Width != NoHint {
 		pd.cacheSize.Width = pd.sizeHint.Width
 	}
-	if hint.Height != ui.NoLayoutHint {
+	if hint.Height != NoHint {
 		pd.cacheSize.Height = hint.Height
 	}
-	if pd.minSize.Height != ui.NoLayoutHint && pd.cacheSize.Height < pd.minSize.Height {
+	if pd.minSize.Height != NoHint && pd.cacheSize.Height < pd.minSize.Height {
 		pd.cacheSize.Height = pd.minSize.Height
 	}
-	if pd.sizeHint.Height != ui.NoLayoutHint {
+	if pd.sizeHint.Height != NoHint {
 		pd.cacheSize.Height = pd.sizeHint.Height
 	}
 }

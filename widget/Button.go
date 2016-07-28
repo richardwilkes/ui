@@ -10,11 +10,11 @@
 package widget
 
 import (
-	"github.com/richardwilkes/ui"
 	"github.com/richardwilkes/ui/color"
 	"github.com/richardwilkes/ui/draw"
 	"github.com/richardwilkes/ui/event"
 	"github.com/richardwilkes/ui/keys"
+	"github.com/richardwilkes/ui/layout"
 	"github.com/richardwilkes/ui/theme"
 	"time"
 )
@@ -50,13 +50,13 @@ func NewButton(title string) *Button {
 func (button *Button) Sizes(hint draw.Size) (min, pref, max draw.Size) {
 	var hSpace = button.Theme.HorizontalMargin*2 + 2
 	var vSpace = button.Theme.VerticalMargin*2 + 2
-	if hint.Width != ui.NoLayoutHint {
+	if hint.Width != layout.NoHint {
 		hint.Width -= hSpace
 		if hint.Width < button.Theme.MinimumTextWidth {
 			hint.Width = button.Theme.MinimumTextWidth
 		}
 	}
-	if hint.Height != ui.NoLayoutHint {
+	if hint.Height != layout.NoHint {
 		hint.Height -= vSpace
 		if hint.Height < 1 {
 			hint.Height = 1
@@ -69,7 +69,7 @@ func (button *Button) Sizes(hint draw.Size) (min, pref, max draw.Size) {
 	if border := button.Border(); border != nil {
 		size.AddInsets(border.Insets())
 	}
-	return size, size, ui.DefaultLayoutMaxSize(size)
+	return size, size, layout.DefaultMaxSize(size)
 }
 
 func (button *Button) paint(event *event.Event) {

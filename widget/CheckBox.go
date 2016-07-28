@@ -10,11 +10,11 @@
 package widget
 
 import (
-	"github.com/richardwilkes/ui"
 	"github.com/richardwilkes/ui/color"
 	"github.com/richardwilkes/ui/draw"
 	"github.com/richardwilkes/ui/event"
 	"github.com/richardwilkes/ui/keys"
+	"github.com/richardwilkes/ui/layout"
 	"github.com/richardwilkes/ui/theme"
 	"github.com/richardwilkes/xmath"
 	"time"
@@ -63,13 +63,13 @@ func (checkbox *CheckBox) Sizes(hint draw.Size) (min, pref, max draw.Size) {
 	var size draw.Size
 	box := xmath.CeilFloat32(checkbox.Theme.Font.Ascent())
 	if checkbox.Title != "" {
-		if hint.Width != ui.NoLayoutHint {
+		if hint.Width != layout.NoHint {
 			hint.Width -= checkbox.Theme.HorizontalGap + box
 			if hint.Width < 1 {
 				hint.Width = 1
 			}
 		}
-		if hint.Height != ui.NoLayoutHint {
+		if hint.Height != layout.NoHint {
 			if hint.Height < 1 {
 				hint.Height = 1
 			}
@@ -87,7 +87,7 @@ func (checkbox *CheckBox) Sizes(hint draw.Size) (min, pref, max draw.Size) {
 	if border := checkbox.Border(); border != nil {
 		size.AddInsets(border.Insets())
 	}
-	return size, size, ui.DefaultLayoutMaxSize(size)
+	return size, size, layout.DefaultMaxSize(size)
 }
 
 func (checkbox *CheckBox) paint(event *event.Event) {

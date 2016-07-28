@@ -72,9 +72,9 @@ func (flow *Flow) Sizes(hint draw.Size) (min, pref, max draw.Size) {
 	availHeight := hint.Height - (insets.Top + insets.Bottom)
 	var maxHeight float32
 	var largestChildMin draw.Size
-	noHint := draw.Size{Width: ui.NoLayoutHint, Height: ui.NoLayoutHint}
+	noHint := draw.Size{Width: NoHint, Height: NoHint}
 	for _, child := range flow.widget.Children() {
-		min, pref, _ := ui.ComputeSizes(child, noHint)
+		min, pref, _ := Sizes(child, noHint)
 		if largestChildMin.Width < min.Width {
 			largestChildMin.Width = min.Width
 		}
@@ -101,7 +101,7 @@ func (flow *Flow) Sizes(hint draw.Size) (min, pref, max draw.Size) {
 				}
 			}
 			savedWidth := pref.Width
-			min, pref, _ = ui.ComputeSizes(child, draw.Size{Width: pref.Width, Height: ui.NoLayoutHint})
+			min, pref, _ = Sizes(child, draw.Size{Width: pref.Width, Height: NoHint})
 			pref.Width = savedWidth
 			if pref.Height > availHeight {
 				if min.Height <= availHeight {
@@ -137,7 +137,7 @@ func (flow *Flow) Sizes(hint draw.Size) (min, pref, max draw.Size) {
 	result.Height += insets.Bottom
 	largestChildMin.Width += insets.Left + insets.Right
 	largestChildMin.Height += insets.Top + insets.Bottom
-	return largestChildMin, result, ui.DefaultLayoutMaxSize(result)
+	return largestChildMin, result, DefaultMaxSize(result)
 }
 
 // Layout implements the Layout interface.
@@ -152,9 +152,9 @@ func (flow *Flow) Layout() {
 	availWidth := width
 	availHeight := size.Height - (insets.Top + insets.Bottom)
 	var maxHeight float32
-	noHint := draw.Size{Width: ui.NoLayoutHint, Height: ui.NoLayoutHint}
+	noHint := draw.Size{Width: NoHint, Height: NoHint}
 	for _, child := range flow.widget.Children() {
-		min, pref, _ := ui.ComputeSizes(child, noHint)
+		min, pref, _ := Sizes(child, noHint)
 		if pref.Width > availWidth {
 			if min.Width <= availWidth {
 				pref.Width = availWidth
@@ -175,7 +175,7 @@ func (flow *Flow) Layout() {
 				}
 			}
 			savedWidth := pref.Width
-			min, pref, _ = ui.ComputeSizes(child, draw.Size{Width: pref.Width, Height: ui.NoLayoutHint})
+			min, pref, _ = Sizes(child, draw.Size{Width: pref.Width, Height: NoHint})
 			pref.Width = savedWidth
 			if pref.Height > availHeight {
 				if min.Height <= availHeight {

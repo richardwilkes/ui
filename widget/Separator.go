@@ -10,10 +10,10 @@
 package widget
 
 import (
-	"github.com/richardwilkes/ui"
 	"github.com/richardwilkes/ui/color"
 	"github.com/richardwilkes/ui/draw"
 	"github.com/richardwilkes/ui/event"
+	"github.com/richardwilkes/ui/layout"
 )
 
 // Separator provides a simple vertical or horizontal separator line.
@@ -34,24 +34,24 @@ func NewSeparator(horizontal bool) *Separator {
 // Sizes implements Sizer
 func (sep *Separator) Sizes(hint draw.Size) (min, pref, max draw.Size) {
 	if sep.horizontal {
-		if hint.Width == ui.NoLayoutHint {
+		if hint.Width == layout.NoHint {
 			pref.Width = 1
 		} else {
 			pref.Width = hint.Width
 		}
 		min.Width = 1
-		max.Width = ui.DefaultLayoutMax
+		max.Width = layout.DefaultMax
 		min.Height = 1
 		pref.Height = 1
 		max.Height = 1
 	} else {
-		if hint.Height == ui.NoLayoutHint {
+		if hint.Height == layout.NoHint {
 			pref.Height = 1
 		} else {
 			pref.Height = hint.Height
 		}
 		min.Height = 1
-		max.Height = ui.DefaultLayoutMax
+		max.Height = layout.DefaultMax
 		min.Width = 1
 		pref.Width = 1
 		max.Width = 1
