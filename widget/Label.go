@@ -39,7 +39,7 @@ func NewLabelWithFont(text string, font *font.Font) *Label {
 	label.font = font
 	label.alignment = draw.AlignStart
 	label.SetSizer(label)
-	label.EventHandlers().Add(event.Paint, label.paint)
+	label.EventHandlers().Add(event.PaintType, label.paint)
 	return label
 }
 
@@ -53,8 +53,8 @@ func (label *Label) Sizes(hint geom.Size) (min, pref, max geom.Size) {
 	return size, size, size
 }
 
-func (label *Label) paint(event *event.Event) {
-	event.GC.DrawAttributedTextConstrained(label.LocalInsetBounds(), label.title(), draw.TextModeFill)
+func (label *Label) paint(evt event.Event) {
+	evt.(*event.Paint).GC().DrawAttributedTextConstrained(label.LocalInsetBounds(), label.title(), draw.TextModeFill)
 }
 
 // SetForeground sets the color used when drawing the text.

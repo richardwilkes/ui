@@ -14,7 +14,6 @@ import (
 	"github.com/richardwilkes/ui/draw"
 	"github.com/richardwilkes/ui/event"
 	"github.com/richardwilkes/ui/geom"
-	"github.com/richardwilkes/ui/keys"
 	"github.com/richardwilkes/ui/layout"
 	"github.com/richardwilkes/ui/theme"
 	"github.com/richardwilkes/xmath"
@@ -40,13 +39,13 @@ func NewRadioButton(title string) *RadioButton {
 	button.SetFocusable(true)
 	button.SetSizer(button)
 	handlers := button.EventHandlers()
-	handlers.Add(event.Paint, button.paint)
-	handlers.Add(event.MouseDown, button.mouseDown)
-	handlers.Add(event.MouseDragged, button.mouseDragged)
-	handlers.Add(event.MouseUp, button.mouseUp)
-	handlers.Add(event.FocusGained, button.focusChanged)
-	handlers.Add(event.FocusLost, button.focusChanged)
-	handlers.Add(event.KeyDown, button.keyDown)
+	handlers.Add(event.PaintType, button.paint)
+	handlers.Add(event.MouseDownType, button.mouseDown)
+	handlers.Add(event.MouseDraggedType, button.mouseDragged)
+	handlers.Add(event.MouseUpType, button.mouseUp)
+	handlers.Add(event.FocusGainedType, button.focusChanged)
+	handlers.Add(event.FocusLostType, button.focusChanged)
+	handlers.Add(event.KeyDownType, button.keyDown)
 	return button
 }
 
@@ -82,7 +81,7 @@ func (button *RadioButton) Sizes(hint geom.Size) (min, pref, max geom.Size) {
 	return size, size, layout.DefaultMaxSize(size)
 }
 
-func (button *RadioButton) paint(event *event.Event) {
+func (button *RadioButton) paint(evt event.Event) {
 	box := xmath.CeilFloat32(button.Theme.Font.Ascent())
 	bounds := button.LocalInsetBounds()
 	bounds.Width = box
@@ -90,7 +89,7 @@ func (button *RadioButton) paint(event *event.Event) {
 	bounds.Height = box
 	path := geom.NewPath()
 	path.Ellipse(bounds)
-	gc := event.GC
+	gc := evt.(*event.Paint).GC()
 	gc.AddPath(path)
 	gc.Save()
 	gc.Clip()
@@ -124,30 +123,30 @@ func (button *RadioButton) paint(event *event.Event) {
 	}
 }
 
-func (button *RadioButton) mouseDown(event *event.Event) {
+func (button *RadioButton) mouseDown(evt event.Event) {
 	button.pressed = true
 	button.Repaint()
 }
 
-func (button *RadioButton) mouseDragged(event *event.Event) {
+func (button *RadioButton) mouseDragged(evt event.Event) {
 	bounds := button.LocalInsetBounds()
-	pressed := bounds.Contains(button.FromWindow(event.Where))
+	pressed := bounds.Contains(button.FromWindow(evt.(*event.MouseDragged).Where()))
 	if button.pressed != pressed {
 		button.pressed = pressed
 		button.Repaint()
 	}
 }
 
-func (button *RadioButton) mouseUp(event *event.Event) {
+func (button *RadioButton) mouseUp(evt event.Event) {
 	button.pressed = false
 	button.Repaint()
 	bounds := button.LocalInsetBounds()
-	if bounds.Contains(button.FromWindow(event.Where)) {
+	if bounds.Contains(button.FromWindow(evt.(*event.MouseUp).Where())) {
 		button.Click()
 	}
 }
 
-func (button *RadioButton) focusChanged(event *event.Event) {
+func (button *RadioButton) focusChanged(evt event.Event) {
 	button.Repaint()
 }
 
@@ -167,9 +166,9 @@ func (button *RadioButton) Click() {
 	}
 }
 
-func (button *RadioButton) keyDown(event *event.Event) {
-	if event.KeyCode == keys.Return || event.KeyCode == keys.Enter || event.KeyCode == keys.Space {
-		event.Done = true
+func (button *RadioButton) keyDown(evt event.Event) {
+	if evt.(*event.KeyDown).IsControlActionKey() {
+		evt.Finish()
 		button.Click()
 	}
 }

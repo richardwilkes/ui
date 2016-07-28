@@ -15,7 +15,6 @@ import (
 	"github.com/richardwilkes/ui/draw"
 	"github.com/richardwilkes/ui/event"
 	"github.com/richardwilkes/ui/geom"
-	"github.com/richardwilkes/ui/keys"
 	"github.com/richardwilkes/ui/layout"
 	"github.com/richardwilkes/ui/theme"
 	"github.com/richardwilkes/ui/widget"
@@ -41,11 +40,11 @@ func NewPopupMenu() *PopupMenu {
 	pm.SetFocusable(true)
 	pm.SetSizer(pm)
 	handlers := pm.EventHandlers()
-	handlers.Add(event.Paint, pm.paint)
-	handlers.Add(event.MouseDown, pm.mouseDown)
-	handlers.Add(event.FocusGained, pm.focusChanged)
-	handlers.Add(event.FocusLost, pm.focusChanged)
-	handlers.Add(event.KeyDown, pm.keyDown)
+	handlers.Add(event.PaintType, pm.paint)
+	handlers.Add(event.MouseDownType, pm.mouseDown)
+	handlers.Add(event.FocusGainedType, pm.focusChanged)
+	handlers.Add(event.FocusLostType, pm.focusChanged)
+	handlers.Add(event.KeyDownType, pm.keyDown)
 	return pm
 }
 
@@ -75,7 +74,7 @@ func (pm *PopupMenu) Sizes(hint geom.Size) (min, pref, max geom.Size) {
 	return size, size, layout.DefaultMaxSize(size)
 }
 
-func (pm *PopupMenu) paint(event *event.Event) {
+func (pm *PopupMenu) paint(evt event.Event) {
 	var hSpace = pm.Theme.HorizontalMargin*2 + 2
 	var vSpace = pm.Theme.VerticalMargin*2 + 2
 	bounds := pm.LocalInsetBounds()
@@ -89,7 +88,7 @@ func (pm *PopupMenu) paint(event *event.Event) {
 	path.LineTo(bounds.X+pm.Theme.CornerRadius, bounds.Y+bounds.Height)
 	path.QuadCurveTo(bounds.X, bounds.Y+bounds.Height, bounds.X, bounds.Y+bounds.Height-pm.Theme.CornerRadius)
 	path.ClosePath()
-	gc := event.GC
+	gc := evt.(*event.Paint).GC()
 	gc.AddPath(path)
 	gc.Clip()
 	base := pm.BaseBackground()
@@ -113,18 +112,18 @@ func (pm *PopupMenu) paint(event *event.Event) {
 	gc.DrawAttributedTextConstrained(bounds, pm.title(), draw.TextModeFill)
 }
 
-func (pm *PopupMenu) mouseDown(event *event.Event) {
+func (pm *PopupMenu) mouseDown(evt event.Event) {
 	pm.Click()
-	event.Discard = true
+	evt.(*event.MouseDown).Discard()
 }
 
-func (pm *PopupMenu) focusChanged(event *event.Event) {
+func (pm *PopupMenu) focusChanged(evt event.Event) {
 	pm.Repaint()
 }
 
-func (pm *PopupMenu) keyDown(event *event.Event) {
-	if event.KeyCode == keys.Return || event.KeyCode == keys.Enter || event.KeyCode == keys.Space {
-		event.Done = true
+func (pm *PopupMenu) keyDown(evt event.Event) {
+	if evt.(*event.KeyDown).IsControlActionKey() {
+		evt.Finish()
 		pm.Click()
 	}
 }

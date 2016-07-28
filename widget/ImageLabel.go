@@ -35,7 +35,7 @@ func NewImageLabelWithImageSize(img *draw.Image, size geom.Size) *ImageLabel {
 	} else {
 		label.SetSizer(&imageLabelSizer{label: label, size: size})
 	}
-	label.EventHandlers().Add(event.Paint, label.paint)
+	label.EventHandlers().Add(event.PaintType, label.paint)
 	return label
 }
 
@@ -48,7 +48,7 @@ func (label *ImageLabel) Sizes(hint geom.Size) (min, pref, max geom.Size) {
 	return size, size, size
 }
 
-func (label *ImageLabel) paint(event *event.Event) {
+func (label *ImageLabel) paint(evt event.Event) {
 	bounds := label.LocalInsetBounds()
 	size := label.image.Size()
 	if size.Width < bounds.Width {
@@ -59,7 +59,7 @@ func (label *ImageLabel) paint(event *event.Event) {
 		bounds.Y += (bounds.Height - size.Height) / 2
 		bounds.Height = size.Height
 	}
-	event.GC.DrawImageInRect(label.image, bounds)
+	evt.(*event.Paint).GC().DrawImageInRect(label.image, bounds)
 }
 
 type imageLabelSizer struct {

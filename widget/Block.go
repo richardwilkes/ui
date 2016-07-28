@@ -160,17 +160,16 @@ func (b *Block) Paint(g draw.Graphics, dirty geom.Rect) {
 	}
 }
 
-func (b *Block) paintSelf(g draw.Graphics, dirty geom.Rect) {
-	g.Save()
-	defer g.Restore()
-	g.ClipRect(dirty)
+func (b *Block) paintSelf(gc draw.Graphics, dirty geom.Rect) {
+	gc.Save()
+	defer gc.Restore()
+	gc.ClipRect(dirty)
 	if b.background.Alpha() > 0 {
-		g.SetFillColor(b.background)
-		g.FillRect(dirty)
+		gc.SetFillColor(b.background)
+		gc.FillRect(dirty)
 	}
-	b.paintBorder(g)
-	event := &event.Event{Type: event.Paint, Target: b, GC: g, DirtyRect: dirty}
-	event.Dispatch()
+	b.paintBorder(gc)
+	event.Dispatch(event.NewPaint(b, gc, dirty))
 }
 
 func (b *Block) paintBorder(gc draw.Graphics) {
@@ -347,8 +346,7 @@ func (b *Block) SetBounds(bounds geom.Rect) {
 		if resized {
 			b.bounds.Size = bounds.Size
 			b.SetNeedLayout(true)
-			event := &event.Event{Type: event.Resize, Target: b}
-			event.Dispatch()
+			event.Dispatch(event.NewResized(b))
 		}
 		b.Repaint()
 	}
@@ -379,8 +377,7 @@ func (b *Block) SetSize(size geom.Size) {
 		b.Repaint()
 		b.bounds.Size = size
 		b.SetNeedLayout(true)
-		event := &event.Event{Type: event.Resize, Target: b}
-		event.Dispatch()
+		event.Dispatch(event.NewResized(b))
 		b.Repaint()
 	}
 }

@@ -27,7 +27,7 @@ func NewSeparator(horizontal bool) *Separator {
 	sep := &Separator{}
 	sep.horizontal = horizontal
 	sep.SetSizer(sep)
-	sep.EventHandlers().Add(event.Paint, sep.paint)
+	sep.EventHandlers().Add(event.PaintType, sep.paint)
 	return sep
 }
 
@@ -65,7 +65,7 @@ func (sep *Separator) Sizes(hint geom.Size) (min, pref, max geom.Size) {
 	return min, pref, max
 }
 
-func (sep *Separator) paint(event *event.Event) {
+func (sep *Separator) paint(evt event.Event) {
 	bounds := sep.LocalInsetBounds()
 	if sep.horizontal {
 		if bounds.Height > 1 {
@@ -78,7 +78,7 @@ func (sep *Separator) paint(event *event.Event) {
 			bounds.Width = 1
 		}
 	}
-	gc := event.GC
+	gc := evt.(*event.Paint).GC()
 	gc.SetFillColor(color.Background.AdjustBrightness(-0.25))
 	gc.FillRect(bounds)
 }

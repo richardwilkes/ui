@@ -14,7 +14,6 @@ import (
 	"github.com/richardwilkes/ui/draw"
 	"github.com/richardwilkes/ui/event"
 	"github.com/richardwilkes/ui/geom"
-	"github.com/richardwilkes/ui/keys"
 	"github.com/richardwilkes/ui/layout"
 	"github.com/richardwilkes/ui/theme"
 	"github.com/richardwilkes/xmath"
@@ -49,13 +48,13 @@ func NewCheckBox(title string) *CheckBox {
 	checkbox.SetFocusable(true)
 	checkbox.SetSizer(checkbox)
 	handlers := checkbox.EventHandlers()
-	handlers.Add(event.Paint, checkbox.paint)
-	handlers.Add(event.MouseDown, checkbox.mouseDown)
-	handlers.Add(event.MouseDragged, checkbox.mouseDragged)
-	handlers.Add(event.MouseUp, checkbox.mouseUp)
-	handlers.Add(event.FocusGained, checkbox.focusChanged)
-	handlers.Add(event.FocusLost, checkbox.focusChanged)
-	handlers.Add(event.KeyDown, checkbox.keyDown)
+	handlers.Add(event.PaintType, checkbox.paint)
+	handlers.Add(event.MouseDownType, checkbox.mouseDown)
+	handlers.Add(event.MouseDraggedType, checkbox.mouseDragged)
+	handlers.Add(event.MouseUpType, checkbox.mouseUp)
+	handlers.Add(event.FocusGainedType, checkbox.focusChanged)
+	handlers.Add(event.FocusLostType, checkbox.focusChanged)
+	handlers.Add(event.KeyDownType, checkbox.keyDown)
 	return checkbox
 }
 
@@ -91,7 +90,7 @@ func (checkbox *CheckBox) Sizes(hint geom.Size) (min, pref, max geom.Size) {
 	return size, size, layout.DefaultMaxSize(size)
 }
 
-func (checkbox *CheckBox) paint(event *event.Event) {
+func (checkbox *CheckBox) paint(evt event.Event) {
 	box := xmath.CeilFloat32(checkbox.Theme.Font.Ascent())
 	bounds := checkbox.LocalInsetBounds()
 	bounds.Width = box
@@ -107,7 +106,7 @@ func (checkbox *CheckBox) paint(event *event.Event) {
 	path.LineTo(bounds.X+checkbox.Theme.CornerRadius, bounds.Y+bounds.Height)
 	path.QuadCurveTo(bounds.X, bounds.Y+bounds.Height, bounds.X, bounds.Y+bounds.Height-checkbox.Theme.CornerRadius)
 	path.ClosePath()
-	gc := event.GC
+	gc := evt.(*event.Paint).GC()
 	gc.AddPath(path)
 	gc.Save()
 	gc.Clip()
@@ -150,25 +149,25 @@ func (checkbox *CheckBox) paint(event *event.Event) {
 	}
 }
 
-func (checkbox *CheckBox) mouseDown(event *event.Event) {
+func (checkbox *CheckBox) mouseDown(evt event.Event) {
 	checkbox.pressed = true
 	checkbox.Repaint()
 }
 
-func (checkbox *CheckBox) mouseDragged(event *event.Event) {
+func (checkbox *CheckBox) mouseDragged(evt event.Event) {
 	bounds := checkbox.LocalInsetBounds()
-	pressed := bounds.Contains(checkbox.FromWindow(event.Where))
+	pressed := bounds.Contains(checkbox.FromWindow(evt.(*event.MouseDragged).Where()))
 	if checkbox.pressed != pressed {
 		checkbox.pressed = pressed
 		checkbox.Repaint()
 	}
 }
 
-func (checkbox *CheckBox) mouseUp(event *event.Event) {
+func (checkbox *CheckBox) mouseUp(evt event.Event) {
 	checkbox.pressed = false
 	checkbox.Repaint()
 	bounds := checkbox.LocalInsetBounds()
-	if bounds.Contains(checkbox.FromWindow(event.Where)) {
+	if bounds.Contains(checkbox.FromWindow(evt.(*event.MouseUp).Where())) {
 		checkbox.Click()
 	}
 }
@@ -193,13 +192,13 @@ func (checkbox *CheckBox) Click() {
 	}
 }
 
-func (checkbox *CheckBox) focusChanged(event *event.Event) {
+func (checkbox *CheckBox) focusChanged(evt event.Event) {
 	checkbox.Repaint()
 }
 
-func (checkbox *CheckBox) keyDown(event *event.Event) {
-	if event.KeyCode == keys.Return || event.KeyCode == keys.Enter || event.KeyCode == keys.Space {
-		event.Done = true
+func (checkbox *CheckBox) keyDown(evt event.Event) {
+	if evt.(*event.KeyDown).IsControlActionKey() {
+		evt.Finish()
 		checkbox.Click()
 	}
 }

@@ -75,10 +75,10 @@ func NewScrollBar(horizontal bool, target Scrollable) *ScrollBar {
 	sb.horizontal = horizontal
 	sb.SetSizer(sb)
 	handlers := sb.EventHandlers()
-	handlers.Add(event.Paint, sb.paint)
-	handlers.Add(event.MouseDown, sb.mouseDown)
-	handlers.Add(event.MouseDragged, sb.mouseDragged)
-	handlers.Add(event.MouseUp, sb.mouseUp)
+	handlers.Add(event.PaintType, sb.paint)
+	handlers.Add(event.MouseDownType, sb.mouseDown)
+	handlers.Add(event.MouseDraggedType, sb.mouseDragged)
+	handlers.Add(event.MouseUpType, sb.mouseUp)
 	return sb
 }
 
@@ -108,7 +108,7 @@ func (sb *ScrollBar) Sizes(hint geom.Size) (min, pref, max geom.Size) {
 	return min, pref, max
 }
 
-func (sb *ScrollBar) paint(event *event.Event) {
+func (sb *ScrollBar) paint(evt event.Event) {
 	bounds := sb.LocalInsetBounds()
 	if sb.horizontal {
 		bounds.Height = sb.Theme.Size
@@ -116,7 +116,7 @@ func (sb *ScrollBar) paint(event *event.Event) {
 		bounds.Width = sb.Theme.Size
 	}
 	bgColor := sb.baseBackground(scrollBarNone)
-	gc := event.GC
+	gc := evt.(*event.Paint).GC()
 	gc.SetFillColor(bgColor)
 	gc.FillRect(bounds)
 	gc.SetStrokeColor(bgColor.AdjustBrightness(sb.Theme.OutlineAdjustment))
@@ -140,9 +140,9 @@ func (sb *ScrollBar) paint(event *event.Event) {
 	sb.drawThumb(gc)
 }
 
-func (sb *ScrollBar) mouseDown(event *event.Event) {
+func (sb *ScrollBar) mouseDown(evt event.Event) {
 	sb.sequence++
-	where := sb.FromWindow(event.Where)
+	where := sb.FromWindow(evt.(*event.MouseDown).Where())
 	part := sb.over(where)
 	if sb.partEnabled(part) {
 		sb.pressed = part
@@ -160,11 +160,11 @@ func (sb *ScrollBar) mouseDown(event *event.Event) {
 	}
 }
 
-func (sb *ScrollBar) mouseDragged(event *event.Event) {
+func (sb *ScrollBar) mouseDragged(evt event.Event) {
 	if sb.pressed == scrollBarThumb {
 		var pos float32
 		rect := sb.partRect(scrollBarLineUp)
-		where := sb.FromWindow(event.Where)
+		where := sb.FromWindow(evt.(*event.MouseDragged).Where())
 		if sb.horizontal {
 			pos = where.X - (sb.thumbDown + rect.X + rect.Width - 1)
 		} else {
@@ -174,7 +174,7 @@ func (sb *ScrollBar) mouseDragged(event *event.Event) {
 	}
 }
 
-func (sb *ScrollBar) mouseUp(event *event.Event) {
+func (sb *ScrollBar) mouseUp(evt event.Event) {
 	sb.pressed = scrollBarNone
 	sb.Repaint()
 }

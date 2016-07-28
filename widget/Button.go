@@ -14,7 +14,6 @@ import (
 	"github.com/richardwilkes/ui/draw"
 	"github.com/richardwilkes/ui/event"
 	"github.com/richardwilkes/ui/geom"
-	"github.com/richardwilkes/ui/keys"
 	"github.com/richardwilkes/ui/layout"
 	"github.com/richardwilkes/ui/theme"
 	"time"
@@ -37,13 +36,13 @@ func NewButton(title string) *Button {
 	button.SetFocusable(true)
 	button.SetSizer(button)
 	handlers := button.EventHandlers()
-	handlers.Add(event.Paint, button.paint)
-	handlers.Add(event.MouseDown, button.mouseDown)
-	handlers.Add(event.MouseDragged, button.mouseDragged)
-	handlers.Add(event.MouseUp, button.mouseUp)
-	handlers.Add(event.FocusGained, button.focusChanged)
-	handlers.Add(event.FocusLost, button.focusChanged)
-	handlers.Add(event.KeyDown, button.keyDown)
+	handlers.Add(event.PaintType, button.paint)
+	handlers.Add(event.MouseDownType, button.mouseDown)
+	handlers.Add(event.MouseDraggedType, button.mouseDragged)
+	handlers.Add(event.MouseUpType, button.mouseUp)
+	handlers.Add(event.FocusGainedType, button.focusChanged)
+	handlers.Add(event.FocusLostType, button.focusChanged)
+	handlers.Add(event.KeyDownType, button.keyDown)
 	return button
 }
 
@@ -73,7 +72,7 @@ func (button *Button) Sizes(hint geom.Size) (min, pref, max geom.Size) {
 	return size, size, layout.DefaultMaxSize(size)
 }
 
-func (button *Button) paint(event *event.Event) {
+func (button *Button) paint(evt event.Event) {
 	var hSpace = button.Theme.HorizontalMargin*2 + 2
 	var vSpace = button.Theme.VerticalMargin*2 + 2
 	bounds := button.LocalInsetBounds()
@@ -87,7 +86,7 @@ func (button *Button) paint(event *event.Event) {
 	path.LineTo(bounds.X+button.Theme.CornerRadius, bounds.Y+bounds.Height)
 	path.QuadCurveTo(bounds.X, bounds.Y+bounds.Height, bounds.X, bounds.Y+bounds.Height-button.Theme.CornerRadius)
 	path.ClosePath()
-	gc := event.GC
+	gc := evt.(*event.Paint).GC()
 	gc.AddPath(path)
 	gc.Clip()
 	base := button.BaseBackground()
@@ -102,30 +101,30 @@ func (button *Button) paint(event *event.Event) {
 	gc.DrawAttributedTextConstrained(bounds, button.title(), draw.TextModeFill)
 }
 
-func (button *Button) mouseDown(event *event.Event) {
+func (button *Button) mouseDown(evt event.Event) {
 	button.pressed = true
 	button.Repaint()
 }
 
-func (button *Button) mouseDragged(event *event.Event) {
+func (button *Button) mouseDragged(evt event.Event) {
 	bounds := button.LocalInsetBounds()
-	pressed := bounds.Contains(button.FromWindow(event.Where))
+	pressed := bounds.Contains(button.FromWindow(evt.(*event.MouseDragged).Where()))
 	if button.pressed != pressed {
 		button.pressed = pressed
 		button.Repaint()
 	}
 }
 
-func (button *Button) mouseUp(event *event.Event) {
+func (button *Button) mouseUp(evt event.Event) {
 	button.pressed = false
 	button.Repaint()
 	bounds := button.LocalInsetBounds()
-	if bounds.Contains(button.FromWindow(event.Where)) {
+	if bounds.Contains(button.FromWindow(evt.(*event.MouseUp).Where())) {
 		button.Click()
 	}
 }
 
-func (button *Button) focusChanged(event *event.Event) {
+func (button *Button) focusChanged(evt event.Event) {
 	button.Repaint()
 }
 
@@ -144,9 +143,9 @@ func (button *Button) Click() {
 	}
 }
 
-func (button *Button) keyDown(event *event.Event) {
-	if event.KeyCode == keys.Return || event.KeyCode == keys.Enter || event.KeyCode == keys.Space {
-		event.Done = true
+func (button *Button) keyDown(evt event.Event) {
+	if evt.(*event.KeyDown).IsControlActionKey() {
+		evt.Finish()
 		button.Click()
 	}
 }

@@ -32,12 +32,12 @@ type ScrollArea struct {
 func NewScrollArea(content ui.Widget) *ScrollArea {
 	sa := &ScrollArea{}
 	handlers := sa.EventHandlers()
-	handlers.Add(event.MouseWheel, sa.mouseWheel)
+	handlers.Add(event.MouseWheelType, sa.mouseWheel)
 	sa.view = NewBlock()
 	sa.view.SetBackground(color.TextBackground)
-	sa.view.EventHandlers().Add(event.Resize, sa.viewResized)
+	sa.view.EventHandlers().Add(event.ResizedType, sa.viewResized)
 	sa.SetFocusable(true) // RAW: Revist... don't want to be focusable, but do want to participate
-	handlers.Add(event.KeyDown, sa.keyDown)
+	handlers.Add(event.KeyDownType, sa.keyDown)
 	sa.AddChild(sa.view)
 	sa.hBar = NewScrollBar(true, sa)
 	sa.vBar = NewScrollBar(false, sa)
@@ -142,7 +142,7 @@ func (sa *ScrollArea) ContentSize(horizontal bool) float32 {
 	return size.Height
 }
 
-func (sa *ScrollArea) viewResized(event *event.Event) {
+func (sa *ScrollArea) viewResized(evt event.Event) {
 	if sa.content != nil {
 		vs := sa.view.Size()
 		cl := sa.content.Location()
@@ -160,43 +160,45 @@ func (sa *ScrollArea) viewResized(event *event.Event) {
 	}
 }
 
-func (sa *ScrollArea) mouseWheel(event *event.Event) {
-	if event.Delta.Y != 0 {
-		sa.vBar.SetScrolledPosition(sa.ScrolledPosition(false) - event.Delta.Y*sa.LineScrollAmount(false, event.Delta.Y > 0))
+func (sa *ScrollArea) mouseWheel(evt event.Event) {
+	delta := evt.(*event.MouseWheel).Delta()
+	if delta.Y != 0 {
+		sa.vBar.SetScrolledPosition(sa.ScrolledPosition(false) - delta.Y*sa.LineScrollAmount(false, delta.Y > 0))
 	}
-	if event.Delta.X != 0 {
-		sa.hBar.SetScrolledPosition(sa.ScrolledPosition(true) - event.Delta.X*sa.LineScrollAmount(true, event.Delta.X > 0))
+	if delta.X != 0 {
+		sa.hBar.SetScrolledPosition(sa.ScrolledPosition(true) - delta.X*sa.LineScrollAmount(true, delta.X > 0))
 	}
-	event.CascadeUp = false
+	evt.Finish()
 }
 
-func (sa *ScrollArea) keyDown(event *event.Event) {
-	switch event.KeyCode {
+func (sa *ScrollArea) keyDown(evt event.Event) {
+	e := evt.(*event.KeyDown)
+	switch e.Code() {
 	case keys.Up:
-		event.Done = true
+		evt.Finish()
 		sa.vBar.SetScrolledPosition(sa.ScrolledPosition(false) - sa.LineScrollAmount(false, true))
 	case keys.Down:
-		event.Done = true
+		evt.Finish()
 		sa.vBar.SetScrolledPosition(sa.ScrolledPosition(false) + sa.LineScrollAmount(false, false))
 	case keys.Left:
-		event.Done = true
+		evt.Finish()
 		sa.hBar.SetScrolledPosition(sa.ScrolledPosition(true) - sa.LineScrollAmount(true, true))
 	case keys.Right:
-		event.Done = true
+		evt.Finish()
 		sa.hBar.SetScrolledPosition(sa.ScrolledPosition(true) + sa.LineScrollAmount(true, false))
 	case keys.Home:
-		event.Done = true
+		evt.Finish()
 		var bar *ScrollBar
-		if event.ShiftDown() {
+		if e.Modifiers().ShiftDown() {
 			bar = sa.hBar
 		} else {
 			bar = sa.vBar
 		}
 		bar.SetScrolledPosition(0)
 	case keys.End:
-		event.Done = true
+		evt.Finish()
 		var bar *ScrollBar
-		horizontal := event.ShiftDown()
+		horizontal := e.Modifiers().ShiftDown()
 		if horizontal {
 			bar = sa.hBar
 		} else {
@@ -204,9 +206,9 @@ func (sa *ScrollArea) keyDown(event *event.Event) {
 		}
 		bar.SetScrolledPosition(sa.ContentSize(horizontal))
 	case keys.PageUp:
-		event.Done = true
+		evt.Finish()
 		var bar *ScrollBar
-		horizontal := event.ShiftDown()
+		horizontal := e.Modifiers().ShiftDown()
 		if horizontal {
 			bar = sa.hBar
 		} else {
@@ -214,9 +216,9 @@ func (sa *ScrollArea) keyDown(event *event.Event) {
 		}
 		bar.SetScrolledPosition(sa.ScrolledPosition(horizontal) - sa.PageScrollAmount(horizontal, true))
 	case keys.PageDown:
-		event.Done = true
+		evt.Finish()
 		var bar *ScrollBar
-		horizontal := event.ShiftDown()
+		horizontal := e.Modifiers().ShiftDown()
 		if horizontal {
 			bar = sa.hBar
 		} else {

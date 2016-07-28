@@ -132,9 +132,7 @@ func createButtonsPanel() ui.Widget {
 func createButton(title string, panel ui.Widget) *widget.Button {
 	button := widget.NewButton(title)
 	button.OnClick = func() { fmt.Printf("The button '%s' was clicked.\n", title) }
-	button.EventHandlers().Add(event.ToolTip, func(event *event.Event) {
-		event.ToolTip = fmt.Sprintf("This is the tooltip for the '%s' button.", title)
-	})
+	widget.NewSimpleToolTip(button, fmt.Sprintf("This is the tooltip for the '%s' button.", title))
 	panel.AddChild(button)
 	return button
 }
@@ -145,7 +143,7 @@ func createImageButton(img *draw.Image, name string, panel ui.Widget) *widget.Im
 	size.Height /= 2
 	button := widget.NewImageButtonWithImageSize(img, size)
 	button.OnClick = func() { fmt.Printf("The button '%s' was clicked.\n", name) }
-	button.EventHandlers().Add(event.ToolTip, func(event *event.Event) { event.ToolTip = name })
+	widget.NewSimpleToolTip(button, name)
 	panel.AddChild(button)
 	return button
 }
@@ -165,9 +163,7 @@ func createCheckBoxPanel() ui.Widget {
 func createCheckBox(title string, panel ui.Widget) *widget.CheckBox {
 	checkbox := widget.NewCheckBox(title)
 	checkbox.OnClick = func() { fmt.Printf("The checkbox '%s' was clicked.\n", title) }
-	checkbox.EventHandlers().Add(event.ToolTip, func(event *event.Event) {
-		event.ToolTip = fmt.Sprintf("This is the tooltip for the '%s' checkbox.", title)
-	})
+	widget.NewSimpleToolTip(checkbox, fmt.Sprintf("This is the tooltip for the '%s' checkbox.", title))
 	panel.AddChild(checkbox)
 	return checkbox
 }
@@ -189,9 +185,7 @@ func createRadioButtonsPanel() ui.Widget {
 func createRadioButton(title string, panel ui.Widget, group *widget.RadioButtonGroup) *widget.RadioButton {
 	rb := widget.NewRadioButton(title)
 	rb.OnClick = func() { fmt.Printf("The radio button '%s' was clicked.\n", title) }
-	rb.EventHandlers().Add(event.ToolTip, func(event *event.Event) {
-		event.ToolTip = fmt.Sprintf("This is the tooltip for the '%s' radio button.", title)
-	})
+	widget.NewSimpleToolTip(rb, fmt.Sprintf("This is the tooltip for the '%s' radio button.", title))
 	panel.AddChild(rb)
 	group.Add(rb)
 	return rb
@@ -209,9 +203,7 @@ func createPopupMenusPanel() ui.Widget {
 
 func createPopupMenu(panel ui.Widget, selection int, titles ...string) *menu.PopupMenu {
 	p := menu.NewPopupMenu()
-	p.EventHandlers().Add(event.ToolTip, func(event *event.Event) {
-		event.ToolTip = fmt.Sprintf("This is the tooltip for the PopupMenu with %d items.", len(titles))
-	})
+	widget.NewSimpleToolTip(p, fmt.Sprintf("This is the tooltip for the PopupMenu with %d items.", len(titles)))
 	for _, title := range titles {
 		if title == "" {
 			p.AddSeparator()
@@ -230,7 +222,7 @@ func createPopupMenu(panel ui.Widget, selection int, titles ...string) *menu.Pop
 func createAboutWindow(item *menu.Item) {
 	if aboutWindow == nil {
 		aboutWindow = widget.NewWindow(geom.Point{}, widget.TitledWindowMask|widget.ClosableWindowMask)
-		aboutWindow.EventHandlers().Add(event.Closed, func(event *event.Event) { aboutWindow = nil })
+		aboutWindow.EventHandlers().Add(event.ClosedType, func(evt event.Event) { aboutWindow = nil })
 		aboutWindow.SetTitle("About " + app.Name())
 		root := aboutWindow.RootWidget()
 		root.SetBorder(border.NewEmpty(geom.Insets{Top: 10, Left: 10, Bottom: 10, Right: 10}))
