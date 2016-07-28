@@ -29,11 +29,11 @@ var (
 )
 
 func main() {
-	app.AppWillFinishStartup = func() {
+	app.WillFinishStartup = func() {
 		createMenuBar()
 		createButtonsWindow()
 	}
-	app.AppShouldTerminateAfterLastWindowClosed = func() bool { return true }
+	app.ShouldTerminateAfterLastWindowClosed = func() bool { return true }
 	app.Start()
 }
 

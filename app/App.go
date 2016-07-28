@@ -24,7 +24,7 @@ const (
 	// TerminateNow indicates the termination sequence should proceed immediately
 	TerminateNow
 	// TerminateLater indicates the termination sequence should proceed only after a call is
-	// made to AppMayTerminateNow()
+	// made to MayTerminateNow()
 	TerminateLater
 )
 
@@ -32,26 +32,25 @@ const (
 type TerminationResponse int
 
 var (
-	// AppWillFinishStartup is called prior to the app finishing its startup sequence.
-	AppWillFinishStartup func()
-	// AppDidFinishStartup is called after the app has finished its startup sequence.
-	AppDidFinishStartup func()
-	// AppShouldTerminate is called to determine whether it is permitted to quit at this point in
-	// time.
-	AppShouldTerminate func() TerminationResponse
-	// AppShouldTerminateAfterLastWindowClosed is called when the last open window is closed to
-	// determine if the app should attempt to quit.
-	AppShouldTerminateAfterLastWindowClosed func() bool
-	// AppWillTerminate is called just prior to the application's termination.
-	AppWillTerminate func()
-	// AppWillBecomeActive is called prior to the application transitioning to the foreground.
-	AppWillBecomeActive func()
-	// AppDidBecomeActive is called after the application has transitioned to the foreground.
-	AppDidBecomeActive func()
-	// AppWillResignActive is called prior to the applicaton transitioning to the background.
-	AppWillResignActive func()
-	// AppDidResignActive is called after the application has transitioned to the background.
-	AppDidResignActive func()
+	// WillFinishStartup is called prior to the application finishing its startup sequence.
+	WillFinishStartup func()
+	// DidFinishStartup is called after the application has finished its startup sequence.
+	DidFinishStartup func()
+	// ShouldTerminate is called to determine whether it is permitted to quit at this point in time.
+	ShouldTerminate func() TerminationResponse
+	// ShouldTerminateAfterLastWindowClosed is called when the last open window is closed to
+	// determine if the application should attempt to quit.
+	ShouldTerminateAfterLastWindowClosed func() bool
+	// WillTerminate is called just prior to the application's termination.
+	WillTerminate func()
+	// WillBecomeActive is called prior to the application transitioning to the foreground.
+	WillBecomeActive func()
+	// DidBecomeActive is called after the application has transitioned to the foreground.
+	DidBecomeActive func()
+	// WillResignActive is called prior to the application transitioning to the background.
+	WillResignActive func()
+	// DidResignActive is called after the application has transitioned to the background.
+	DidResignActive func()
 )
 
 // Start the ui.
@@ -87,29 +86,29 @@ func ShowAll() {
 
 //export appWillFinishStartup
 func appWillFinishStartup() {
-	if AppWillFinishStartup != nil {
-		AppWillFinishStartup()
+	if WillFinishStartup != nil {
+		WillFinishStartup()
 	}
 }
 
 //export appDidFinishStartup
 func appDidFinishStartup() {
-	if AppDidFinishStartup != nil {
-		AppDidFinishStartup()
+	if DidFinishStartup != nil {
+		DidFinishStartup()
 	}
 }
 
 //export appShouldTerminate
 func appShouldTerminate() TerminationResponse {
-	if AppShouldTerminate != nil {
-		return AppShouldTerminate()
+	if ShouldTerminate != nil {
+		return ShouldTerminate()
 	}
 	return TerminateNow
 }
 
-// AppMayTerminateNow resumes the termination sequence that was paused by responding with
+// MayTerminateNow resumes the termination sequence that was paused by responding with
 // TerminateLater when ShouldTerminate() was called..
-func AppMayTerminateNow(terminate bool) {
+func MayTerminateNow(terminate bool) {
 	var value C.int
 	if terminate {
 		value = 1
@@ -121,43 +120,43 @@ func AppMayTerminateNow(terminate bool) {
 
 //export appShouldTerminateAfterLastWindowClosed
 func appShouldTerminateAfterLastWindowClosed() bool {
-	if AppShouldTerminateAfterLastWindowClosed != nil {
-		return AppShouldTerminateAfterLastWindowClosed()
+	if ShouldTerminateAfterLastWindowClosed != nil {
+		return ShouldTerminateAfterLastWindowClosed()
 	}
 	return true
 }
 
 //export appWillTerminate
 func appWillTerminate() {
-	if AppWillTerminate != nil {
-		AppWillTerminate()
+	if WillTerminate != nil {
+		WillTerminate()
 	}
 }
 
 //export appWillBecomeActive
 func appWillBecomeActive() {
-	if AppWillBecomeActive != nil {
-		AppWillBecomeActive()
+	if WillBecomeActive != nil {
+		WillBecomeActive()
 	}
 }
 
 //export appDidBecomeActive
 func appDidBecomeActive() {
-	if AppDidBecomeActive != nil {
-		AppDidBecomeActive()
+	if DidBecomeActive != nil {
+		DidBecomeActive()
 	}
 }
 
 //export appWillResignActive
 func appWillResignActive() {
-	if AppWillResignActive != nil {
-		AppWillResignActive()
+	if WillResignActive != nil {
+		WillResignActive()
 	}
 }
 
 //export appDidResignActive
 func appDidResignActive() {
-	if AppDidResignActive != nil {
-		AppDidResignActive()
+	if DidResignActive != nil {
+		DidResignActive()
 	}
 }
