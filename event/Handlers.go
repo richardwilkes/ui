@@ -16,6 +16,7 @@ import (
 // Handler is called to handle a single event.
 type Handler func(event *Event)
 
+// Handlers maintains mapping of event types to event handlers.
 type Handlers struct {
 	handlers map[int][]Handler
 }
