@@ -18,8 +18,8 @@ import (
 // KeyTyped is generated when a key is typed.
 type KeyTyped struct {
 	target    Target
-	ch        rune
 	modifiers KeyMask
+	ch        rune
 	repeat    bool
 	finished  bool
 	discarded bool
