@@ -22,7 +22,6 @@ import (
 type ImageButton struct {
 	Block
 	Theme         *theme.ImageButton // The theme the button will use to draw itself.
-	OnClick       func()             // Called when the button is clicked.
 	image         *draw.Image
 	disabledImage *draw.Image
 	pressed       bool
@@ -150,9 +149,7 @@ func (button *ImageButton) Click() {
 	button.pressed = pressed
 	time.Sleep(button.Theme.ClickAnimationTime)
 	button.Repaint()
-	if button.OnClick != nil {
-		button.OnClick()
-	}
+	event.Dispatch(event.NewClick(button))
 }
 
 func (button *ImageButton) keyDown(evt event.Event) {

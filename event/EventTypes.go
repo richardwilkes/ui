@@ -24,6 +24,7 @@ const (
 	MouseDownType
 	MouseDraggedType
 	MouseUpType
+	ClickType
 	MouseEnteredType
 	MouseMovedType
 	MouseExitedType

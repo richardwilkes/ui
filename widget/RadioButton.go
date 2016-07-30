@@ -24,7 +24,6 @@ import (
 type RadioButton struct {
 	Block
 	Theme    *theme.RadioButton // The theme the button will use to draw itself.
-	OnClick  func()             // Called when the button is clicked.
 	Title    string             // An optional title for the button.
 	group    *RadioButtonGroup
 	selected bool
@@ -161,9 +160,7 @@ func (button *RadioButton) Click() {
 	button.pressed = pressed
 	time.Sleep(button.Theme.ClickAnimationTime)
 	button.Repaint()
-	if button.OnClick != nil {
-		button.OnClick()
-	}
+	event.Dispatch(event.NewClick(button))
 }
 
 func (button *RadioButton) keyDown(evt event.Event) {

@@ -82,6 +82,12 @@ func createButtonsWindow() {
 
 	addSeparator(root)
 
+	textFieldsPanel := createTextFieldsPanel()
+	textFieldsPanel.SetLayoutData(layout.NewPrecisionData().SetHorizontalGrab(true))
+	root.AddChild(textFieldsPanel)
+
+	addSeparator(root)
+
 	img, err := draw.AcquireImageFromURL("http://allwallpapersnew.com/wp-content/gallery/stock-photos-for-free/grassy_field_sunset___free_stock_by_kevron2001-d5blgkr.jpg")
 	if err == nil {
 		content := widget.NewImageLabel(img)
@@ -132,7 +138,7 @@ func createButtonsPanel() ui.Widget {
 
 func createButton(title string, panel ui.Widget) *widget.Button {
 	button := widget.NewButton(title)
-	button.OnClick = func() { fmt.Printf("The button '%s' was clicked.\n", title) }
+	button.EventHandlers().Add(event.ClickType, func(evt event.Event) { fmt.Printf("The button '%s' was clicked.\n", title) })
 	widget.NewSimpleToolTip(button, fmt.Sprintf("This is the tooltip for the '%s' button.", title))
 	panel.AddChild(button)
 	return button
@@ -143,7 +149,7 @@ func createImageButton(img *draw.Image, name string, panel ui.Widget) *widget.Im
 	size.Width /= 2
 	size.Height /= 2
 	button := widget.NewImageButtonWithImageSize(img, size)
-	button.OnClick = func() { fmt.Printf("The button '%s' was clicked.\n", name) }
+	button.EventHandlers().Add(event.ClickType, func(evt event.Event) { fmt.Printf("The button '%s' was clicked.\n", name) })
 	widget.NewSimpleToolTip(button, name)
 	panel.AddChild(button)
 	return button
@@ -163,7 +169,7 @@ func createCheckBoxPanel() ui.Widget {
 
 func createCheckBox(title string, panel ui.Widget) *widget.CheckBox {
 	checkbox := widget.NewCheckBox(title)
-	checkbox.OnClick = func() { fmt.Printf("The checkbox '%s' was clicked.\n", title) }
+	checkbox.EventHandlers().Add(event.ClickType, func(evt event.Event) { fmt.Printf("The checkbox '%s' was clicked.\n", title) })
 	widget.NewSimpleToolTip(checkbox, fmt.Sprintf("This is the tooltip for the '%s' checkbox.", title))
 	panel.AddChild(checkbox)
 	return checkbox
@@ -185,7 +191,7 @@ func createRadioButtonsPanel() ui.Widget {
 
 func createRadioButton(title string, panel ui.Widget, group *widget.RadioButtonGroup) *widget.RadioButton {
 	rb := widget.NewRadioButton(title)
-	rb.OnClick = func() { fmt.Printf("The radio button '%s' was clicked.\n", title) }
+	rb.EventHandlers().Add(event.ClickType, func(evt event.Event) { fmt.Printf("The radio button '%s' was clicked.\n", title) })
 	widget.NewSimpleToolTip(rb, fmt.Sprintf("This is the tooltip for the '%s' radio button.", title))
 	panel.AddChild(rb)
 	group.Add(rb)
@@ -218,6 +224,24 @@ func createPopupMenu(panel ui.Widget, selection int, titles ...string) *menu.Pop
 	}
 	panel.AddChild(p)
 	return p
+}
+
+func createTextFieldsPanel() ui.Widget {
+	panel := widget.NewBlock()
+	layout.NewPrecision(panel)
+
+	createTextField("First Text Field", panel)
+	createTextField("Second Text Field (disabled)", panel).SetEnabled(false)
+
+	return panel
+}
+
+func createTextField(text string, panel ui.Widget) *widget.TextField {
+	field := widget.NewTextField()
+	field.SetText(text)
+	widget.NewSimpleToolTip(field, fmt.Sprintf("This is the tooltip for the '%s' text field.", text))
+	panel.AddChild(field)
+	return field
 }
 
 func createAboutWindow(item *menu.Item) {

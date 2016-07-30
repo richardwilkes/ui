@@ -34,7 +34,6 @@ type CheckBoxState int
 type CheckBox struct {
 	Block
 	Theme   *theme.CheckBox // The theme the checkbox will use to draw itself.
-	OnClick func()          // Called when the checkbox is clicked.
 	Title   string          // An optional title for the checkbox.
 	state   CheckBoxState
 	pressed bool
@@ -187,9 +186,7 @@ func (checkbox *CheckBox) Click() {
 	checkbox.pressed = pressed
 	time.Sleep(checkbox.Theme.ClickAnimationTime)
 	checkbox.Repaint()
-	if checkbox.OnClick != nil {
-		checkbox.OnClick()
-	}
+	event.Dispatch(event.NewClick(checkbox))
 }
 
 func (checkbox *CheckBox) focusChanged(evt event.Event) {

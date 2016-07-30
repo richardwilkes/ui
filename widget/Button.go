@@ -23,7 +23,6 @@ import (
 type Button struct {
 	Block
 	Theme   *theme.Button // The theme the button will use to draw itself.
-	OnClick func()        // Called when the button is clicked.
 	Title   string        // The title of the button.
 	pressed bool
 }
@@ -119,7 +118,8 @@ func (button *Button) mouseUp(evt event.Event) {
 	button.pressed = false
 	button.Repaint()
 	bounds := button.LocalInsetBounds()
-	if bounds.Contains(button.FromWindow(evt.(*event.MouseUp).Where())) {
+	mouseUp := evt.(*event.MouseUp)
+	if bounds.Contains(button.FromWindow(mouseUp.Where())) {
 		button.Click()
 	}
 }
@@ -128,8 +128,6 @@ func (button *Button) focusChanged(evt event.Event) {
 	button.Repaint()
 }
 
-// Click performs any animation associated with a click and calls the OnClick() function if it is
-// set.
 func (button *Button) Click() {
 	pressed := button.pressed
 	button.pressed = true
@@ -138,9 +136,7 @@ func (button *Button) Click() {
 	button.pressed = pressed
 	time.Sleep(button.Theme.ClickAnimationTime)
 	button.Repaint()
-	if button.OnClick != nil {
-		button.OnClick()
-	}
+	event.Dispatch(event.NewClick(button))
 }
 
 func (button *Button) keyDown(evt event.Event) {
