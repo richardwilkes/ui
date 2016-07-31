@@ -162,14 +162,16 @@ func (b *Block) Paint(g draw.Graphics, dirty geom.Rect) {
 
 func (b *Block) paintSelf(gc draw.Graphics, dirty geom.Rect) {
 	gc.Save()
-	defer gc.Restore()
 	gc.ClipRect(dirty)
 	if b.background.Alpha() > 0 {
 		gc.SetFillColor(b.background)
 		gc.FillRect(dirty)
 	}
-	b.paintBorder(gc)
+	gc.Save()
 	event.Dispatch(event.NewPaint(b, gc, dirty))
+	gc.Restore()
+	b.paintBorder(gc)
+	gc.Restore()
 }
 
 func (b *Block) paintBorder(gc draw.Graphics) {
