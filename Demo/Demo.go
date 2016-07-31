@@ -39,10 +39,12 @@ func main() {
 }
 
 func createMenuBar() {
-	widget.AddAppMenu(createAboutWindow, createPreferencesWindow)
+	_, aboutItem, prefsItem := widget.AddAppMenu()
+	aboutItem.EventHandlers().Add(event.SelectionType, createAboutWindow)
+	prefsItem.EventHandlers().Add(event.SelectionType, createPreferencesWindow)
 
 	fileMenu := menu.Bar().AddMenu("File")
-	fileMenu.AddItem("Open", "o", nil, nil)
+	fileMenu.AddItem("Open", "o")
 
 	menu.Bar().AddMenu("Edit")
 
@@ -242,7 +244,7 @@ func createTextField(text string, panel ui.Widget) *widget.TextField {
 	return field
 }
 
-func createAboutWindow(item *menu.Item) {
+func createAboutWindow(evt event.Event) {
 	if aboutWindow == nil {
 		aboutWindow = widget.NewWindow(geom.Point{}, widget.TitledWindowMask|widget.ClosableWindowMask)
 		aboutWindow.EventHandlers().Add(event.ClosedType, func(evt event.Event) { aboutWindow = nil })
@@ -260,7 +262,7 @@ func createAboutWindow(item *menu.Item) {
 	aboutWindow.ToFront()
 }
 
-func createPreferencesWindow(item *menu.Item) {
+func createPreferencesWindow(evt event.Event) {
 	fmt.Println("Preferences...")
 }
 

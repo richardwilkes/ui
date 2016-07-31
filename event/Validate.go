@@ -15,46 +15,64 @@ import (
 	"reflect"
 )
 
-// Click is generated when a widget is being clicked on.
-type Click struct {
+// Validate is generated when a widget needs to validate its state.
+type Validate struct {
 	target   Target
+	invalid  bool
 	finished bool
 }
 
-// NewClick creates a new Click event. 'target' is the widget that is being clicked on.
-func NewClick(target Target) *Click {
-	return &Click{target: target}
+// NewValidate creates a new Validate event. 'target' is the widget needing validation.
+func NewValidate(target Target) *Validate {
+	return &Validate{target: target}
 }
 
 // Type returns the event type ID.
-func (e *Click) Type() Type {
-	return ClickType
+func (e *Validate) Type() Type {
+	return ValidateType
 }
 
 // Target the original target of the event.
-func (e *Click) Target() Target {
+func (e *Validate) Target() Target {
 	return e.target
 }
 
 // Cascade returns true if this event should be passed to its target's parent if not marked done.
-func (e *Click) Cascade() bool {
+func (e *Validate) Cascade() bool {
 	return false
 }
 
 // Finished returns true if this event has been handled and should no longer be processed.
-func (e *Click) Finished() bool {
+func (e *Validate) Finished() bool {
 	return e.finished
 }
 
 // Finish marks this event as handled and no longer eligible for processing.
-func (e *Click) Finish() {
+func (e *Validate) Finish() {
+	e.finished = true
+}
+
+// Aborted returns true if Validate should not proceed.
+func (e *Validate) Valid() bool {
+	return !e.invalid
+}
+
+// MakeInvalid marks the event as finding invalid state.
+func (e *Validate) MarkInvalid() {
+	e.invalid = true
 	e.finished = true
 }
 
 // String implements the fmt.Stringer interface.
-func (e *Click) String() string {
+func (e *Validate) String() string {
 	var buffer bytes.Buffer
-	buffer.WriteString(fmt.Sprintf("Click[Target: %v", reflect.ValueOf(e.target).Pointer()))
+	buffer.WriteString("Validate[")
+	if e.invalid {
+		buffer.WriteString("Invalid")
+	} else {
+		buffer.WriteString("Valid")
+	}
+	buffer.WriteString(fmt.Sprintf(", Target: %v", reflect.ValueOf(e.target).Pointer()))
 	if e.finished {
 		buffer.WriteString(", Finished")
 	}

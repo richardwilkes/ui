@@ -149,12 +149,13 @@ func (pm *PopupMenu) addItemToMenu(m *menu.Menu, index int) bool {
 		m.AddSeparator()
 		return false
 	default:
-		m.AddItem(fmt.Sprintf("%v", one), "", func(item *menu.Item) {
+		item := m.AddItem(fmt.Sprintf("%v", one), "")
+		item.EventHandlers().Add(event.SelectionType, func(evt event.Event) {
 			if index != pm.SelectedIndex() {
 				pm.SelectIndex(index)
 				event.Dispatch(event.NewSelection(pm))
 			}
-		}, nil)
+		})
 		return true
 	}
 }

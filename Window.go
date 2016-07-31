@@ -85,6 +85,13 @@ type Window interface {
 	// Zoom performs the platform's zoom funcion on the window.
 	Zoom()
 
+	// Closable returns true if the window was created with the ClosableWindowMask.
+	Closable() bool
+	// Minimizable returns true if the window was created with the MiniaturizableWindowMask.
+	Minimizable() bool
+	// Resizable returns true if the window was created with the ResizableWindowMask.
+	Resizable() bool
+
 	// PlatformPtr returns a pointer to the underlying platform-specific data.
 	PlatformPtr() unsafe.Pointer
 }

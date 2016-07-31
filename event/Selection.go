@@ -15,7 +15,7 @@ import (
 	"reflect"
 )
 
-// Selection is generated when a mouse button is pressed while over a widget.
+// Selection is generated when an item is selected.
 type Selection struct {
 	target   Target
 	finished bool

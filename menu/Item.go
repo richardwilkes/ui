@@ -10,6 +10,7 @@
 package menu
 
 import (
+	"github.com/richardwilkes/ui/app"
 	"github.com/richardwilkes/ui/event"
 )
 
@@ -17,18 +18,11 @@ import (
 // #include "Menu.h"
 import "C"
 
-// Action that an Item can take.
-type Action func(item *Item)
-
-// Validator determines whether the specified Item should be enabled or not.
-type Validator func(item *Item) bool
-
 // Item represents individual actions that can be issued from a Menu.
 type Item struct {
-	item      C.uiMenuItem
-	title     string
-	action    Action
-	validator Validator
+	item          C.uiMenuItem
+	eventHandlers *event.Handlers
+	title         string
 }
 
 // Title returns this item's title.
@@ -50,12 +44,25 @@ func (item *Item) SubMenu() *Menu {
 	return nil
 }
 
+// EventHandlers implements the event.Target interface.
+func (item *Item) EventHandlers() *event.Handlers {
+	if item.eventHandlers == nil {
+		item.eventHandlers = &event.Handlers{}
+	}
+	return item.eventHandlers
+}
+
+// ParentTarget implements the event.Target interface.
+func (item *Item) ParentTarget() event.Target {
+	return &app.App
+}
+
 //export validateMenuItem
 func validateMenuItem(cMenuItem C.uiMenuItem) bool {
 	if item, ok := itemMap[cMenuItem]; ok {
-		if item.validator != nil {
-			return item.validator(item)
-		}
+		evt := event.NewValidate(item)
+		event.Dispatch(evt)
+		return evt.Valid()
 	}
 	return true
 }
@@ -63,8 +70,6 @@ func validateMenuItem(cMenuItem C.uiMenuItem) bool {
 //export handleMenuItem
 func handleMenuItem(cMenuItem C.uiMenuItem) {
 	if item, ok := itemMap[cMenuItem]; ok {
-		if item.action != nil {
-			item.action(item)
-		}
+		event.Dispatch(event.NewSelection(item))
 	}
 }

@@ -52,6 +52,7 @@ type Window struct {
 	focus           ui.Widget
 	lastMouseWidget ui.Widget
 	lastToolTip     string
+	style           WindowStyleMask
 	inMouseDown     bool
 	inLiveResize    bool
 }
@@ -82,7 +83,7 @@ func NewWindow(where geom.Point, styleMask WindowStyleMask) *Window {
 // NewWindowWithContentSize creates a new window at the specified location with the specified style and content size.
 func NewWindowWithContentSize(where geom.Point, contentSize geom.Size, styleMask WindowStyleMask) *Window {
 	bounds := geom.Rect{Point: where, Size: contentSize}
-	window := &Window{window: C.uiNewWindow(toCRect(bounds), C.int(styleMask))}
+	window := &Window{window: C.uiNewWindow(toCRect(bounds), C.int(styleMask)), style: styleMask}
 	windowMap[window.window] = window
 	root := NewBlock()
 	root.SetBackground(color.Background)
@@ -461,6 +462,21 @@ func windowDidClose(cWindow C.uiWindow) {
 		event.Dispatch(event.NewClosed(window))
 	}
 	delete(windowMap, cWindow)
+}
+
+// Closable returns true if the window was created with the ClosableWindowMask.
+func (window *Window) Closable() bool {
+	return window.style&ClosableWindowMask == ClosableWindowMask
+}
+
+// Minimizable returns true if the window was created with the MiniaturizableWindowMask.
+func (window *Window) Minimizable() bool {
+	return window.style&MiniaturizableWindowMask == MiniaturizableWindowMask
+}
+
+// Resizable returns true if the window was created with the ResizableWindowMask.
+func (window *Window) Resizable() bool {
+	return window.style&ResizableWindowMask == ResizableWindowMask
 }
 
 func toRect(bounds C.uiRect) geom.Rect {

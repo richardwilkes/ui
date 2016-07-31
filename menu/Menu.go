@@ -84,10 +84,10 @@ func (menu *Menu) Item(index int) *Item {
 }
 
 // AddItem creates a new Item and appends it to the end of the Menu.
-func (menu *Menu) AddItem(title string, key string, action Action, validator Validator) *Item {
+func (menu *Menu) AddItem(title string, key string) *Item {
 	cTitle := C.CString(title)
 	cKey := C.CString(key)
-	item := &Item{item: C.uiAddMenuItem(menu.menu, cTitle, cKey), title: title, action: action, validator: validator}
+	item := &Item{item: C.uiAddMenuItem(menu.menu, cTitle, cKey), title: title}
 	C.free(unsafe.Pointer(cTitle))
 	C.free(unsafe.Pointer(cKey))
 	itemMap[item.item] = item
@@ -96,7 +96,7 @@ func (menu *Menu) AddItem(title string, key string, action Action, validator Val
 
 // AddMenu creates a new sub-Menu and appends it to the end of the Menu.
 func (menu *Menu) AddMenu(title string) *Menu {
-	item := menu.AddItem(title, "", nil, nil)
+	item := menu.AddItem(title, "")
 	subMenu := NewMenu(title)
 	C.uiSetSubMenu(item.item, subMenu.menu)
 	return subMenu

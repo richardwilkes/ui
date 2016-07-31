@@ -39,6 +39,7 @@ const (
 	ResizedType
 	ClosingType
 	ClosedType
+	ValidateType
 	// UserType should be used as the base value for custom application events.
 	UserType = 10000
 )
