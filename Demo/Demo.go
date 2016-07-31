@@ -39,15 +39,15 @@ func main() {
 }
 
 func createMenuBar() {
-	menu.AddAppMenu(createAboutWindow, createPreferencesWindow)
+	widget.AddAppMenu(createAboutWindow, createPreferencesWindow)
 
 	fileMenu := menu.Bar().AddMenu("File")
 	fileMenu.AddItem("Open", "o", nil, nil)
 
 	menu.Bar().AddMenu("Edit")
 
-	menu.AddWindowMenu()
-	menu.AddHelpMenu()
+	widget.AddWindowMenu()
+	widget.AddHelpMenu()
 }
 
 func createButtonsWindow() {
@@ -208,8 +208,8 @@ func createPopupMenusPanel() ui.Widget {
 	return panel
 }
 
-func createPopupMenu(panel ui.Widget, selection int, titles ...string) *menu.PopupMenu {
-	p := menu.NewPopupMenu()
+func createPopupMenu(panel ui.Widget, selection int, titles ...string) *widget.PopupMenu {
+	p := widget.NewPopupMenu()
 	widget.NewSimpleToolTip(p, fmt.Sprintf("This is the tooltip for the PopupMenu with %d items.", len(titles)))
 	for _, title := range titles {
 		if title == "" {

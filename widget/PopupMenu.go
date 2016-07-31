@@ -7,7 +7,7 @@
 // This Source Code Form is "Incompatible With Secondary Licenses", as
 // defined by the Mozilla Public License, version 2.0.
 
-package menu
+package widget
 
 import (
 	"fmt"
@@ -16,13 +16,13 @@ import (
 	"github.com/richardwilkes/ui/event"
 	"github.com/richardwilkes/ui/geom"
 	"github.com/richardwilkes/ui/layout"
+	"github.com/richardwilkes/ui/menu"
 	"github.com/richardwilkes/ui/theme"
-	"github.com/richardwilkes/ui/widget"
 )
 
 // PopupMenu represents a clickable button that displays a menu of choices.
 type PopupMenu struct {
-	widget.Block
+	Block
 	Theme         *theme.PopupMenu // The theme the popup menu will use to draw itself.
 	items         []interface{}
 	selectedIndex int
@@ -130,7 +130,7 @@ func (pm *PopupMenu) keyDown(evt event.Event) {
 // Click performs any animation associated with a click and triggers the popup menu to appear.
 func (pm *PopupMenu) Click() {
 	hasItem := false
-	menu := NewMenu("")
+	menu := menu.NewMenu("")
 	defer menu.Dispose()
 	for i := range pm.items {
 		if pm.addItemToMenu(menu, i) {
@@ -142,14 +142,14 @@ func (pm *PopupMenu) Click() {
 	}
 }
 
-func (pm *PopupMenu) addItemToMenu(menu *Menu, index int) bool {
+func (pm *PopupMenu) addItemToMenu(m *menu.Menu, index int) bool {
 	one := pm.items[index]
 	switch one.(type) {
 	case *separationMarker:
-		menu.AddSeparator()
+		m.AddSeparator()
 		return false
 	default:
-		menu.AddItem(fmt.Sprintf("%v", one), "", func(item *Item) {
+		m.AddItem(fmt.Sprintf("%v", one), "", func(item *menu.Item) {
 			if index != pm.SelectedIndex() {
 				pm.SelectIndex(index)
 				event.Dispatch(event.NewSelection(pm))
