@@ -219,9 +219,7 @@ func createPopupMenu(panel ui.Widget, selection int, titles ...string) *menu.Pop
 		}
 	}
 	p.SelectIndex(selection)
-	p.OnSelection = func() {
-		fmt.Printf("The '%v' item was selected from the PopupMenu.\n", p.Selected())
-	}
+	p.EventHandlers().Add(event.SelectionType, func(evt event.Event) { fmt.Printf("The '%v' item was selected from the PopupMenu.\n", p.Selected()) })
 	panel.AddChild(p)
 	return p
 }

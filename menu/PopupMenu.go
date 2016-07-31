@@ -24,7 +24,6 @@ import (
 type PopupMenu struct {
 	widget.Block
 	Theme         *theme.PopupMenu // The theme the popup menu will use to draw itself.
-	OnSelection   func()           // Called when a new item is chosen by the user.
 	items         []interface{}
 	selectedIndex int
 }
@@ -151,9 +150,9 @@ func (pm *PopupMenu) addItemToMenu(menu *Menu, index int) bool {
 		return false
 	default:
 		menu.AddItem(fmt.Sprintf("%v", one), "", func(item *Item) {
-			pm.SelectIndex(index)
-			if pm.OnSelection != nil {
-				pm.OnSelection()
+			if index != pm.SelectedIndex() {
+				pm.SelectIndex(index)
+				event.Dispatch(event.NewSelection(pm))
 			}
 		}, nil)
 		return true
