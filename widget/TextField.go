@@ -10,7 +10,6 @@
 package widget
 
 import (
-	"github.com/richardwilkes/ui/border"
 	"github.com/richardwilkes/ui/color"
 	"github.com/richardwilkes/ui/draw"
 	"github.com/richardwilkes/ui/event"
@@ -21,9 +20,12 @@ import (
 
 type TextField struct {
 	Block
-	Theme *theme.TextField // The theme the text field will use to draw itself.
-	text  string
-	align draw.Alignment
+	Theme           *theme.TextField // The theme the text field will use to draw itself.
+	text            string
+	selectionStart  int
+	selectionEnd    int
+	selectionAnchor int
+	align           draw.Alignment
 }
 
 // NewTextField creates a new, empty, text field.
@@ -31,11 +33,13 @@ func NewTextField() *TextField {
 	field := &TextField{}
 	field.Theme = theme.StdTextField
 	field.SetBackground(color.TextBackground)
-	field.SetBorder(border.NewLine(field.Theme.BorderColor, geom.Insets{Top: 1, Left: 1, Bottom: 1, Right: 1}))
+	field.SetBorder(field.Theme.Border)
 	field.SetFocusable(true)
 	field.SetSizer(field)
 	handlers := field.EventHandlers()
 	handlers.Add(event.PaintType, field.paint)
+	handlers.Add(event.FocusGainedType, field.focusGained)
+	handlers.Add(event.FocusLostType, field.focusLost)
 	return field
 }
 
@@ -83,13 +87,23 @@ func (field *TextField) paint(evt event.Event) {
 	gc.DrawAttributedTextConstrained(bounds, field.attributedText(), draw.TextModeFill)
 }
 
+func (field *TextField) focusGained(evt event.Event) {
+	field.SetBorder(field.Theme.FocusBorder)
+	field.Repaint()
+}
+
+func (field *TextField) focusLost(evt event.Event) {
+	field.SetBorder(field.Theme.Border)
+	field.Repaint()
+}
+
 func (field *TextField) Text() string {
 	return field.text
 }
 
 func (field *TextField) SetText(text string) {
 	field.text = text
-	// RAW: Implement actual setting
+	field.Repaint()
 }
 
 func (field *TextField) attributedText() *draw.Text {
