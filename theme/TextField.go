@@ -29,8 +29,6 @@ type TextField struct {
 	Border                  border.Border // The border to use when not focused.
 	FocusBorder             border.Border // The border to use when focused.
 	BlinkRate               time.Duration // The rate at which the cursor blinks.
-	HorizontalMargin        float32       // The margin on the left and right side of the text.
-	VerticalMargin          float32       // The margin on the top and bottom of the text.
 	MinimumTextWidth        float32       // The minimum space to permit for text.
 }
 
@@ -45,11 +43,8 @@ func NewTextField() *TextField {
 func (theme *TextField) Init() {
 	theme.DisabledBackgroundColor = color.Background
 	theme.Font = font.Acquire(font.UserDesc)
-	insets := geom.Insets{Top: 1, Left: 1, Bottom: 1, Right: 1}
-	theme.Border = border.NewLine(color.Background.AdjustBrightness(-0.25), insets)
-	theme.FocusBorder = border.NewLine(color.KeyboardFocus, insets)
+	theme.Border = border.NewCompound(border.NewLine(color.Background.AdjustBrightness(-0.25), geom.Insets{Top: 1, Left: 1, Bottom: 1, Right: 1}), border.NewEmpty(geom.Insets{Top: 1, Left: 4, Bottom: 1, Right: 4}))
+	theme.FocusBorder = border.NewCompound(border.NewLine(color.KeyboardFocus, geom.Insets{Top: 2, Left: 2, Bottom: 2, Right: 2}), border.NewEmpty(geom.Insets{Top: 0, Left: 3, Bottom: 0, Right: 3}))
 	theme.BlinkRate = time.Millisecond * 560
-	theme.HorizontalMargin = 4
-	theme.VerticalMargin = 1
 	theme.MinimumTextWidth = 10
 }

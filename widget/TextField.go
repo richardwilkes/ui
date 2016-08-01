@@ -22,6 +22,7 @@ type TextField struct {
 	Block
 	Theme           *theme.TextField // The theme the text field will use to draw itself.
 	text            string
+	watermark       string
 	selectionStart  int
 	selectionEnd    int
 	selectionAnchor int
@@ -45,25 +46,24 @@ func NewTextField() *TextField {
 
 // Sizes implements Sizer
 func (field *TextField) Sizes(hint geom.Size) (min, pref, max geom.Size) {
-	var hSpace = field.Theme.HorizontalMargin*2 + 2
-	var vSpace = field.Theme.VerticalMargin*2 + 2
 	if hint.Width != layout.NoHint {
-		hint.Width -= hSpace
 		if hint.Width < field.Theme.MinimumTextWidth {
 			hint.Width = field.Theme.MinimumTextWidth
 		}
 	}
 	if hint.Height != layout.NoHint {
-		hint.Height -= vSpace
 		if hint.Height < 1 {
 			hint.Height = 1
 		}
 	}
-	size, _ := field.attributedText().MeasureConstrained(hint)
-	size.Height += field.Theme.Font.Descent() // Give it a more balanced vertical spacing
+	var text string
+	if field.text == "" {
+		text = "M"
+	} else {
+		text = field.text
+	}
+	size, _ := field.createAttributedText(text, color.Black).MeasureConstrained(hint)
 	size.GrowToInteger()
-	size.Width += hSpace
-	size.Height += vSpace
 	if border := field.Border(); border != nil {
 		size.AddInsets(border.Insets())
 	}
@@ -78,13 +78,13 @@ func (field *TextField) paint(evt event.Event) {
 		gc.FillRect(e.DirtyRect())
 	}
 	bounds := field.LocalInsetBounds()
-	bounds.X += field.Theme.HorizontalMargin
-	// Give it a more balanced vertical spacing by adding in the font descent, otherwise it appears
-	// to sit too low, despite being perfectly centered for its overall height.
-	bounds.Y += field.Theme.VerticalMargin + field.Theme.Font.Descent()
-	bounds.Width -= field.Theme.HorizontalMargin * 2
-	bounds.Height -= field.Theme.VerticalMargin * 2
-	gc.DrawAttributedTextConstrained(bounds, field.attributedText(), draw.TextModeFill)
+	var text *draw.Text
+	if field.text == "" {
+		text = field.attributedWatermark()
+	} else {
+		text = field.attributedText()
+	}
+	gc.DrawAttributedTextConstrained(bounds, text, draw.TextModeFill)
 }
 
 func (field *TextField) focusGained(evt event.Event) {
@@ -106,8 +106,25 @@ func (field *TextField) SetText(text string) {
 	field.Repaint()
 }
 
+func (field *TextField) Watermark() string {
+	return field.watermark
+}
+
+func (field *TextField) SetWatermark(text string) {
+	field.watermark = text
+	field.Repaint()
+}
+
 func (field *TextField) attributedText() *draw.Text {
-	str := draw.NewText(field.text, color.Text, field.Theme.Font)
+	return field.createAttributedText(field.text, color.Text)
+}
+
+func (field *TextField) attributedWatermark() *draw.Text {
+	return field.createAttributedText(field.watermark, color.Gray)
+}
+
+func (field *TextField) createAttributedText(text string, textColor color.Color) *draw.Text {
+	str := draw.NewText(text, textColor, field.Theme.Font)
 	str.SetAlignment(0, 0, field.align)
 	return str
 }
