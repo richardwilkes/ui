@@ -111,6 +111,19 @@ func (f *Font) platformLeading() float32 {
 	return float32(C.CTFontGetLeading(f.font))
 }
 
+func (f *Font) platformWidth(str string) float32 {
+	as := C.CFAttributedStringCreateMutable(C.kCFAllocatorDefault, 0)
+	C.CFAttributedStringBeginEditing(as)
+	C.CFAttributedStringReplaceString(as, C.CFRangeMake(0, 0), cfStringFromString(str))
+	C.CFAttributedStringSetAttribute(as, C.CFRangeMake(0, C.CFIndex(len(str))), C.kCTFontAttributeName, C.CFTypeRef(f.PlatformPtr()))
+	C.CFAttributedStringEndEditing(as)
+	line := C.CTLineCreateWithAttributedString(as)
+	width := float32(C.CTLineGetTypographicBounds(line, nil, nil, nil))
+	C.CFRelease(line)
+	C.CFRelease(as)
+	return width
+}
+
 func platformDesc(id int) Desc {
 	var fontType C.int
 	switch id {

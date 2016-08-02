@@ -12,6 +12,7 @@ package font
 import (
 	"bytes"
 	"fmt"
+	"github.com/richardwilkes/ui/geom"
 	"sort"
 	"unsafe"
 )
@@ -165,6 +166,21 @@ func (font *Font) Descent() float32 {
 // to the top of the next line.
 func (font *Font) Leading() float32 {
 	return font.platformLeading()
+}
+
+// Height of the font, i.e. Ascent() + Descent().
+func (font *Font) Height() float32 {
+	return font.Ascent() + font.Descent()
+}
+
+// Width of the string rendered with this font.
+func (font *Font) Width(str string) float32 {
+	return font.platformWidth(str)
+}
+
+// Size of the string rendered with this font.
+func (font *Font) Size(str string) geom.Size {
+	return geom.Size{Width: font.Width(str), Height: font.Height()}
 }
 
 // String implements the fmt.Stringer interface.
