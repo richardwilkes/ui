@@ -123,8 +123,9 @@ func (f *Font) platformWidth(str string) float32 {
 func (f *Font) createAttributedString(str string) C.CFMutableAttributedStringRef {
 	as := C.CFAttributedStringCreateMutable(C.kCFAllocatorDefault, 0)
 	C.CFAttributedStringBeginEditing(as)
-	C.CFAttributedStringReplaceString(as, C.CFRangeMake(0, 0), cfStringFromString(str))
-	C.CFAttributedStringSetAttribute(as, C.CFRangeMake(0, C.CFIndex(len(str))), C.kCTFontAttributeName, C.CFTypeRef(f.PlatformPtr()))
+	s := cfStringFromString(str)
+	C.CFAttributedStringReplaceString(as, C.CFRangeMake(0, 0), s)
+	C.CFAttributedStringSetAttribute(as, C.CFRangeMake(0, C.CFStringGetLength(s)), C.kCTFontAttributeName, C.CFTypeRef(f.PlatformPtr()))
 	C.CFAttributedStringEndEditing(as)
 	return as
 }
@@ -136,6 +137,15 @@ func (f *Font) platformIndexForPosition(x float32, str string) int {
 	C.CFRelease(line)
 	C.CFRelease(as)
 	return int(i)
+}
+
+func (f *Font) platformPositionForIndex(index int, str string) float32 {
+	as := f.createAttributedString(str)
+	line := C.CTLineCreateWithAttributedString(as)
+	x := C.CTLineGetOffsetForStringIndex(line, C.CFIndex(index), nil)
+	C.CFRelease(line)
+	C.CFRelease(as)
+	return float32(x)
 }
 
 func platformDesc(id int) Desc {

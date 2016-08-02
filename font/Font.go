@@ -187,6 +187,10 @@ func (font *Font) IndexForPosition(x float32, str string) int {
 	return font.platformIndexForPosition(x, str)
 }
 
+func (font *Font) PositionForIndex(index int, str string) float32 {
+	return font.platformPositionForIndex(index, str)
+}
+
 // String implements the fmt.Stringer interface.
 func (font *Font) String() string {
 	return font.desc.String()
