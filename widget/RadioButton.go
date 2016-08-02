@@ -63,7 +63,7 @@ func (button *RadioButton) Sizes(hint geom.Size) (min, pref, max geom.Size) {
 				hint.Height = 1
 			}
 		}
-		size := button.Theme.Font.Size(button.Title)
+		size = button.Theme.Font.Size(button.Title)
 		size.GrowToInteger()
 		size.ConstrainForHint(hint)
 		size.Width += button.Theme.HorizontalGap + box
