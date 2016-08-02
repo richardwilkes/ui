@@ -24,12 +24,12 @@ var (
 
 // TextField contains the theme elements for TextFields.
 type TextField struct {
-	DisabledBackgroundColor color.Color   // The color to use for the background when disabled.
 	Font                    *font.Font    // The font to use.
 	Border                  border.Border // The border to use when not focused.
 	FocusBorder             border.Border // The border to use when focused.
 	BlinkRate               time.Duration // The rate at which the cursor blinks.
 	MinimumTextWidth        float32       // The minimum space to permit for text.
+	DisabledBackgroundColor color.Color   // The color to use for the background when disabled.
 }
 
 // NewTextField creates a new TextField theme.
@@ -41,10 +41,10 @@ func NewTextField() *TextField {
 
 // Init initializes the theme with its default values.
 func (theme *TextField) Init() {
-	theme.DisabledBackgroundColor = color.Background
 	theme.Font = font.Acquire(font.UserDesc)
 	theme.Border = border.NewCompound(border.NewLine(color.Background.AdjustBrightness(-0.25), geom.Insets{Top: 1, Left: 1, Bottom: 1, Right: 1}), border.NewEmpty(geom.Insets{Top: 1, Left: 4, Bottom: 1, Right: 4}))
 	theme.FocusBorder = border.NewCompound(border.NewLine(color.KeyboardFocus, geom.Insets{Top: 2, Left: 2, Bottom: 2, Right: 2}), border.NewEmpty(geom.Insets{Top: 0, Left: 3, Bottom: 0, Right: 3}))
 	theme.BlinkRate = time.Millisecond * 560
 	theme.MinimumTextWidth = 10
+	theme.DisabledBackgroundColor = color.Background
 }
