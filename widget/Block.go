@@ -430,3 +430,8 @@ func (b *Block) SetBackground(color color.Color) {
 		b.Repaint()
 	}
 }
+
+// ScrollIntoView attempts to scroll the block into view.
+func (b *Block) ScrollIntoView() {
+	// RAW: Implement
+}
