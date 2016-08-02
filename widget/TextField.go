@@ -134,7 +134,7 @@ func (field *TextField) paint(evt event.Event) {
 		}
 	} else {
 		gc.SetFillColor(color.Text)
-		gc.DrawString(bounds.X, textTop, string(field.runes))
+		gc.DrawString(bounds.X+field.scrollOffset, textTop, string(field.runes))
 	}
 	if !field.HasSelectionRange() && field.Focused() {
 		if field.showCursor {
@@ -429,7 +429,7 @@ func (field *TextField) autoScroll() {
 
 func (field *TextField) ToSelectionIndex(x float32) int {
 	bounds := field.LocalInsetBounds()
-	return field.Theme.Font.IndexForPosition(x+field.scrollOffset-bounds.X, string(field.runes))
+	return field.Theme.Font.IndexForPosition(x-(bounds.X+field.scrollOffset), string(field.runes))
 }
 
 func (field *TextField) FromSelectionIndex(index int) geom.Point {
