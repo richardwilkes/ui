@@ -54,6 +54,7 @@ func NewTextField() *TextField {
 	handlers.Add(event.FocusLostType, field.focusLost)
 	handlers.Add(event.MouseDownType, field.mouseDown)
 	handlers.Add(event.MouseDraggedType, field.mouseDragged)
+	handlers.Add(event.KeyTypedType, field.keyTyped)
 	return field
 }
 
@@ -255,6 +256,19 @@ func (field *TextField) mouseDragged(evt event.Event) {
 	field.setSelection(start, end, oldAnchor)
 }
 
+func (field *TextField) keyTyped(evt event.Event) {
+	r := evt.(*event.KeyTyped).Rune()
+	if r >= ' ' {
+		if field.HasSelectionRange() {
+			field.runes = append(field.runes[:field.selectionStart], field.runes[field.selectionEnd:]...)
+		}
+		field.runes = append(field.runes[:field.selectionStart], append([]rune{r}, field.runes[field.selectionStart:]...)...)
+		field.SetSelectionTo(field.selectionStart + 1)
+		evt.Finish()
+		event.Dispatch(event.NewModified(field))
+	}
+}
+
 // Text returns the content of the field.
 func (field *TextField) Text() string {
 	return string(field.runes)
@@ -368,18 +382,68 @@ func (field *TextField) setSelection(start, end, anchor int) {
 	}
 }
 
-// ScrollIntoView scrolls the insertion cursor into view.
-func (field *TextField) ScrollIntoView() {
-	// RAW: Implement
-}
-
 func (field *TextField) autoScroll() {
-	// RAW: Implement
+	bounds := field.LocalInsetBounds()
+	if bounds.Width > 0 {
+		original := field.scrollOffset
+		if field.selectionStart == field.selectionAnchor {
+			right := field.FromSelectionIndex(field.selectionEnd).X
+			if right < bounds.X {
+				field.scrollOffset = 0
+				field.scrollOffset = bounds.X - field.FromSelectionIndex(field.selectionEnd).X
+			} else if right >= bounds.X+bounds.Width {
+				field.scrollOffset = 0
+				field.scrollOffset = bounds.X + bounds.Width - 1 - field.FromSelectionIndex(field.selectionEnd).X
+			}
+		} else {
+			left := field.FromSelectionIndex(field.selectionStart).X
+			if left < bounds.X {
+				field.scrollOffset = 0
+				field.scrollOffset = bounds.X - field.FromSelectionIndex(field.selectionStart).X
+			} else if left >= bounds.X+bounds.Width {
+				field.scrollOffset = 0
+				field.scrollOffset = bounds.X + bounds.Width - 1 - field.FromSelectionIndex(field.selectionStart).X
+			}
+		}
+		save := field.scrollOffset
+		field.scrollOffset = 0
+		min := bounds.X + bounds.Width - 1 - field.FromSelectionIndex(len(field.runes)).X
+		if min > 0 {
+			min = 0
+		}
+		max := bounds.X - field.FromSelectionIndex(0).X
+		if max < 0 {
+			max = 0
+		}
+		if save < min {
+			save = min
+		} else if save > max {
+			save = max
+		}
+		field.scrollOffset = save
+		if original != field.scrollOffset {
+			field.Repaint()
+		}
+	}
 }
 
 func (field *TextField) ToSelectionIndex(x float32) int {
 	bounds := field.LocalInsetBounds()
 	return field.Theme.Font.IndexForPosition(x+field.scrollOffset-bounds.X, string(field.runes))
+}
+
+func (field *TextField) FromSelectionIndex(index int) geom.Point {
+	bounds := field.LocalInsetBounds()
+	x := bounds.X + field.scrollOffset
+	top := bounds.Y + bounds.Height/2
+	if index > 0 {
+		length := len(field.runes)
+		if index > length {
+			index = length
+		}
+		x += field.Theme.Font.PositionForIndex(index, string(field.runes))
+	}
+	return geom.Point{X: x, Y: top}
 }
 
 func (field *TextField) findWordAt(pos int) (start, end int) {
