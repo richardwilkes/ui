@@ -20,12 +20,13 @@ import (
 	"math"
 	"strings"
 	"time"
+	"unicode"
 )
 
 // TextField provides a single-line text input control.
 type TextField struct {
 	Block
-	text            string
+	runes           []rune
 	watermark       string
 	Theme           *theme.TextField // The theme the text field will use to draw itself.
 	selectionStart  int
@@ -52,6 +53,7 @@ func NewTextField() *TextField {
 	handlers.Add(event.FocusGainedType, field.focusGained)
 	handlers.Add(event.FocusLostType, field.focusLost)
 	handlers.Add(event.MouseDownType, field.mouseDown)
+	handlers.Add(event.MouseDraggedType, field.mouseDragged)
 	return field
 }
 
@@ -68,10 +70,10 @@ func (field *TextField) Sizes(hint geom.Size) (min, pref, max geom.Size) {
 		}
 	}
 	var text string
-	if field.text == "" {
-		text = "M"
+	if len(field.runes) != 0 {
+		text = string(field.runes)
 	} else {
-		text = field.text
+		text = "M"
 	}
 	size := field.Theme.Font.Size(text)
 	// Add the descent height to allow for a more balanced vertical look
@@ -102,12 +104,12 @@ func (field *TextField) paint(evt event.Event) {
 		left := bounds.X + field.scrollOffset
 		if field.selectionStart > 0 {
 			gc.SetFillColor(color.Text)
-			pre := field.text[:field.selectionStart]
+			pre := string(field.runes[:field.selectionStart])
 			gc.DrawString(left, textTop, pre)
 			left += field.Theme.Font.Width(pre)
 		}
-		mid := field.text[field.selectionStart:field.selectionEnd]
-		right := bounds.X + field.Theme.Font.Width(field.text[:field.selectionEnd]) + field.scrollOffset
+		mid := string(field.runes[field.selectionStart:field.selectionEnd])
+		right := bounds.X + field.Theme.Font.Width(string(field.runes[:field.selectionEnd])) + field.scrollOffset
 		selRect := geom.Rect{Point: geom.Point{X: left, Y: textTop - descent}, Size: geom.Size{Width: right - left, Height: field.Theme.Font.Height() + descent}}
 		if field.Focused() {
 			gc.SetFillColor(color.SelectedTextBackground)
@@ -120,18 +122,18 @@ func (field *TextField) paint(evt event.Event) {
 		}
 		gc.SetFillColor(color.SelectedText)
 		gc.DrawString(left, textTop, mid)
-		if field.selectionStart < len(field.text) {
+		if field.selectionStart < len(field.runes) {
 			gc.SetFillColor(color.Text)
-			gc.DrawString(right, textTop, field.text[field.selectionEnd:])
+			gc.DrawString(right, textTop, string(field.runes[field.selectionEnd:]))
 		}
-	} else if field.text == "" {
+	} else if len(field.runes) == 0 {
 		if field.watermark != "" {
 			gc.SetFillColor(color.Gray)
 			gc.DrawString(bounds.X, textTop, field.watermark)
 		}
 	} else {
 		gc.SetFillColor(color.Text)
-		gc.DrawString(bounds.X, textTop, field.text)
+		gc.DrawString(bounds.X, textTop, string(field.runes))
 	}
 	if !field.HasSelectionRange() && field.Focused() {
 		if field.showCursor {
@@ -141,7 +143,7 @@ func (field *TextField) paint(evt event.Event) {
 			} else {
 				cursorColor = color.White
 			}
-			x := bounds.X + field.Theme.Font.Width(field.text[:field.selectionEnd]) + field.scrollOffset
+			x := bounds.X + field.Theme.Font.Width(string(field.runes[:field.selectionEnd])) + field.scrollOffset
 			gc.SetStrokeColor(cursorColor)
 			gc.StrokeLine(x, textTop-descent, x, textTop+field.Theme.Font.Height()+descent-1)
 		}
@@ -183,25 +185,86 @@ func (field *TextField) mouseDown(evt event.Event) {
 		field.extendByWord = false
 		switch e.Clicks() {
 		case 2:
+			start, end := field.findWordAt(field.ToSelectionIndex(field.FromWindow(e.Where()).X))
+			field.SetSelection(start, end)
+			field.extendByWord = true
 		case 3:
 			field.SelectAll()
 		default:
+			oldAnchor := field.selectionAnchor
+			field.selectionAnchor = field.ToSelectionIndex(field.FromWindow(e.Where()).X)
+			var start, end int
+			if e.Modifiers().ShiftDown() {
+				if oldAnchor > field.selectionAnchor {
+					start = field.selectionAnchor
+					end = oldAnchor
+				} else {
+					start = oldAnchor
+					end = field.selectionAnchor
+				}
+			} else {
+				start = field.selectionAnchor
+				end = field.selectionAnchor
+			}
+			field.setSelection(start, end, field.selectionAnchor)
 		}
 	} else if e.Button() == event.RightButton {
 		fmt.Println("right click")
 	}
 }
 
+func (field *TextField) mouseDragged(evt event.Event) {
+	oldAnchor := field.selectionAnchor
+	pos := field.ToSelectionIndex(field.FromWindow(evt.(*event.MouseDragged).Where()).X)
+	var start, end int
+	if field.extendByWord {
+		s1, e1 := field.findWordAt(oldAnchor)
+		var dir int
+		if pos > s1 {
+			dir = -1
+		} else {
+			dir = 1
+		}
+		for {
+			start, end = field.findWordAt(pos)
+			if start != end {
+				if start > s1 {
+					start = s1
+				}
+				if end < e1 {
+					end = e1
+				}
+				break
+			}
+			pos += dir
+			if dir > 0 && pos >= s1 || dir < 0 && pos <= e1 {
+				start = s1
+				end = e1
+				break
+			}
+		}
+	} else {
+		if pos > oldAnchor {
+			start = oldAnchor
+			end = pos
+		} else {
+			start = pos
+			end = oldAnchor
+		}
+	}
+	field.setSelection(start, end, oldAnchor)
+}
+
 // Text returns the content of the field.
 func (field *TextField) Text() string {
-	return field.text
+	return string(field.runes)
 }
 
 // SetText sets the content of the field. Returns true if a modification was made.
 func (field *TextField) SetText(text string) bool {
 	text = sanitize(text)
-	if field.text != text {
-		field.text = text
+	if string(field.runes) != text {
+		field.runes = ([]rune)(text)
 		field.SetSelectionToEnd()
 		field.Repaint()
 		event.Dispatch(event.NewModified(field))
@@ -228,7 +291,7 @@ func (field *TextField) SetWatermark(text string) {
 
 // SelectedText returns the currently selected text.
 func (field *TextField) SelectedText() string {
-	return field.text[field.selectionStart:field.selectionEnd]
+	return string(field.runes[field.selectionStart:field.selectionEnd])
 }
 
 // HasSelectionRange returns true is a selection range is currently present.
@@ -248,7 +311,7 @@ func (field *TextField) Selection() (start, end int) {
 
 // SelectAll selects all of the text in the field.
 func (field *TextField) SelectAll() {
-	field.SetSelection(0, len(field.text))
+	field.SetSelection(0, len(field.runes))
 }
 
 // SetSelectionToStart moves the cursor to the beginning of the text and removes any range that may
@@ -277,7 +340,7 @@ func (field *TextField) SetSelection(start, end int) {
 }
 
 func (field *TextField) setSelection(start, end, anchor int) {
-	length := len(field.text)
+	length := len(field.runes)
 	if start < 0 {
 		start = 0
 	} else if start > length {
@@ -312,4 +375,29 @@ func (field *TextField) ScrollIntoView() {
 
 func (field *TextField) autoScroll() {
 	// RAW: Implement
+}
+
+func (field *TextField) ToSelectionIndex(x float32) int {
+	bounds := field.LocalInsetBounds()
+	return field.Theme.Font.IndexForPosition(x+field.scrollOffset-bounds.X, string(field.runes))
+}
+
+func (field *TextField) findWordAt(pos int) (start, end int) {
+	length := len(field.runes)
+	if pos < 0 {
+		pos = 0
+	} else if pos >= length {
+		pos = length - 1
+	}
+	start = pos
+	end = pos
+	if length > 0 && !unicode.IsSpace(field.runes[start]) {
+		for start > 0 && !unicode.IsSpace(field.runes[start-1]) {
+			start--
+		}
+		for end < length && !unicode.IsSpace(field.runes[end]) {
+			end++
+		}
+	}
+	return start, end
 }
