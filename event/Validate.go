@@ -52,12 +52,12 @@ func (e *Validate) Finish() {
 	e.finished = true
 }
 
-// Aborted returns true if Validate should not proceed.
+// Valid returns true if Validate should not proceed.
 func (e *Validate) Valid() bool {
 	return !e.invalid
 }
 
-// MakeInvalid marks the event as finding invalid state.
+// MarkInvalid marks the event as finding invalid state.
 func (e *Validate) MarkInvalid() {
 	e.invalid = true
 	e.finished = true

@@ -22,15 +22,16 @@ type MouseUp struct {
 	target    Target
 	where     geom.Point
 	modifiers KeyMask
+	button    int
 	finished  bool
 	discarded bool
 }
 
 // NewMouseUp creates a new MouseUp event. 'target' is the widget that was being clicked on.
 // 'where' is the location in the window where the mouse is. 'modifiers' are the keyboard
-// modifiers keys that were down.
-func NewMouseUp(target Target, where geom.Point, modifiers KeyMask) *MouseUp {
-	return &MouseUp{target: target, where: where, modifiers: modifiers}
+// modifiers keys that were down. 'button' is the button number.
+func NewMouseUp(target Target, where geom.Point, modifiers KeyMask, button int) *MouseUp {
+	return &MouseUp{target: target, where: where, modifiers: modifiers, button: button}
 }
 
 // Type returns the event type ID.
@@ -68,10 +69,15 @@ func (e *MouseUp) Modifiers() KeyMask {
 	return e.modifiers
 }
 
+// Button returns the button that triggered this event.
+func (e *MouseUp) Button() int {
+	return e.button
+}
+
 // String implements the fmt.Stringer interface.
 func (e *MouseUp) String() string {
 	var buffer bytes.Buffer
-	buffer.WriteString(fmt.Sprintf("MouseUp[Where: [%v], Target: %v", e.where, reflect.ValueOf(e.target).Pointer()))
+	buffer.WriteString(fmt.Sprintf("MouseUp[Where: [%v], Target: %v, Button: %d", e.where, reflect.ValueOf(e.target).Pointer(), e.button))
 	modifiers := e.modifiers.String()
 	if modifiers != "" {
 		buffer.WriteString(", ")

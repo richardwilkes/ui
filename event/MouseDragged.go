@@ -22,15 +22,16 @@ type MouseDragged struct {
 	target    Target
 	where     geom.Point
 	modifiers KeyMask
+	button    int
 	finished  bool
 	discarded bool
 }
 
 // NewMouseDragged creates a new MouseDragged event. 'target' is the widget that was being clicked
 // on. 'where' is the location in the window where the mouse is. 'modifiers' are the keyboard
-// modifiers keys that were down.
-func NewMouseDragged(target Target, where geom.Point, modifiers KeyMask) *MouseDragged {
-	return &MouseDragged{target: target, where: where, modifiers: modifiers}
+// modifiers keys that were down. 'button' is the button number.
+func NewMouseDragged(target Target, where geom.Point, modifiers KeyMask, button int) *MouseDragged {
+	return &MouseDragged{target: target, where: where, modifiers: modifiers, button: button}
 }
 
 // Type returns the event type ID.
@@ -68,10 +69,15 @@ func (e *MouseDragged) Modifiers() KeyMask {
 	return e.modifiers
 }
 
+// Button returns the button that triggered this event.
+func (e *MouseDragged) Button() int {
+	return e.button
+}
+
 // String implements the fmt.Stringer interface.
 func (e *MouseDragged) String() string {
 	var buffer bytes.Buffer
-	buffer.WriteString(fmt.Sprintf("MouseDragged[Where: [%v], Target: %v", e.where, reflect.ValueOf(e.target).Pointer()))
+	buffer.WriteString(fmt.Sprintf("MouseDragged[Where: [%v], Target: %v, Button: %d", e.where, reflect.ValueOf(e.target).Pointer(), e.button))
 	modifiers := e.modifiers.String()
 	if modifiers != "" {
 		buffer.WriteString(", ")

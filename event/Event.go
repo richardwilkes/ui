@@ -13,6 +13,13 @@ import (
 	"log"
 )
 
+// Common button ids.
+const (
+	LeftButton   = 0
+	RightButton  = 1
+	MiddleButton = 2
+)
+
 // Event is the minimal interface that must be implemented for events.
 type Event interface {
 	// Type returns the event type ID.
