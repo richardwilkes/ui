@@ -50,6 +50,17 @@ func (s *Size) GrowToInteger() {
 	s.Height = xmath.CeilFloat32(s.Height)
 }
 
+// ConstrainForHint ensures this size is no larger than the hint. Hint values less than zero are
+// ignored.
+func (s *Size) ConstrainForHint(hint Size) {
+	if hint.Width >= 0 && s.Width > hint.Width {
+		s.Width = hint.Width
+	}
+	if hint.Height >= 0 && s.Height > hint.Height {
+		s.Height = hint.Height
+	}
+}
+
 // String implements the fmt.Stringer interface.
 func (s Size) String() string {
 	return fmt.Sprintf("%v, %v", s.Width, s.Height)
