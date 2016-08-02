@@ -103,18 +103,8 @@ type Graphics interface {
 	DrawImage(img *Image, where geom.Point)
 	// DragImage in the bounds, scaling if necessary.
 	DrawImageInRect(img *Image, bounds geom.Rect)
-	// DrawText at the specified location. Returns the space taken up by the text.
-	DrawText(x, y float32, str string, mode TextMode) geom.Size
-	// DrawTextConstrained at the specified location. The text will be wrapped to fit within the
-	// specified bounds. Returns the space taken up by the text and the number of bytes of the text
-	// that were drawn.
-	DrawTextConstrained(bounds geom.Rect, str string, mode TextMode) (actual geom.Size, fit int)
-	// DrawAttributedText at the specified location. Returns the space taken up by the text.
-	DrawAttributedText(x, y float32, str *Text, mode TextMode) geom.Size
-	// DrawAttributedTextConstrained at the specified location. The text will be wrapped to fit
-	// within the specified bounds. Returns the space taken up by the text and the number of bytes
-	// of the text that were drawn.
-	DrawAttributedTextConstrained(bounds geom.Rect, str *Text, mode TextMode) (actual geom.Size, fit int)
+	// DrawString at the specified location using the current font and fill color.
+	DrawString(x, y float32, str string)
 	// Translate the coordinate system.
 	Translate(x, y float32)
 	// Scale the coordinate system.

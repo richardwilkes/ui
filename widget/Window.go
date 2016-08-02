@@ -374,11 +374,11 @@ func handleWindowMouseEvent(cWindow C.uiWindow, eventType, keyModifiers, button,
 			}
 		case C.uiMouseDragged:
 			if widget.Enabled() {
-				event.Dispatch(event.NewMouseDragged(widget, where, modifiers))
+				event.Dispatch(event.NewMouseDragged(widget, where, modifiers, button))
 			}
 		case C.uiMouseUp:
 			if widget.Enabled() {
-				event.Dispatch(event.NewMouseUp(widget, where, modifiers))
+				event.Dispatch(event.NewMouseUp(widget, where, modifiers, button))
 			}
 		case C.uiMouseEntered:
 			event.Dispatch(event.NewMouseEntered(widget, where, modifiers))

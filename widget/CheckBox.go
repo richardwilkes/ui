@@ -11,7 +11,6 @@ package widget
 
 import (
 	"github.com/richardwilkes/ui/color"
-	"github.com/richardwilkes/ui/draw"
 	"github.com/richardwilkes/ui/event"
 	"github.com/richardwilkes/ui/geom"
 	"github.com/richardwilkes/ui/layout"
@@ -73,8 +72,9 @@ func (checkbox *CheckBox) Sizes(hint geom.Size) (min, pref, max geom.Size) {
 				hint.Height = 1
 			}
 		}
-		size, _ = checkbox.title().MeasureConstrained(hint)
+		size = checkbox.Theme.Font.Size(checkbox.Title)
 		size.GrowToInteger()
+		size.ConstrainForHint(hint)
 		size.Width += checkbox.Theme.HorizontalGap + box
 		if size.Height < box {
 			size.Height = box
@@ -140,10 +140,10 @@ func (checkbox *CheckBox) paint(evt event.Event) {
 	}
 	if checkbox.Title != "" {
 		bounds = checkbox.LocalInsetBounds()
-		bounds.X += box + checkbox.Theme.HorizontalGap
-		bounds.Width -= box + checkbox.Theme.HorizontalGap
-		if bounds.Width > 0 {
-			gc.DrawAttributedTextConstrained(bounds, checkbox.title(), draw.TextModeFill)
+		if bounds.Width-(box+checkbox.Theme.HorizontalGap) > 0 {
+			gc.SetFont(checkbox.Theme.Font)
+			gc.SetFillColor(checkbox.TextColor())
+			gc.DrawString(bounds.X+box+checkbox.Theme.HorizontalGap, bounds.Y, checkbox.Title)
 		}
 	}
 }
@@ -230,12 +230,6 @@ func (checkbox *CheckBox) TextColor() color.Color {
 		return checkbox.Theme.TextWhenDisabled
 	}
 	return checkbox.Theme.TextWhenLight
-}
-
-func (checkbox *CheckBox) title() *draw.Text {
-	str := draw.NewText(checkbox.Title, checkbox.TextColor(), checkbox.Theme.Font)
-	str.SetAlignment(0, 0, draw.AlignStart)
-	return str
 }
 
 // State returns this checkbox's current state.

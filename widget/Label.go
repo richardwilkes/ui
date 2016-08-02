@@ -11,7 +11,6 @@ package widget
 
 import (
 	"github.com/richardwilkes/ui/color"
-	"github.com/richardwilkes/ui/draw"
 	"github.com/richardwilkes/ui/event"
 	"github.com/richardwilkes/ui/font"
 	"github.com/richardwilkes/ui/geom"
@@ -23,7 +22,6 @@ type Label struct {
 	text       string
 	font       *font.Font
 	foreground color.Color
-	alignment  draw.Alignment
 }
 
 // NewLabel creates a label with the specified text.
@@ -37,7 +35,6 @@ func NewLabelWithFont(text string, font *font.Font) *Label {
 	label.text = text
 	label.foreground = color.Black
 	label.font = font
-	label.alignment = draw.AlignStart
 	label.SetSizer(label)
 	label.EventHandlers().Add(event.PaintType, label.paint)
 	return label
@@ -45,8 +42,9 @@ func NewLabelWithFont(text string, font *font.Font) *Label {
 
 // Sizes implements Sizer
 func (label *Label) Sizes(hint geom.Size) (min, pref, max geom.Size) {
-	size, _ := label.title().MeasureConstrained(hint)
+	size := label.font.Size(label.text)
 	size.GrowToInteger()
+	size.ConstrainForHint(hint)
 	if border := label.Border(); border != nil {
 		size.AddInsets(border.Insets())
 	}
@@ -54,7 +52,11 @@ func (label *Label) Sizes(hint geom.Size) (min, pref, max geom.Size) {
 }
 
 func (label *Label) paint(evt event.Event) {
-	evt.(*event.Paint).GC().DrawAttributedTextConstrained(label.LocalInsetBounds(), label.title(), draw.TextModeFill)
+	bounds := label.LocalInsetBounds()
+	gc := evt.(*event.Paint).GC()
+	gc.SetFillColor(label.foreground)
+	gc.SetFont(label.font)
+	gc.DrawString(bounds.X, bounds.Y+(bounds.Height-label.font.Height())/2, label.text)
 }
 
 // SetForeground sets the color used when drawing the text.
@@ -63,18 +65,4 @@ func (label *Label) SetForeground(color color.Color) {
 		label.foreground = color
 		label.Repaint()
 	}
-}
-
-// SetAlignment sets the alignment used when drawing the text.
-func (label *Label) SetAlignment(align draw.Alignment) {
-	if label.alignment != align {
-		label.alignment = align
-		label.Repaint()
-	}
-}
-
-func (label *Label) title() *draw.Text {
-	str := draw.NewText(label.text, label.foreground, label.font)
-	str.SetAlignment(0, 0, label.alignment)
-	return str
 }

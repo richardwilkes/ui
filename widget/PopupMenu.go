@@ -12,7 +12,6 @@ package widget
 import (
 	"fmt"
 	"github.com/richardwilkes/ui/color"
-	"github.com/richardwilkes/ui/draw"
 	"github.com/richardwilkes/ui/event"
 	"github.com/richardwilkes/ui/geom"
 	"github.com/richardwilkes/ui/layout"
@@ -63,7 +62,18 @@ func (pm *PopupMenu) Sizes(hint geom.Size) (min, pref, max geom.Size) {
 			hint.Height = 1
 		}
 	}
-	size := pm.measureConstrained(hint)
+	var size geom.Size
+	for _, one := range pm.items {
+		current := pm.Theme.Font.Size(fmt.Sprintf("%v", one))
+		if size.Width < current.Width {
+			size.Width = current.Width
+		}
+		if size.Height < current.Height {
+			size.Height = current.Height
+		}
+	}
+	size.GrowToInteger()
+	size.ConstrainForHint(hint)
 	size.Width += hSpace + size.Height*0.75
 	size.Height += vSpace
 	size.GrowToInteger()
@@ -108,7 +118,9 @@ func (pm *PopupMenu) paint(evt event.Event) {
 	bounds.Y += pm.Theme.VerticalMargin + 1
 	bounds.Height -= vSpace
 	bounds.Width -= hSpace + bounds.Height
-	gc.DrawAttributedTextConstrained(bounds, pm.title(), draw.TextModeFill)
+	gc.SetFont(pm.Theme.Font)
+	gc.SetFillColor(pm.TextColor())
+	gc.DrawString(bounds.X, bounds.Y, pm.title())
 }
 
 func (pm *PopupMenu) mouseDown(evt event.Event) {
@@ -254,24 +266,10 @@ func (pm *PopupMenu) TextColor() color.Color {
 	return pm.Theme.TextWhenDark
 }
 
-func (pm *PopupMenu) title() *draw.Text {
+func (pm *PopupMenu) title() string {
 	title := ""
 	if pm.selectedIndex >= 0 && pm.selectedIndex < len(pm.items) {
 		title = fmt.Sprintf("%v", pm.items[pm.selectedIndex])
 	}
-	return draw.NewText(title, pm.TextColor(), pm.Theme.Font)
-}
-
-func (pm *PopupMenu) measureConstrained(hint geom.Size) geom.Size {
-	var largest geom.Size
-	for _, one := range pm.items {
-		size, _ := draw.NewText(fmt.Sprintf("%v", one), color.Black, pm.Theme.Font).MeasureConstrained(hint)
-		if largest.Width < size.Width {
-			largest.Width = size.Width
-		}
-		if largest.Height < size.Height {
-			largest.Height = size.Height
-		}
-	}
-	return largest
+	return title
 }

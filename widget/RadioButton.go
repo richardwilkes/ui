@@ -11,7 +11,6 @@ package widget
 
 import (
 	"github.com/richardwilkes/ui/color"
-	"github.com/richardwilkes/ui/draw"
 	"github.com/richardwilkes/ui/event"
 	"github.com/richardwilkes/ui/geom"
 	"github.com/richardwilkes/ui/layout"
@@ -64,8 +63,9 @@ func (button *RadioButton) Sizes(hint geom.Size) (min, pref, max geom.Size) {
 				hint.Height = 1
 			}
 		}
-		size, _ = button.title().MeasureConstrained(hint)
+		size := button.Theme.Font.Size(button.Title)
 		size.GrowToInteger()
+		size.ConstrainForHint(hint)
 		size.Width += button.Theme.HorizontalGap + box
 		if size.Height < box {
 			size.Height = box
@@ -117,7 +117,9 @@ func (button *RadioButton) paint(evt event.Event) {
 		bounds.X += box + button.Theme.HorizontalGap
 		bounds.Width -= box + button.Theme.HorizontalGap
 		if bounds.Width > 0 {
-			gc.DrawAttributedTextConstrained(bounds, button.title(), draw.TextModeFill)
+			gc.SetFillColor(button.TextColor())
+			gc.SetFont(button.Theme.Font)
+			gc.DrawString(bounds.X, bounds.Y+(bounds.Height-button.Theme.Font.Height())/2, button.Title)
 		}
 	}
 }
@@ -190,12 +192,6 @@ func (button *RadioButton) TextColor() color.Color {
 		return button.Theme.TextWhenLight
 	}
 	return button.Theme.TextWhenDisabled
-}
-
-func (button *RadioButton) title() *draw.Text {
-	str := draw.NewText(button.Title, button.TextColor(), button.Theme.Font)
-	str.SetAlignment(0, 0, draw.AlignStart)
-	return str
 }
 
 // Selected returns true if the radio button is currently selected.

@@ -302,47 +302,24 @@ func (gc *graphics) DrawImageInRect(img *Image, bounds geom.Rect) {
 	C.CGContextDrawImage(gc.gc, toCGRect(bounds), img.img)
 }
 
-// DrawText implements Graphics.
-func (gc *graphics) DrawText(x, y float32, str string, mode TextMode) geom.Size {
-	size, _ := gc.DrawTextConstrained(geom.Rect{Point: geom.Point{X: x, Y: y}, Size: geom.Size{Width: unlimitedSize, Height: unlimitedSize}}, str, mode)
-	return size
-}
-
-// DrawTextConstrained implements Graphics.
-func (gc *graphics) DrawTextConstrained(bounds geom.Rect, str string, mode TextMode) (actual geom.Size, fit int) {
-	gs := gc.stack[len(gc.stack)-1]
-	return gc.DrawAttributedTextConstrained(bounds, NewText(str, gs.fillColor, gs.font), mode)
-}
-
-// DrawAttributedText implements Graphics.
-func (gc *graphics) DrawAttributedText(x, y float32, str *Text, mode TextMode) geom.Size {
-	size, _ := gc.DrawAttributedTextConstrained(geom.Rect{Point: geom.Point{X: x, Y: y}, Size: geom.Size{Width: unlimitedSize, Height: unlimitedSize}}, str, mode)
-	return size
-}
-
-// DrawAttributedTextConstrained implements Graphics.
-func (gc *graphics) DrawAttributedTextConstrained(bounds geom.Rect, str *Text, mode TextMode) (actual geom.Size, fit int) {
+func (gc *graphics) DrawString(x, y float32, str string) {
 	gc.Save()
-	defer gc.Restore()
-	attrStr := str.toPlatform()
-	setter := C.CTFramesetterCreateWithAttributedString(attrStr)
-	fitRange := C.CFRangeMake(0, 0)
-	size := C.CTFramesetterSuggestFrameSizeWithConstraints(setter, C.CFRangeMake(0, 0), nil, C.CGSizeMake(C.CGFloat(bounds.Width), C.CGFloat(bounds.Height)), &fitRange)
+	gs := gc.stack[len(gc.stack)-1]
+	as := C.CFAttributedStringCreateMutable(C.kCFAllocatorDefault, 0)
+	C.CFAttributedStringBeginEditing(as)
+	C.CFAttributedStringReplaceString(as, C.CFRangeMake(0, 0), cfStringFromString(str))
+	C.CFAttributedStringSetAttribute(as, C.CFRangeMake(0, C.CFIndex(len(str))), C.kCTFontAttributeName, C.CFTypeRef(gs.font.PlatformPtr()))
+	C.CFAttributedStringSetAttribute(as, C.CFRangeMake(0, C.CFIndex(len(str))), C.kCTForegroundColorFromContextAttributeName, C.CFTypeRef(C.kCFBooleanTrue))
+	C.CFAttributedStringEndEditing(as)
+	line := C.CTLineCreateWithAttributedString(as)
 	C.CGContextSetTextMatrix(gc.gc, C.CGAffineTransformIdentity)
-	C.CGContextSetTextDrawingMode(gc.gc, C.CGTextDrawingMode(mode))
-	C.CGContextTranslateCTM(gc.gc, 0, size.height)
+	C.CGContextTranslateCTM(gc.gc, 0, C.CGFloat(gs.font.Ascent()))
 	C.CGContextScaleCTM(gc.gc, 1, -1)
-	path := C.CGPathCreateMutable()
-	bounds.Y = -bounds.Y
-	bounds.Height = float32(size.height)
-	C.CGPathAddRect(path, nil, toCGRect(bounds))
-	frame := C.CTFramesetterCreateFrame(setter, C.CFRangeMake(0, 0), path, nil)
-	C.CGPathRelease(path)
-	C.CTFrameDraw(frame, gc.gc)
-	C.CFRelease(frame)
-	C.CFRelease(setter)
-	C.CFRelease(attrStr)
-	return geom.Size{Width: float32(size.width), Height: float32(size.height)}, int(fitRange.length)
+	C.CGContextTranslateCTM(gc.gc, C.CGFloat(x), C.CGFloat(-y))
+	C.CTLineDraw(line, gc.gc)
+	gc.Restore()
+	C.CFRelease(line)
+	C.CFRelease(as)
 }
 
 // Translate implements Graphics.
@@ -360,11 +337,13 @@ func (gc *graphics) Rotate(angleInRadians float32) {
 	C.CGContextRotateCTM(gc.gc, C.CGFloat(angleInRadians))
 }
 
-func (gc *graphics) createText(str string) C.CFMutableAttributedStringRef {
-	gs := gc.stack[len(gc.stack)-1]
-	return NewText(str, gs.fillColor, gs.font).toPlatform()
-}
-
 func toCGRect(bounds geom.Rect) C.CGRect {
 	return C.CGRectMake(C.CGFloat(bounds.X), C.CGFloat(bounds.Y), C.CGFloat(bounds.Width), C.CGFloat(bounds.Height))
+}
+
+func cfStringFromString(str string) C.CFStringRef {
+	cstr := C.CString(str)
+	cfstr := C.CFStringCreateWithBytes(nil, (*C.UInt8)(unsafe.Pointer(cstr)), C.CFIndex(len(str)), C.kCFStringEncodingUTF8, 0)
+	C.free(unsafe.Pointer(cstr))
+	return cfstr
 }

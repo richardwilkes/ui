@@ -11,7 +11,6 @@ package widget
 
 import (
 	"github.com/richardwilkes/ui/color"
-	"github.com/richardwilkes/ui/draw"
 	"github.com/richardwilkes/ui/event"
 	"github.com/richardwilkes/ui/geom"
 	"github.com/richardwilkes/ui/layout"
@@ -61,8 +60,9 @@ func (button *Button) Sizes(hint geom.Size) (min, pref, max geom.Size) {
 			hint.Height = 1
 		}
 	}
-	size, _ := button.title().MeasureConstrained(hint)
+	size := button.Theme.Font.Size(button.Title)
 	size.GrowToInteger()
+	size.ConstrainForHint(hint)
 	size.Width += hSpace
 	size.Height += vSpace
 	if border := button.Border(); border != nil {
@@ -97,7 +97,9 @@ func (button *Button) paint(evt event.Event) {
 	bounds.Y += button.Theme.VerticalMargin + 1
 	bounds.Width -= hSpace
 	bounds.Height -= vSpace
-	gc.DrawAttributedTextConstrained(bounds, button.title(), draw.TextModeFill)
+	gc.SetFillColor(button.TextColor())
+	gc.SetFont(button.Theme.Font)
+	gc.DrawString(bounds.X+(bounds.Width-button.Theme.Font.Width(button.Title))/2, bounds.Y+(bounds.Height-button.Theme.Font.Height())/2, button.Title)
 }
 
 func (button *Button) mouseDown(evt event.Event) {
@@ -128,6 +130,7 @@ func (button *Button) focusChanged(evt event.Event) {
 	button.Repaint()
 }
 
+// Click makes the button behave as if a user clicked on it.
 func (button *Button) Click() {
 	pressed := button.pressed
 	button.pressed = true
@@ -169,10 +172,4 @@ func (button *Button) TextColor() color.Color {
 		return button.Theme.TextWhenLight
 	}
 	return button.Theme.TextWhenDark
-}
-
-func (button *Button) title() *draw.Text {
-	str := draw.NewText(button.Title, button.TextColor(), button.Theme.Font)
-	str.SetAlignment(0, 0, draw.AlignMiddle)
-	return str
 }
