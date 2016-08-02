@@ -183,6 +183,10 @@ func (font *Font) Size(str string) geom.Size {
 	return geom.Size{Width: font.Width(str), Height: font.Height()}
 }
 
+func (font *Font) IndexForPosition(x float32, str string) int {
+	return font.platformIndexForPosition(x, str)
+}
+
 // String implements the fmt.Stringer interface.
 func (font *Font) String() string {
 	return font.desc.String()
