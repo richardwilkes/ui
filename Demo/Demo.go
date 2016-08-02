@@ -232,6 +232,7 @@ func createTextFieldsPanel() ui.Widget {
 
 	createTextField("First Text Field", panel)
 	createTextField("Second Text Field (disabled)", panel).SetEnabled(false)
+	createTextField("", panel).SetWatermark("Watermarked")
 
 	return panel
 }
@@ -239,6 +240,7 @@ func createTextFieldsPanel() ui.Widget {
 func createTextField(text string, panel ui.Widget) *widget.TextField {
 	field := widget.NewTextField()
 	field.SetText(text)
+	field.SetLayoutData(layout.NewPrecisionData().SetHorizontalGrab(true).SetHorizontalAlignment(draw.AlignFill))
 	widget.NewSimpleToolTip(field, fmt.Sprintf("This is the tooltip for the '%s' text field.", text))
 	panel.AddChild(field)
 	return field
