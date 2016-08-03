@@ -59,6 +59,7 @@ type Window struct {
 
 var (
 	windowMap = make(map[C.uiWindow]*Window)
+	diacritic int
 )
 
 // AllWindowsToFront attempts to bring all of the application's windows to the foreground.
@@ -423,9 +424,149 @@ func handleWindowMouseWheelEvent(cWindow C.uiWindow, eventType, keyModifiers int
 func handleWindowKeyEvent(cWindow C.uiWindow, eventType, keyModifiers, keyCode int, chars *C.char, repeat bool) {
 	if window, ok := windowMap[cWindow]; ok {
 		modifiers := event.KeyMask(keyModifiers)
+		var ch rune
+		runes := ([]rune)(C.GoString(chars))
+		if len(runes) > 0 {
+			ch = runes[0]
+		} else {
+			ch = 0
+		}
 		switch eventType {
 		case C.uiKeyDown:
-			e := event.NewKeyDown(window.Focus(), keyCode, repeat, modifiers)
+			if diacritic != 0 {
+				if modifiers&^event.ShiftKeyMask == 0 {
+					switch ch {
+					case 'a':
+						switch diacritic {
+						case keys.E:
+							ch = 'á'
+						case keys.I:
+							ch = 'â'
+						case keys.Backtick:
+							ch = 'à'
+						case keys.N:
+							ch = 'ã'
+						case keys.U:
+							ch = 'ä'
+						}
+					case 'A':
+						switch diacritic {
+						case keys.E:
+							ch = 'Á'
+						case keys.I:
+							ch = 'Â'
+						case keys.Backtick:
+							ch = 'À'
+						case keys.N:
+							ch = 'Ã'
+						case keys.U:
+							ch = 'Ä'
+						}
+					case 'e':
+						switch diacritic {
+						case keys.E:
+							ch = 'é'
+						case keys.I:
+							ch = 'ê'
+						case keys.Backtick:
+							ch = 'è'
+						case keys.U:
+							ch = 'ë'
+						}
+					case 'E':
+						switch diacritic {
+						case keys.E:
+							ch = 'É'
+						case keys.I:
+							ch = 'Ê'
+						case keys.Backtick:
+							ch = 'È'
+						case keys.U:
+							ch = 'Ë'
+						}
+					case 'i':
+						switch diacritic {
+						case keys.E:
+							ch = 'í'
+						case keys.I:
+							ch = 'î'
+						case keys.Backtick:
+							ch = 'ì'
+						case keys.U:
+							ch = 'ï'
+						}
+					case 'I':
+						switch diacritic {
+						case keys.E:
+							ch = 'Í'
+						case keys.I:
+							ch = 'Î'
+						case keys.Backtick:
+							ch = 'Ì'
+						case keys.U:
+							ch = 'Ï'
+						}
+					case 'o':
+						switch diacritic {
+						case keys.E:
+							ch = 'ó'
+						case keys.I:
+							ch = 'ô'
+						case keys.Backtick:
+							ch = 'ò'
+						case keys.N:
+							ch = 'õ'
+						case keys.U:
+							ch = 'ö'
+						}
+					case 'O':
+						switch diacritic {
+						case keys.E:
+							ch = 'Ó'
+						case keys.I:
+							ch = 'Ô'
+						case keys.Backtick:
+							ch = 'Ò'
+						case keys.N:
+							ch = 'Õ'
+						case keys.U:
+							ch = 'Ö'
+						}
+					case 'u':
+						switch diacritic {
+						case keys.E:
+							ch = 'ú'
+						case keys.I:
+							ch = 'û'
+						case keys.Backtick:
+							ch = 'ù'
+						case keys.U:
+							ch = 'ü'
+						}
+					case 'U':
+						switch diacritic {
+						case keys.E:
+							ch = 'Ú'
+						case keys.I:
+							ch = 'Û'
+						case keys.Backtick:
+							ch = 'Ù'
+						case keys.U:
+							ch = 'Ü'
+						}
+					}
+				}
+				diacritic = 0
+			}
+			if modifiers&^event.ShiftKeyMask == event.OptionKeyMask {
+				switch keyCode {
+				case keys.E, keys.I, keys.Backtick, keys.N, keys.U:
+					diacritic = keyCode
+				default:
+					diacritic = 0
+				}
+			}
+			e := event.NewKeyDown(window.Focus(), keyCode, ch, repeat, modifiers)
 			event.Dispatch(e)
 			if !e.Discarded() && keyCode == keys.Tab && (modifiers&(event.AllKeyMask & ^event.ShiftKeyMask)) == 0 {
 				if modifiers.ShiftDown() {
@@ -434,12 +575,8 @@ func handleWindowKeyEvent(cWindow C.uiWindow, eventType, keyModifiers, keyCode i
 					window.FocusNext()
 				}
 			}
-		case C.uiKeyTyped:
-			for _, r := range C.GoString(chars) {
-				event.Dispatch(event.NewKeyTyped(window.Focus(), r, repeat, modifiers))
-			}
 		case C.uiKeyUp:
-			event.Dispatch(event.NewKeyUp(window.Focus(), keyCode, modifiers))
+			event.Dispatch(event.NewKeyUp(window.Focus(), keyCode, ch, modifiers))
 		default:
 			panic(fmt.Sprintf("Unknown event type: %d", eventType))
 		}
