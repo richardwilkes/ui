@@ -15,8 +15,10 @@ import (
 	"github.com/richardwilkes/ui/draw"
 	"github.com/richardwilkes/ui/event"
 	"github.com/richardwilkes/ui/geom"
+	"github.com/richardwilkes/ui/keys"
 	"github.com/richardwilkes/ui/layout"
 	"github.com/richardwilkes/ui/theme"
+	"github.com/richardwilkes/xmath"
 	"math"
 	"strings"
 	"time"
@@ -54,7 +56,7 @@ func NewTextField() *TextField {
 	handlers.Add(event.FocusLostType, field.focusLost)
 	handlers.Add(event.MouseDownType, field.mouseDown)
 	handlers.Add(event.MouseDraggedType, field.mouseDragged)
-	handlers.Add(event.KeyTypedType, field.keyTyped)
+	handlers.Add(event.KeyDownType, field.keyDown)
 	return field
 }
 
@@ -256,16 +258,142 @@ func (field *TextField) mouseDragged(evt event.Event) {
 	field.setSelection(start, end, oldAnchor)
 }
 
-func (field *TextField) keyTyped(evt event.Event) {
-	r := evt.(*event.KeyTyped).Rune()
-	if r >= ' ' {
+func (field *TextField) keyDown(evt event.Event) {
+	e := evt.(*event.KeyDown)
+	code := e.Code()
+	switch code {
+	case keys.Backspace:
 		if field.HasSelectionRange() {
-			field.runes = append(field.runes[:field.selectionStart], field.runes[field.selectionEnd:]...)
+			field.DeleteSelection()
+		} else if field.selectionStart > 0 {
+			field.runes = append(field.runes[:field.selectionStart-1], field.runes[field.selectionStart:]...)
+			field.SetSelectionTo(field.selectionStart - 1)
+			event.Dispatch(event.NewModified(field))
 		}
-		field.runes = append(field.runes[:field.selectionStart], append([]rune{r}, field.runes[field.selectionStart:]...)...)
-		field.SetSelectionTo(field.selectionStart + 1)
 		evt.Finish()
+		field.Repaint()
+	case keys.Del:
+		if field.HasSelectionRange() {
+			field.DeleteSelection()
+		} else if field.selectionStart < len(field.runes) {
+			field.runes = append(field.runes[:field.selectionStart], field.runes[field.selectionStart+1:]...)
+			event.Dispatch(event.NewModified(field))
+		}
+		evt.Finish()
+		field.Repaint()
+	case keys.Left:
+		field.handleArrowLeft(e.Modifiers().ShiftDown(), e.Modifiers().OptionDown())
+		evt.Finish()
+	case keys.Right:
+		field.handleArrowRight(e.Modifiers().ShiftDown(), e.Modifiers().OptionDown())
+		evt.Finish()
+	case keys.End, keys.PageDown, keys.Down:
+		if e.Modifiers().ShiftDown() {
+			field.SetSelection(field.selectionStart, len(field.runes))
+		} else {
+			field.SetSelectionToEnd()
+		}
+		evt.Finish()
+	case keys.Home, keys.PageUp, keys.Up:
+		if e.Modifiers().ShiftDown() {
+			field.setSelection(0, field.selectionEnd, field.selectionEnd)
+		} else {
+			field.SetSelectionToStart()
+		}
+		evt.Finish()
+	default:
+		r := e.Rune()
+		if !unicode.IsControl(r) {
+			if field.HasSelectionRange() {
+				field.runes = append(field.runes[:field.selectionStart], field.runes[field.selectionEnd:]...)
+			}
+			field.runes = append(field.runes[:field.selectionStart], append([]rune{r}, field.runes[field.selectionStart:]...)...)
+			field.SetSelectionTo(field.selectionStart + 1)
+			event.Dispatch(event.NewModified(field))
+			evt.Finish()
+			field.Repaint()
+		}
+	}
+}
+
+func (field *TextField) DeleteSelection() {
+	if field.HasSelectionRange() {
+		field.runes = append(field.runes[:field.selectionStart], field.runes[field.selectionEnd:]...)
+		field.SetSelectionTo(field.selectionStart)
 		event.Dispatch(event.NewModified(field))
+		field.Repaint()
+	}
+}
+
+func (field *TextField) handleArrowLeft(extend, byWord bool) {
+	if field.HasSelectionRange() {
+		if extend {
+			anchor := field.selectionAnchor
+			if field.selectionStart == anchor {
+				pos := field.selectionEnd - 1
+				if byWord {
+					start, _ := field.findWordAt(pos)
+					pos = xmath.MinInt(xmath.MaxInt(start, anchor), pos)
+				}
+				field.setSelection(anchor, pos, anchor)
+			} else {
+				pos := field.selectionStart - 1
+				if byWord {
+					start, _ := field.findWordAt(pos)
+					pos = xmath.MinInt(start, pos)
+				}
+				field.setSelection(pos, anchor, anchor)
+			}
+		} else {
+			field.SetSelectionTo(field.selectionStart)
+		}
+	} else {
+		pos := field.selectionStart - 1
+		if byWord {
+			start, _ := field.findWordAt(pos)
+			pos = xmath.MinInt(start, pos)
+		}
+		if extend {
+			field.setSelection(pos, field.selectionStart, field.selectionEnd)
+		} else {
+			field.SetSelectionTo(pos)
+		}
+	}
+}
+
+func (field *TextField) handleArrowRight(extend, byWord bool) {
+	if field.HasSelectionRange() {
+		if extend {
+			anchor := field.selectionAnchor
+			if field.selectionEnd == anchor {
+				pos := field.selectionStart + 1
+				if byWord {
+					_, end := field.findWordAt(pos)
+					pos = xmath.MaxInt(xmath.MinInt(end, anchor), pos)
+				}
+				field.setSelection(pos, anchor, anchor)
+			} else {
+				pos := field.selectionEnd + 1
+				if byWord {
+					_, end := field.findWordAt(pos)
+					pos = xmath.MaxInt(end, pos)
+				}
+				field.setSelection(anchor, pos, anchor)
+			}
+		} else {
+			field.SetSelectionTo(field.selectionEnd)
+		}
+	} else {
+		pos := field.selectionEnd + 1
+		if byWord {
+			_, end := field.findWordAt(pos)
+			pos = xmath.MaxInt(end, pos)
+		}
+		if extend {
+			field.SetSelection(field.selectionStart, pos)
+		} else {
+			field.SetSelectionTo(pos)
+		}
 	}
 }
 
