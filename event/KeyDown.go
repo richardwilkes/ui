@@ -19,6 +19,7 @@ import (
 // KeyDown is generated when a key is pressed.
 type KeyDown struct {
 	target    Target
+	ch        rune
 	code      int
 	modifiers KeyMask
 	repeat    bool
@@ -27,10 +28,10 @@ type KeyDown struct {
 }
 
 // NewKeyDown creates a new KeyDown event. 'target' is the widget that has the keyboard focus.
-// 'code' is the virtual key code. 'autoRepeat' is true if the key is auto-repeating. 'modifiers'
-// are the keyboard modifiers keys that were down.
-func NewKeyDown(target Target, code int, autoRepeat bool, modifiers KeyMask) *KeyDown {
-	return &KeyDown{target: target, code: code, modifiers: modifiers, repeat: autoRepeat}
+// 'code' is the virtual key code. 'ch' is the rune (may be 0). 'autoRepeat' is true if the key is
+// auto-repeating. 'modifiers' are the keyboard modifiers keys that were down.
+func NewKeyDown(target Target, code int, ch rune, autoRepeat bool, modifiers KeyMask) *KeyDown {
+	return &KeyDown{target: target, code: code, ch: ch, modifiers: modifiers, repeat: autoRepeat}
 }
 
 // Type returns the event type ID.
@@ -69,6 +70,11 @@ func (e *KeyDown) Code() int {
 	return e.code
 }
 
+// Rune returns the rune that was typed. May be 0.
+func (e *KeyDown) Rune() rune {
+	return e.ch
+}
+
 // Modifiers returns the key modifiers that were down.
 func (e *KeyDown) Modifiers() KeyMask {
 	return e.modifiers
@@ -97,7 +103,7 @@ func (e *KeyDown) String() string {
 	if e.discarded {
 		buffer.WriteString("Discarded, ")
 	}
-	buffer.WriteString(fmt.Sprintf("Code: %d, Target: %v", e.code, reflect.ValueOf(e.target).Pointer()))
+	buffer.WriteString(fmt.Sprintf("Code: %d, Rune '%v', Target: %v", e.code, e.ch, reflect.ValueOf(e.target).Pointer()))
 	modifiers := e.modifiers.String()
 	if modifiers != "" {
 		buffer.WriteString(", ")

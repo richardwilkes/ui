@@ -33,7 +33,6 @@ const (
 	FocusGainedType
 	FocusLostType
 	KeyDownType
-	KeyTypedType
 	KeyUpType
 	ToolTipType
 	ResizedType
