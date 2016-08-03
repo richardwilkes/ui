@@ -32,7 +32,7 @@ Widgets that have been implemented:
 - [ ] Table
 - [ ] TabPanel
 - [ ] TextArea
-- [ ] TextField
+- [x] TextField
 - [ ] ToolBar
 - [ ] Tree
 - [x] Window
