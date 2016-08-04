@@ -51,6 +51,7 @@ func createMenuBar() {
 	widget.AddCopyItem(m)
 	widget.AddPasteItem(m)
 	m.AddSeparator()
+	widget.AddDeleteItem(m)
 	widget.AddSelectAllItem(m)
 
 	widget.AddWindowMenu()

@@ -265,7 +265,7 @@ func (field *TextField) keyDown(evt event.Event) {
 	switch code {
 	case keys.Backspace:
 		if field.HasSelectionRange() {
-			field.DeleteSelection()
+			field.Delete()
 		} else if field.selectionStart > 0 {
 			field.runes = append(field.runes[:field.selectionStart-1], field.runes[field.selectionStart:]...)
 			field.SetSelectionTo(field.selectionStart - 1)
@@ -275,7 +275,7 @@ func (field *TextField) keyDown(evt event.Event) {
 		field.Repaint()
 	case keys.Del:
 		if field.HasSelectionRange() {
-			field.DeleteSelection()
+			field.Delete()
 		} else if field.selectionStart < len(field.runes) {
 			field.runes = append(field.runes[:field.selectionStart], field.runes[field.selectionStart+1:]...)
 			event.Dispatch(event.NewModified(field))
@@ -314,16 +314,6 @@ func (field *TextField) keyDown(evt event.Event) {
 			evt.Finish()
 			field.Repaint()
 		}
-	}
-}
-
-// DeleteSelection removes the currently selected text, if any.
-func (field *TextField) DeleteSelection() {
-	if field.HasSelectionRange() {
-		field.runes = append(field.runes[:field.selectionStart], field.runes[field.selectionEnd:]...)
-		field.SetSelectionTo(field.selectionStart)
-		event.Dispatch(event.NewModified(field))
-		field.Repaint()
 	}
 }
 
@@ -603,7 +593,22 @@ func (field *TextField) Cut() {
 	if field.HasSelectionRange() {
 		clipboard.Clear()
 		clipboard.SetData(clipboard.PlainText, []byte(field.SelectedText()))
-		field.DeleteSelection()
+		field.Delete()
+	}
+}
+
+// CanDelete returns true if the field has a selection that can be deleted.
+func (field *TextField) CanDelete() bool {
+	return field.HasSelectionRange()
+}
+
+// Delete removes the currently selected text, if any.
+func (field *TextField) Delete() {
+	if field.HasSelectionRange() {
+		field.runes = append(field.runes[:field.selectionStart], field.runes[field.selectionEnd:]...)
+		field.SetSelectionTo(field.selectionStart)
+		event.Dispatch(event.NewModified(field))
+		field.Repaint()
 	}
 }
 
@@ -638,7 +643,7 @@ func (field *TextField) Paste() {
 		event.Dispatch(event.NewModified(field))
 		field.Repaint()
 	} else {
-		field.DeleteSelection()
+		field.Delete()
 	}
 }
 
