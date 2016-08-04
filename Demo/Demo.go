@@ -46,7 +46,12 @@ func createMenuBar() {
 	fileMenu := menu.Bar().AddMenu("File")
 	fileMenu.AddItem("Open", "o")
 
-	menu.Bar().AddMenu("Edit")
+	m := menu.Bar().AddMenu("Edit")
+	widget.AddCutItem(m)
+	widget.AddCopyItem(m)
+	widget.AddPasteItem(m)
+	m.AddSeparator()
+	widget.AddSelectAllItem(m)
 
 	widget.AddWindowMenu()
 	widget.AddHelpMenu()
@@ -90,17 +95,17 @@ func createButtonsWindow() {
 
 	addSeparator(root)
 
-	img, err := draw.AcquireImageFromURL("http://allwallpapersnew.com/wp-content/gallery/stock-photos-for-free/grassy_field_sunset___free_stock_by_kevron2001-d5blgkr.jpg")
-	if err == nil {
-		content := widget.NewImageLabel(img)
-		_, prefSize, _ := layout.Sizes(content, layout.NoHintSize)
-		content.SetSize(prefSize)
-		scrollArea := widget.NewScrollArea(content)
-		scrollArea.SetLayoutData(layout.NewPrecisionData().SetHorizontalAlignment(draw.AlignFill).SetVerticalAlignment(draw.AlignFill).SetHorizontalGrab(true).SetVerticalGrab(true))
-		root.AddChild(scrollArea)
-	} else {
-		fmt.Println(err)
-	}
+	//	img, err := draw.AcquireImageFromURL("http://allwallpapersnew.com/wp-content/gallery/stock-photos-for-free/grassy_field_sunset___free_stock_by_kevron2001-d5blgkr.jpg")
+	//	if err == nil {
+	//		content := widget.NewImageLabel(img)
+	//		_, prefSize, _ := layout.Sizes(content, layout.NoHintSize)
+	//		content.SetSize(prefSize)
+	//		scrollArea := widget.NewScrollArea(content)
+	//		scrollArea.SetLayoutData(layout.NewPrecisionData().SetHorizontalAlignment(draw.AlignFill).SetVerticalAlignment(draw.AlignFill).SetHorizontalGrab(true).SetVerticalGrab(true))
+	//		root.AddChild(scrollArea)
+	//	} else {
+	//		fmt.Println(err)
+	//	}
 
 	wnd.Pack()
 	wnd.ToFront()
