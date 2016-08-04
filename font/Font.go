@@ -183,10 +183,14 @@ func (font *Font) Size(str string) geom.Size {
 	return geom.Size{Width: font.Width(str), Height: font.Height()}
 }
 
+// IndexForPosition returns the rune index within the string for the specified x-coordinate, where
+// 0 is the start of the string.
 func (font *Font) IndexForPosition(x float32, str string) int {
 	return font.platformIndexForPosition(x, str)
 }
 
+// PositionForIndex returns the x-coordinate where the specified rune index starts. The returned
+// coordinate assumes 0 is the start of the string.
 func (font *Font) PositionForIndex(index int, str string) float32 {
 	return font.platformPositionForIndex(index, str)
 }
