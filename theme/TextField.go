@@ -30,6 +30,7 @@ type TextField struct {
 	BlinkRate               time.Duration // The rate at which the cursor blinks.
 	MinimumTextWidth        float32       // The minimum space to permit for text.
 	DisabledBackgroundColor color.Color   // The color to use for the background when disabled.
+	InvalidBackgroundColor  color.Color   // The color to use for the background when marked invalid.
 }
 
 // NewTextField creates a new TextField theme.
@@ -47,4 +48,5 @@ func (theme *TextField) Init() {
 	theme.BlinkRate = time.Millisecond * 560
 	theme.MinimumTextWidth = 10
 	theme.DisabledBackgroundColor = color.Background
+	theme.InvalidBackgroundColor = color.RGB(255, 232, 232)
 }

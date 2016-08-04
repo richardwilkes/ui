@@ -41,6 +41,7 @@ type TextField struct {
 	showCursor      bool
 	pending         bool
 	extendByWord    bool
+	invalid         bool
 }
 
 // NewTextField creates a new, empty, text field.
@@ -96,7 +97,10 @@ func (field *TextField) paint(evt event.Event) {
 	gc := e.GC()
 	gc.Save()
 	defer gc.Restore()
-	if !field.Enabled() && field.Theme.DisabledBackgroundColor.Alpha() > 0 {
+	if field.invalid && field.Theme.InvalidBackgroundColor.Alpha() > 0 {
+		gc.SetFillColor(field.Theme.InvalidBackgroundColor)
+		gc.FillRect(e.DirtyRect())
+	} else if !field.Enabled() && field.Theme.DisabledBackgroundColor.Alpha() > 0 {
 		gc.SetFillColor(field.Theme.DisabledBackgroundColor)
 		gc.FillRect(e.DirtyRect())
 	}
@@ -269,7 +273,7 @@ func (field *TextField) keyDown(evt event.Event) {
 		} else if field.selectionStart > 0 {
 			field.runes = append(field.runes[:field.selectionStart-1], field.runes[field.selectionStart:]...)
 			field.SetSelectionTo(field.selectionStart - 1)
-			event.Dispatch(event.NewModified(field))
+			field.notifyOfModification()
 		}
 		evt.Finish()
 		field.Repaint()
@@ -278,7 +282,7 @@ func (field *TextField) keyDown(evt event.Event) {
 			field.Delete()
 		} else if field.selectionStart < len(field.runes) {
 			field.runes = append(field.runes[:field.selectionStart], field.runes[field.selectionStart+1:]...)
-			event.Dispatch(event.NewModified(field))
+			field.notifyOfModification()
 		}
 		evt.Finish()
 		field.Repaint()
@@ -310,9 +314,8 @@ func (field *TextField) keyDown(evt event.Event) {
 			}
 			field.runes = append(field.runes[:field.selectionStart], append([]rune{r}, field.runes[field.selectionStart:]...)...)
 			field.SetSelectionTo(field.selectionStart + 1)
-			event.Dispatch(event.NewModified(field))
+			field.notifyOfModification()
 			evt.Finish()
-			field.Repaint()
 		}
 	}
 }
@@ -400,11 +403,22 @@ func (field *TextField) SetText(text string) bool {
 	if string(field.runes) != text {
 		field.runes = ([]rune)(text)
 		field.SetSelectionToEnd()
-		field.Repaint()
-		event.Dispatch(event.NewModified(field))
+		field.notifyOfModification()
 		return true
 	}
 	return false
+}
+
+func (field *TextField) notifyOfModification() {
+	field.Repaint()
+	event.Dispatch(event.NewModified(field))
+	ve := event.NewValidate(field)
+	event.Dispatch(ve)
+	invalid := !ve.Valid()
+	if invalid != field.invalid {
+		field.invalid = invalid
+		field.Repaint()
+	}
 }
 
 func sanitize(text string) string {
@@ -607,8 +621,7 @@ func (field *TextField) Delete() {
 	if field.HasSelectionRange() {
 		field.runes = append(field.runes[:field.selectionStart], field.runes[field.selectionEnd:]...)
 		field.SetSelectionTo(field.selectionStart)
-		event.Dispatch(event.NewModified(field))
-		field.Repaint()
+		field.notifyOfModification()
 	}
 }
 
@@ -640,8 +653,7 @@ func (field *TextField) Paste() {
 		}
 		field.runes = append(field.runes[:field.selectionStart], append(runes, field.runes[field.selectionStart:]...)...)
 		field.SetSelectionTo(field.selectionStart + len(runes))
-		event.Dispatch(event.NewModified(field))
-		field.Repaint()
+		field.notifyOfModification()
 	} else {
 		field.Delete()
 	}

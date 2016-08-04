@@ -22,6 +22,7 @@ import (
 	"github.com/richardwilkes/ui/layout"
 	"github.com/richardwilkes/ui/menu"
 	"github.com/richardwilkes/ui/widget"
+	"unicode"
 )
 
 var (
@@ -239,6 +240,17 @@ func createTextFieldsPanel() ui.Widget {
 	createTextField("First Text Field", panel)
 	createTextField("Second Text Field (disabled)", panel).SetEnabled(false)
 	createTextField("", panel).SetWatermark("Watermarked")
+	field := createTextField("", panel)
+	field.SetWatermark("Enter only numbers")
+	field.EventHandlers().Add(event.ValidateType, func(evt event.Event) {
+		e := evt.(*event.Validate)
+		for _, r := range field.Text() {
+			if !unicode.IsDigit(r) {
+				e.MarkInvalid()
+				break
+			}
+		}
+	})
 
 	return panel
 }
