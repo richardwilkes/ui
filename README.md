@@ -4,6 +4,7 @@ A user interface for Go.
 Dependencies:
 ```
 go get -u github.com/richardwilkes/errs
+go get -u github.com/richardwilkes/i18n
 go get -u github.com/richardwilkes/xmath
 ```
 
