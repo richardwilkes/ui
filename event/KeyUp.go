@@ -18,9 +18,9 @@ import (
 // KeyUp is generated when a key is released.
 type KeyUp struct {
 	target    Target
-	ch        rune
 	code      int
 	modifiers KeyMask
+	ch        rune
 	finished  bool
 }
 

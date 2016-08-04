@@ -19,9 +19,9 @@ import (
 // KeyDown is generated when a key is pressed.
 type KeyDown struct {
 	target    Target
-	ch        rune
 	code      int
 	modifiers KeyMask
+	ch        rune
 	repeat    bool
 	finished  bool
 	discarded bool
