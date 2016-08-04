@@ -11,6 +11,7 @@ package widget
 
 import (
 	"fmt"
+	"github.com/richardwilkes/ui/clipboard"
 	"github.com/richardwilkes/ui/color"
 	"github.com/richardwilkes/ui/draw"
 	"github.com/richardwilkes/ui/event"
@@ -316,6 +317,7 @@ func (field *TextField) keyDown(evt event.Event) {
 	}
 }
 
+// DeleteSelection removes the currently selected text, if any.
 func (field *TextField) DeleteSelection() {
 	if field.HasSelectionRange() {
 		field.runes = append(field.runes[:field.selectionStart], field.runes[field.selectionEnd:]...)
@@ -451,11 +453,6 @@ func (field *TextField) Selection() (start, end int) {
 	return field.selectionStart, field.selectionEnd
 }
 
-// SelectAll selects all of the text in the field.
-func (field *TextField) SelectAll() {
-	field.SetSelection(0, len(field.runes))
-}
-
 // SetSelectionToStart moves the cursor to the beginning of the text and removes any range that may
 // have been present.
 func (field *TextField) SetSelectionToStart() {
@@ -555,11 +552,13 @@ func (field *TextField) autoScroll() {
 	}
 }
 
+// ToSelectionIndex returns the rune index for the specified x-coordinate.
 func (field *TextField) ToSelectionIndex(x float32) int {
 	bounds := field.LocalInsetBounds()
 	return field.Theme.Font.IndexForPosition(x-(bounds.X+field.scrollOffset), string(field.runes))
 }
 
+// FromSelectionIndex returns a location in local coordinates for the specified rune index.
 func (field *TextField) FromSelectionIndex(index int) geom.Point {
 	bounds := field.LocalInsetBounds()
 	x := bounds.X + field.scrollOffset
@@ -592,4 +591,63 @@ func (field *TextField) findWordAt(pos int) (start, end int) {
 		}
 	}
 	return start, end
+}
+
+// CanCut returns true if the field has a selection that can be cut.
+func (field *TextField) CanCut() bool {
+	return field.HasSelectionRange()
+}
+
+// Cut the selected text to the clipboard.
+func (field *TextField) Cut() {
+	if field.HasSelectionRange() {
+		clipboard.Clear()
+		clipboard.SetData(clipboard.PlainText, []byte(field.SelectedText()))
+		field.DeleteSelection()
+	}
+}
+
+// CanCopy returns true if the field has a selection that can be copied.
+func (field *TextField) CanCopy() bool {
+	return field.HasSelectionRange()
+}
+
+// Copy the selected text to the clipboard.
+func (field *TextField) Copy() {
+	if field.HasSelectionRange() {
+		clipboard.Clear()
+		clipboard.SetData(clipboard.PlainText, []byte(field.SelectedText()))
+	}
+}
+
+// CanPaste returns true if the clipboard has content that can be pasted into the field.
+func (field *TextField) CanPaste() bool {
+	return clipboard.HasType(clipboard.PlainText)
+}
+
+// Paste any text on the clipboard into the field.
+func (field *TextField) Paste() {
+	if clipboard.HasType(clipboard.PlainText) {
+		text := sanitize(string(clipboard.Data(clipboard.PlainText)))
+		runes := ([]rune)(text)
+		if field.HasSelectionRange() {
+			field.runes = append(field.runes[:field.selectionStart], field.runes[field.selectionEnd:]...)
+		}
+		field.runes = append(field.runes[:field.selectionStart], append(runes, field.runes[field.selectionStart:]...)...)
+		field.SetSelectionTo(field.selectionStart + len(runes))
+		event.Dispatch(event.NewModified(field))
+		field.Repaint()
+	} else {
+		field.DeleteSelection()
+	}
+}
+
+// CanSelectAll returns true if the field's selection can be expanded.
+func (field *TextField) CanSelectAll() bool {
+	return field.selectionStart != 0 || field.selectionEnd != len(field.runes)
+}
+
+// SelectAll selects all of the text in the field.
+func (field *TextField) SelectAll() {
+	field.SetSelection(0, len(field.runes))
 }
