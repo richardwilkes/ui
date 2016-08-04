@@ -14,6 +14,7 @@ import (
 	"github.com/richardwilkes/ui"
 	"github.com/richardwilkes/ui/app"
 	"github.com/richardwilkes/ui/color"
+	"github.com/richardwilkes/ui/cursor"
 	"github.com/richardwilkes/ui/draw"
 	"github.com/richardwilkes/ui/event"
 	"github.com/richardwilkes/ui/geom"
@@ -52,6 +53,7 @@ type Window struct {
 	focus           ui.Widget
 	lastMouseWidget ui.Widget
 	lastToolTip     string
+	lastCursor      *cursor.Cursor
 	style           WindowStyleMask
 	inMouseDown     bool
 	inLiveResize    bool
@@ -309,6 +311,11 @@ func (window *Window) PlatformPtr() unsafe.Pointer {
 	return unsafe.Pointer(window.window)
 }
 
+func (window *Window) updateToolTipAndCursor(widget ui.Widget, where geom.Point) {
+	window.updateToolTip(widget, where)
+	window.updateCursor(widget, where)
+}
+
 func (window *Window) updateToolTip(widget ui.Widget, where geom.Point) {
 	tooltip := ""
 	if widget != nil {
@@ -325,6 +332,19 @@ func (window *Window) updateToolTip(widget ui.Widget, where geom.Point) {
 			C.uiSetToolTip(window.window, nil)
 		}
 		window.lastToolTip = tooltip
+	}
+}
+
+func (window *Window) updateCursor(widget ui.Widget, where geom.Point) {
+	c := cursor.Arrow
+	if widget != nil {
+		e := event.NewCursor(widget, where)
+		event.Dispatch(e)
+		c = e.Cursor()
+	}
+	if window.lastCursor != c {
+		C.uiSetCursor(window.window, c.PlatformPtr())
+		window.lastCursor = c
 	}
 }
 
@@ -383,12 +403,14 @@ func handleWindowMouseEvent(cWindow C.uiWindow, eventType, keyModifiers, button,
 			}
 		case C.uiMouseEntered:
 			event.Dispatch(event.NewMouseEntered(widget, where, modifiers))
-			window.updateToolTip(widget, where)
+			window.updateToolTipAndCursor(widget, where)
 		case C.uiMouseMoved:
 			event.Dispatch(event.NewMouseMoved(widget, where, modifiers))
-			window.updateToolTip(widget, where)
+			window.updateToolTipAndCursor(widget, where)
 		case C.uiMouseExited:
 			event.Dispatch(event.NewMouseExited(widget, where, modifiers))
+			C.uiSetCursor(window.window, cursor.Arrow.PlatformPtr())
+			window.lastCursor = cursor.Arrow
 		default:
 			panic(fmt.Sprintf("Unknown event type: %d", eventType))
 		}
@@ -401,6 +423,18 @@ func handleWindowMouseEvent(cWindow C.uiWindow, eventType, keyModifiers, button,
 			window.inMouseDown = false
 		}
 	}
+}
+
+//export handleCursorUpdateEvent
+func handleCursorUpdateEvent(cWindow C.uiWindow) {
+	if window, ok := windowMap[cWindow]; ok {
+		C.uiSetCursor(window.window, window.lastCursor.PlatformPtr())
+	}
+}
+
+// HideCursorUntilMouseMoves causes the cursor to disappear until it is moved.
+func HideCursorUntilMouseMoves() {
+	C.uiHideCursorUntilMouseMoves()
 }
 
 //export handleWindowMouseWheelEvent

@@ -69,5 +69,7 @@ uiWindow uiGetKeyWindow();
 void uiRepaintWindow(uiWindow window, uiRect bounds);
 void uiFlushPainting(uiWindow window);
 void uiSetToolTip(uiWindow window, const char *tooltip);
+void uiSetCursor(uiWindow window, void *cursor);
+void uiHideCursorUntilMouseMoves();
 
 #endif // __RW_GOUI_WINDOW__

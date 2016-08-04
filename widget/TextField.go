@@ -13,6 +13,7 @@ import (
 	"fmt"
 	"github.com/richardwilkes/ui/clipboard"
 	"github.com/richardwilkes/ui/color"
+	"github.com/richardwilkes/ui/cursor"
 	"github.com/richardwilkes/ui/draw"
 	"github.com/richardwilkes/ui/event"
 	"github.com/richardwilkes/ui/geom"
@@ -59,6 +60,7 @@ func NewTextField() *TextField {
 	handlers.Add(event.MouseDownType, field.mouseDown)
 	handlers.Add(event.MouseDraggedType, field.mouseDragged)
 	handlers.Add(event.KeyDownType, field.keyDown)
+	handlers.Add(event.CursorType, field.setCursor)
 	return field
 }
 
@@ -264,6 +266,7 @@ func (field *TextField) mouseDragged(evt event.Event) {
 }
 
 func (field *TextField) keyDown(evt event.Event) {
+	HideCursorUntilMouseMoves()
 	e := evt.(*event.KeyDown)
 	code := e.Code()
 	switch code {
@@ -667,4 +670,14 @@ func (field *TextField) CanSelectAll() bool {
 // SelectAll selects all of the text in the field.
 func (field *TextField) SelectAll() {
 	field.SetSelection(0, len(field.runes))
+}
+
+func (field *TextField) setCursor(evt event.Event) {
+	var c *cursor.Cursor
+	if field.Enabled() {
+		c = cursor.Text
+	} else {
+		c = cursor.Arrow
+	}
+	evt.(*event.Cursor).SetCursor(c)
 }

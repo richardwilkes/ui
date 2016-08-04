@@ -188,6 +188,11 @@ func (img *Image) Size() geom.Size {
 	return img.size
 }
 
+// PlatformPtr returns a pointer to the underlying platform-specific data.
+func (img *Image) PlatformPtr() unsafe.Pointer {
+	return img.img
+}
+
 // Release releases the image. If no other client is using the image, then the underlying OS
 // resources for the image will be disposed of.
 func (img *Image) Release() {

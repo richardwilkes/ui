@@ -22,10 +22,11 @@ uiWindow uiNewWindow(uiRect bounds, int styleMask) {
 	NSRect contentRect = NSMakeRect(0, 0, bounds.width, bounds.height);
 	NSWindow *window = [[NSWindow alloc] initWithContentRect:contentRect styleMask:styleMask backing:NSBackingStoreBuffered defer:YES];
 	[window setFrameTopLeftPoint:NSMakePoint(bounds.x, [[NSScreen mainScreen] visibleFrame].size.height - bounds.y)];
+	[window disableCursorRects];
 	drawingView *rootView = [drawingView new];
 	[window setContentView:rootView];
 	[window setDelegate: [windowDelegate new]];
-	[rootView addTrackingArea:[[NSTrackingArea alloc] initWithRect:contentRect options:NSTrackingMouseEnteredAndExited | NSTrackingMouseMoved | NSTrackingActiveInKeyWindow | NSTrackingInVisibleRect owner:rootView userInfo:nil]];
+	[rootView addTrackingArea:[[NSTrackingArea alloc] initWithRect:contentRect options:NSTrackingMouseEnteredAndExited | NSTrackingMouseMoved | NSTrackingActiveInKeyWindow | NSTrackingInVisibleRect | NSTrackingCursorUpdate owner:rootView userInfo:nil]];
 	return (uiWindow)window;
 }
 
@@ -169,6 +170,15 @@ void uiSetToolTip(uiWindow window, const char *tooltip) {
 	}
 }
 
+void uiSetCursor(uiWindow window, void *cursor) {
+	//NSView *view = [((NSWindow *)window) contentView];
+	[((NSCursor *)cursor) set];
+}
+
+void uiHideCursorUntilMouseMoves() {
+	[NSCursor setHiddenUntilMouseMoves:YES];
+}
+
 @implementation drawingView
 
 -(BOOL)isFlipped {
@@ -214,15 +224,15 @@ void uiSetToolTip(uiWindow window, const char *tooltip) {
 	[self deliverMouseEvent:theEvent ofType:uiMouseDown];
 }
 
-- (void)mouseDragged:(NSEvent *)theEvent {
+-(void)mouseDragged:(NSEvent *)theEvent {
 	[self deliverMouseEvent:theEvent ofType:uiMouseDragged];
 }
 
-- (void)rightMouseDragged:(NSEvent *)theEvent {
+-(void)rightMouseDragged:(NSEvent *)theEvent {
 	[self deliverMouseEvent:theEvent ofType:uiMouseDragged];
 }
 
-- (void)otherMouseDragged:(NSEvent *)theEvent {
+-(void)otherMouseDragged:(NSEvent *)theEvent {
 	[self deliverMouseEvent:theEvent ofType:uiMouseDragged];
 }
 
@@ -238,24 +248,28 @@ void uiSetToolTip(uiWindow window, const char *tooltip) {
 	[self deliverMouseEvent:theEvent ofType:uiMouseUp];
 }
 
-- (void)mouseMoved:(NSEvent *)theEvent {
+-(void)mouseMoved:(NSEvent *)theEvent {
 	[self deliverMouseEvent:theEvent ofType:uiMouseMoved];
 }
 
-- (void)mouseEntered:(NSEvent *)theEvent {
+-(void)mouseEntered:(NSEvent *)theEvent {
 	[self deliverMouseEvent:theEvent ofType:uiMouseEntered];
 }
 
-- (void)mouseExited:(NSEvent *)theEvent {
+-(void)mouseExited:(NSEvent *)theEvent {
 	[self deliverMouseEvent:theEvent ofType:uiMouseExited];
 }
 
-- (void)scrollWheel:(NSEvent *)theEvent {
+-(void)cursorUpdate:(NSEvent *)event {
+	handleCursorUpdateEvent((uiWindow)[self window]);
+}
+
+-(void)scrollWheel:(NSEvent *)theEvent {
 	NSPoint where = [self convertPoint:theEvent.locationInWindow fromView:nil];
 	handleWindowMouseWheelEvent((uiWindow)[self window], uiMouseWheel, [self getModifiers:theEvent], where.x, where.y, theEvent.scrollingDeltaX, theEvent.scrollingDeltaY);
 }
 
-- (BOOL)acceptsFirstResponder {
+-(BOOL)acceptsFirstResponder {
 	return YES;
 }
 
