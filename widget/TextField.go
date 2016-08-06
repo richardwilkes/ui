@@ -290,24 +290,26 @@ func (field *TextField) keyDown(evt event.Event) {
 		evt.Finish()
 		field.Repaint()
 	case keys.Left:
-		field.handleArrowLeft(e.Modifiers().ShiftDown(), e.Modifiers().OptionDown())
+		extend := e.Modifiers().ShiftDown()
+		if e.Modifiers().CommandDown() {
+			field.handleHome(extend)
+		} else {
+			field.handleArrowLeft(extend, e.Modifiers().OptionDown())
+		}
 		evt.Finish()
 	case keys.Right:
-		field.handleArrowRight(e.Modifiers().ShiftDown(), e.Modifiers().OptionDown())
+		extend := e.Modifiers().ShiftDown()
+		if e.Modifiers().CommandDown() {
+			field.handleEnd(extend)
+		} else {
+			field.handleArrowRight(extend, e.Modifiers().OptionDown())
+		}
 		evt.Finish()
 	case keys.End, keys.PageDown, keys.Down:
-		if e.Modifiers().ShiftDown() {
-			field.SetSelection(field.selectionStart, len(field.runes))
-		} else {
-			field.SetSelectionToEnd()
-		}
+		field.handleEnd(e.Modifiers().ShiftDown())
 		evt.Finish()
 	case keys.Home, keys.PageUp, keys.Up:
-		if e.Modifiers().ShiftDown() {
-			field.setSelection(0, field.selectionEnd, field.selectionEnd)
-		} else {
-			field.SetSelectionToStart()
-		}
+		field.handleHome(e.Modifiers().ShiftDown())
 		evt.Finish()
 	default:
 		r := e.Rune()
@@ -320,6 +322,22 @@ func (field *TextField) keyDown(evt event.Event) {
 			field.notifyOfModification()
 			evt.Finish()
 		}
+	}
+}
+
+func (field *TextField) handleHome(extend bool) {
+	if extend {
+		field.setSelection(0, field.selectionEnd, field.selectionEnd)
+	} else {
+		field.SetSelectionToStart()
+	}
+}
+
+func (field *TextField) handleEnd(extend bool) {
+	if extend {
+		field.SetSelection(field.selectionStart, len(field.runes))
+	} else {
+		field.SetSelectionToEnd()
 	}
 }
 
