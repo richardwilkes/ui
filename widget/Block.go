@@ -157,6 +157,7 @@ func (b *Block) Paint(g draw.Graphics, dirty geom.Rect) {
 				b.paintChild(child, g, adjusted)
 			}
 		}
+		b.paintBorder(g)
 	}
 }
 
@@ -167,10 +168,7 @@ func (b *Block) paintSelf(gc draw.Graphics, dirty geom.Rect) {
 		gc.SetFillColor(b.background)
 		gc.FillRect(dirty)
 	}
-	gc.Save()
 	event.Dispatch(event.NewPaint(b, gc, dirty))
-	gc.Restore()
-	b.paintBorder(gc)
 	gc.Restore()
 }
 
