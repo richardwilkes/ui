@@ -121,7 +121,6 @@ func (sb *ScrollBar) paint(evt event.Event) {
 	gc.FillRect(bounds)
 	gc.SetStrokeColor(bgColor.AdjustBrightness(sb.Theme.OutlineAdjustment))
 	gc.StrokeRect(bounds)
-	sb.drawLineButton(gc, scrollBarLineUp)
 	sb.drawLineButton(gc, scrollBarLineDown)
 	if sb.pressed == scrollBarPageUp || sb.pressed == scrollBarPageDown {
 		bounds = sb.partRect(sb.pressed)
@@ -138,6 +137,7 @@ func (sb *ScrollBar) paint(evt event.Event) {
 		}
 	}
 	sb.drawThumb(gc)
+	sb.drawLineButton(gc, scrollBarLineUp)
 }
 
 func (sb *ScrollBar) mouseDown(evt event.Event) {
