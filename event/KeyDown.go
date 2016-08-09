@@ -12,7 +12,6 @@ package event
 import (
 	"bytes"
 	"fmt"
-	"github.com/richardwilkes/ui/keys"
 	"reflect"
 )
 
@@ -57,12 +56,6 @@ func (e *KeyDown) Finished() bool {
 // Finish marks this event as handled and no longer eligible for processing.
 func (e *KeyDown) Finish() {
 	e.finished = true
-}
-
-// IsControlActionKey returns true if the key should trigger a control, such as a button, that is
-// focused.
-func (e *KeyDown) IsControlActionKey() bool {
-	return e.code == keys.Return || e.code == keys.Enter || e.code == keys.Space
 }
 
 // Code returns the virtual key code.

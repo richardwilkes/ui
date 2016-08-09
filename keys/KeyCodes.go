@@ -120,3 +120,9 @@ const (
 	Down         = 125
 	Up           = 126
 )
+
+// IsControlAction returns true if the key should trigger a control, such as a button, that is
+// focused.
+func IsControlAction(code int) bool {
+	return code == Return || code == Enter || code == Space
+}
