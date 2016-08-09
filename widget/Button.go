@@ -13,6 +13,7 @@ import (
 	"github.com/richardwilkes/ui/color"
 	"github.com/richardwilkes/ui/event"
 	"github.com/richardwilkes/ui/geom"
+	"github.com/richardwilkes/ui/keys"
 	"github.com/richardwilkes/ui/layout"
 	"github.com/richardwilkes/ui/theme"
 	"time"
@@ -143,7 +144,7 @@ func (button *Button) Click() {
 }
 
 func (button *Button) keyDown(evt event.Event) {
-	if evt.(*event.KeyDown).IsControlActionKey() {
+	if keys.IsControlAction(evt.(*event.KeyDown).Code()) {
 		evt.Finish()
 		button.Click()
 	}

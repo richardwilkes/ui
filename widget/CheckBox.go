@@ -13,6 +13,7 @@ import (
 	"github.com/richardwilkes/ui/color"
 	"github.com/richardwilkes/ui/event"
 	"github.com/richardwilkes/ui/geom"
+	"github.com/richardwilkes/ui/keys"
 	"github.com/richardwilkes/ui/layout"
 	"github.com/richardwilkes/ui/theme"
 	"github.com/richardwilkes/xmath"
@@ -194,7 +195,7 @@ func (checkbox *CheckBox) focusChanged(evt event.Event) {
 }
 
 func (checkbox *CheckBox) keyDown(evt event.Event) {
-	if evt.(*event.KeyDown).IsControlActionKey() {
+	if keys.IsControlAction(evt.(*event.KeyDown).Code()) {
 		evt.Finish()
 		checkbox.Click()
 	}
