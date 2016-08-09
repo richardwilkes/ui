@@ -33,7 +33,7 @@ func (sl *scrollLayout) Sizes(hint geom.Size) (min, pref, max geom.Size) {
 	if sl.sa.content != nil {
 		_, pref, _ = layout.Sizes(sl.sa.content, hint)
 	}
-	if border := sl.sa.view.Border(); border != nil {
+	if border := sl.sa.Border(); border != nil {
 		insets := border.Insets()
 		min.AddInsets(insets)
 		pref.AddInsets(insets)
@@ -48,27 +48,70 @@ func (sl *scrollLayout) Layout() {
 	_, vBarSize, _ := layout.Sizes(sl.sa.vBar, layout.NoHintSize)
 	needHBar := false
 	needVBar := false
-	var contentSize geom.Size
-	if sl.sa.content != nil {
-		contentSize = sl.sa.content.Size()
+	var insets geom.Insets
+	if border := sl.sa.Border(); border != nil {
+		insets = border.Insets()
 	}
 	bounds := sl.sa.LocalInsetBounds()
 	visibleSize := bounds.Size
-	var viewInsets geom.Insets
-	if border := sl.sa.view.Border(); border != nil {
-		viewInsets = border.Insets()
+	var contentSize geom.Size
+	var prefContentSize geom.Size
+	if sl.sa.content != nil {
+		_, prefContentSize, _ = layout.Sizes(sl.sa.content, layout.NoHintSize)
+		contentSize = prefContentSize
+		switch sl.sa.behavior {
+		case ScrollContentFillWidth:
+			if visibleSize.Width > contentSize.Width {
+				contentSize.Width = visibleSize.Width
+			}
+		case ScrollContentFillHeight:
+			if visibleSize.Height > contentSize.Height {
+				contentSize.Height = visibleSize.Height
+			}
+		case ScrollContentFill:
+			if visibleSize.Width > contentSize.Width {
+				contentSize.Width = visibleSize.Width
+			}
+			if visibleSize.Height > contentSize.Height {
+				contentSize.Height = visibleSize.Height
+			}
+		default:
+		}
 	}
-	visibleSize.SubtractInsets(viewInsets)
 	if visibleSize.Width < contentSize.Width {
 		visibleSize.Height -= hBarSize.Height
+		if insets.Bottom >= 1 {
+			visibleSize.Height++
+		}
+		if sl.sa.behavior == ScrollContentFillHeight || sl.sa.behavior == ScrollContentFill {
+			if visibleSize.Height > prefContentSize.Height {
+				contentSize.Height = visibleSize.Height
+			}
+		}
 		needHBar = true
 	}
 	if visibleSize.Height < contentSize.Height {
 		visibleSize.Width -= vBarSize.Width
+		if insets.Right >= 1 {
+			visibleSize.Width++
+		}
+		if sl.sa.behavior == ScrollContentFillWidth || sl.sa.behavior == ScrollContentFill {
+			if visibleSize.Width > prefContentSize.Width {
+				contentSize.Width = visibleSize.Width
+			}
+		}
 		needVBar = true
 	}
 	if !needHBar && visibleSize.Width < contentSize.Width {
 		visibleSize.Height -= hBarSize.Height
+		if insets.Bottom >= 1 {
+			visibleSize.Height++
+		}
+		if sl.sa.behavior == ScrollContentFillHeight || sl.sa.behavior == ScrollContentFill {
+			if visibleSize.Height > prefContentSize.Height {
+				contentSize.Height = visibleSize.Height
+			}
+		}
 		needHBar = true
 	}
 	if needHBar {
@@ -85,14 +128,32 @@ func (sl *scrollLayout) Layout() {
 	} else {
 		sl.sa.vBar.RemoveFromParent()
 	}
-	visibleSize.AddInsets(viewInsets)
 	sl.sa.view.SetBounds(geom.Rect{Point: bounds.Point, Size: visibleSize})
 	if needHBar {
 		hBarSize.Width = visibleSize.Width
-		sl.sa.hBar.SetBounds(geom.Rect{Point: geom.Point{X: bounds.X, Y: bounds.Y + visibleSize.Height}, Size: hBarSize})
+		barBounds := geom.Rect{Point: geom.Point{X: bounds.X, Y: bounds.Y + visibleSize.Height}, Size: hBarSize}
+		if insets.Left >= 1 {
+			barBounds.X--
+			barBounds.Width++
+		}
+		if insets.Right >= 1 {
+			barBounds.Width++
+		}
+		sl.sa.hBar.SetBounds(barBounds)
 	}
 	if needVBar {
 		vBarSize.Height = visibleSize.Height
-		sl.sa.vBar.SetBounds(geom.Rect{Point: geom.Point{X: bounds.X + visibleSize.Width, Y: bounds.Y}, Size: vBarSize})
+		barBounds := geom.Rect{Point: geom.Point{X: bounds.X + visibleSize.Width, Y: bounds.Y}, Size: vBarSize}
+		if insets.Top >= 1 {
+			barBounds.Y--
+			barBounds.Height++
+		}
+		if insets.Bottom >= 1 {
+			barBounds.Height++
+		}
+		sl.sa.vBar.SetBounds(barBounds)
+	}
+	if sl.sa.content != nil {
+		sl.sa.content.SetSize(contentSize)
 	}
 }

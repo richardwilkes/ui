@@ -14,44 +14,57 @@ import (
 	"github.com/richardwilkes/ui/color"
 	"github.com/richardwilkes/ui/event"
 	"github.com/richardwilkes/ui/keys"
+	"github.com/richardwilkes/ui/theme"
 	"github.com/richardwilkes/xmath"
 )
+
+// Possible ways to handle auto-sizing of the scroll content's preferred size.
+const (
+	ScrollContentUnmodified ScrollContentBehavior = iota
+	ScrollContentFillWidth
+	ScrollContentFillHeight
+	ScrollContentFill
+)
+
+// ScrollContentBehavior controls how auto-sizing of the scroll content's preferred size is handled.
+type ScrollContentBehavior int
 
 // ScrollArea provides a widget that can hold another widget and show it through a scrollable
 // viewport.
 type ScrollArea struct {
 	Block
-	hBar    *ScrollBar
-	vBar    *ScrollBar
-	view    *Block
-	content ui.Widget
+	Theme    *theme.ScrollArea // The theme the ScrollArea will use to draw itself.
+	hBar     *ScrollBar
+	vBar     *ScrollBar
+	view     *Block
+	content  ui.Widget
+	behavior ScrollContentBehavior
 }
 
 // NewScrollArea creates a new ScrollArea with the specified block as its content. The content may
 // be nil.
-func NewScrollArea(content ui.Widget) *ScrollArea {
+func NewScrollArea(content ui.Widget, behavior ScrollContentBehavior) *ScrollArea {
 	sa := &ScrollArea{}
+	sa.Theme = theme.StdScrollArea
+	sa.SetBorder(sa.Theme.Border)
 	handlers := sa.EventHandlers()
 	handlers.Add(event.MouseWheelType, sa.mouseWheel)
+	handlers.Add(event.KeyDownType, sa.keyDown)
+	handlers.Add(event.FocusGainedType, sa.focusGained)
+	handlers.Add(event.FocusLostType, sa.focusLost)
 	sa.view = NewBlock()
 	sa.view.SetBackground(color.TextBackground)
-	sa.view.EventHandlers().Add(event.ResizedType, sa.viewResized)
-	sa.SetFocusable(true) // RAW: Revist... don't want to be focusable, but do want to participate
-	handlers.Add(event.KeyDownType, sa.keyDown)
+	handlers = sa.view.EventHandlers()
+	handlers.Add(event.ResizedType, sa.viewResized)
+	sa.SetFocusable(true)
 	sa.AddChild(sa.view)
 	sa.hBar = NewScrollBar(true, sa)
 	sa.vBar = NewScrollBar(false, sa)
-	sa.content = content
-	if content != nil {
-		sa.view.AddChild(content)
-	}
 	newScrollLayout(sa)
+	if content != nil {
+		sa.SetContent(content, behavior)
+	}
 	return sa
-}
-
-// View returns the view port block.
-func (sa *ScrollArea) View() *Block {
-	return sa.view
 }
 
 // Content returns the content block.
@@ -60,13 +73,25 @@ func (sa *ScrollArea) Content() ui.Widget {
 }
 
 // SetContent sets the content block, replacing any existing one.
-func (sa *ScrollArea) SetContent(content ui.Widget) {
+func (sa *ScrollArea) SetContent(content ui.Widget, behavior ScrollContentBehavior) {
 	if sa.content != nil {
+		handlers := sa.content.EventHandlers()
+		handlers.Remove(event.ResizedType, sa.viewResized)
+		handlers.Remove(event.FocusGainedType, sa.focusGained)
+		handlers.Remove(event.FocusLostType, sa.focusLost)
 		sa.content.RemoveFromParent()
 	}
 	sa.content = content
-	if content != nil {
-		sa.view.AddChildAtIndex(content, 0)
+	sa.behavior = behavior
+	if sa.content != nil {
+		sa.view.AddChildAtIndex(sa.content, 0)
+		handlers := sa.content.EventHandlers()
+		handlers.Add(event.ResizedType, sa.viewResized)
+		handlers.Add(event.FocusGainedType, sa.focusGained)
+		handlers.Add(event.FocusLostType, sa.focusLost)
+		sa.SetFocusable(false)
+	} else {
+		sa.SetFocusable(true)
 	}
 	sa.SetNeedLayout(true)
 	sa.Repaint()
@@ -144,9 +169,9 @@ func (sa *ScrollArea) ContentSize(horizontal bool) float32 {
 
 func (sa *ScrollArea) viewResized(evt event.Event) {
 	if sa.content != nil {
-		vs := sa.view.Size()
-		cl := sa.content.Location()
+		vs := sa.view.LocalInsetBounds().Size
 		cs := sa.content.Size()
+		cl := sa.content.Location()
 		nl := cl
 		if cl.Y != 0 && vs.Height > cl.Y+cs.Height {
 			nl.Y = xmath.MinFloat32(vs.Height-cs.Height, 0)
@@ -169,6 +194,22 @@ func (sa *ScrollArea) mouseWheel(evt event.Event) {
 		sa.hBar.SetScrolledPosition(sa.ScrolledPosition(true) - delta.X*sa.LineScrollAmount(true, delta.X > 0))
 	}
 	evt.Finish()
+}
+
+func (sa *ScrollArea) focusGained(evt event.Event) {
+	if sa.content == nil || sa.content == evt.Target() {
+		sa.view.SetBorder(sa.Theme.FocusBorder)
+		sa.SetNeedLayout(true)
+		sa.Repaint()
+	}
+}
+
+func (sa *ScrollArea) focusLost(evt event.Event) {
+	if sa.content == nil || sa.content == evt.Target() {
+		sa.view.SetBorder(nil)
+		sa.SetNeedLayout(true)
+		sa.Repaint()
+	}
 }
 
 func (sa *ScrollArea) keyDown(evt event.Event) {
