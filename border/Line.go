@@ -19,16 +19,21 @@ import (
 type Line struct {
 	insets geom.Insets
 	color  color.Color
+	// NoInset will cause the Insets() method to return zeroes if true.
+	NoInset bool
 }
 
 // NewLine creates a new line border. The insets represent how thick the border will be drawn
 // on that edge.
-func NewLine(color color.Color, insets geom.Insets) Border {
+func NewLine(color color.Color, insets geom.Insets) *Line {
 	return &Line{insets: insets, color: color}
 }
 
 // Insets implements the Border interface.
 func (line *Line) Insets() geom.Insets {
+	if line.NoInset {
+		return geom.Insets{}
+	}
 	return line.insets
 }
 
