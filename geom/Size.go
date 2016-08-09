@@ -61,6 +61,26 @@ func (s *Size) ConstrainForHint(hint Size) {
 	}
 }
 
+// Min modifies this Size to contain the smallest values between itself and 'other'.
+func (s *Size) Min(other Size) {
+	if s.Width > other.Width {
+		s.Width = other.Width
+	}
+	if s.Height > other.Height {
+		s.Height = other.Height
+	}
+}
+
+// Max modifies this Size to contain the largest values between itself and 'other'.
+func (s *Size) Max(other Size) {
+	if s.Width < other.Width {
+		s.Width = other.Width
+	}
+	if s.Height < other.Height {
+		s.Height = other.Height
+	}
+}
+
 // String implements the fmt.Stringer interface.
 func (s Size) String() string {
 	return fmt.Sprintf("%v, %v", s.Width, s.Height)
