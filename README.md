@@ -20,7 +20,7 @@ Widgets that have been implemented:
 - [ ] FileChooser
 - [x] ImageButton
 - [x] Label
-- [ ] List
+- [x] List
 - [x] Menus
 - [x] PopupMenu
 - [ ] ProgressBar

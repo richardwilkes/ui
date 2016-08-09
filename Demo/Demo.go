@@ -91,18 +91,24 @@ func createButtonsWindow() {
 
 	addSeparator(root)
 
+	wrapper := widget.NewBlock()
+	layout.NewPrecision(wrapper).SetColumns(2).SetEqualColumns(true).SetHorizontalSpacing(10)
+	wrapper.SetLayoutData(layout.NewPrecisionData().SetHorizontalGrab(true).SetHorizontalAlignment(draw.AlignFill))
 	textFieldsPanel := createTextFieldsPanel()
-	textFieldsPanel.SetLayoutData(layout.NewPrecisionData().SetHorizontalGrab(true))
-	root.AddChild(textFieldsPanel)
+	textFieldsPanel.SetLayoutData(layout.NewPrecisionData().SetHorizontalGrab(true).SetHorizontalAlignment(draw.AlignFill))
+	wrapper.AddChild(textFieldsPanel)
+	wrapper.AddChild(createListPanel())
+	root.AddChild(wrapper)
 
 	addSeparator(root)
 
 	img, err := draw.AcquireImageFromURL("http://allwallpapersnew.com/wp-content/gallery/stock-photos-for-free/grassy_field_sunset___free_stock_by_kevron2001-d5blgkr.jpg")
 	if err == nil {
 		content := widget.NewImageLabel(img)
+		content.SetFocusable(true)
 		_, prefSize, _ := layout.Sizes(content, layout.NoHintSize)
 		content.SetSize(prefSize)
-		scrollArea := widget.NewScrollArea(content)
+		scrollArea := widget.NewScrollArea(content, widget.ScrollContentUnmodified)
 		scrollArea.SetLayoutData(layout.NewPrecisionData().SetHorizontalAlignment(draw.AlignFill).SetVerticalAlignment(draw.AlignFill).SetHorizontalGrab(true).SetVerticalGrab(true))
 		root.AddChild(scrollArea)
 	} else {
@@ -111,6 +117,41 @@ func createButtonsWindow() {
 
 	wnd.Pack()
 	wnd.ToFront()
+}
+
+func createListPanel() ui.Widget {
+	list := widget.NewList(&widget.TextCellFactory{})
+	list.Append("One",
+		"Two",
+		"Three with some long text to make it interesting",
+		"Four",
+		"Five")
+	list.EventHandlers().Add(event.SelectionType, func(evt event.Event) {
+		fmt.Print("Selection changed in list. Now:")
+		index := -1
+		first := true
+		for {
+			index = list.Selection.NextSet(index + 1)
+			if index == -1 {
+				break
+			}
+			if first {
+				first = false
+			} else {
+				fmt.Print(",")
+			}
+			fmt.Printf(" %d", index)
+		}
+		fmt.Println()
+	})
+	list.EventHandlers().Add(event.ClickType, func(evt event.Event) {
+		fmt.Println("Double-clicked on list")
+	})
+	_, prefSize, _ := layout.Sizes(list, layout.NoHintSize)
+	list.SetSize(prefSize)
+	scrollArea := widget.NewScrollArea(list, widget.ScrollContentFill)
+	scrollArea.SetLayoutData(layout.NewPrecisionData().SetHorizontalAlignment(draw.AlignFill).SetVerticalAlignment(draw.AlignFill).SetHorizontalGrab(true).SetVerticalGrab(true))
+	return scrollArea
 }
 
 func addSeparator(root ui.Widget) {
