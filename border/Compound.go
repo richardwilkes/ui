@@ -21,7 +21,7 @@ type Compound struct {
 
 // NewCompound creates a border that contains other borders. The first one will be drawn in
 // the outermost position, with each successive one moving further into the interior.
-func NewCompound(borders ...Border) Border {
+func NewCompound(borders ...Border) *Compound {
 	return &Compound{borders: borders}
 }
 

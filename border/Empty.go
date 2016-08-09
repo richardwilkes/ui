@@ -20,7 +20,7 @@ type Empty struct {
 }
 
 // NewEmpty creates a new empty border with the specified insets.
-func NewEmpty(insets geom.Insets) Border {
+func NewEmpty(insets geom.Insets) *Empty {
 	return &Empty{insets: insets}
 }
 
