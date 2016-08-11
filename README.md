@@ -15,9 +15,6 @@ Widgets that have been implemented:
 
 - [x] Button
 - [x] CheckBox
-- [ ] ColorChooser
-- [ ] Dialog
-- [ ] FileChooser
 - [x] ImageButton
 - [x] Label
 - [x] List
@@ -36,4 +33,7 @@ Widgets that have been implemented:
 - [x] TextField
 - [ ] ToolBar
 - [ ] Tree
+
+- [ ] Dialog
+- [ ] FileDialog
 - [x] Window
