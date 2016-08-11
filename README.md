@@ -34,6 +34,8 @@ Widgets that have been implemented:
 - [ ] ToolBar
 - [ ] Tree
 
+Top-level windows and dialogs:
+
 - [ ] Dialog
 - [ ] FileDialog
 - [x] Window
