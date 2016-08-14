@@ -7,6 +7,7 @@
 // This Source Code Form is "Incompatible With Secondary Licenses", as
 // defined by the Mozilla Public License, version 2.0.
 
+#include <stdlib.h>
 #include "_cgo_export.h"
 #include "Cursor.h"
 
