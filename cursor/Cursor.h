@@ -13,29 +13,29 @@
 typedef void *uiCursor;
 
 enum systemIDs {
-	arrowID,
-	textID,
-	verticalTextID,
-	crossHairID,
-	closedHandID,
-	openHandID,
-	pointingHandID,
-	resizeLeftID,
-	resizeRightID,
-	resizeLeftRightID,
-	resizeUpID,
-	resizeDownID,
-	resizeUpDownID,
-	disappearingItemID,
-	notAllowedID,
-	dragLinkID,
-	dragCopyID,
-	contextMenuID,
-	customID
+	platformArrowID,
+	platformTextID,
+	platformVerticalTextID,
+	platformCrossHairID,
+	platformClosedHandID,
+	platformOpenHandID,
+	platformPointingHandID,
+	platformResizeLeftID,
+	platformResizeRightID,
+	platformResizeLeftRightID,
+	platformResizeUpID,
+	platformResizeDownID,
+	platformResizeUpDownID,
+	platformDisappearingItemID,
+	platformNotAllowedID,
+	platformDragLinkID,
+	platformDragCopyID,
+	platformContextMenuID,
+	platformCustomID
 };
 
-uiCursor systemCursor(int id);
-uiCursor newCursor(void *img, float hotX, float hotY);
-void disposeCursor(uiCursor cursor);
+uiCursor platformSystemCursor(int id);
+uiCursor platformNewCursor(void *img, float hotX, float hotY);
+void platformDisposeCursor(uiCursor cursor);
 
 #endif // __RW_GOUI_CURSOR__

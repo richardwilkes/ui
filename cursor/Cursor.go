@@ -22,24 +22,24 @@ import "C"
 
 // Available system cursors
 var (
-	Arrow            = newSystemCursor(C.arrowID)
-	Text             = newSystemCursor(C.textID)
-	VerticalText     = newSystemCursor(C.verticalTextID)
-	CrossHair        = newSystemCursor(C.crossHairID)
-	ClosedHand       = newSystemCursor(C.closedHandID)
-	OpenHand         = newSystemCursor(C.openHandID)
-	PointingHand     = newSystemCursor(C.pointingHandID)
-	ResizeLeft       = newSystemCursor(C.resizeLeftID)
-	ResizeRight      = newSystemCursor(C.resizeRightID)
-	ResizeLeftRight  = newSystemCursor(C.resizeLeftRightID)
-	ResizeUp         = newSystemCursor(C.resizeUpID)
-	ResizeDown       = newSystemCursor(C.resizeDownID)
-	ResizeUpDown     = newSystemCursor(C.resizeUpDownID)
-	DisappearingItem = newSystemCursor(C.disappearingItemID)
-	NotAllowed       = newSystemCursor(C.notAllowedID)
-	DragLink         = newSystemCursor(C.dragLinkID)
-	DragCopy         = newSystemCursor(C.dragCopyID)
-	ContextMenu      = newSystemCursor(C.contextMenuID)
+	Arrow            = newSystemCursor(C.platformArrowID)
+	Text             = newSystemCursor(C.platformTextID)
+	VerticalText     = newSystemCursor(C.platformVerticalTextID)
+	CrossHair        = newSystemCursor(C.platformCrossHairID)
+	ClosedHand       = newSystemCursor(C.platformClosedHandID)
+	OpenHand         = newSystemCursor(C.platformOpenHandID)
+	PointingHand     = newSystemCursor(C.platformPointingHandID)
+	ResizeLeft       = newSystemCursor(C.platformResizeLeftID)
+	ResizeRight      = newSystemCursor(C.platformResizeRightID)
+	ResizeLeftRight  = newSystemCursor(C.platformResizeLeftRightID)
+	ResizeUp         = newSystemCursor(C.platformResizeUpID)
+	ResizeDown       = newSystemCursor(C.platformResizeDownID)
+	ResizeUpDown     = newSystemCursor(C.platformResizeUpDownID)
+	DisappearingItem = newSystemCursor(C.platformDisappearingItemID)
+	NotAllowed       = newSystemCursor(C.platformNotAllowedID)
+	DragLink         = newSystemCursor(C.platformDragLinkID)
+	DragCopy         = newSystemCursor(C.platformDragCopyID)
+	ContextMenu      = newSystemCursor(C.platformContextMenuID)
 )
 
 // Cursor provides a graphical cursor for the mouse location.
@@ -54,21 +54,21 @@ func newSystemCursor(id C.int) *Cursor {
 
 // NewCursor creates a new cursor from an image.
 func NewCursor(img *draw.Image, hotSpot geom.Point) *Cursor {
-	return &Cursor{id: C.customID, cursor: C.newCursor(img.PlatformPtr(), C.float(hotSpot.X), C.float(hotSpot.Y))}
+	return &Cursor{id: C.platformCustomID, cursor: C.platformNewCursor(img.PlatformPtr(), C.float(hotSpot.X), C.float(hotSpot.Y))}
 }
 
 // PlatformPtr returns a pointer to the underlying platform-specific data.
 func (cursor *Cursor) PlatformPtr() unsafe.Pointer {
-	if cursor.cursor == nil && cursor.id >= 0 && cursor.id < C.customID {
-		cursor.cursor = C.systemCursor(cursor.id)
+	if cursor.cursor == nil && cursor.id >= 0 && cursor.id < C.platformCustomID {
+		cursor.cursor = C.platformSystemCursor(cursor.id)
 	}
 	return unsafe.Pointer(cursor.cursor)
 }
 
 // Dispose of the cursor. Has no effect on system-defined cursors.
 func (cursor *Cursor) Dispose() {
-	if cursor.id == C.customID {
-		C.disposeCursor(cursor.cursor)
+	if cursor.id == C.platformCustomID {
+		C.platformDisposeCursor(cursor.cursor)
 		cursor.cursor = nil
 	}
 }
