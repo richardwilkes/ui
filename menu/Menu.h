@@ -10,24 +10,24 @@
 #ifndef __RW_GOUI_MENU__
 #define __RW_GOUI_MENU__
 
-typedef void *uiMenu;
-typedef void *uiMenuItem;
-typedef void *uiWindow;
+typedef void *platformMenu;
+typedef void *platformMenuItem;
+typedef void *platformWindow;
 
-uiMenu getMainMenu();
-void setMainMenu(uiMenu menuBar);
-uiMenu uiNewMenu(const char *title);
-void uiDisposeMenu(uiMenu menu);
-int uiMenuItemCount(uiMenu menu);
-uiMenuItem uiGetMenuItem(uiMenu menu, int index);
-uiMenuItem uiAddMenuItem(uiMenu menu, const char *title, const char *key);
-uiMenuItem uiAddSeparator(uiMenu menu);
-void uiSetKeyModifierMask(uiMenuItem item, int mask);
-uiMenu uiGetSubMenu(uiMenuItem item);
-void uiSetSubMenu(uiMenuItem item, uiMenu subMenu);
-void uiSetServicesMenu(uiMenu menu);
-void uiSetWindowMenu(uiMenu menu);
-void uiSetHelpMenu(uiMenu menu);
-void uiPopupMenu(uiWindow window, uiMenu menu, float x, float y, uiMenuItem itemAtLocation);
+platformMenu platformGetMainMenu();
+void platformSetMainMenu(platformMenu menuBar);
+platformMenu platformNewMenu(const char *title);
+void platformDisposeMenu(platformMenu menu);
+int platformMenuItemCount(platformMenu menu);
+platformMenuItem platformGetMenuItem(platformMenu menu, int index);
+platformMenuItem platformAddMenuItem(platformMenu menu, const char *title, const char *key);
+platformMenuItem platformAddSeparator(platformMenu menu);
+void platformSetKeyModifierMask(platformMenuItem item, int mask);
+platformMenu platformGetSubMenu(platformMenuItem item);
+void platformSetSubMenu(platformMenuItem item, platformMenu subMenu);
+void platformSetServicesMenu(platformMenu menu);
+void platformSetWindowMenu(platformMenu menu);
+void platformSetHelpMenu(platformMenu menu);
+void platformPopupMenu(platformWindow window, platformMenu menu, float x, float y, platformMenuItem itemAtLocation);
 
 #endif // __RW_GOUI_MENU__

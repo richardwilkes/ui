@@ -21,30 +21,30 @@ import (
 import "C"
 
 var (
-	menuMap = make(map[C.uiMenu]*Menu)
-	itemMap = make(map[C.uiMenuItem]*Item)
+	menuMap = make(map[C.platformMenu]*Menu)
+	itemMap = make(map[C.platformMenuItem]*Item)
 )
 
 // Menu represents a set of menu items.
 type Menu struct {
-	menu  C.uiMenu
+	menu  C.platformMenu
 	title string
 }
 
 // Bar returns the application menu bar.
 func Bar() *Menu {
-	if menu, ok := menuMap[C.getMainMenu()]; ok {
+	if menu, ok := menuMap[C.platformGetMainMenu()]; ok {
 		return menu
 	}
 	menu := NewMenu("")
-	C.setMainMenu(menu.menu)
+	C.platformSetMainMenu(menu.menu)
 	return menu
 }
 
 // NewMenu creates a new Menu.
 func NewMenu(title string) *Menu {
 	cTitle := C.CString(title)
-	menu := &Menu{menu: C.uiNewMenu(cTitle), title: title}
+	menu := &Menu{menu: C.platformNewMenu(cTitle), title: title}
 	C.free(unsafe.Pointer(cTitle))
 	menuMap[menu.menu] = menu
 	return menu
@@ -52,17 +52,17 @@ func NewMenu(title string) *Menu {
 
 // SetServicesMenu marks the specified menu as the services menu.
 func SetServicesMenu(menu *Menu) {
-	C.uiSetServicesMenu(menu.menu)
+	C.platformSetServicesMenu(menu.menu)
 }
 
 // SetWindowMenu marks the specified menu as the window menu.
 func SetWindowMenu(menu *Menu) {
-	C.uiSetWindowMenu(menu.menu)
+	C.platformSetWindowMenu(menu.menu)
 }
 
 // SetHelpMenu marks the specified menu as the help menu.
 func SetHelpMenu(menu *Menu) {
-	C.uiSetHelpMenu(menu.menu)
+	C.platformSetHelpMenu(menu.menu)
 }
 
 // Title returns the title of this Menu.
@@ -72,12 +72,12 @@ func (menu *Menu) Title() string {
 
 // Count of Items in this Menu.
 func (menu *Menu) Count() int {
-	return int(C.uiMenuItemCount(menu.menu))
+	return int(C.platformMenuItemCount(menu.menu))
 }
 
 // Item at the specified index, or nil.
 func (menu *Menu) Item(index int) *Item {
-	if item, ok := itemMap[C.uiGetMenuItem(menu.menu, C.int(index))]; ok {
+	if item, ok := itemMap[C.platformGetMenuItem(menu.menu, C.int(index))]; ok {
 		return item
 	}
 	return nil
@@ -87,7 +87,7 @@ func (menu *Menu) Item(index int) *Item {
 func (menu *Menu) AddItem(title string, key string) *Item {
 	cTitle := C.CString(title)
 	cKey := C.CString(key)
-	item := &Item{item: C.uiAddMenuItem(menu.menu, cTitle, cKey), title: title}
+	item := &Item{item: C.platformAddMenuItem(menu.menu, cTitle, cKey), title: title}
 	C.free(unsafe.Pointer(cTitle))
 	C.free(unsafe.Pointer(cKey))
 	itemMap[item.item] = item
@@ -98,13 +98,13 @@ func (menu *Menu) AddItem(title string, key string) *Item {
 func (menu *Menu) AddMenu(title string) *Menu {
 	item := menu.AddItem(title, "")
 	subMenu := NewMenu(title)
-	C.uiSetSubMenu(item.item, subMenu.menu)
+	C.platformSetSubMenu(item.item, subMenu.menu)
 	return subMenu
 }
 
 // AddSeparator creates a new separator and appends it to the end of the Menu.
 func (menu *Menu) AddSeparator() {
-	item := &Item{item: C.uiAddSeparator(menu.menu)}
+	item := &Item{item: C.platformAddSeparator(menu.menu)}
 	itemMap[item.item] = item
 }
 
@@ -112,24 +112,24 @@ func (menu *Menu) AddSeparator() {
 // position the menu such that the specified menu item is at that location.
 func (menu *Menu) Popup(widget ui.Widget, where geom.Point, itemAtLocation *Item) {
 	where = widget.ToWindow(where)
-	C.uiPopupMenu(widget.Window().PlatformPtr(), menu.menu, C.float(where.X), C.float(where.Y), itemAtLocation.item)
+	C.platformPopupMenu(widget.Window().PlatformPtr(), menu.menu, C.float(where.X), C.float(where.Y), itemAtLocation.item)
 }
 
 // Dispose of the Menu, releasing any operating system resources it consumed.
 func (menu *Menu) Dispose() {
 	if menu.menu != nil {
-		count := C.uiMenuItemCount(menu.menu)
+		count := C.platformMenuItemCount(menu.menu)
 		var i C.int
 		for i = 0; i < count; i++ {
-			item := C.uiGetMenuItem(menu.menu, i)
-			subMenu := menuMap[C.uiGetSubMenu(item)]
+			item := C.platformGetMenuItem(menu.menu, i)
+			subMenu := menuMap[C.platformGetSubMenu(item)]
 			if subMenu != nil {
 				subMenu.Dispose()
 			}
 			delete(itemMap, item)
 		}
 		delete(menuMap, menu.menu)
-		C.uiDisposeMenu(menu.menu)
+		C.platformDisposeMenu(menu.menu)
 		menu.menu = nil
 	}
 }

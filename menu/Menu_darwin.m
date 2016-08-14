@@ -16,83 +16,83 @@
 
 @implementation menuDelegate
 - (BOOL)validateMenuItem:(NSMenuItem *)menuItem {
-    return validateMenuItem((uiMenuItem)menuItem);
+    return validateMenuItem((platformMenuItem)menuItem);
 }
 
 - (void)handleMenuItem:(id)sender {
-    handleMenuItem((uiMenuItem)sender);
+    handleMenuItem((platformMenuItem)sender);
 }
 @end
 
-uiMenu getMainMenu() {
-    return (uiMenu)[NSApp mainMenu];
+platformMenu platformGetMainMenu() {
+    return (platformMenu)[NSApp mainMenu];
 }
 
-void setMainMenu(uiMenu menuBar) {
+void platformSetMainMenu(platformMenu menuBar) {
     [NSApp setMainMenu:(NSMenu *)menuBar];
 }
 
-uiMenu uiNewMenu(const char *title) {
+platformMenu platformNewMenu(const char *title) {
     NSMenu *menu = [[[NSMenu alloc] initWithTitle:[NSString stringWithUTF8String:title]] retain];
-    return (uiMenu)menu;
+    return (platformMenu)menu;
 }
 
-void uiDisposeMenu(uiMenu menu) {
+void platformDisposeMenu(platformMenu menu) {
     [((NSMenu *)menu) release];
 }
 
-int uiMenuItemCount(uiMenu menu) {
+int platformMenuItemCount(platformMenu menu) {
     return [((NSMenu *)menu) numberOfItems];
 }
 
-uiMenuItem uiGetMenuItem(uiMenu menu, int index) {
-    if (index < 0 || index >= uiMenuItemCount(menu)) {
+platformMenuItem platformGetMenuItem(platformMenu menu, int index) {
+    if (index < 0 || index >= platformMenuItemCount(menu)) {
         return nil;
     }
-    return (uiMenuItem)[((NSMenu *)menu) itemAtIndex:index];
+    return (platformMenuItem)[((NSMenu *)menu) itemAtIndex:index];
 }
 
-uiMenuItem uiAddMenuItem(uiMenu menu, const char *title, const char *key) {
+platformMenuItem platformAddMenuItem(platformMenu menu, const char *title, const char *key) {
     NSMenuItem *item = [((NSMenu *)menu) addItemWithTitle:[NSString stringWithUTF8String:title] action:@selector(handleMenuItem:) keyEquivalent:[NSString stringWithUTF8String:key]];
     [item setTarget:[menuDelegate new]];
-    return (uiMenuItem)item;
+    return (platformMenuItem)item;
 }
 
-uiMenuItem uiAddSeparator(uiMenu menu) {
+platformMenuItem platformAddSeparator(platformMenu menu) {
     NSMenuItem *item = [NSMenuItem separatorItem];
     [((NSMenu *)menu) addItem:item];
     return item;
 }
 
-void uiSetKeyModifierMask(uiMenuItem item, int mask) {
+void platformSetKeyModifierMask(platformMenuItem item, int mask) {
 	// macOS uses the same modifier mask bit order as we do, but it is shifted up by 16 bits
     [((NSMenuItem *)item) setKeyEquivalentModifierMask:mask << 16];
 }
 
-uiMenu uiGetSubMenu(uiMenuItem item) {
+platformMenu platformGetSubMenu(platformMenuItem item) {
     NSMenuItem *mitem = (NSMenuItem *)item;
     if ([mitem hasSubmenu]) {
-        return (uiMenu)[mitem submenu];
+        return (platformMenu)[mitem submenu];
     }
     return nil;
 }
 
-void uiSetSubMenu(uiMenuItem item, uiMenu subMenu) {
+void platformSetSubMenu(platformMenuItem item, platformMenu subMenu) {
     [((NSMenuItem *)item) setSubmenu: subMenu];
 }
 
-void uiSetServicesMenu(uiMenu menu) {
+void platformSetServicesMenu(platformMenu menu) {
 	[NSApp setServicesMenu:(NSMenu *)menu];
 }
 
-void uiSetWindowMenu(uiMenu menu) {
+void platformSetWindowMenu(platformMenu menu) {
 	[NSApp setWindowsMenu:(NSMenu *)menu];
 }
 
-void uiSetHelpMenu(uiMenu menu) {
+void platformSetHelpMenu(platformMenu menu) {
 	[NSApp setHelpMenu:(NSMenu *)menu];
 }
 
-void uiPopupMenu(uiWindow window, uiMenu menu, float x, float y, uiMenuItem itemAtLocation) {
+void platformPopupMenu(platformWindow window, platformMenu menu, float x, float y, platformMenuItem itemAtLocation) {
 	[((NSMenu *)menu) popUpMenuPositioningItem:itemAtLocation atLocation:NSMakePoint(x,y) inView:[((NSWindow *)window) contentView]];
 }
