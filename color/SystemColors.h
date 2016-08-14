@@ -11,17 +11,17 @@
 #define __RW_GOUI_SYSTEM_COLORS__
 
 typedef enum {
-	backgroundColor,
-	keyboardFocusColor,
-	selectedControlColor,
-	selectedControlTextColor,
-	selectedTextBackgroundColor,
-	selectedTextColor,
-	textBackgroundColor,
-	textColor
+	platformBackgroundColor,
+	platformKeyboardFocusColor,
+	platformSelectedControlColor,
+	platformSelectedControlTextColor,
+	platformSelectedTextBackgroundColor,
+	platformSelectedTextColor,
+	platformTextBackgroundColor,
+	platformTextColor
 } SystemColorId;
 
 // The returned color is in the format 0xAARRGGBB
-unsigned int uiGetSystemColor(SystemColorId id);
+unsigned int platformSystemColor(SystemColorId id);
 
 #endif // __RW_GOUI_SYSTEM_COLORS__

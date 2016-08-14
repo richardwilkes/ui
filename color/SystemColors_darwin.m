@@ -10,33 +10,33 @@
 #include <AppKit/AppKit.h>
 #include "SystemColors.h"
 
-unsigned int uiGetSystemColor(SystemColorId id) {
+unsigned int platformSystemColor(SystemColorId id) {
 	NSColorList *list;
 	NSColor *nsColor = nil;
 	unsigned int color = 0;
 	switch (id) {
-		case backgroundColor:
+		case platformBackgroundColor:
 			color = 0xFFECECEC;
 			break;
-		case keyboardFocusColor:
+		case platformKeyboardFocusColor:
 			nsColor = [NSColor keyboardFocusIndicatorColor];
 			break;
-		case selectedControlColor:
+		case platformSelectedControlColor:
 			nsColor = [NSColor alternateSelectedControlColor];
 			break;
-		case selectedControlTextColor:
+		case platformSelectedControlTextColor:
 			nsColor = [NSColor alternateSelectedControlTextColor];
 			break;
-		case selectedTextBackgroundColor:
+		case platformSelectedTextBackgroundColor:
 			nsColor = [NSColor selectedTextBackgroundColor];
 			break;
-		case selectedTextColor:
+		case platformSelectedTextColor:
 			nsColor = [NSColor selectedTextColor];
 			break;
-		case textBackgroundColor:
+		case platformTextBackgroundColor:
 			nsColor = [NSColor textBackgroundColor];
 			break;
-		case textColor:
+		case platformTextColor:
 			nsColor = [NSColor textColor];
 			break;
 		default:
