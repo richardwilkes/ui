@@ -162,7 +162,7 @@ func addSeparator(root ui.Widget) {
 
 func createButtonsPanel() ui.Widget {
 	panel := widget.NewBlock()
-	layout.NewFlow(panel).SetHorizontalSpacing(5).SetVerticalSpacing(5)
+	layout.NewFlow(panel).SetHorizontalSpacing(5).SetVerticalSpacing(5).SetVerticallyCentered(true)
 
 	createButton("Press Me", panel)
 	createButton("Disabled", panel).SetEnabled(false)
