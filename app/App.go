@@ -16,7 +16,7 @@ import (
 
 // #cgo darwin LDFLAGS: -framework Cocoa
 // #include <stdlib.h>
-// #include "app.h"
+// #include "App.h"
 import "C"
 
 const (
