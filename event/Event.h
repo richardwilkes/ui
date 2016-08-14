@@ -12,7 +12,7 @@
 
 #include <stdint.h>
 
-void invoke(uint64_t id);
-void invokeAfter(uint64_t id, int64_t afterNanos);
+void platformInvoke(uint64_t id);
+void platformInvokeAfter(uint64_t id, int64_t afterNanos);
 
 #endif // __RW_UI_EVENT__
