@@ -13,7 +13,7 @@ package draw
 // #include <CoreGraphics/CoreGraphics.h>
 import "C"
 
-func (g *Gradient) toPlatform() C.CGGradientRef {
+func (g *Gradient) platformData() C.CGGradientRef {
 	colorSpace := C.CGColorSpaceCreateDeviceRGB()
 	count := len(g.Stops)
 	components := make([]C.CGFloat, count*4)
