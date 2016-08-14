@@ -14,6 +14,6 @@ import (
 )
 
 func (g *Gradient) platformData() unsafe.Pointer {
-	// RAW: Implement platformData for Linux
+	// RAW: Implement platformData for Windows
 	return nil
 }

@@ -7,13 +7,12 @@
 // This Source Code Form is "Incompatible With Secondary Licenses", as
 // defined by the Mozilla Public License, version 2.0.
 
-package draw
+#include "_cgo_export.h"
 
-import (
-	"unsafe"
-)
+void platformInvoke(uint64_t id) {
+	// RAW: Implement platformInvoke for Windows
+}
 
-func (g *Gradient) platformData() unsafe.Pointer {
-	// RAW: Implement platformData for Linux
-	return nil
+void platformInvokeAfter(uint64_t id, int64_t afterNanos) {
+	// RAW: Implement platformInvokeAfter for Windows
 }

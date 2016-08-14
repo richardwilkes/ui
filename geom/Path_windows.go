@@ -7,13 +7,14 @@
 // This Source Code Form is "Incompatible With Secondary Licenses", as
 // defined by the Mozilla Public License, version 2.0.
 
-package draw
+package geom
 
 import (
 	"unsafe"
 )
 
-func (g *Gradient) platformData() unsafe.Pointer {
-	// RAW: Implement platformData for Linux
+// PlatformPtr returns a pointer to the underlying platform-specific data.
+func (p *Path) PlatformPtr() unsafe.Pointer {
+	// RAW: Implement PlatformPtr for Windows
 	return nil
 }
