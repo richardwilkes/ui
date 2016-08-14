@@ -25,7 +25,7 @@ var (
 
 // Clear the clipboard contents and prepare it for calls to clipboard.SetData.
 func Clear() {
-	C.clearClipboard()
+	C.platformClearClipboard()
 }
 
 // HasType returns true if the specified data type exists on the clipboard.
@@ -40,10 +40,10 @@ func HasType(dataType string) bool {
 
 // Types returns the types of data currently on the clipboard.
 func Types() []string {
-	changeCount := int(C.clipboardChangeCount())
+	changeCount := int(C.platformClipboardChangeCount())
 	if changeCount != lastChangeCount {
 		lastChangeCount = changeCount
-		clipTypes := (*[1 << 30]*C.char)(unsafe.Pointer(C.clipboardTypes()))
+		clipTypes := (*[1 << 30]*C.char)(unsafe.Pointer(C.platformClipboardTypes()))
 		i := 0
 		for clipTypes[i] != nil {
 			i++
@@ -61,7 +61,7 @@ func Types() []string {
 // slice will be returned if no such data type is present.
 func Data(dataType string) []byte {
 	cstr := C.CString(dataType)
-	data := C.clipboardData(cstr)
+	data := C.platformClipboardData(cstr)
 	C.free(unsafe.Pointer(cstr))
 	count := int(data.count)
 	result := make([]byte, count)
@@ -76,6 +76,6 @@ func Data(dataType string) []byte {
 // call clipboard.Clear() followed by calls to clipboard.SetData() with each flavor of data.
 func SetData(dataType string, bytes []byte) {
 	cstr := C.CString(dataType)
-	C.setClipboardData(cstr, C.int(len(bytes)), unsafe.Pointer(&bytes[0]))
+	C.platformSetClipboardData(cstr, C.int(len(bytes)), unsafe.Pointer(&bytes[0]))
 	C.free(unsafe.Pointer(cstr))
 }

@@ -12,15 +12,15 @@
 #include "_cgo_export.h"
 #include "Clipboard.h"
 
-int clipboardChangeCount() {
+int platformClipboardChangeCount() {
 	return [[NSPasteboard generalPasteboard] changeCount];
 }
 
-void clearClipboard() {
+void platformClearClipboard() {
 	[[NSPasteboard generalPasteboard] clearContents];
 }
 
-const char **clipboardTypes() {
+const char **platformClipboardTypes() {
 	NSArray<NSString *> *types = [[NSPasteboard generalPasteboard] types];
 	NSUInteger count = [types count];
 	const char **result = malloc(sizeof(char *) * (count + 1));
@@ -31,14 +31,14 @@ const char **clipboardTypes() {
 	return result;
 }
 
-struct data clipboardData(char *type) {
-	struct data d;
+struct platformClipboardData platformClipboardData(char *type) {
+	struct platformClipboardData d;
 	NSData *nsd = [[NSPasteboard generalPasteboard] dataForType:[NSString stringWithUTF8String:type]];
 	d.count = [nsd length];
 	d.data = [nsd bytes];
 	return d;
 }
 
-void setClipboardData(char *type, int size, void *bytes) {
+void platformSetClipboardData(char *type, int size, void *bytes) {
 	[[NSPasteboard generalPasteboard] setData:[NSData dataWithBytes:bytes length:size] forType:[NSString stringWithUTF8String:type]];
 }

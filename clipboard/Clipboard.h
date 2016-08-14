@@ -10,15 +10,15 @@
 #ifndef __RW_GOUI_CLIPBOARD__
 #define __RW_GOUI_CLIPBOARD__
 
-struct data {
+struct platformClipboardData {
 	int count;
 	const void *data;
 };
 
-int clipboardChangeCount();
-void clearClipboard();
-const char **clipboardTypes();
-struct data clipboardData(char *type);
-void setClipboardData(char *type, int size, void *bytes);
+int platformClipboardChangeCount();
+void platformClearClipboard();
+const char **platformClipboardTypes();
+struct platformClipboardData platformClipboardData(char *type);
+void platformSetClipboardData(char *type, int size, void *bytes);
 
 #endif // __RW_GOUI_CLIPBOARD__
