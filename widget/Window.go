@@ -47,7 +47,7 @@ type WindowStyleMask int
 
 // Window represents a window on the display.
 type Window struct {
-	window          C.uiWindow
+	window          C.platformWindow
 	eventHandlers   *event.Handlers
 	root            ui.Widget
 	focus           ui.Widget
@@ -60,19 +60,19 @@ type Window struct {
 }
 
 var (
-	windowMap = make(map[C.uiWindow]*Window)
+	windowMap = make(map[C.platformWindow]*Window)
 	diacritic int
 )
 
 // AllWindowsToFront attempts to bring all of the application's windows to the foreground.
 func AllWindowsToFront() {
-	C.uiBringAllWindowsToFront()
+	C.platformBringAllWindowsToFront()
 }
 
 // KeyWindow returns the window that currently has the keyboard focus, or nil if none of your
 // application's windows has the keyboard focus.
 func KeyWindow() ui.Window {
-	if window, ok := windowMap[C.uiGetKeyWindow()]; ok {
+	if window, ok := windowMap[C.platformGetKeyWindow()]; ok {
 		return window
 	}
 	return nil
@@ -86,7 +86,7 @@ func NewWindow(where geom.Point, styleMask WindowStyleMask) *Window {
 // NewWindowWithContentSize creates a new window at the specified location with the specified style and content size.
 func NewWindowWithContentSize(where geom.Point, contentSize geom.Size, styleMask WindowStyleMask) *Window {
 	bounds := geom.Rect{Point: where, Size: contentSize}
-	window := &Window{window: C.uiNewWindow(toCRect(bounds), C.int(styleMask)), style: styleMask}
+	window := &Window{window: C.platformNewWindow(toCRect(bounds), C.int(styleMask)), style: styleMask}
 	windowMap[window.window] = window
 	root := NewBlock()
 	root.SetBackground(color.Background)
@@ -111,70 +111,70 @@ func (window *Window) ParentTarget() event.Target {
 
 // Title implements the ui.Window interface.
 func (window *Window) Title() string {
-	return C.GoString(C.uiGetWindowTitle(window.window))
+	return C.GoString(C.platformGetWindowTitle(window.window))
 }
 
 // SetTitle implements the ui.Window interface.
 func (window *Window) SetTitle(title string) {
 	cTitle := C.CString(title)
-	C.uiSetWindowTitle(window.window, cTitle)
+	C.platformSetWindowTitle(window.window, cTitle)
 	C.free(unsafe.Pointer(cTitle))
 }
 
 // Frame implements the ui.Window interface.
 func (window *Window) Frame() geom.Rect {
-	return toRect(C.uiGetWindowFrame(window.window))
+	return toRect(C.platformGetWindowFrame(window.window))
 }
 
 // Location implements the ui.Window interface.
 func (window *Window) Location() geom.Point {
-	return toPoint(C.uiGetWindowPosition(window.window))
+	return toPoint(C.platformGetWindowPosition(window.window))
 }
 
 // SetLocation implements the ui.Window interface.
 func (window *Window) SetLocation(pt geom.Point) {
-	C.uiSetWindowPosition(window.window, C.float(pt.X), C.float(pt.Y))
+	C.platformSetWindowPosition(window.window, C.float(pt.X), C.float(pt.Y))
 }
 
 // Size implements the ui.Window interface.
 func (window *Window) Size() geom.Size {
-	return toSize(C.uiGetWindowSize(window.window))
+	return toSize(C.platformGetWindowSize(window.window))
 }
 
 // SetSize implements the ui.Window interface.
 func (window *Window) SetSize(size geom.Size) {
-	C.uiSetWindowSize(window.window, C.float(size.Width), C.float(size.Height))
+	C.platformSetWindowSize(window.window, C.float(size.Width), C.float(size.Height))
 }
 
 // ContentFrame implements the ui.Window interface.
 func (window *Window) ContentFrame() geom.Rect {
-	return toRect(C.uiGetWindowContentFrame(window.window))
+	return toRect(C.platformGetWindowContentFrame(window.window))
 }
 
 // ContentLocalBounds implements the ui.Window interface.
 func (window *Window) ContentLocalBounds() geom.Rect {
-	size := C.uiGetWindowContentSize(window.window)
+	size := C.platformGetWindowContentSize(window.window)
 	return geom.Rect{Size: geom.Size{Width: float32(size.width), Height: float32(size.height)}}
 }
 
 // ContentLocation implements the ui.Window interface.
 func (window *Window) ContentLocation() geom.Point {
-	return toPoint(C.uiGetWindowContentPosition(window.window))
+	return toPoint(C.platformGetWindowContentPosition(window.window))
 }
 
 // SetContentLocation implements the ui.Window interface.
 func (window *Window) SetContentLocation(pt geom.Point) {
-	C.uiSetWindowContentPosition(window.window, C.float(pt.X), C.float(pt.Y))
+	C.platformSetWindowContentPosition(window.window, C.float(pt.X), C.float(pt.Y))
 }
 
 // ContentSize implements the ui.Window interface.
 func (window *Window) ContentSize() geom.Size {
-	return toSize(C.uiGetWindowContentSize(window.window))
+	return toSize(C.platformGetWindowContentSize(window.window))
 }
 
 // SetContentSize implements the ui.Window interface.
 func (window *Window) SetContentSize(size geom.Size) {
-	C.uiSetWindowContentSize(window.window, C.float(size.Width), C.float(size.Height))
+	C.platformSetWindowContentSize(window.window, C.float(size.Width), C.float(size.Height))
 }
 
 // Pack implements the ui.Window interface.
@@ -265,25 +265,25 @@ func collectFocusables(current ui.Widget, target ui.Widget, focusables []ui.Widg
 
 // ToFront implements the ui.Window interface.
 func (window *Window) ToFront() {
-	C.uiBringWindowToFront(window.window)
+	C.platformBringWindowToFront(window.window)
 }
 
 // Repaint implements the ui.Window interface.
 func (window *Window) Repaint() {
-	C.uiRepaintWindow(window.window, toCRect(window.ContentLocalBounds()))
+	C.platformRepaintWindow(window.window, toCRect(window.ContentLocalBounds()))
 }
 
 // RepaintBounds implements the ui.Window interface.
 func (window *Window) RepaintBounds(bounds geom.Rect) {
 	bounds.Intersect(window.ContentLocalBounds())
 	if !bounds.IsEmpty() {
-		C.uiRepaintWindow(window.window, toCRect(bounds))
+		C.platformRepaintWindow(window.window, toCRect(bounds))
 	}
 }
 
 // FlushPainting implements the ui.Window interface.
 func (window *Window) FlushPainting() {
-	C.uiFlushPainting(window.window)
+	C.platformFlushPainting(window.window)
 }
 
 // InLiveResize implements the ui.Window interface.
@@ -293,17 +293,17 @@ func (window *Window) InLiveResize() bool {
 
 // ScalingFactor implements the ui.Window interface.
 func (window *Window) ScalingFactor() float32 {
-	return float32(C.uiGetWindowScalingFactor(window.window))
+	return float32(C.platformGetWindowScalingFactor(window.window))
 }
 
 // Minimize implements the ui.Window interface.
 func (window *Window) Minimize() {
-	C.uiMinimizeWindow(window.window)
+	C.platformMinimizeWindow(window.window)
 }
 
 // Zoom implements the ui.Window interface.
 func (window *Window) Zoom() {
-	C.uiZoomWindow(window.window)
+	C.platformZoomWindow(window.window)
 }
 
 // PlatformPtr implements the ui.Window interface.
@@ -326,10 +326,10 @@ func (window *Window) updateToolTip(widget ui.Widget, where geom.Point) {
 	if window.lastToolTip != tooltip {
 		if tooltip != "" {
 			tip := C.CString(tooltip)
-			C.uiSetToolTip(window.window, tip)
+			C.platformSetToolTip(window.window, tip)
 			C.free(unsafe.Pointer(tip))
 		} else {
-			C.uiSetToolTip(window.window, nil)
+			C.platformSetToolTip(window.window, nil)
 		}
 		window.lastToolTip = tooltip
 	}
@@ -343,13 +343,13 @@ func (window *Window) updateCursor(widget ui.Widget, where geom.Point) {
 		c = e.Cursor()
 	}
 	if window.lastCursor != c {
-		C.uiSetCursor(window.window, c.PlatformPtr())
+		C.platformSetCursor(window.window, c.PlatformPtr())
 		window.lastCursor = c
 	}
 }
 
 //export drawWindow
-func drawWindow(cWindow C.uiWindow, g unsafe.Pointer, bounds C.uiRect, inLiveResize bool) {
+func drawWindow(cWindow C.platformWindow, g unsafe.Pointer, bounds C.platformRect, inLiveResize bool) {
 	if window, ok := windowMap[cWindow]; ok {
 		window.root.ValidateLayout()
 		window.inLiveResize = inLiveResize
@@ -359,14 +359,14 @@ func drawWindow(cWindow C.uiWindow, g unsafe.Pointer, bounds C.uiRect, inLiveRes
 }
 
 //export windowResized
-func windowResized(cWindow C.uiWindow) {
+func windowResized(cWindow C.platformWindow) {
 	if window, ok := windowMap[cWindow]; ok {
 		window.root.SetSize(window.ContentSize())
 	}
 }
 
 //export handleWindowMouseEvent
-func handleWindowMouseEvent(cWindow C.uiWindow, eventType, keyModifiers, button, clickCount int, x, y float32) {
+func handleWindowMouseEvent(cWindow C.platformWindow, eventType, keyModifiers, button, clickCount int, x, y float32) {
 	if window, ok := windowMap[cWindow]; ok {
 		modifiers := event.KeyMask(keyModifiers)
 		discardMouseDown := false
@@ -379,75 +379,75 @@ func handleWindowMouseEvent(cWindow C.uiWindow, eventType, keyModifiers, button,
 			if widget == nil {
 				panic("widget is nil")
 			}
-			if eventType == C.uiMouseMoved && widget != window.lastMouseWidget {
+			if eventType == C.platformMouseMoved && widget != window.lastMouseWidget {
 				if window.lastMouseWidget != nil {
 					event.Dispatch(event.NewMouseExited(window.lastMouseWidget, where, modifiers))
 				}
-				eventType = C.uiMouseEntered
+				eventType = C.platformMouseEntered
 			}
 		}
 		switch eventType {
-		case C.uiMouseDown:
+		case C.platformMouseDown:
 			if widget.Enabled() {
 				e := event.NewMouseDown(widget, where, modifiers, button, clickCount)
 				event.Dispatch(e)
 				discardMouseDown = e.Discarded()
 			}
-		case C.uiMouseDragged:
+		case C.platformMouseDragged:
 			if widget.Enabled() {
 				event.Dispatch(event.NewMouseDragged(widget, where, modifiers, button))
 			}
-		case C.uiMouseUp:
+		case C.platformMouseUp:
 			if widget.Enabled() {
 				event.Dispatch(event.NewMouseUp(widget, where, modifiers, button))
 			}
-		case C.uiMouseEntered:
+		case C.platformMouseEntered:
 			event.Dispatch(event.NewMouseEntered(widget, where, modifiers))
 			window.updateToolTipAndCursor(widget, where)
-		case C.uiMouseMoved:
+		case C.platformMouseMoved:
 			event.Dispatch(event.NewMouseMoved(widget, where, modifiers))
 			window.updateToolTipAndCursor(widget, where)
-		case C.uiMouseExited:
+		case C.platformMouseExited:
 			event.Dispatch(event.NewMouseExited(widget, where, modifiers))
-			C.uiSetCursor(window.window, cursor.Arrow.PlatformPtr())
+			C.platformSetCursor(window.window, cursor.Arrow.PlatformPtr())
 			window.lastCursor = cursor.Arrow
 		default:
 			panic(fmt.Sprintf("Unknown event type: %d", eventType))
 		}
 		window.lastMouseWidget = widget
-		if eventType == C.uiMouseDown {
+		if eventType == C.platformMouseDown {
 			if !discardMouseDown {
 				window.inMouseDown = true
 			}
-		} else if window.inMouseDown && eventType == C.uiMouseUp {
+		} else if window.inMouseDown && eventType == C.platformMouseUp {
 			window.inMouseDown = false
 		}
 	}
 }
 
 //export handleCursorUpdateEvent
-func handleCursorUpdateEvent(cWindow C.uiWindow) {
+func handleCursorUpdateEvent(cWindow C.platformWindow) {
 	if window, ok := windowMap[cWindow]; ok {
-		C.uiSetCursor(window.window, window.lastCursor.PlatformPtr())
+		C.platformSetCursor(window.window, window.lastCursor.PlatformPtr())
 	}
 }
 
 // HideCursorUntilMouseMoves causes the cursor to disappear until it is moved.
 func HideCursorUntilMouseMoves() {
-	C.uiHideCursorUntilMouseMoves()
+	C.platformHideCursorUntilMouseMoves()
 }
 
 //export handleWindowMouseWheelEvent
-func handleWindowMouseWheelEvent(cWindow C.uiWindow, eventType, keyModifiers int, x, y, dx, dy float32) {
+func handleWindowMouseWheelEvent(cWindow C.platformWindow, eventType, keyModifiers int, x, y, dx, dy float32) {
 	if window, ok := windowMap[cWindow]; ok {
 		where := geom.Point{X: x, Y: y}
 		widget := window.root.WidgetAt(where)
 		if widget != nil {
 			event.Dispatch(event.NewMouseWheel(widget, geom.Point{X: dx, Y: dy}, where, event.KeyMask(keyModifiers)))
 			if window.inMouseDown {
-				eventType = C.uiMouseDragged
+				eventType = C.platformMouseDragged
 			} else {
-				eventType = C.uiMouseMoved
+				eventType = C.platformMouseMoved
 			}
 			handleWindowMouseEvent(cWindow, eventType, keyModifiers, 0, 0, x, y)
 		}
@@ -455,7 +455,7 @@ func handleWindowMouseWheelEvent(cWindow C.uiWindow, eventType, keyModifiers int
 }
 
 //export handleWindowKeyEvent
-func handleWindowKeyEvent(cWindow C.uiWindow, eventType, keyModifiers, keyCode int, chars *C.char, repeat bool) {
+func handleWindowKeyEvent(cWindow C.platformWindow, eventType, keyModifiers, keyCode int, chars *C.char, repeat bool) {
 	if window, ok := windowMap[cWindow]; ok {
 		modifiers := event.KeyMask(keyModifiers)
 		var ch rune
@@ -466,7 +466,7 @@ func handleWindowKeyEvent(cWindow C.uiWindow, eventType, keyModifiers, keyCode i
 			ch = 0
 		}
 		switch eventType {
-		case C.uiKeyDown:
+		case C.platformKeyDown:
 			if diacritic != 0 {
 				if modifiers&^event.ShiftKeyMask == 0 {
 					switch ch {
@@ -609,7 +609,7 @@ func handleWindowKeyEvent(cWindow C.uiWindow, eventType, keyModifiers, keyCode i
 					window.FocusNext()
 				}
 			}
-		case C.uiKeyUp:
+		case C.platformKeyUp:
 			event.Dispatch(event.NewKeyUp(window.Focus(), keyCode, ch, modifiers))
 		default:
 			panic(fmt.Sprintf("Unknown event type: %d", eventType))
@@ -618,7 +618,7 @@ func handleWindowKeyEvent(cWindow C.uiWindow, eventType, keyModifiers, keyCode i
 }
 
 //export windowShouldClose
-func windowShouldClose(cWindow C.uiWindow) bool {
+func windowShouldClose(cWindow C.platformWindow) bool {
 	if window, ok := windowMap[cWindow]; ok {
 		e := event.NewClosing(window)
 		event.Dispatch(e)
@@ -628,7 +628,7 @@ func windowShouldClose(cWindow C.uiWindow) bool {
 }
 
 //export windowDidClose
-func windowDidClose(cWindow C.uiWindow) {
+func windowDidClose(cWindow C.platformWindow) {
 	if window, ok := windowMap[cWindow]; ok {
 		event.Dispatch(event.NewClosed(window))
 	}
@@ -650,18 +650,18 @@ func (window *Window) Resizable() bool {
 	return window.style&ResizableWindowMask == ResizableWindowMask
 }
 
-func toRect(bounds C.uiRect) geom.Rect {
+func toRect(bounds C.platformRect) geom.Rect {
 	return geom.Rect{Point: geom.Point{X: float32(bounds.x), Y: float32(bounds.y)}, Size: geom.Size{Width: float32(bounds.width), Height: float32(bounds.height)}}
 }
 
-func toCRect(bounds geom.Rect) C.uiRect {
-	return C.uiRect{x: C.float(bounds.X), y: C.float(bounds.Y), width: C.float(bounds.Width), height: C.float(bounds.Height)}
+func toCRect(bounds geom.Rect) C.platformRect {
+	return C.platformRect{x: C.float(bounds.X), y: C.float(bounds.Y), width: C.float(bounds.Width), height: C.float(bounds.Height)}
 }
 
-func toPoint(pt C.uiPoint) geom.Point {
+func toPoint(pt C.platformPoint) geom.Point {
 	return geom.Point{X: float32(pt.x), Y: float32(pt.y)}
 }
 
-func toSize(size C.uiSize) geom.Size {
+func toSize(size C.platformSize) geom.Size {
 	return geom.Size{Width: float32(size.width), Height: float32(size.height)}
 }

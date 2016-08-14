@@ -10,66 +10,64 @@
 #ifndef __RW_GOUI_WINDOW__
 #define __RW_GOUI_WINDOW__
 
-#include <CoreGraphics/CoreGraphics.h>
-
-typedef void *uiWindow;
+typedef void *platformWindow;
 
 typedef struct {
 	float x, y;
-} uiPoint;
+} platformPoint;
 
 typedef struct {
 	float width, height;
-} uiSize;
+} platformSize;
 
 typedef struct {
 	float x, y, width, height;
-} uiRect;
+} platformRect;
 
 enum {
-	uiMouseDown = 0,
-	uiMouseDragged,
-	uiMouseUp,
-	uiMouseEntered,
-	uiMouseMoved,
-	uiMouseExited,
-	uiMouseWheel,
-	uiKeyDown,
-	uiKeyTyped,
-	uiKeyUp
+	platformMouseDown = 0,
+	platformMouseDragged,
+	platformMouseUp,
+	platformMouseEntered,
+	platformMouseMoved,
+	platformMouseExited,
+	platformMouseWheel,
+	platformKeyDown,
+	platformKeyTyped,
+	platformKeyUp
 };
 
 enum {
-	uiCapsLockKeyMask	= 1 << 0,
-	uiShiftKeyMask		= 1 << 1,
-	uiControlKeyMask	= 1 << 2,
-	uiOptionKeyMask		= 1 << 3,
-	uiCommandKeyMask	= 1 << 4
+	platformCapsLockKeyMask	= 1 << 0,
+	platformShiftKeyMask		= 1 << 1,
+	platformControlKeyMask	= 1 << 2,
+	platformOptionKeyMask		= 1 << 3,
+	platformCommandKeyMask	= 1 << 4
 };
 
-uiWindow uiNewWindow(uiRect bounds, int styleMask);
-uiRect uiGetWindowFrame(uiWindow window);
-uiPoint uiGetWindowPosition(uiWindow window);
-uiSize uiGetWindowSize(uiWindow window);
-uiRect uiGetWindowContentFrame(uiWindow window);
-uiPoint uiGetWindowContentPosition(uiWindow window);
-uiSize uiGetWindowContentSize(uiWindow window);
-const char *uiGetWindowTitle(uiWindow window);
-void uiSetWindowTitle(uiWindow window, const char *title);
-void uiSetWindowPosition(uiWindow window, float x, float y);
-void uiSetWindowSize(uiWindow window, float width, float height);
-void uiSetWindowContentPosition(uiWindow window, float x, float y);
-void uiSetWindowContentSize(uiWindow window, float width, float height);
-float uiGetWindowScalingFactor(uiWindow window);
-void uiMinimizeWindow(uiWindow window);
-void uiZoomWindow(uiWindow window);
-void uiBringWindowToFront(uiWindow window);
-void uiBringAllWindowsToFront();
-uiWindow uiGetKeyWindow();
-void uiRepaintWindow(uiWindow window, uiRect bounds);
-void uiFlushPainting(uiWindow window);
-void uiSetToolTip(uiWindow window, const char *tooltip);
-void uiSetCursor(uiWindow window, void *cursor);
-void uiHideCursorUntilMouseMoves();
+platformWindow platformNewWindow(platformRect bounds, int styleMask);
+platformRect platformGetWindowFrame(platformWindow window);
+platformPoint platformGetWindowPosition(platformWindow window);
+platformSize platformGetWindowSize(platformWindow window);
+platformRect platformGetWindowContentFrame(platformWindow window);
+platformPoint platformGetWindowContentPosition(platformWindow window);
+platformSize platformGetWindowContentSize(platformWindow window);
+const char *platformGetWindowTitle(platformWindow window);
+void platformSetWindowTitle(platformWindow window, const char *title);
+void platformSetWindowPosition(platformWindow window, float x, float y);
+void platformSetWindowSize(platformWindow window, float width, float height);
+void platformSetWindowContentPosition(platformWindow window, float x, float y);
+void platformSetWindowContentSize(platformWindow window, float width, float height);
+float platformGetWindowScalingFactor(platformWindow window);
+void platformMinimizeWindow(platformWindow window);
+void platformZoomWindow(platformWindow window);
+void platformBringWindowToFront(platformWindow window);
+void platformBringAllWindowsToFront();
+platformWindow platformGetKeyWindow();
+void platformRepaintWindow(platformWindow window, platformRect bounds);
+void platformFlushPainting(platformWindow window);
+void platformSetToolTip(platformWindow window, const char *tooltip);
+void platformSetCursor(platformWindow window, void *cursor);
+void platformHideCursorUntilMouseMoves();
 
 #endif // __RW_GOUI_WINDOW__

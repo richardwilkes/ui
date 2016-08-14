@@ -18,7 +18,7 @@
 @interface windowDelegate : NSObject<NSWindowDelegate>
 @end
 
-uiWindow uiNewWindow(uiRect bounds, int styleMask) {
+platformWindow platformNewWindow(platformRect bounds, int styleMask) {
 	NSRect contentRect = NSMakeRect(0, 0, bounds.width, bounds.height);
 	NSWindow *window = [[NSWindow alloc] initWithContentRect:contentRect styleMask:styleMask backing:NSBackingStoreBuffered defer:YES];
 	[window setFrameTopLeftPoint:NSMakePoint(bounds.x, [[NSScreen mainScreen] visibleFrame].size.height - bounds.y)];
@@ -27,19 +27,19 @@ uiWindow uiNewWindow(uiRect bounds, int styleMask) {
 	[window setContentView:rootView];
 	[window setDelegate: [windowDelegate new]];
 	[rootView addTrackingArea:[[NSTrackingArea alloc] initWithRect:contentRect options:NSTrackingMouseEnteredAndExited | NSTrackingMouseMoved | NSTrackingActiveInKeyWindow | NSTrackingInVisibleRect | NSTrackingCursorUpdate owner:rootView userInfo:nil]];
-	return (uiWindow)window;
+	return (platformWindow)window;
 }
 
-const char *uiGetWindowTitle(uiWindow window) {
+const char *platformGetWindowTitle(platformWindow window) {
 	return [[((NSWindow *)window) title] UTF8String];
 }
 
-void uiSetWindowTitle(uiWindow window, const char *title) {
+void platformSetWindowTitle(platformWindow window, const char *title) {
 	[((NSWindow *)window) setTitle:[NSString stringWithUTF8String:title]];
 }
 
-uiRect uiGetWindowFrame(uiWindow window) {
-	uiRect rect;
+platformRect platformGetWindowFrame(platformWindow window) {
+	platformRect rect;
 	CGRect frame = [((NSWindow *)window) frame];
 	rect.x = frame.origin.x;
 	rect.y = [[NSScreen mainScreen] visibleFrame].size.height - (frame.origin.y + frame.size.height);
@@ -48,30 +48,30 @@ uiRect uiGetWindowFrame(uiWindow window) {
 	return rect;
 }
 
-uiPoint uiGetWindowPosition(uiWindow window) {
-	uiPoint pt;
+platformPoint platformGetWindowPosition(platformWindow window) {
+	platformPoint pt;
 	CGRect frame = [((NSWindow *)window) frame];
 	pt.x = frame.origin.x;
 	pt.y = [[NSScreen mainScreen] visibleFrame].size.height - (frame.origin.y + frame.size.height);
 	return pt;
 }
 
-uiSize uiGetWindowSize(uiWindow window) {
+platformSize platformGetWindowSize(platformWindow window) {
 	CGSize cgSize = [((NSWindow *)window) frame].size;
-	uiSize size;
+	platformSize size;
 	size.width = cgSize.width;
 	size.height = cgSize.height;
 	return size;
 }
 
-uiRect uiGetWindowContentFrame(uiWindow window) {
+platformRect platformGetWindowContentFrame(platformWindow window) {
 	NSWindow *win = (NSWindow *)window;
 	CGRect frame = [[win contentView] frame];
 	frame.origin = [win frame].origin;
 	CGRect windowFrame = [win frameRectForContentRect:frame];
 	frame.origin.x += frame.origin.x - windowFrame.origin.x;
 	frame.origin.y += frame.origin.y - windowFrame.origin.y;
-	uiRect rect;
+	platformRect rect;
 	rect.x = frame.origin.x;
 	rect.y = [[NSScreen mainScreen] visibleFrame].size.height - (frame.origin.y + frame.size.height);
 	rect.width = frame.size.width;
@@ -79,51 +79,51 @@ uiRect uiGetWindowContentFrame(uiWindow window) {
 	return rect;
 }
 
-uiPoint uiGetWindowContentPosition(uiWindow window) {
+platformPoint platformGetWindowContentPosition(platformWindow window) {
 	NSWindow *win = (NSWindow *)window;
 	CGRect frame = [[win contentView] frame];
 	frame.origin = [win frame].origin;
 	CGRect windowFrame = [win frameRectForContentRect:frame];
 	frame.origin.x += frame.origin.x - windowFrame.origin.x;
 	frame.origin.y += frame.origin.y - windowFrame.origin.y;
-	uiPoint pt;
+	platformPoint pt;
 	pt.x = frame.origin.x;
 	pt.y = [[NSScreen mainScreen] visibleFrame].size.height - (frame.origin.y + frame.size.height);
 	return pt;
 }
 
-uiSize uiGetWindowContentSize(uiWindow window) {
+platformSize platformGetWindowContentSize(platformWindow window) {
 	CGSize cgSize = [[((NSWindow *)window) contentView] frame].size;
-	uiSize size;
+	platformSize size;
 	size.width = cgSize.width;
 	size.height = cgSize.height;
 	return size;
 }
 
-void uiSetWindowPosition(uiWindow window, float x, float y) {
+void platformSetWindowPosition(platformWindow window, float x, float y) {
 	NSWindow *win = (NSWindow *)window;
 	[win setFrameOrigin:NSMakePoint(x, [[NSScreen mainScreen] visibleFrame].size.height - (y + [win frame].size.height))];
 }
 
-void uiSetWindowSize(uiWindow window, float width, float height) {
+void platformSetWindowSize(platformWindow window, float width, float height) {
 	NSWindow *win = (NSWindow *)window;
 	CGRect frame = [win frame];
 	[win setFrame:NSMakeRect(frame.origin.x, frame.origin.y + (frame.size.height - height), width, height) display:YES];
 }
 
-void uiSetWindowContentPosition(uiWindow window, float x, float y) {
-	uiPoint pos = uiGetWindowContentPosition(window);
-	uiPoint outerPos = uiGetWindowPosition(window);
-	uiSetWindowPosition(window, x + outerPos.x - pos.x, y + outerPos.y - pos.y);
+void platformSetWindowContentPosition(platformWindow window, float x, float y) {
+	platformPoint pos = platformGetWindowContentPosition(window);
+	platformPoint outerPos = platformGetWindowPosition(window);
+	platformSetWindowPosition(window, x + outerPos.x - pos.x, y + outerPos.y - pos.y);
 }
 
-void uiSetWindowContentSize(uiWindow window, float width, float height) {
-	uiPoint origin = uiGetWindowPosition(window);
+void platformSetWindowContentSize(platformWindow window, float width, float height) {
+	platformPoint origin = platformGetWindowPosition(window);
 	[((NSWindow *)window) setContentSize:NSMakeSize(width, height)];
-	uiSetWindowPosition(window, origin.x, origin.y);
+	platformSetWindowPosition(window, origin.x, origin.y);
 }
 
-float uiGetWindowScalingFactor(uiWindow window) {
+float platformGetWindowScalingFactor(platformWindow window) {
 	NSView *view = [((NSWindow *)window) contentView];
 	CGRect bounds = [view bounds];
 	CGFloat width = bounds.size.width;
@@ -133,35 +133,35 @@ float uiGetWindowScalingFactor(uiWindow window) {
     return [view convertRectToBacking:bounds].size.width / width;
 }
 
-void uiMinimizeWindow(uiWindow window) {
+void platformMinimizeWindow(platformWindow window) {
 	[((NSWindow *)window) performMiniaturize:nil];
 }
 
-void uiZoomWindow(uiWindow window) {
+void platformZoomWindow(platformWindow window) {
 	[((NSWindow *)window) performZoom:nil];
 }
 
-void uiBringWindowToFront(uiWindow window) {
+void platformBringWindowToFront(platformWindow window) {
 	[((NSWindow *)window) makeKeyAndOrderFront:nil];
 }
 
-void uiBringAllWindowsToFront() {
+void platformBringAllWindowsToFront() {
 	[[NSRunningApplication currentApplication] activateWithOptions:NSApplicationActivateAllWindows | NSApplicationActivateIgnoringOtherApps];
 }
 
-uiWindow uiGetKeyWindow() {
-	return (uiWindow)[NSApp keyWindow];
+platformWindow platformGetKeyWindow() {
+	return (platformWindow)[NSApp keyWindow];
 }
 
-void uiRepaintWindow(uiWindow window, uiRect bounds) {
+void platformRepaintWindow(platformWindow window, platformRect bounds) {
 	[[((NSWindow *)window) contentView] setNeedsDisplayInRect:NSMakeRect(bounds.x, bounds.y, bounds.width, bounds.height)];
 }
 
-void uiFlushPainting(uiWindow window) {
+void platformFlushPainting(platformWindow window) {
 	[CATransaction flush];
 }
 
-void uiSetToolTip(uiWindow window, const char *tooltip) {
+void platformSetToolTip(platformWindow window, const char *tooltip) {
 	NSView *view = [((NSWindow *)window) contentView];
 	// We always clear the old one out first. Failure to do so results in new tooltips not always showing up.
 	[view setToolTip:nil];
@@ -170,12 +170,12 @@ void uiSetToolTip(uiWindow window, const char *tooltip) {
 	}
 }
 
-void uiSetCursor(uiWindow window, void *cursor) {
+void platformSetCursor(platformWindow window, void *cursor) {
 	//NSView *view = [((NSWindow *)window) contentView];
 	[((NSCursor *)cursor) set];
 }
 
-void uiHideCursorUntilMouseMoves() {
+void platformHideCursorUntilMouseMoves() {
 	[NSCursor setHiddenUntilMouseMoves:YES];
 }
 
@@ -190,12 +190,12 @@ void uiHideCursorUntilMouseMoves() {
 }
 
 -(void)drawRect:(NSRect)dirtyRect {
-	uiRect bounds;
+	platformRect bounds;
 	bounds.x = dirtyRect.origin.x;
 	bounds.y = dirtyRect.origin.y;
 	bounds.width = dirtyRect.size.width;
 	bounds.height = dirtyRect.size.height;
-	drawWindow((uiWindow)[self window], [[NSGraphicsContext currentContext] CGContext], bounds, [self inLiveResize]);
+	drawWindow((platformWindow)[self window], [[NSGraphicsContext currentContext] CGContext], bounds, [self inLiveResize]);
 }
 
 -(int)getModifiers:(NSEvent *)theEvent {
@@ -205,68 +205,68 @@ void uiHideCursorUntilMouseMoves() {
 
 -(void)deliverMouseEvent:(NSEvent *)theEvent ofType:(unsigned char)type {
 	unsigned char clickCount = 0;
-	if (type != uiMouseEntered && type != uiMouseExited) {
+	if (type != platformMouseEntered && type != platformMouseExited) {
 		clickCount = theEvent.clickCount;
 	}
 	NSPoint where = [self convertPoint:theEvent.locationInWindow fromView:nil];
-	handleWindowMouseEvent((uiWindow)[self window], type, [self getModifiers:theEvent], theEvent.buttonNumber, clickCount, where.x, where.y);
+	handleWindowMouseEvent((platformWindow)[self window], type, [self getModifiers:theEvent], theEvent.buttonNumber, clickCount, where.x, where.y);
 }
 
 -(void)mouseDown:(NSEvent *)theEvent {
-	[self deliverMouseEvent:theEvent ofType:uiMouseDown];
+	[self deliverMouseEvent:theEvent ofType:platformMouseDown];
 }
 
 -(void)rightMouseDown:(NSEvent *)theEvent {
-	[self deliverMouseEvent:theEvent ofType:uiMouseDown];
+	[self deliverMouseEvent:theEvent ofType:platformMouseDown];
 }
 
 -(void)otherMouseDown:(NSEvent *)theEvent {
-	[self deliverMouseEvent:theEvent ofType:uiMouseDown];
+	[self deliverMouseEvent:theEvent ofType:platformMouseDown];
 }
 
 -(void)mouseDragged:(NSEvent *)theEvent {
-	[self deliverMouseEvent:theEvent ofType:uiMouseDragged];
+	[self deliverMouseEvent:theEvent ofType:platformMouseDragged];
 }
 
 -(void)rightMouseDragged:(NSEvent *)theEvent {
-	[self deliverMouseEvent:theEvent ofType:uiMouseDragged];
+	[self deliverMouseEvent:theEvent ofType:platformMouseDragged];
 }
 
 -(void)otherMouseDragged:(NSEvent *)theEvent {
-	[self deliverMouseEvent:theEvent ofType:uiMouseDragged];
+	[self deliverMouseEvent:theEvent ofType:platformMouseDragged];
 }
 
 -(void)mouseUp:(NSEvent *)theEvent {
-	[self deliverMouseEvent:theEvent ofType:uiMouseUp];
+	[self deliverMouseEvent:theEvent ofType:platformMouseUp];
 }
 
 -(void)rightMouseUp:(NSEvent *)theEvent {
-	[self deliverMouseEvent:theEvent ofType:uiMouseUp];
+	[self deliverMouseEvent:theEvent ofType:platformMouseUp];
 }
 
 -(void)otherMouseUp:(NSEvent *)theEvent {
-	[self deliverMouseEvent:theEvent ofType:uiMouseUp];
+	[self deliverMouseEvent:theEvent ofType:platformMouseUp];
 }
 
 -(void)mouseMoved:(NSEvent *)theEvent {
-	[self deliverMouseEvent:theEvent ofType:uiMouseMoved];
+	[self deliverMouseEvent:theEvent ofType:platformMouseMoved];
 }
 
 -(void)mouseEntered:(NSEvent *)theEvent {
-	[self deliverMouseEvent:theEvent ofType:uiMouseEntered];
+	[self deliverMouseEvent:theEvent ofType:platformMouseEntered];
 }
 
 -(void)mouseExited:(NSEvent *)theEvent {
-	[self deliverMouseEvent:theEvent ofType:uiMouseExited];
+	[self deliverMouseEvent:theEvent ofType:platformMouseExited];
 }
 
 -(void)cursorUpdate:(NSEvent *)event {
-	handleCursorUpdateEvent((uiWindow)[self window]);
+	handleCursorUpdateEvent((platformWindow)[self window]);
 }
 
 -(void)scrollWheel:(NSEvent *)theEvent {
 	NSPoint where = [self convertPoint:theEvent.locationInWindow fromView:nil];
-	handleWindowMouseWheelEvent((uiWindow)[self window], uiMouseWheel, [self getModifiers:theEvent], where.x, where.y, theEvent.scrollingDeltaX, theEvent.scrollingDeltaY);
+	handleWindowMouseWheelEvent((platformWindow)[self window], platformMouseWheel, [self getModifiers:theEvent], where.x, where.y, theEvent.scrollingDeltaX, theEvent.scrollingDeltaY);
 }
 
 -(BOOL)acceptsFirstResponder {
@@ -274,15 +274,15 @@ void uiHideCursorUntilMouseMoves() {
 }
 
 -(void)deliverKeyEvent:(NSEvent *)theEvent ofType:(unsigned char)type {
-	handleWindowKeyEvent((uiWindow)[self window], type, [self getModifiers:theEvent], theEvent.keyCode, (char *)[theEvent.characters UTF8String], theEvent.ARepeat);
+	handleWindowKeyEvent((platformWindow)[self window], type, [self getModifiers:theEvent], theEvent.keyCode, (char *)[theEvent.characters UTF8String], theEvent.ARepeat);
 }
 
 - (void)keyDown:(NSEvent *)theEvent {
-	[self deliverKeyEvent:theEvent ofType:uiKeyDown];
+	[self deliverKeyEvent:theEvent ofType:platformKeyDown];
 }
 
 - (void)keyUp:(NSEvent *)theEvent {
-	[self deliverKeyEvent:theEvent ofType:uiKeyUp];
+	[self deliverKeyEvent:theEvent ofType:platformKeyUp];
 }
 
 - (void)flagsChanged:(NSEvent *)theEvent {
@@ -290,29 +290,29 @@ void uiHideCursorUntilMouseMoves() {
 	unsigned char type;
 	switch (theEvent.keyCode) {
 		case 57:	// Caps Lock
-			type = (modifiers & uiCapsLockKeyMask) == 0 ? uiKeyUp : uiKeyDown;
+			type = (modifiers & platformCapsLockKeyMask) == 0 ? platformKeyUp : platformKeyDown;
 			break;
 		case 56:	// Left Shift
 		case 60:	// Right Shift
-			type = (modifiers & uiShiftKeyMask) == 0 ? uiKeyUp : uiKeyDown;
+			type = (modifiers & platformShiftKeyMask) == 0 ? platformKeyUp : platformKeyDown;
 			break;
 		case 59:	// Left Control
 		case 62:	// Right Control
-			type = (modifiers & uiControlKeyMask) == 0 ? uiKeyUp : uiKeyDown;
+			type = (modifiers & platformControlKeyMask) == 0 ? platformKeyUp : platformKeyDown;
 			break;
 		case 58:	// Left Option
 		case 61:	// Right Option
-			type = (modifiers & uiOptionKeyMask) == 0 ? uiKeyUp : uiKeyDown;
+			type = (modifiers & platformOptionKeyMask) == 0 ? platformKeyUp : platformKeyDown;
 			break;
 		case 54:	// Right Cmd
 		case 55:	// Left Cmd
-			type = (modifiers & uiCommandKeyMask) == 0 ? uiKeyUp : uiKeyDown;
+			type = (modifiers & platformCommandKeyMask) == 0 ? platformKeyUp : platformKeyDown;
 			break;
 		default:
-			type = uiKeyDown;
+			type = platformKeyDown;
 			break;
 	}
-	handleWindowKeyEvent((uiWindow)[self window], type, modifiers, theEvent.keyCode, nil, NO);
+	handleWindowKeyEvent((platformWindow)[self window], type, modifiers, theEvent.keyCode, nil, NO);
 }
 
 @end
@@ -320,15 +320,15 @@ void uiHideCursorUntilMouseMoves() {
 @implementation windowDelegate
 
 - (void)windowDidResize:(NSNotification *)notification {
-	windowResized((uiWindow)[notification object]);
+	windowResized((platformWindow)[notification object]);
 }
 
 - (BOOL)windowShouldClose:(id)sender {
-	return (BOOL)windowShouldClose((uiWindow)sender);
+	return (BOOL)windowShouldClose((platformWindow)sender);
 }
 
 - (void)windowWillClose:(NSNotification *)notification {
-	windowDidClose((uiWindow)[notification object]);
+	windowDidClose((platformWindow)[notification object]);
 }
 
 @end
