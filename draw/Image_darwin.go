@@ -32,7 +32,7 @@ func platformNewImageFromBytes(buffer []byte) *Image {
 	if imgSrc := C.CGImageSourceCreateWithData(data, nil); imgSrc != nil {
 		defer C.CFRelease(imgSrc)
 		if image := C.CGImageSourceCreateImageAtIndex(imgSrc, 0, nil); image != nil {
-			return platformCreateImage(image)
+			return createImage(image)
 		}
 	}
 	return nil
@@ -46,7 +46,7 @@ func platformNewImageFromURL(url string) *Image {
 	if imgSrc := C.CGImageSourceCreateWithURL(cURLRef, nil); imgSrc != nil {
 		defer C.CFRelease(imgSrc)
 		if image := C.CGImageSourceCreateImageAtIndex(imgSrc, 0, nil); image != nil {
-			return platformCreateImage(image)
+			return createImage(image)
 		}
 	}
 	return nil
@@ -77,7 +77,7 @@ func platformNewImageFromData(data *ImageData) *Image {
 	defer C.CGDataProviderRelease(dataProvider)
 	if image := C.CGImageCreate(C.size_t(data.Width), C.size_t(data.Height), 8, 32, C.size_t(data.Width*4), colorspace, C.kCGBitmapByteOrder32Host|C.kCGImageAlphaPremultipliedFirst, dataProvider, nil, false, C.kCGRenderingIntentDefault); image != nil {
 		imgToPixelsMap[unsafe.Pointer(image)] = buffer
-		return platformCreateImage(image)
+		return createImage(image)
 	}
 	C.free(buffer)
 	return nil
@@ -85,16 +85,16 @@ func platformNewImageFromData(data *ImageData) *Image {
 
 func platformNewImageFromImage(other *Image, bounds geom.Rect) *Image {
 	if image := C.CGImageCreateWithImageInRect(other.img, C.CGRectMake(C.CGFloat(bounds.X), C.CGFloat(bounds.Y), C.CGFloat(bounds.Width), C.CGFloat(bounds.Height))); image != nil {
-		return platformCreateImage(image)
+		return createImage(image)
 	}
 	return nil
 }
 
-func platformCreateImage(img C.CGImageRef) *Image {
+func createImage(img C.CGImageRef) *Image {
 	return &Image{size: geom.Size{Width: float32(C.CGImageGetWidth(img)), Height: float32(C.CGImageGetHeight(img))}, img: unsafe.Pointer(img)}
 }
 
-func (img *Image) dispose() {
+func (img *Image) platformDispose() {
 	if buffer, ok := imgToPixelsMap[img.img]; ok {
 		delete(imgToPixelsMap, img.img)
 		C.free(buffer)
@@ -103,8 +103,7 @@ func (img *Image) dispose() {
 	img.img = nil
 }
 
-// Data extracts the raw image data.
-func (img *Image) Data() *ImageData {
+func (img *Image) platformData() *ImageData {
 	size := img.Size()
 	width := C.size_t(size.Width)
 	height := C.size_t(size.Height)

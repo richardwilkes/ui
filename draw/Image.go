@@ -188,6 +188,11 @@ func (img *Image) Size() geom.Size {
 	return img.size
 }
 
+// Data extracts the raw image data.
+func (img *Image) Data() *ImageData {
+	return img.platformData()
+}
+
 // PlatformPtr returns a pointer to the underlying platform-specific data.
 func (img *Image) PlatformPtr() unsafe.Pointer {
 	return img.img
@@ -206,6 +211,6 @@ func (img *Image) Release() {
 		delete(imageRegistry, img.key)
 	}
 	if img.img != nil {
-		img.dispose()
+		img.platformDispose()
 	}
 }
