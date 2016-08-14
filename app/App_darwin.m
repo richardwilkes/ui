@@ -9,16 +9,16 @@
 
 #include <Cocoa/Cocoa.h>
 #include "_cgo_export.h"
-#include "app.h"
+#include "App.h"
 
 @interface appDelegate : NSObject<NSApplicationDelegate>
 @end
 
-const char *uiAppName() {
+const char *platformAppName() {
     return [[[NSProcessInfo processInfo] processName] UTF8String];
 }
 
-void uiStart() {
+void platformStart() {
     @autoreleasepool {
         [NSApplication sharedApplication];
 
@@ -31,23 +31,23 @@ void uiStart() {
     }
 }
 
-void uiAttemptTerminate() {
+void platformAttemptTerminate() {
     [NSApp terminate:nil];
 }
 
-void uiAppMayTerminateNow(int terminate) {
+void platformAppMayTerminateNow(int terminate) {
     [NSApp replyToApplicationShouldTerminate:terminate];
 }
 
-void uiHideApp() {
+void platformHideApp() {
     [NSApp hide:nil];
 }
 
-void uiHideOtherApps() {
+void platformHideOtherApps() {
     [NSApp hideOtherApplications:NSApp];
 }
 
-void uiShowAllApps() {
+void platformShowAllApps() {
     [NSApp unhideAllApplications:NSApp];
 }
 

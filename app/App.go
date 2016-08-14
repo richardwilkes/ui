@@ -52,32 +52,32 @@ var (
 // Start the ui.
 func Start() {
 	runtime.LockOSThread()
-	C.uiStart()
+	C.platformStart()
 }
 
 // Name returns the application's name.
 func Name() string {
-	return C.GoString(C.uiAppName())
+	return C.GoString(C.platformAppName())
 }
 
 // AttemptQuit initiates the termination sequence.
 func AttemptQuit() {
-	C.uiAttemptTerminate()
+	C.platformAttemptTerminate()
 }
 
 // Hide attempts to hide this application.
 func Hide() {
-	C.uiHideApp()
+	C.platformHideApp()
 }
 
 // HideOthers attempts to hide other applications, leaving just this application visible.
 func HideOthers() {
-	C.uiHideOtherApps()
+	C.platformHideOtherApps()
 }
 
 // ShowAll attempts to show all applications that are currently hidden.
 func ShowAll() {
-	C.uiShowAllApps()
+	C.platformShowAllApps()
 }
 
 //export appWillFinishStartup
@@ -112,7 +112,7 @@ func MayTerminateNow(terminate bool) {
 	} else {
 		value = 0
 	}
-	C.uiAppMayTerminateNow(value)
+	C.platformAppMayTerminateNow(value)
 }
 
 //export appShouldTerminateAfterLastWindowClosed

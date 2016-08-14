@@ -10,12 +10,12 @@
 #ifndef __RW_GOUI_APP__
 #define __RW_GOUI_APP__
 
-const char *uiAppName();
-void uiStart();
-void uiAttemptTerminate();
-void uiAppMayTerminateNow(int terminate);
-void uiHideApp();
-void uiHideOtherApps();
-void uiShowAllApps();
+const char *platformAppName();
+void platformStart();
+void platformAttemptTerminate();
+void platformAppMayTerminateNow(int terminate);
+void platformHideApp();
+void platformHideOtherApps();
+void platformShowAllApps();
 
 #endif // __RW_GOUI_APP__
