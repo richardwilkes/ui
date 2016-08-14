@@ -12,7 +12,6 @@ package draw
 import (
 	"github.com/richardwilkes/ui/color"
 	"github.com/richardwilkes/ui/geom"
-	"unsafe"
 )
 
 func (gc *graphics) platformSave() {
