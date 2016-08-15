@@ -24,6 +24,7 @@ import (
 )
 
 // #cgo darwin LDFLAGS: -framework Cocoa -framework Quartz
+// #cgo linux LDFLAGS: -lX11
 // #include <stdlib.h>
 // #include "Window.h"
 import "C"
