@@ -92,7 +92,7 @@ type Widget interface {
 	// parent as a child. Call AddChild or AddChildAtIndex for that.
 	SetParent(parent Widget)
 	// Window returns the containing window, if any.
-	Window() Window
+	Window() *Window
 	// RootOfWindow returns true if this widget is the root widget of a window.
 	RootOfWindow() bool
 
