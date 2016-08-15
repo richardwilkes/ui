@@ -15,6 +15,7 @@ import (
 )
 
 // #cgo darwin LDFLAGS: -framework Cocoa
+// #cgo linux LDFLAGS: -lX11
 // #include "App.h"
 import "C"
 
