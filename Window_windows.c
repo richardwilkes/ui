@@ -16,6 +16,10 @@ platformWindow platformNewWindow(platformRect bounds, int styleMask) {
 	return NULL;
 }
 
+void platformCloseWindow(platformWindow window) {
+	// RAW: Implement platformCloseWindow for Windows
+}
+
 const char *platformGetWindowTitle(platformWindow window) {
 	// RAW: Implement platformGetWindowTitle for Windows
 	return NULL;

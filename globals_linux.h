@@ -7,21 +7,19 @@
 // This Source Code Form is "Incompatible With Secondary Licenses", as
 // defined by the Mozilla Public License, version 2.0.
 
-#ifndef __RW_GOUI_APP__
-#define __RW_GOUI_APP__
+#ifndef __RW_GOUI_GLOBALS__
+#define __RW_GOUI_GLOBALS__
 
-enum {
-	platformTerminateCancel,
-	platformTerminateNow,
-	platformTerminateLater
-};
+#include <X11/Xlib.h>
 
-const char *platformAppName();
-void platformStart();
-void platformAttemptTerminate();
-void platformAppMayTerminateNow(int terminate);
-void platformHideApp();
-void platformHideOtherApps();
-void platformShowAllApps();
+typedef struct {
+	int			running;
+	int			awaitingTermination;
+	int			windowCount;
+	Display *	display;
+	Atom		wmDeleteMessage;
+} Globals;
 
-#endif // __RW_GOUI_APP__
+Globals AppGlobals;
+
+#endif // __RW_GOUI_GLOBALS__

@@ -19,14 +19,6 @@ import (
 // #include "App.h"
 import "C"
 
-const (
-	terminateCancel terminationResponse = iota
-	terminateNow
-	terminateLater
-)
-
-type terminationResponse int
-
 // StartUserInterface the ui.
 func StartUserInterface() {
 	runtime.LockOSThread()
@@ -36,11 +28,6 @@ func StartUserInterface() {
 // AppName returns the application's name.
 func AppName() string {
 	return C.GoString(C.platformAppName())
-}
-
-// AttemptQuit initiates the termination sequence.
-func AttemptQuit() {
-	C.platformAttemptTerminate()
 }
 
 // HideApp attempts to hide this application.
@@ -68,17 +55,22 @@ func appDidFinishStartup() {
 	event.Dispatch(event.NewAppDidFinishStartup(&App))
 }
 
+// AttemptQuit initiates the termination sequence.
+func AttemptQuit() {
+	C.platformAttemptTerminate()
+}
+
 //export appShouldTerminate
-func appShouldTerminate() terminationResponse {
+func appShouldTerminate() C.int {
 	e := event.NewAppTerminationRequested(&App)
 	event.Dispatch(e)
 	if e.Cancelled() {
-		return terminateCancel
+		return C.platformTerminateCancel
 	}
 	if e.Delayed() {
-		return terminateLater
+		return C.platformTerminateLater
 	}
-	return terminateNow
+	return C.platformTerminateNow
 }
 
 // MayTerminateNow resumes the termination sequence that was delayed by calling Delay() on the

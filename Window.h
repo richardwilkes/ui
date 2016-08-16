@@ -39,13 +39,14 @@ enum {
 
 enum {
 	platformCapsLockKeyMask	= 1 << 0,
-	platformShiftKeyMask		= 1 << 1,
+	platformShiftKeyMask	= 1 << 1,
 	platformControlKeyMask	= 1 << 2,
-	platformOptionKeyMask		= 1 << 3,
+	platformOptionKeyMask	= 1 << 3,
 	platformCommandKeyMask	= 1 << 4
 };
 
 platformWindow platformNewWindow(platformRect bounds, int styleMask);
+void platformCloseWindow(platformWindow window);
 platformRect platformGetWindowFrame(platformWindow window);
 platformPoint platformGetWindowPosition(platformWindow window);
 platformSize platformGetWindowSize(platformWindow window);

@@ -30,6 +30,10 @@ platformWindow platformNewWindow(platformRect bounds, int styleMask) {
 	return (platformWindow)window;
 }
 
+void platformCloseWindow(platformWindow window) {
+	// RAW: Implement platformCloseWindow for Mac
+}
+
 const char *platformGetWindowTitle(platformWindow window) {
 	return [[((NSWindow *)window) title] UTF8String];
 }
@@ -171,7 +175,6 @@ void platformSetToolTip(platformWindow window, const char *tooltip) {
 }
 
 void platformSetCursor(platformWindow window, void *cursor) {
-	//NSView *view = [((NSWindow *)window) contentView];
 	[((NSCursor *)cursor) set];
 }
 

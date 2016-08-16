@@ -7,74 +7,130 @@
 // This Source Code Form is "Incompatible With Secondary Licenses", as
 // defined by the Mozilla Public License, version 2.0.
 
+#include <X11/Xlib.h>
 #include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+#include "globals_linux.h"
 #include "_cgo_export.h"
 #include "Window.h"
 
 platformWindow platformNewWindow(platformRect bounds, int styleMask) {
-	// RAW: Implement platformNewWindow for Linux
-	return NULL;
+	int screen = DefaultScreen(AppGlobals.display);
+	Window window = XCreateSimpleWindow(AppGlobals.display, RootWindow(AppGlobals.display, screen), bounds.x, bounds.y, bounds.width, bounds.height, 1, BlackPixel(AppGlobals.display, screen), WhitePixel(AppGlobals.display, screen));
+	XSelectInput(AppGlobals.display, window, KeyPressMask | KeyReleaseMask | ButtonPressMask | ButtonReleaseMask | EnterWindowMask | LeaveWindowMask | ExposureMask | PointerMotionMask | ExposureMask | VisibilityChangeMask | StructureNotifyMask | FocusChangeMask);
+	XSetWMProtocols(AppGlobals.display, window, &AppGlobals.wmDeleteMessage, 1);
+	XMapWindow(AppGlobals.display, window);
+	// Move it back to the original location, as the window manager might have set it somewhere else
+	XMoveWindow(AppGlobals.display, window, bounds.x, bounds.y);
+	AppGlobals.windowCount++;
+	return (platformWindow)window;
+}
+
+void platformCloseWindow(platformWindow window) {
+	AppGlobals.windowCount--;
+	XDestroyWindow(AppGlobals.display, (Window)window);
 }
 
 const char *platformGetWindowTitle(platformWindow window) {
-	// RAW: Implement platformGetWindowTitle for Linux
-	return NULL;
+	char *result;
+	XFetchName(AppGlobals.display, (Window)window, &result);
+	if (result) {
+		char *name = strdup(result);
+		XFree(result);
+		result = name;
+	}
+	return result;
 }
 
 void platformSetWindowTitle(platformWindow window, const char *title) {
-	// RAW: Implement platformSetWindowTitle for Linux
+	XStoreName(AppGlobals.display, (Window)window, title);
 }
 
 platformRect platformGetWindowFrame(platformWindow window) {
-	// RAW: Implement platformGetWindowFrame for Linux
+	Window root;
+	int x, y;
+	unsigned int width, height, border, depth;
+	XGetGeometry(AppGlobals.display, (Window)window, &root, &x, &y, &width, &height, &border, &depth);
 	platformRect rect;
+	rect.x = x;
+	rect.y = y;
+	rect.width = width;
+	rect.height = height;
 	return rect;
 }
 
 platformPoint platformGetWindowPosition(platformWindow window) {
-	// RAW: Implement platformGetWindowPosition for Linux
+	Window root;
+	int x, y;
+	unsigned int width, height, border, depth;
+	XGetGeometry(AppGlobals.display, (Window)window, &root, &x, &y, &width, &height, &border, &depth);
 	platformPoint pt;
+	pt.x = x;
+	pt.y = y;
 	return pt;
 }
 
 platformSize platformGetWindowSize(platformWindow window) {
-	// RAW: Implement platformGetWindowSize for Linux
+	Window root;
+	int x, y;
+	unsigned int width, height, border, depth;
+	XGetGeometry(AppGlobals.display, (Window)window, &root, &x, &y, &width, &height, &border, &depth);
 	platformSize size;
+	size.width = width;
+	size.height = height;
 	return size;
 }
 
 platformRect platformGetWindowContentFrame(platformWindow window) {
-	// RAW: Implement platformGetWindowContentFrame for Linux
+	Window root;
+	int x, y;
+	unsigned int width, height, border, depth;
+	XGetGeometry(AppGlobals.display, (Window)window, &root, &x, &y, &width, &height, &border, &depth);
 	platformRect rect;
+	rect.x = x + border;
+	rect.y = y + border;
+	rect.width = width - border * 2;
+	rect.height = height - border * 2;
 	return rect;
 }
 
 platformPoint platformGetWindowContentPosition(platformWindow window) {
-	// RAW: Implement platformGetWindowContentPosition for Linux
+	Window root;
+	int x, y;
+	unsigned int width, height, border, depth;
+	XGetGeometry(AppGlobals.display, (Window)window, &root, &x, &y, &width, &height, &border, &depth);
 	platformPoint pt;
+	pt.x = x + border;
+	pt.y = y + border;
 	return pt;
 }
 
 platformSize platformGetWindowContentSize(platformWindow window) {
-	// RAW: Implement platformGetWindowContentSize for Linux
+	Window root;
+	int x, y;
+	unsigned int width, height, border, depth;
+	XGetGeometry(AppGlobals.display, (Window)window, &root, &x, &y, &width, &height, &border, &depth);
 	platformSize size;
+	size.width = width - border * 2;
+	size.height = height - border * 2;
 	return size;
 }
 
 void platformSetWindowPosition(platformWindow window, float x, float y) {
-	// RAW: Implement platformSetWindowPosition for Linux
+	XMoveWindow(AppGlobals.display, (Window)window, x, y);
 }
 
 void platformSetWindowSize(platformWindow window, float width, float height) {
-	// RAW: Implement platformSetWindowSize for Linux
+	XResizeWindow(AppGlobals.display, (Window)window, width, height);
 }
 
 void platformSetWindowContentPosition(platformWindow window, float x, float y) {
-	// RAW: Implement platformSetWindowContentPosition for Linux
+	XMoveWindow(AppGlobals.display, (Window)window, x, y);
 }
 
 void platformSetWindowContentSize(platformWindow window, float width, float height) {
-	// RAW: Implement platformSetWindowContentSize for Linux
+	XResizeWindow(AppGlobals.display, (Window)window, width, height);
 }
 
 float platformGetWindowScalingFactor(platformWindow window) {
@@ -83,7 +139,7 @@ float platformGetWindowScalingFactor(platformWindow window) {
 }
 
 void platformMinimizeWindow(platformWindow window) {
-	// RAW: Implement platformMinimizeWindow for Linux
+	XIconifyWindow(AppGlobals.display, (Window)window, DefaultScreen(AppGlobals.display));
 }
 
 void platformZoomWindow(platformWindow window) {
@@ -91,7 +147,7 @@ void platformZoomWindow(platformWindow window) {
 }
 
 void platformBringWindowToFront(platformWindow window) {
-	// RAW: Implement platformBringWindowToFront for Linux
+	XRaiseWindow(AppGlobals.display, (Window)window);
 }
 
 void platformBringAllWindowsToFront() {
@@ -99,16 +155,26 @@ void platformBringAllWindowsToFront() {
 }
 
 platformWindow platformGetKeyWindow() {
-	// RAW: Implement platformGetKeyWindow for Linux
-	return NULL;
+	Window focus;
+	int revert;
+	XGetInputFocus(AppGlobals.display, &focus, &revert);
+	return (platformWindow)focus;
 }
 
 void platformRepaintWindow(platformWindow window, platformRect bounds) {
-	// RAW: Implement platformRepaintWindow for Linux
+	XExposeEvent event;
+	memset(&event, 0, sizeof(event));
+	event.type = Expose;
+	event.window = (Window)window;
+	event.x = bounds.x;
+	event.y = bounds.y;
+	event.width = bounds.width;
+	event.height = bounds.height;
+	XSendEvent(AppGlobals.display, (Window)window, 0, ExposureMask, (XEvent *)&event);
 }
 
 void platformFlushPainting(platformWindow window) {
-	// RAW: Implement platformFlushPainting for Linux
+	XFlush(AppGlobals.display);
 }
 
 void platformSetToolTip(platformWindow window, const char *tooltip) {
