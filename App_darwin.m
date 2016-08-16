@@ -24,7 +24,13 @@ void platformStart() {
 
         // Required for apps without bundle & Info.plist
         [NSApp setActivationPolicy:NSApplicationActivationPolicyRegular];
-        [[NSRunningApplication currentApplication] activateWithOptions:NSApplicationActivateIgnoringOtherApps];
+        NSRunningApplication *runningApp = [NSRunningApplication currentApplication];
+        // Required to 'unhide' before trying to activate the first time, otherwise windows
+        // other than the key window don't get brought forward.
+        [runningApp unhide];
+        // Required to use 'NSApplicationActivateIgnoringOtherApps' otherwise our windows
+        // end up in the background.
+        [runningApp activateWithOptions:NSApplicationActivateIgnoringOtherApps];
 
         [NSApp setDelegate:[appDelegate new]];
         [NSApp run];
