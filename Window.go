@@ -94,6 +94,18 @@ func NewWindowWithContentSize(where geom.Point, contentSize geom.Size, styleMask
 	return window
 }
 
+// AttemptClose closes the window if a Closing event permits it.
+func (window *Window) AttemptClose() {
+	if windowShouldClose(window.window) {
+		window.Close()
+	}
+}
+
+// Close the window.
+func (window *Window) Close() {
+	C.platformCloseWindow(window.window)
+}
+
 // EventHandlers implements the event.Target interface.
 func (window *Window) EventHandlers() *event.Handlers {
 	if window.eventHandlers == nil {
