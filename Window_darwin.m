@@ -31,7 +31,7 @@ platformWindow platformNewWindow(platformRect bounds, int styleMask) {
 }
 
 void platformCloseWindow(platformWindow window) {
-	// RAW: Implement platformCloseWindow for Mac
+	[((NSWindow *)window) close];
 }
 
 const char *platformGetWindowTitle(platformWindow window) {
