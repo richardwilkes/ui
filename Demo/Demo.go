@@ -30,7 +30,10 @@ func main() {
 	// event.TraceEventTypes = append(event.TraceEventTypes, event.MouseDownType, event.MouseDraggedType, event.MouseUpType)
 	ui.App.EventHandlers().Add(event.AppWillFinishStartupType, func(evt event.Event) {
 		createMenuBar()
-		createButtonsWindow()
+		w1 := createButtonsWindow()
+		w2 := createButtonsWindow()
+		frame := w1.Frame()
+		w2.SetLocation(geom.Point{X: frame.X + frame.Width + 5, Y: frame.Y})
 	})
 	ui.StartUserInterface()
 }
@@ -42,6 +45,21 @@ func createMenuBar() {
 
 	fileMenu := ui.Bar().AddMenu("File")
 	fileMenu.AddItem("Open", "o")
+	fileMenu.AddSeparator()
+	item := fileMenu.AddItem("Close", "w")
+	handlers := item.EventHandlers()
+	handlers.Add(event.SelectionType, func(evt event.Event) {
+		window := ui.KeyWindow()
+		if window != nil && window.Closable() {
+			window.AttemptClose()
+		}
+	})
+	handlers.Add(event.ValidateType, func(evt event.Event) {
+		window := ui.KeyWindow()
+		if window == nil || !window.Closable() {
+			evt.(*event.Validate).MarkInvalid()
+		}
+	})
 
 	m := ui.Bar().AddMenu("Edit")
 	ui.AddCutItem(m)
@@ -55,7 +73,7 @@ func createMenuBar() {
 	ui.AddHelpMenu()
 }
 
-func createButtonsWindow() {
+func createButtonsWindow() *ui.Window {
 	wnd := ui.NewWindow(geom.Point{}, ui.StdWindowMask)
 	wnd.SetTitle("Demo")
 
@@ -113,6 +131,7 @@ func createButtonsWindow() {
 
 	wnd.Pack()
 	wnd.ToFront()
+	return wnd
 }
 
 func createListPanel() ui.Widget {
