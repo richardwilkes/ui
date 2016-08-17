@@ -32,8 +32,11 @@ func main() {
 		createMenuBar()
 		w1 := createButtonsWindow()
 		w2 := createButtonsWindow()
-		frame := w1.Frame()
-		w2.SetLocation(geom.Point{X: frame.X + frame.Width + 5, Y: frame.Y})
+		frame1 := w1.Frame()
+		frame2 := w2.Frame()
+		frame2.X = frame1.X + frame1.Width + 5
+		frame2.Y = frame1.Y
+		w2.SetFrame(frame2)
 	})
 	ui.StartUserInterface()
 }

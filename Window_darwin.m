@@ -10,7 +10,7 @@
 #include <Cocoa/Cocoa.h>
 #include <Quartz/Quartz.h>
 #include "_cgo_export.h"
-#include "Window.h"
+#include "Window_darwin.h"
 
 @interface drawingView : NSView
 @end
@@ -18,7 +18,20 @@
 @interface windowDelegate : NSObject<NSWindowDelegate>
 @end
 
+platformWindow platformGetKeyWindow() {
+	return (platformWindow)[NSApp keyWindow];
+}
+
+void platformBringAllWindowsToFront() {
+	[[NSRunningApplication currentApplication] activateWithOptions:NSApplicationActivateAllWindows | NSApplicationActivateIgnoringOtherApps];
+}
+
+void platformHideCursorUntilMouseMoves() {
+	[NSCursor setHiddenUntilMouseMoves:YES];
+}
+
 platformWindow platformNewWindow(platformRect bounds, int styleMask) {
+	// The styleMask bits match those that Mac OS uses
 	NSRect contentRect = NSMakeRect(0, 0, bounds.width, bounds.height);
 	NSWindow *window = [[NSWindow alloc] initWithContentRect:contentRect styleMask:styleMask backing:NSBackingStoreBuffered defer:YES];
 	[window setFrameTopLeftPoint:NSMakePoint(bounds.x, [[NSScreen mainScreen] visibleFrame].size.height - bounds.y)];
@@ -52,20 +65,10 @@ platformRect platformGetWindowFrame(platformWindow window) {
 	return rect;
 }
 
-platformPoint platformGetWindowPosition(platformWindow window) {
-	platformPoint pt;
-	CGRect frame = [((NSWindow *)window) frame];
-	pt.x = frame.origin.x;
-	pt.y = [[NSScreen mainScreen] visibleFrame].size.height - (frame.origin.y + frame.size.height);
-	return pt;
-}
-
-platformSize platformGetWindowSize(platformWindow window) {
-	CGSize cgSize = [((NSWindow *)window) frame].size;
-	platformSize size;
-	size.width = cgSize.width;
-	size.height = cgSize.height;
-	return size;
+void platformSetWindowFrame(platformWindow window, platformRect bounds) {
+	NSWindow *win = (NSWindow *)window;
+	CGRect frame = [win frame];
+	[win setFrame:NSMakeRect(bounds.x, [[NSScreen mainScreen] visibleFrame].size.height - (bounds.y + bounds.height), bounds.width, bounds.height) display:YES];
 }
 
 platformRect platformGetWindowContentFrame(platformWindow window) {
@@ -83,48 +86,16 @@ platformRect platformGetWindowContentFrame(platformWindow window) {
 	return rect;
 }
 
-platformPoint platformGetWindowContentPosition(platformWindow window) {
-	NSWindow *win = (NSWindow *)window;
-	CGRect frame = [[win contentView] frame];
-	frame.origin = [win frame].origin;
-	CGRect windowFrame = [win frameRectForContentRect:frame];
-	frame.origin.x += frame.origin.x - windowFrame.origin.x;
-	frame.origin.y += frame.origin.y - windowFrame.origin.y;
-	platformPoint pt;
-	pt.x = frame.origin.x;
-	pt.y = [[NSScreen mainScreen] visibleFrame].size.height - (frame.origin.y + frame.size.height);
-	return pt;
+void platformBringWindowToFront(platformWindow window) {
+	[((NSWindow *)window) makeKeyAndOrderFront:nil];
 }
 
-platformSize platformGetWindowContentSize(platformWindow window) {
-	CGSize cgSize = [[((NSWindow *)window) contentView] frame].size;
-	platformSize size;
-	size.width = cgSize.width;
-	size.height = cgSize.height;
-	return size;
+void platformRepaintWindow(platformWindow window, platformRect bounds) {
+	[[((NSWindow *)window) contentView] setNeedsDisplayInRect:NSMakeRect(bounds.x, bounds.y, bounds.width, bounds.height)];
 }
 
-void platformSetWindowPosition(platformWindow window, float x, float y) {
-	NSWindow *win = (NSWindow *)window;
-	[win setFrameOrigin:NSMakePoint(x, [[NSScreen mainScreen] visibleFrame].size.height - (y + [win frame].size.height))];
-}
-
-void platformSetWindowSize(platformWindow window, float width, float height) {
-	NSWindow *win = (NSWindow *)window;
-	CGRect frame = [win frame];
-	[win setFrame:NSMakeRect(frame.origin.x, frame.origin.y + (frame.size.height - height), width, height) display:YES];
-}
-
-void platformSetWindowContentPosition(platformWindow window, float x, float y) {
-	platformPoint pos = platformGetWindowContentPosition(window);
-	platformPoint outerPos = platformGetWindowPosition(window);
-	platformSetWindowPosition(window, x + outerPos.x - pos.x, y + outerPos.y - pos.y);
-}
-
-void platformSetWindowContentSize(platformWindow window, float width, float height) {
-	platformPoint origin = platformGetWindowPosition(window);
-	[((NSWindow *)window) setContentSize:NSMakeSize(width, height)];
-	platformSetWindowPosition(window, origin.x, origin.y);
+void platformFlushPainting(platformWindow window) {
+	[CATransaction flush];
 }
 
 float platformGetWindowScalingFactor(platformWindow window) {
@@ -145,26 +116,6 @@ void platformZoomWindow(platformWindow window) {
 	[((NSWindow *)window) performZoom:nil];
 }
 
-void platformBringWindowToFront(platformWindow window) {
-	[((NSWindow *)window) makeKeyAndOrderFront:nil];
-}
-
-void platformBringAllWindowsToFront() {
-	[[NSRunningApplication currentApplication] activateWithOptions:NSApplicationActivateAllWindows | NSApplicationActivateIgnoringOtherApps];
-}
-
-platformWindow platformGetKeyWindow() {
-	return (platformWindow)[NSApp keyWindow];
-}
-
-void platformRepaintWindow(platformWindow window, platformRect bounds) {
-	[[((NSWindow *)window) contentView] setNeedsDisplayInRect:NSMakeRect(bounds.x, bounds.y, bounds.width, bounds.height)];
-}
-
-void platformFlushPainting(platformWindow window) {
-	[CATransaction flush];
-}
-
 void platformSetToolTip(platformWindow window, const char *tooltip) {
 	NSView *view = [((NSWindow *)window) contentView];
 	// We always clear the old one out first. Failure to do so results in new tooltips not always showing up.
@@ -176,10 +127,6 @@ void platformSetToolTip(platformWindow window, const char *tooltip) {
 
 void platformSetCursor(platformWindow window, void *cursor) {
 	[((NSCursor *)cursor) set];
-}
-
-void platformHideCursorUntilMouseMoves() {
-	[NSCursor setHiddenUntilMouseMoves:YES];
 }
 
 @implementation drawingView
@@ -263,8 +210,9 @@ void platformHideCursorUntilMouseMoves() {
 	[self deliverMouseEvent:theEvent ofType:platformMouseExited];
 }
 
--(void)cursorUpdate:(NSEvent *)event {
-	handleCursorUpdateEvent((platformWindow)[self window]);
+-(void)cursorUpdate:(NSEvent *)theEvent {
+	NSPoint where = [self convertPoint:theEvent.locationInWindow fromView:nil];
+	handleCursorUpdateEvent((platformWindow)[self window], [self getModifiers:theEvent], where.x, where.y);
 }
 
 -(void)scrollWheel:(NSEvent *)theEvent {
