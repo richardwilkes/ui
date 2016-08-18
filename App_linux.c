@@ -14,7 +14,7 @@
 #include "_cgo_export.h"
 #include "globals_linux.h"
 #include "App.h"
-#include "Window.h"
+#include "Types.h"
 
 int getKeyMask(unsigned int state) {
 	int keyMask = 0;
@@ -164,7 +164,10 @@ void platformStart() {
 			case ClientMessage:
 				if (event.xclient.data.l[0] == AppGlobals.wmDeleteMessage) {
 					if (windowShouldClose((platformWindow)event.xclient.window)) {
-						platformCloseWindow((platformWindow)event.xclient.window);
+						// RAW: Fix! Broke when I reorganized the Window code. For now, the next two lines do the same thing.
+						AppGlobals.windowCount--;
+						XDestroyWindow(AppGlobals.display, event.xclient.window);
+						//platformCloseWindow((platformWindow)event.xclient.window);
 					}
 				} else {
 					// fprintf(stderr, "Unhandled X11 ClientMessage\n");

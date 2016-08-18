@@ -42,7 +42,6 @@ enum {
 typedef void *platformWindow;
 typedef void *platformMenu;
 typedef void *platformMenuItem;
-typedef void *platformWindow;
 
 typedef struct {
 	float x;

@@ -14,6 +14,11 @@ import (
 	"github.com/richardwilkes/ui/geom"
 )
 
+// #cgo linux LDFLAGS: -lX11 -lcairo
+// #include <stdio.h>
+// #include <cairo/cairo.h>
+import "C"
+
 func (gc *graphics) platformSave() {
 	// RAW: Implement platformSave for Linux
 }

@@ -8,8 +8,11 @@ go get -u github.com/richardwilkes/i18n
 go get -u github.com/richardwilkes/xmath
 ```
 
-This is very much a work in progress. At present, this code only runs on the Mac. Over time, I
-hope to add support for Windows and Linux as well.
+This is very much a work in progress. My intent is to make this work for Mac, Linux & Windows.
+At the moment, the Mac implementation works well. I am in the midst of implementing the Linux
+version.
+
+The Linux version requires that you have the X11 and Cairo development packages installed.
 
 Widgets that have been implemented:
 
