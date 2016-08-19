@@ -20,7 +20,6 @@ import (
 // #include <stdio.h>
 // #include <string.h>
 // #include <X11/Xlib.h>
-// #include "globals_linux.h"
 // #include "Types.h"
 import "C"
 
@@ -39,7 +38,7 @@ func toPlatformWindow(window C.Window) platformWindow {
 func platformGetKeyWindow() platformWindow {
 	var focus C.Window
 	var revert C.int
-	C.XGetInputFocus(C.AppGlobals.display, &focus, &revert)
+	C.XGetInputFocus(xDisplay, &focus, &revert)
 	return toPlatformWindow(focus)
 }
 
@@ -52,25 +51,25 @@ func platformHideCursorUntilMouseMoves() {
 }
 
 func platformNewWindow(bounds geom.Rect, styleMask WindowStyleMask) platformWindow {
-	screen := C.XDefaultScreen(C.AppGlobals.display)
-	window := C.XCreateSimpleWindow(C.AppGlobals.display, C.XRootWindow(C.AppGlobals.display, screen), C.int(bounds.X), C.int(bounds.Y), C.uint(bounds.Width), C.uint(bounds.Height), 1, C.XBlackPixel(C.AppGlobals.display, screen), C.XWhitePixel(C.AppGlobals.display, screen))
-	C.XSelectInput(C.AppGlobals.display, window, C.KeyPressMask|C.KeyReleaseMask|C.ButtonPressMask|C.ButtonReleaseMask|C.EnterWindowMask|C.LeaveWindowMask|C.ExposureMask|C.PointerMotionMask|C.ExposureMask|C.VisibilityChangeMask|C.StructureNotifyMask|C.FocusChangeMask)
-	C.XSetWMProtocols(C.AppGlobals.display, window, &C.AppGlobals.wmDeleteMessage, 1)
-	C.XMapWindow(C.AppGlobals.display, window)
+	screen := C.XDefaultScreen(xDisplay)
+	window := C.XCreateSimpleWindow(xDisplay, C.XRootWindow(xDisplay, screen), C.int(bounds.X), C.int(bounds.Y), C.uint(bounds.Width), C.uint(bounds.Height), 1, C.XBlackPixel(xDisplay, screen), C.XWhitePixel(xDisplay, screen))
+	C.XSelectInput(xDisplay, window, C.KeyPressMask|C.KeyReleaseMask|C.ButtonPressMask|C.ButtonReleaseMask|C.EnterWindowMask|C.LeaveWindowMask|C.ExposureMask|C.PointerMotionMask|C.ExposureMask|C.VisibilityChangeMask|C.StructureNotifyMask|C.FocusChangeMask)
+	C.XSetWMProtocols(xDisplay, window, &wmDeleteMessage, 1)
+	C.XMapWindow(xDisplay, window)
 	// Move it back to the original location, as the window manager might have set it somewhere else
-	C.XMoveWindow(C.AppGlobals.display, window, C.int(bounds.X), C.int(bounds.Y))
-	C.AppGlobals.windowCount++
+	C.XMoveWindow(xDisplay, window, C.int(bounds.X), C.int(bounds.Y))
+	xWindowCount++
 	return toPlatformWindow(window)
 }
 
 func (window *Window) platformClose() {
-	C.AppGlobals.windowCount--
-	C.XDestroyWindow(C.AppGlobals.display, toXWindow(window.window))
+	xWindowCount--
+	C.XDestroyWindow(xDisplay, toXWindow(window.window))
 }
 
 func (window *Window) platformTitle() string {
 	var result *C.char
-	C.XFetchName(C.AppGlobals.display, toXWindow(window.window), &result)
+	C.XFetchName(xDisplay, toXWindow(window.window), &result)
 	if result == nil {
 		return ""
 	}
@@ -80,7 +79,7 @@ func (window *Window) platformTitle() string {
 
 func (window *Window) platformSetTitle(title string) {
 	cTitle := C.CString(title)
-	C.XStoreName(C.AppGlobals.display, toXWindow(window.window), cTitle)
+	C.XStoreName(xDisplay, toXWindow(window.window), cTitle)
 	C.free(unsafe.Pointer(cTitle))
 }
 
@@ -88,12 +87,12 @@ func (window *Window) platformFrame() geom.Rect {
 	var root C.Window
 	var x, y C.int
 	var width, height, border, depth C.uint
-	C.XGetGeometry(C.AppGlobals.display, toXDrawable(window.window), &root, &x, &y, &width, &height, &border, &depth)
+	C.XGetGeometry(xDisplay, toXDrawable(window.window), &root, &x, &y, &width, &height, &border, &depth)
 	return geom.Rect{Point: geom.Point{X: float32(x), Y: float32(y)}, Size: geom.Size{Width: float32(width), Height: float32(height)}}
 }
 
 func (window *Window) platformSetFrame(bounds geom.Rect) {
-	C.XMoveResizeWindow(C.AppGlobals.display, toXWindow(window.window), C.int(bounds.X), C.int(bounds.Y), C.uint(bounds.Width), C.uint(bounds.Height))
+	C.XMoveResizeWindow(xDisplay, toXWindow(window.window), C.int(bounds.X), C.int(bounds.Y), C.uint(bounds.Width), C.uint(bounds.Height))
 }
 
 func (window *Window) platformContentFrame() geom.Rect {
@@ -102,16 +101,16 @@ func (window *Window) platformContentFrame() geom.Rect {
 }
 
 func (window *Window) platformToFront() {
-	C.XRaiseWindow(C.AppGlobals.display, toXWindow(window.window))
+	C.XRaiseWindow(xDisplay, toXWindow(window.window))
 }
 
 func (window *Window) platformRepaint(bounds geom.Rect) {
 	event := C.XExposeEvent{_type: C.Expose, window: toXWindow(window.window), x: C.int(bounds.X), y: C.int(bounds.Y), width: C.int(bounds.Width), height: C.int(bounds.Height)}
-	C.XSendEvent(C.AppGlobals.display, toXWindow(window.window), 0, C.ExposureMask, (*C.XEvent)(unsafe.Pointer(&event)))
+	C.XSendEvent(xDisplay, toXWindow(window.window), 0, C.ExposureMask, (*C.XEvent)(unsafe.Pointer(&event)))
 }
 
 func (window *Window) platformFlushPainting() {
-	C.XFlush(C.AppGlobals.display)
+	C.XFlush(xDisplay)
 }
 
 func (window *Window) platformScalingFactor() float32 {
@@ -120,7 +119,7 @@ func (window *Window) platformScalingFactor() float32 {
 }
 
 func (window *Window) platformMinimize() {
-	C.XIconifyWindow(C.AppGlobals.display, toXWindow(window.window), C.XDefaultScreen(C.AppGlobals.display))
+	C.XIconifyWindow(xDisplay, toXWindow(window.window), C.XDefaultScreen(xDisplay))
 }
 
 func (window *Window) platformZoom() {
