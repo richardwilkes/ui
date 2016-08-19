@@ -13,70 +13,70 @@ import (
 	"bytes"
 )
 
-// AppTerminationRequested is generated to ask if it is OK to terminate the application.
-type AppTerminationRequested struct {
+// AppQuitRequested is generated to ask if it is OK to quit the application.
+type AppQuitRequested struct {
 	target    Target
 	cancelled bool
 	delayed   bool
 	finished  bool
 }
 
-// NewAppTerminationRequested creates a new AppTerminationRequested event. 'target' is the app.
-func NewAppTerminationRequested(target Target) *AppTerminationRequested {
-	return &AppTerminationRequested{target: target}
+// NewAppQuitRequested creates a new AppQuitRequested event. 'target' is the app.
+func NewAppQuitRequested(target Target) *AppQuitRequested {
+	return &AppQuitRequested{target: target}
 }
 
 // Type returns the event type ID.
-func (e *AppTerminationRequested) Type() Type {
-	return AppTerminationRequestedType
+func (e *AppQuitRequested) Type() Type {
+	return AppQuitRequestedType
 }
 
 // Target the original target of the event.
-func (e *AppTerminationRequested) Target() Target {
+func (e *AppQuitRequested) Target() Target {
 	return e.target
 }
 
 // Cascade returns true if this event should be passed to its target's parent if not marked done.
-func (e *AppTerminationRequested) Cascade() bool {
+func (e *AppQuitRequested) Cascade() bool {
 	return false
 }
 
 // Finished returns true if this event has been handled and should no longer be processed.
-func (e *AppTerminationRequested) Finished() bool {
+func (e *AppQuitRequested) Finished() bool {
 	return e.finished
 }
 
 // Finish marks this event as handled and no longer eligible for processing.
-func (e *AppTerminationRequested) Finish() {
+func (e *AppQuitRequested) Finish() {
 	e.finished = true
 }
 
 // Cancelled returns true if the request has been cancelled.
-func (e *AppTerminationRequested) Cancelled() bool {
+func (e *AppQuitRequested) Cancelled() bool {
 	return e.cancelled
 }
 
 // Cancel the request.
-func (e *AppTerminationRequested) Cancel() {
+func (e *AppQuitRequested) Cancel() {
 	e.cancelled = true
 	e.finished = true
 }
 
 // Delayed returns true if the request should only proceed after a call to app.MayTerminateNow().
-func (e *AppTerminationRequested) Delayed() bool {
+func (e *AppQuitRequested) Delayed() bool {
 	return e.delayed
 }
 
 // Delay the request.
-func (e *AppTerminationRequested) Delay() {
+func (e *AppQuitRequested) Delay() {
 	e.delayed = true
 	e.finished = true
 }
 
 // String implements the fmt.Stringer interface.
-func (e *AppTerminationRequested) String() string {
+func (e *AppQuitRequested) String() string {
 	var buffer bytes.Buffer
-	buffer.WriteString("AppTerminationRequested[")
+	buffer.WriteString("AppQuitRequested[")
 	needComma := false
 	if e.cancelled {
 		buffer.WriteString("Cancelled")

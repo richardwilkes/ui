@@ -13,46 +13,46 @@ import (
 	"bytes"
 )
 
-// AppWillTerminate is generated immediately prior to the application terminating.
-type AppWillTerminate struct {
+// AppWillQuit is generated immediately prior to the application quitting.
+type AppWillQuit struct {
 	target   Target
 	finished bool
 }
 
-// NewAppWillTerminate creates a new AppWillTerminate event. 'target' is the app.
-func NewAppWillTerminate(target Target) *AppWillTerminate {
-	return &AppWillTerminate{target: target}
+// NewAppWillQuit creates a new AppWillQuit event. 'target' is the app.
+func NewAppWillQuit(target Target) *AppWillQuit {
+	return &AppWillQuit{target: target}
 }
 
 // Type returns the event type ID.
-func (e *AppWillTerminate) Type() Type {
-	return AppWillTerminateType
+func (e *AppWillQuit) Type() Type {
+	return AppWillQuitType
 }
 
 // Target the original target of the event.
-func (e *AppWillTerminate) Target() Target {
+func (e *AppWillQuit) Target() Target {
 	return e.target
 }
 
 // Cascade returns true if this event should be passed to its target's parent if not marked done.
-func (e *AppWillTerminate) Cascade() bool {
+func (e *AppWillQuit) Cascade() bool {
 	return false
 }
 
 // Finished returns true if this event has been handled and should no longer be processed.
-func (e *AppWillTerminate) Finished() bool {
+func (e *AppWillQuit) Finished() bool {
 	return e.finished
 }
 
 // Finish marks this event as handled and no longer eligible for processing.
-func (e *AppWillTerminate) Finish() {
+func (e *AppWillQuit) Finish() {
 	e.finished = true
 }
 
 // String implements the fmt.Stringer interface.
-func (e *AppWillTerminate) String() string {
+func (e *AppWillQuit) String() string {
 	var buffer bytes.Buffer
-	buffer.WriteString("AppWillTerminate[")
+	buffer.WriteString("AppWillQuit[")
 	if e.finished {
 		buffer.WriteString("Finished")
 	}

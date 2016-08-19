@@ -9,16 +9,12 @@
 
 #include <Cocoa/Cocoa.h>
 #include "_cgo_export.h"
-#include "App.h"
+#include "App_darwin.h"
 
 @interface appDelegate : NSObject<NSApplicationDelegate>
 @end
 
-const char *platformAppName() {
-    return [[[NSProcessInfo processInfo] processName] UTF8String];
-}
-
-void platformStart() {
+void platformStartUserInterface() {
     @autoreleasepool {
         [NSApplication sharedApplication];
 
@@ -37,12 +33,8 @@ void platformStart() {
     }
 }
 
-void platformAttemptTerminate() {
-    [NSApp terminate:nil];
-}
-
-void platformAppMayTerminateNow(int terminate) {
-    [NSApp replyToApplicationShouldTerminate:terminate];
+const char *platformAppName() {
+    return [[[NSProcessInfo processInfo] processName] UTF8String];
 }
 
 void platformHideApp() {
@@ -57,6 +49,14 @@ void platformShowAllApps() {
     [NSApp unhideAllApplications:NSApp];
 }
 
+void platformAttemptQuit() {
+    [NSApp terminate:nil];
+}
+
+void platformAppMayQuitNow(int quit) {
+    [NSApp replyToApplicationShouldTerminate:quit];
+}
+
 @implementation appDelegate
 
 - (void)applicationWillFinishLaunching:(NSNotification *)aNotification {
@@ -68,15 +68,16 @@ void platformShowAllApps() {
 }
 
 - (NSApplicationTerminateReply)applicationShouldTerminate:(NSApplication *)sender {
-    return appShouldTerminate();
+	// The Mac response codes map to the same values we use
+    return appShouldQuit();
 }
 
 - (BOOL)applicationShouldTerminateAfterLastWindowClosed:(NSApplication *)theApplication {
-    return appShouldTerminateAfterLastWindowClosed();
+    return appShouldQuitAfterLastWindowClosed();
 }
 
 - (void)applicationWillTerminate:(NSNotification *)aNotification {
-    return appWillTerminate();
+    return appWillQuit();
 }
 
 - (void)applicationWillBecomeActive:(NSNotification *)aNotification {

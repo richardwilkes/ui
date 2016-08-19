@@ -51,8 +51,8 @@ func (e *AppLastWindowClosed) Finish() {
 	e.finished = true
 }
 
-// Terminate returns true if the app should terminate.
-func (e *AppLastWindowClosed) Terminate() bool {
+// Terminate returns true if the app should quit.
+func (e *AppLastWindowClosed) Quit() bool {
 	return !e.remainOpen
 }
 
@@ -69,7 +69,7 @@ func (e *AppLastWindowClosed) String() string {
 	if e.remainOpen {
 		buffer.WriteString("Remain Open")
 	} else {
-		buffer.WriteString("Terminate")
+		buffer.WriteString("Quit")
 	}
 	if e.finished {
 		buffer.WriteString(", Finished")

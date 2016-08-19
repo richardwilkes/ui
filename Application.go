@@ -11,6 +11,7 @@ package ui
 
 import (
 	"github.com/richardwilkes/ui/event"
+	"runtime"
 )
 
 // Application represents the overall application.
@@ -33,4 +34,42 @@ func (app *Application) EventHandlers() *event.Handlers {
 // ParentTarget implements the event.Target interface.
 func (app *Application) ParentTarget() event.Target {
 	return nil
+}
+
+// StartUserInterface starts the user interface. Locks the calling goroutine to its current OS
+// thread. Does not return.
+func StartUserInterface() {
+	runtime.LockOSThread()
+	platformStartUserInterface()
+}
+
+// AppName returns the application's name.
+func AppName() string {
+	return platformAppName()
+}
+
+// HideApp attempts to hide this application.
+func HideApp() {
+	platformHideApp()
+}
+
+// HideOtherApps attempts to hide other applications, leaving just this application visible.
+func HideOtherApps() {
+	platformHideOtherApps()
+}
+
+// ShowAllApps attempts to show all applications that are currently hidden.
+func ShowAllApps() {
+	platformShowAllApps()
+}
+
+// AttemptQuit initiates the termination sequence.
+func AttemptQuit() {
+	platformAttemptQuit()
+}
+
+// MayQuitNow resumes the termination sequence that was delayed by calling Delay() on the
+// AppTerminationRequested event.
+func MayQuitNow(quit bool) {
+	platformAppMayQuitNow(quit)
 }

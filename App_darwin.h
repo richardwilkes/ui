@@ -10,18 +10,12 @@
 #ifndef __RW_GOUI_APP__
 #define __RW_GOUI_APP__
 
-enum {
-	platformTerminateCancel,
-	platformTerminateNow,
-	platformTerminateLater
-};
-
+void platformStartUserInterface();
 const char *platformAppName();
-void platformStart();
-void platformAttemptTerminate();
-void platformAppMayTerminateNow(int terminate);
 void platformHideApp();
 void platformHideOtherApps();
 void platformShowAllApps();
+void platformAttemptQuit();
+void platformAppMayQuitNow(int quit);
 
 #endif // __RW_GOUI_APP__

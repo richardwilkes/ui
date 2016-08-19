@@ -17,8 +17,8 @@ const (
 	AppDidActivateType
 	AppWillDeactivateType
 	AppDidDeactivateType
-	AppTerminationRequestedType
-	AppWillTerminateType
+	AppQuitRequestedType
+	AppWillQuitType
 	AppLastWindowClosedType
 	PaintType
 	MouseDownType
