@@ -14,9 +14,9 @@ import (
 )
 
 // AddAppMenu adds a standard 'application' menu to the menu bar.
-func AddAppMenu() (appMenu *Menu, aboutItem *Item, prefsItem *Item) {
+func AddAppMenu() (appMenu *Menu, aboutItem *MenuItem, prefsItem *MenuItem) {
 	name := AppName()
-	appMenu = Bar().AddMenu(name)
+	appMenu = MenuBar().AddMenu(name)
 	aboutItem = appMenu.AddItem("About "+name, "")
 	appMenu.AddSeparator()
 	prefsItem = appMenu.AddItem("Preferences…", ",")
@@ -38,7 +38,7 @@ func AddAppMenu() (appMenu *Menu, aboutItem *Item, prefsItem *Item) {
 
 // AddWindowMenu adds a standard 'Window' menu to the menu bar.
 func AddWindowMenu() *Menu {
-	windowMenu := Bar().AddMenu("Window")
+	windowMenu := MenuBar().AddMenu("Window")
 	item := windowMenu.AddItem("Minimize", "m")
 	handlers := item.EventHandlers()
 	handlers.Add(event.SelectionType, func(evt event.Event) {
@@ -76,7 +76,7 @@ func AddWindowMenu() *Menu {
 
 // AddHelpMenu adds a standard 'Help' menu to the menu bar.
 func AddHelpMenu() *Menu {
-	helpMenu := Bar().AddMenu("Help")
+	helpMenu := MenuBar().AddMenu("Help")
 	SetHelpMenu(helpMenu)
 	return helpMenu
 }

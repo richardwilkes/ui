@@ -23,7 +23,7 @@ type Pastable interface {
 }
 
 // AddPasteItem adds the standard Paste menu item to the specified menu.
-func AddPasteItem(m *Menu) *Item {
+func AddPasteItem(m *Menu) *MenuItem {
 	item := m.AddItem(i18n.Text("Paste"), "v")
 	handlers := item.EventHandlers()
 	handlers.Add(event.SelectionType, func(evt event.Event) {

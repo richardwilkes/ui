@@ -18,25 +18,25 @@ import (
 import "C"
 
 // Item represents individual actions that can be issued from a Menu.
-type Item struct {
+type MenuItem struct {
 	item          C.platformMenuItem
 	eventHandlers *event.Handlers
 	title         string
 }
 
 // Title returns this item's title.
-func (item *Item) Title() string {
+func (item *MenuItem) Title() string {
 	return item.title
 }
 
-// SetKeyModifiers sets the Item's key equivalent modifiers. By default, a Item's modifier is set
-// to event.CommandKeyMask.
-func (item *Item) SetKeyModifiers(modifierMask event.KeyMask) {
+// SetKeyModifiers sets the MenuItem's key equivalent modifiers. By default, a MenuItem's modifier
+// is set to event.CommandKeyMask.
+func (item *MenuItem) SetKeyModifiers(modifierMask event.KeyMask) {
 	C.platformSetKeyModifierMask(item.item, C.int(modifierMask))
 }
 
-// SubMenu of this Item or nil.
-func (item *Item) SubMenu() *Menu {
+// SubMenu of this MenuItem or nil.
+func (item *MenuItem) SubMenu() *Menu {
 	if menu, ok := menuMap[C.platformGetSubMenu(item.item)]; ok {
 		return menu
 	}
@@ -44,7 +44,7 @@ func (item *Item) SubMenu() *Menu {
 }
 
 // EventHandlers implements the event.Target interface.
-func (item *Item) EventHandlers() *event.Handlers {
+func (item *MenuItem) EventHandlers() *event.Handlers {
 	if item.eventHandlers == nil {
 		item.eventHandlers = &event.Handlers{}
 	}
@@ -52,7 +52,7 @@ func (item *Item) EventHandlers() *event.Handlers {
 }
 
 // ParentTarget implements the event.Target interface.
-func (item *Item) ParentTarget() event.Target {
+func (item *MenuItem) ParentTarget() event.Target {
 	return &App
 }
 

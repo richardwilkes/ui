@@ -23,7 +23,7 @@ type Cutable interface {
 }
 
 // AddCutItem adds the standard Cut menu item to the specified menu.
-func AddCutItem(m *Menu) *Item {
+func AddCutItem(m *Menu) *MenuItem {
 	item := m.AddItem(i18n.Text("Cut"), "x")
 	handlers := item.EventHandlers()
 	handlers.Add(event.SelectionType, func(evt event.Event) {

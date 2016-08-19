@@ -23,7 +23,7 @@ type Deletable interface {
 }
 
 // AddDeleteItem adds the standard Delete menu item to the specified menu.
-func AddDeleteItem(m *Menu) *Item {
+func AddDeleteItem(m *Menu) *MenuItem {
 	item := m.AddItem(i18n.Text("Delete"), "\x08")
 	item.SetKeyModifiers(0)
 	handlers := item.EventHandlers()

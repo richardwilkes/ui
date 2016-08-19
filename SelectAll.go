@@ -23,7 +23,7 @@ type SelectAll interface {
 }
 
 // AddSelectAllItem adds the standard Select All menu item to the specified menu.
-func AddSelectAllItem(m *Menu) *Item {
+func AddSelectAllItem(m *Menu) *MenuItem {
 	item := m.AddItem(i18n.Text("Select All"), "a")
 	handlers := item.EventHandlers()
 	handlers.Add(event.SelectionType, func(evt event.Event) {

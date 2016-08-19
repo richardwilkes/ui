@@ -46,7 +46,7 @@ func createMenuBar() {
 	aboutItem.EventHandlers().Add(event.SelectionType, createAboutWindow)
 	prefsItem.EventHandlers().Add(event.SelectionType, createPreferencesWindow)
 
-	fileMenu := ui.Bar().AddMenu("File")
+	fileMenu := ui.MenuBar().AddMenu("File")
 	fileMenu.AddItem("Open", "o")
 	fileMenu.AddSeparator()
 	item := fileMenu.AddItem("Close", "w")
@@ -64,7 +64,7 @@ func createMenuBar() {
 		}
 	})
 
-	m := ui.Bar().AddMenu("Edit")
+	m := ui.MenuBar().AddMenu("Edit")
 	ui.AddCutItem(m)
 	ui.AddCopyItem(m)
 	ui.AddPasteItem(m)

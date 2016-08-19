@@ -21,7 +21,7 @@ import "C"
 
 var (
 	menuMap = make(map[C.platformMenu]*Menu)
-	itemMap = make(map[C.platformMenuItem]*Item)
+	itemMap = make(map[C.platformMenuItem]*MenuItem)
 )
 
 // Menu represents a set of menu items.
@@ -30,8 +30,8 @@ type Menu struct {
 	title string
 }
 
-// Bar returns the application menu bar.
-func Bar() *Menu {
+// MenuBar returns the application menu bar.
+func MenuBar() *Menu {
 	if menu, ok := menuMap[C.platformGetMainMenu()]; ok {
 		return menu
 	}
@@ -75,7 +75,7 @@ func (menu *Menu) Count() int {
 }
 
 // Item at the specified index, or nil.
-func (menu *Menu) Item(index int) *Item {
+func (menu *Menu) Item(index int) *MenuItem {
 	if item, ok := itemMap[C.platformGetMenuItem(menu.menu, C.int(index))]; ok {
 		return item
 	}
@@ -83,10 +83,10 @@ func (menu *Menu) Item(index int) *Item {
 }
 
 // AddItem creates a new Item and appends it to the end of the Menu.
-func (menu *Menu) AddItem(title string, key string) *Item {
+func (menu *Menu) AddItem(title string, key string) *MenuItem {
 	cTitle := C.CString(title)
 	cKey := C.CString(key)
-	item := &Item{item: C.platformAddMenuItem(menu.menu, cTitle, cKey), title: title}
+	item := &MenuItem{item: C.platformAddMenuItem(menu.menu, cTitle, cKey), title: title}
 	C.free(unsafe.Pointer(cTitle))
 	C.free(unsafe.Pointer(cKey))
 	itemMap[item.item] = item
@@ -103,13 +103,13 @@ func (menu *Menu) AddMenu(title string) *Menu {
 
 // AddSeparator creates a new separator and appends it to the end of the Menu.
 func (menu *Menu) AddSeparator() {
-	item := &Item{item: C.platformAddSeparator(menu.menu)}
+	item := &MenuItem{item: C.platformAddSeparator(menu.menu)}
 	itemMap[item.item] = item
 }
 
 // Popup shows the menu at the specified location. If itemAtLocation is specified, it also tries to
 // position the menu such that the specified menu item is at that location.
-func (menu *Menu) Popup(widget Widget, where geom.Point, itemAtLocation *Item) {
+func (menu *Menu) Popup(widget Widget, where geom.Point, itemAtLocation *MenuItem) {
 	where = widget.ToWindow(where)
 	C.platformPopupMenu(widget.Window().PlatformPtr(), menu.menu, C.float(where.X), C.float(where.Y), itemAtLocation.item)
 }

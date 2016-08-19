@@ -23,7 +23,7 @@ type Copyable interface {
 }
 
 // AddCopyItem adds the standard Copy menu item to the specified menu.
-func AddCopyItem(m *Menu) *Item {
+func AddCopyItem(m *Menu) *MenuItem {
 	item := m.AddItem(i18n.Text("Copy"), "c")
 	handlers := item.EventHandlers()
 	handlers.Add(event.SelectionType, func(evt event.Event) {
