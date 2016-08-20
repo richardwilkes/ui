@@ -29,12 +29,12 @@ func (f *Font) platformDispose() {
 
 func (f *Font) platformAscent() float32 {
 	// RAW: Implement platformAscent for Linux
-	return 0
+	return 14
 }
 
 func (f *Font) platformDescent() float32 {
 	// RAW: Implement platformDescent for Linux
-	return 0
+	return 2
 }
 
 func (f *Font) platformLeading() float32 {
@@ -44,7 +44,7 @@ func (f *Font) platformLeading() float32 {
 
 func (f *Font) platformWidth(str string) float32 {
 	// RAW: Implement platformWidth for Linux
-	return 0
+	return float32(8 * len(str))
 }
 
 func (f *Font) platformIndexForPosition(x float32, str string) int {
