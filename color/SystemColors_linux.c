@@ -17,18 +17,25 @@ unsigned int platformSystemColor(SystemColorId id) {
 			color = 0xFFECECEC;
 			break;
 		case platformKeyboardFocusColor:
+			color = 0xFFCCCCFF;
 			break;
 		case platformSelectedControlColor:
+			color = 0xFFEEEEFF;
 			break;
 		case platformSelectedControlTextColor:
+			color = 0xFF000000;
 			break;
 		case platformSelectedTextBackgroundColor:
+			color = 0xFF8888FF;
 			break;
 		case platformSelectedTextColor:
+			color = 0xFFFFFFFF;
 			break;
 		case platformTextBackgroundColor:
+			color = 0xFFFFFFFF;
 			break;
 		case platformTextColor:
+			color = 0xFF000000;
 			break;
 		default:
 			break;
