@@ -110,8 +110,8 @@ func (gc *graphics) platformClip() {
 	// RAW: Implement platformClip for Windows
 }
 
-func (gc *graphics) platformClipEvenOd() {
-	// RAW: Implement platformClipEvenOd for Windows
+func (gc *graphics) platformClipEvenOdd() {
+	// RAW: Implement platformClipEvenOdd for Windows
 }
 
 func (gc *graphics) platformClipRect(bounds geom.Rect) {
