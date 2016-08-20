@@ -11,7 +11,6 @@ package ui
 
 import (
 	"github.com/richardwilkes/ui/geom"
-	"unsafe"
 )
 
 func platformMenuBar() platformMenu {
