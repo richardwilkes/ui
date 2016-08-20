@@ -13,13 +13,9 @@ import (
 	"github.com/richardwilkes/ui/event"
 )
 
-// #cgo darwin LDFLAGS: -framework Cocoa
-// #include "Menu.h"
-import "C"
-
 // Item represents individual actions that can be issued from a Menu.
 type MenuItem struct {
-	item          C.platformMenuItem
+	item          platformMenuItem
 	eventHandlers *event.Handlers
 	title         string
 }
@@ -32,12 +28,12 @@ func (item *MenuItem) Title() string {
 // SetKeyModifiers sets the MenuItem's key equivalent modifiers. By default, a MenuItem's modifier
 // is set to event.CommandKeyMask.
 func (item *MenuItem) SetKeyModifiers(modifierMask event.KeyMask) {
-	C.platformSetKeyModifierMask(item.item, C.int(modifierMask))
+	item.platformSetKeyModifierMask(modifierMask)
 }
 
 // SubMenu of this MenuItem or nil.
 func (item *MenuItem) SubMenu() *Menu {
-	if menu, ok := menuMap[C.platformGetSubMenu(item.item)]; ok {
+	if menu, ok := menuMap[item.platformSubMenu()]; ok {
 		return menu
 	}
 	return nil
@@ -54,21 +50,4 @@ func (item *MenuItem) EventHandlers() *event.Handlers {
 // ParentTarget implements the event.Target interface.
 func (item *MenuItem) ParentTarget() event.Target {
 	return &App
-}
-
-//export validateMenuItem
-func validateMenuItem(cMenuItem C.platformMenuItem) bool {
-	if item, ok := itemMap[cMenuItem]; ok {
-		evt := event.NewValidate(item)
-		event.Dispatch(evt)
-		return evt.Valid()
-	}
-	return true
-}
-
-//export handleMenuItem
-func handleMenuItem(cMenuItem C.platformMenuItem) {
-	if item, ok := itemMap[cMenuItem]; ok {
-		event.Dispatch(event.NewSelection(item))
-	}
 }

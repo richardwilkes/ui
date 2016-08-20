@@ -7,22 +7,19 @@
 // This Source Code Form is "Incompatible With Secondary Licenses", as
 // defined by the Mozilla Public License, version 2.0.
 
-#include "Types.h"
-
 #ifndef __RW_GOUI_MENU__
 #define __RW_GOUI_MENU__
 
-platformMenu platformGetMainMenu();
-void platformSetMainMenu(platformMenu menuBar);
+#include "Types.h"
+
+platformMenu platformMenuBar();
+void platformSetMenuBar(platformMenu menuBar);
 platformMenu platformNewMenu(const char *title);
 void platformDisposeMenu(platformMenu menu);
 int platformMenuItemCount(platformMenu menu);
 platformMenuItem platformGetMenuItem(platformMenu menu, int index);
 platformMenuItem platformAddMenuItem(platformMenu menu, const char *title, const char *key);
 platformMenuItem platformAddSeparator(platformMenu menu);
-void platformSetKeyModifierMask(platformMenuItem item, int mask);
-platformMenu platformGetSubMenu(platformMenuItem item);
-void platformSetSubMenu(platformMenuItem item, platformMenu subMenu);
 void platformSetServicesMenu(platformMenu menu);
 void platformSetWindowMenu(platformMenu menu);
 void platformSetHelpMenu(platformMenu menu);

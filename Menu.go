@@ -11,57 +11,34 @@ package ui
 
 import (
 	"github.com/richardwilkes/ui/geom"
-	"unsafe"
 )
 
-// #cgo darwin LDFLAGS: -framework Cocoa
-// #include <stdlib.h>
-// #include "Menu.h"
-import "C"
-
 var (
-	menuMap = make(map[C.platformMenu]*Menu)
-	itemMap = make(map[C.platformMenuItem]*MenuItem)
+	menuMap = make(map[platformMenu]*Menu)
+	itemMap = make(map[platformMenuItem]*MenuItem)
 )
 
 // Menu represents a set of menu items.
 type Menu struct {
-	menu  C.platformMenu
+	menu  platformMenu
 	title string
 }
 
 // MenuBar returns the application menu bar.
 func MenuBar() *Menu {
-	if menu, ok := menuMap[C.platformGetMainMenu()]; ok {
+	if menu, ok := menuMap[platformMenuBar()]; ok {
 		return menu
 	}
 	menu := NewMenu("")
-	C.platformSetMainMenu(menu.menu)
+	menu.platformSetAsMenuBar()
 	return menu
 }
 
 // NewMenu creates a new Menu.
 func NewMenu(title string) *Menu {
-	cTitle := C.CString(title)
-	menu := &Menu{menu: C.platformNewMenu(cTitle), title: title}
-	C.free(unsafe.Pointer(cTitle))
+	menu := &Menu{menu: platformNewMenu(title), title: title}
 	menuMap[menu.menu] = menu
 	return menu
-}
-
-// SetServicesMenu marks the specified menu as the services menu.
-func SetServicesMenu(menu *Menu) {
-	C.platformSetServicesMenu(menu.menu)
-}
-
-// SetWindowMenu marks the specified menu as the window menu.
-func SetWindowMenu(menu *Menu) {
-	C.platformSetWindowMenu(menu.menu)
-}
-
-// SetHelpMenu marks the specified menu as the help menu.
-func SetHelpMenu(menu *Menu) {
-	C.platformSetHelpMenu(menu.menu)
 }
 
 // Title returns the title of this Menu.
@@ -71,12 +48,12 @@ func (menu *Menu) Title() string {
 
 // Count of Items in this Menu.
 func (menu *Menu) Count() int {
-	return int(C.platformMenuItemCount(menu.menu))
+	return menu.platformCount()
 }
 
 // Item at the specified index, or nil.
 func (menu *Menu) Item(index int) *MenuItem {
-	if item, ok := itemMap[C.platformGetMenuItem(menu.menu, C.int(index))]; ok {
+	if item, ok := itemMap[menu.platformItem(index)]; ok {
 		return item
 	}
 	return nil
@@ -84,11 +61,7 @@ func (menu *Menu) Item(index int) *MenuItem {
 
 // AddItem creates a new Item and appends it to the end of the Menu.
 func (menu *Menu) AddItem(title string, key string) *MenuItem {
-	cTitle := C.CString(title)
-	cKey := C.CString(key)
-	item := &MenuItem{item: C.platformAddMenuItem(menu.menu, cTitle, cKey), title: title}
-	C.free(unsafe.Pointer(cTitle))
-	C.free(unsafe.Pointer(cKey))
+	item := &MenuItem{item: menu.platformAddItem(title, key), title: title}
 	itemMap[item.item] = item
 	return item
 }
@@ -97,38 +70,51 @@ func (menu *Menu) AddItem(title string, key string) *MenuItem {
 func (menu *Menu) AddMenu(title string) *Menu {
 	item := menu.AddItem(title, "")
 	subMenu := NewMenu(title)
-	C.platformSetSubMenu(item.item, subMenu.menu)
+	item.platformSetSubMenu(subMenu)
 	return subMenu
 }
 
 // AddSeparator creates a new separator and appends it to the end of the Menu.
 func (menu *Menu) AddSeparator() {
-	item := &MenuItem{item: C.platformAddSeparator(menu.menu)}
+	item := &MenuItem{item: menu.platformAddSeparator()}
 	itemMap[item.item] = item
 }
 
 // Popup shows the menu at the specified location. If itemAtLocation is specified, it also tries to
 // position the menu such that the specified menu item is at that location.
 func (menu *Menu) Popup(widget Widget, where geom.Point, itemAtLocation *MenuItem) {
-	where = widget.ToWindow(where)
-	C.platformPopupMenu(widget.Window().PlatformPtr(), menu.menu, C.float(where.X), C.float(where.Y), itemAtLocation.item)
+	menu.platformPopup(widget, widget.ToWindow(where), itemAtLocation)
 }
 
 // Dispose of the Menu, releasing any operating system resources it consumed.
 func (menu *Menu) Dispose() {
 	if menu.menu != nil {
-		count := C.platformMenuItemCount(menu.menu)
-		var i C.int
-		for i = 0; i < count; i++ {
-			item := C.platformGetMenuItem(menu.menu, i)
-			subMenu := menuMap[C.platformGetSubMenu(item)]
-			if subMenu != nil {
-				subMenu.Dispose()
+		count := menu.platformCount()
+		for i := 0; i < count; i++ {
+			if item := menu.Item(i); item != nil {
+				if subMenu := menuMap[item.platformSubMenu()]; subMenu != nil {
+					subMenu.Dispose()
+				}
+				delete(itemMap, item.item)
 			}
-			delete(itemMap, item)
 		}
 		delete(menuMap, menu.menu)
-		C.platformDisposeMenu(menu.menu)
+		menu.platformDispose()
 		menu.menu = nil
 	}
+}
+
+// SetServicesMenu marks the specified menu as the services menu.
+func (menu *Menu) SetAsServicesMenu() {
+	menu.platformSetAsServicesMenu()
+}
+
+// SetWindowMenu marks the specified menu as the window menu.
+func (menu *Menu) SetAsWindowMenu() {
+	menu.platformSetAsWindowMenu()
+}
+
+// SetHelpMenu marks the specified menu as the help menu.
+func (menu *Menu) SetAsHelpMenu() {
+	menu.platformSetAsHelpMenu()
 }

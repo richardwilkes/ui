@@ -60,6 +60,10 @@ type platformEventType C.int
 
 type platformWindow C.platformWindow
 
+type platformMenu C.platformMenu
+
+type platformMenuItem C.platformMenuItem
+
 type platformRect C.platformRect
 
 func (r platformRect) toRect() geom.Rect {

@@ -9,7 +9,7 @@
 
 #include <Cocoa/Cocoa.h>
 #include "_cgo_export.h"
-#include "Menu.h"
+#include "Menu_darwin.h"
 
 @interface menuDelegate : NSObject
 @end
@@ -24,11 +24,11 @@
 }
 @end
 
-platformMenu platformGetMainMenu() {
+platformMenu platformMenuBar() {
     return (platformMenu)[NSApp mainMenu];
 }
 
-void platformSetMainMenu(platformMenu menuBar) {
+void platformSetMenuBar(platformMenu menuBar) {
     [NSApp setMainMenu:(NSMenu *)menuBar];
 }
 
@@ -62,23 +62,6 @@ platformMenuItem platformAddSeparator(platformMenu menu) {
     NSMenuItem *item = [NSMenuItem separatorItem];
     [((NSMenu *)menu) addItem:item];
     return item;
-}
-
-void platformSetKeyModifierMask(platformMenuItem item, int mask) {
-	// macOS uses the same modifier mask bit order as we do, but it is shifted up by 16 bits
-    [((NSMenuItem *)item) setKeyEquivalentModifierMask:mask << 16];
-}
-
-platformMenu platformGetSubMenu(platformMenuItem item) {
-    NSMenuItem *mitem = (NSMenuItem *)item;
-    if ([mitem hasSubmenu]) {
-        return (platformMenu)[mitem submenu];
-    }
-    return nil;
-}
-
-void platformSetSubMenu(platformMenuItem item, platformMenu subMenu) {
-    [((NSMenuItem *)item) setSubmenu: subMenu];
 }
 
 void platformSetServicesMenu(platformMenu menu) {

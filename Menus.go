@@ -21,7 +21,7 @@ func AddAppMenu() (appMenu *Menu, aboutItem *MenuItem, prefsItem *MenuItem) {
 	appMenu.AddSeparator()
 	prefsItem = appMenu.AddItem("Preferences…", ",")
 	appMenu.AddSeparator()
-	SetServicesMenu(appMenu.AddMenu("Services"))
+	appMenu.AddMenu("Services").SetAsServicesMenu()
 	appMenu.AddSeparator()
 	item := appMenu.AddItem("Hide "+name, "h")
 	item.EventHandlers().Add(event.SelectionType, func(evt event.Event) { HideApp() })
@@ -67,7 +67,7 @@ func AddWindowMenu() *Menu {
 			evt.(*event.Validate).MarkInvalid()
 		}
 	})
-	SetWindowMenu(windowMenu)
+	windowMenu.SetAsWindowMenu()
 	windowMenu.AddSeparator()
 	item = windowMenu.AddItem("Bring All to Front", "")
 	item.EventHandlers().Add(event.SelectionType, func(evt event.Event) { AllWindowsToFront() })
@@ -77,6 +77,6 @@ func AddWindowMenu() *Menu {
 // AddHelpMenu adds a standard 'Help' menu to the menu bar.
 func AddHelpMenu() *Menu {
 	helpMenu := MenuBar().AddMenu("Help")
-	SetHelpMenu(helpMenu)
+	helpMenu.SetAsHelpMenu()
 	return helpMenu
 }
