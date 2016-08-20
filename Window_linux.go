@@ -20,6 +20,8 @@ import (
 // #include <stdio.h>
 // #include <string.h>
 // #include <X11/Xlib.h>
+// #include <cairo/cairo.h>
+// #include <cairo/cairo-xlib.h>
 // #include "Types.h"
 import "C"
 
@@ -50,20 +52,26 @@ func platformHideCursorUntilMouseMoves() {
 	// RAW: Implement for Linux
 }
 
-func platformNewWindow(bounds geom.Rect, styleMask WindowStyleMask) platformWindow {
+func platformNewWindow(bounds geom.Rect, styleMask WindowStyleMask) (window platformWindow, surface platformSurface) {
 	screen := C.XDefaultScreen(xDisplay)
-	window := C.XCreateSimpleWindow(xDisplay, C.XRootWindow(xDisplay, screen), C.int(bounds.X), C.int(bounds.Y), C.uint(bounds.Width), C.uint(bounds.Height), 1, C.XBlackPixel(xDisplay, screen), C.XWhitePixel(xDisplay, screen))
-	C.XSelectInput(xDisplay, window, C.KeyPressMask|C.KeyReleaseMask|C.ButtonPressMask|C.ButtonReleaseMask|C.EnterWindowMask|C.LeaveWindowMask|C.ExposureMask|C.PointerMotionMask|C.ExposureMask|C.VisibilityChangeMask|C.StructureNotifyMask|C.FocusChangeMask)
-	C.XSetWMProtocols(xDisplay, window, &wmDeleteMessage, 1)
-	C.XMapWindow(xDisplay, window)
+	//	win := C.XCreateSimpleWindow(xDisplay, C.XRootWindow(xDisplay, screen), C.int(bounds.X), C.int(bounds.Y), C.uint(bounds.Width), C.uint(bounds.Height), 1, C.XBlackPixel(xDisplay, screen), C.XWhitePixel(xDisplay, screen))
+	//	win := C.XCreateSimpleWindow(xDisplay, C.XRootWindow(xDisplay, screen), C.int(bounds.X), C.int(bounds.Y), C.uint(bounds.Width), C.uint(bounds.Height), 0, 0, 0)
+	var windowAttributes C.XSetWindowAttributes
+	windowAttributes.background_pixmap = C.None
+	windowAttributes.backing_store = C.WhenMapped
+	win := C.XCreateWindow(xDisplay, C.XRootWindow(xDisplay, screen), C.int(bounds.X), C.int(bounds.Y), C.uint(bounds.Width), C.uint(bounds.Height), 0, C.CopyFromParent, C.InputOutput, nil, C.CWBackPixmap|C.CWBackingStore, &windowAttributes)
+	C.XSelectInput(xDisplay, win, C.KeyPressMask|C.KeyReleaseMask|C.ButtonPressMask|C.ButtonReleaseMask|C.EnterWindowMask|C.LeaveWindowMask|C.ExposureMask|C.PointerMotionMask|C.ExposureMask|C.VisibilityChangeMask|C.StructureNotifyMask|C.FocusChangeMask)
+	C.XSetWMProtocols(xDisplay, win, &wmDeleteMessage, 1)
+	C.XMapWindow(xDisplay, win)
 	// Move it back to the original location, as the window manager might have set it somewhere else
-	C.XMoveWindow(xDisplay, window, C.int(bounds.X), C.int(bounds.Y))
+	C.XMoveWindow(xDisplay, win, C.int(bounds.X), C.int(bounds.Y))
 	xWindowCount++
-	return toPlatformWindow(window)
+	return toPlatformWindow(win), platformSurface(C.cairo_xlib_surface_create(xDisplay, C.Drawable(uintptr(win)), C.XDefaultVisual(xDisplay, screen), C.int(bounds.Width), C.int(bounds.Height)))
 }
 
 func (window *Window) platformClose() {
 	xWindowCount--
+	C.cairo_surface_destroy(window.surface)
 	C.XDestroyWindow(xDisplay, toXWindow(window.window))
 }
 

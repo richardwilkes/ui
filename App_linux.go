@@ -16,8 +16,10 @@ import (
 	"unsafe"
 )
 
-// #cgo linux LDFLAGS: -lX11
+// #cgo linux LDFLAGS: -lX11 -lcairo
 // #include <X11/Xlib.h>
+// #include <cairo/cairo.h>
+// #include <cairo/cairo-xlib.h>
 import "C"
 
 var (
@@ -26,6 +28,7 @@ var (
 	xWindowCount    int
 	xDisplay        *C.Display
 	wmDeleteMessage C.Atom
+	quitting        bool
 )
 
 func platformStartUserInterface() {
@@ -103,27 +106,46 @@ func platformStartUserInterface() {
 			appWillResignActive()
 			appDidResignActive()
 		case C.Expose:
-			exposeEvent := (*C.XExposeEvent)(unsafe.Pointer(&event))
-			var values C.XGCValues
-			gc := C.XCreateGC(xDisplay, C.Drawable(uintptr(window)), 0, &values)
-			drawWindow(window, unsafe.Pointer(gc), platformRect{x: C.float(exposeEvent.x), y: C.float(exposeEvent.y), width: C.float(exposeEvent.width), height: C.float(exposeEvent.height)}, false)
-			C.XFreeGC(xDisplay, gc)
+			if win, ok := windowMap[window]; ok {
+				exposeEvent := (*C.XExposeEvent)(unsafe.Pointer(&event))
+				gc := unsafe.Pointer(C.cairo_create(win.surface))
+				C.cairo_set_line_width(gc, 1)
+				C.cairo_rectangle(gc, C.double(exposeEvent.x), C.double(exposeEvent.y), C.double(exposeEvent.width), C.double(exposeEvent.height))
+				C.cairo_clip(gc)
+				drawWindow(window, gc, platformRect{x: C.float(exposeEvent.x), y: C.float(exposeEvent.y), width: C.float(exposeEvent.width), height: C.float(exposeEvent.height)}, false)
+				C.cairo_destroy(gc)
+			}
 		case C.DestroyNotify:
 			windowDidClose(window)
-			if xWindowCount == 0 && appShouldQuitAfterLastWindowClosed() {
-				platformAttemptQuit()
+			if xWindowCount == 0 {
+				if quitting {
+					finishQuit()
+				}
+				if appShouldQuitAfterLastWindowClosed() {
+					platformAttemptQuit()
+				}
 			}
 		case C.ConfigureNotify:
-			windowResized(window)
+			var other C.XEvent
+			for C.XCheckTypedWindowEvent(xDisplay, anyEvent.window, C.ConfigureNotify, &other) != 0 {
+				// Swallow any other resize events for this window that have already made it into the queue, as they are redundant
+			}
+			if win, ok := windowMap[window]; ok {
+				win.ignoreRepaint = true
+				windowResized(window)
+				win.root.ValidateLayout()
+				win.ignoreRepaint = false
+				size := win.ContentFrame().Size
+				C.cairo_xlib_surface_set_size(win.surface, C.int(size.Width), C.int(size.Height))
+			}
 		case C.ClientMessage:
 			clientEvent := (*C.XClientMessageEvent)(unsafe.Pointer(&event))
 			data := (*C.Atom)(unsafe.Pointer(&clientEvent.data))
 			if *data == wmDeleteMessage {
 				if windowShouldClose(window) {
-					// RAW: Fix! Broke when I reorganized the Window code. For now, the next two lines do the same thing.
-					xWindowCount--
-					C.XDestroyWindow(xDisplay, clientEvent.window)
-					//platformCloseWindow(window)
+					if win, ok := windowMap[window]; ok {
+						win.Close()
+					}
 				}
 			} else {
 				// fmt.Println("Unhandled X11 ClientMessage")
@@ -132,6 +154,14 @@ func platformStartUserInterface() {
 			// fmt.Printf("Unhandled event (type %d)\n", anyEvent._type)
 		}
 	}
+}
+
+func paintWindow(pWindow platformWindow, gc unsafe.Pointer, x, y, width, height C.double, future bool) {
+	C.cairo_save(gc)
+	C.cairo_rectangle(gc, x, y, width, height)
+	C.cairo_clip(gc)
+	drawWindow(pWindow, gc, platformRect{x: C.float(x), y: C.float(y), width: C.float(width), height: C.float(height)}, false)
+	C.cairo_restore(gc)
 }
 
 func platformAppName() string {
@@ -157,7 +187,7 @@ func platformAttemptQuit() {
 	case QuitLater:
 		awaitingQuit = true
 	default:
-		quitNow()
+		initiateQuit()
 	}
 }
 
@@ -165,14 +195,24 @@ func platformAppMayQuitNow(quit bool) {
 	if awaitingQuit {
 		awaitingQuit = false
 		if quit {
-			quitNow()
+			initiateQuit()
 		}
 	}
 }
 
-func quitNow() {
+func initiateQuit() {
 	appWillQuit()
-	// RAW: Go through and tell each open window to close, ignoring any that refuse to.
+	quitting = true
+	if xWindowCount > 0 {
+		for _, w := range Windows() {
+			w.Close()
+		}
+	} else {
+		finishQuit()
+	}
+}
+
+func finishQuit() {
 	running = false
 	C.XCloseDisplay(xDisplay)
 	xDisplay = nil

@@ -40,6 +40,7 @@ enum {
 };
 
 typedef void *platformWindow;
+typedef void *platformSurface;
 typedef void *platformMenu;
 typedef void *platformMenuItem;
 

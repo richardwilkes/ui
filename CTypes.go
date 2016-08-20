@@ -60,6 +60,8 @@ type platformEventType C.int
 
 type platformWindow C.platformWindow
 
+type platformSurface C.platformSurface
+
 type platformMenu C.platformMenu
 
 type platformMenuItem C.platformMenuItem

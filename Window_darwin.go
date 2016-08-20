@@ -32,8 +32,8 @@ func platformHideCursorUntilMouseMoves() {
 	C.platformHideCursorUntilMouseMoves()
 }
 
-func platformNewWindow(bounds geom.Rect, styleMask WindowStyleMask) platformWindow {
-	return platformWindow(C.platformNewWindow(toCRect(bounds), C.int(styleMask)))
+func platformNewWindow(bounds geom.Rect, styleMask WindowStyleMask) (window platformWindow, surface platformSurface) {
+	return platformWindow(C.platformNewWindow(toCRect(bounds), C.int(styleMask))), nil
 }
 
 func (window *Window) platformClose() {

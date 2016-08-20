@@ -27,9 +27,9 @@ func platformHideCursorUntilMouseMoves() {
 	// RAW: Implement for Windows
 }
 
-func platformNewWindow(bounds geom.Rect, styleMask WindowStyleMask) platformWindow {
+func platformNewWindow(bounds geom.Rect, styleMask WindowStyleMask) (window platformWindow, surface platformSurface) {
 	// RAW: Implement for Windows
-	return nil
+	return nil, nil
 }
 
 func (window *Window) platformClose() {

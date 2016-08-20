@@ -23,6 +23,7 @@ import (
 // Window represents a window on the display.
 type Window struct {
 	window          platformWindow
+	surface         platformSurface // Currently only used by Linux
 	eventHandlers   *event.Handlers
 	root            Widget
 	focus           Widget
@@ -32,6 +33,7 @@ type Window struct {
 	style           WindowStyleMask
 	inMouseDown     bool
 	inLiveResize    bool
+	ignoreRepaint   bool // Currently only used by Linux
 }
 
 var (
@@ -42,6 +44,15 @@ var (
 // AllWindowsToFront attempts to bring all of the application's windows to the foreground.
 func AllWindowsToFront() {
 	platformBringAllWindowsToFront()
+}
+
+// Windows returns a slice containing the current set of open windows.
+func Windows() []*Window {
+	list := make([]*Window, 0, len(windowMap))
+	for _, w := range windowMap {
+		list = append(list, w)
+	}
+	return list
 }
 
 // KeyWindow returns the window that currently has the keyboard focus, or nil if none of your
@@ -61,7 +72,8 @@ func NewWindow(where geom.Point, styleMask WindowStyleMask) *Window {
 // NewWindowWithContentSize creates a new window at the specified location with the specified style and content size.
 func NewWindowWithContentSize(where geom.Point, contentSize geom.Size, styleMask WindowStyleMask) *Window {
 	bounds := geom.Rect{Point: where, Size: contentSize}
-	window := &Window{window: platformNewWindow(bounds, styleMask), style: styleMask}
+	win, surface := platformNewWindow(bounds, styleMask)
+	window := &Window{window: win, surface: surface, style: styleMask}
 	windowMap[window.window] = window
 	root := NewBlock()
 	root.SetBackground(color.Background)
@@ -236,14 +248,18 @@ func (window *Window) ToFront() {
 
 // Repaint marks this window for painting at the next update.
 func (window *Window) Repaint() {
-	window.platformRepaint(window.ContentLocalFrame())
+	if !window.ignoreRepaint {
+		window.platformRepaint(window.ContentLocalFrame())
+	}
 }
 
 // RepaintBounds marks the specified bounds within the window for painting at the next update.
 func (window *Window) RepaintBounds(bounds geom.Rect) {
-	bounds.Intersect(window.ContentLocalFrame())
-	if !bounds.IsEmpty() {
-		window.platformRepaint(bounds)
+	if !window.ignoreRepaint {
+		bounds.Intersect(window.ContentLocalFrame())
+		if !bounds.IsEmpty() {
+			window.platformRepaint(bounds)
+		}
 	}
 }
 
