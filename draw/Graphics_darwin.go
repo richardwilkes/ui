@@ -140,7 +140,7 @@ func (gc *graphics) platformClip() {
 	C.CGContextClip(gc.gc)
 }
 
-func (gc *graphics) platformClipEvenOd() {
+func (gc *graphics) platformClipEvenOdd() {
 	C.CGContextEOClip(gc.gc)
 }
 

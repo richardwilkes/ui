@@ -236,7 +236,7 @@ func (gc *graphics) Clip() {
 
 // ClipEvenOdd implements Graphics.
 func (gc *graphics) ClipEvenOdd() {
-	gc.platformClipEvenOd()
+	gc.platformClipEvenOdd()
 }
 
 // ClipRect implements Graphics.
