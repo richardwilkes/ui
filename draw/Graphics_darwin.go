@@ -87,10 +87,6 @@ func (gc *graphics) platformStrokePath() {
 	C.CGContextStrokePath(gc.gc)
 }
 
-func (gc *graphics) platformFillAndStrokePath() {
-	C.CGContextDrawPath(gc.gc, drawingModeFillStroke)
-}
-
 func (gc *graphics) platformBeginPath() {
 	C.CGContextBeginPath(gc.gc)
 }

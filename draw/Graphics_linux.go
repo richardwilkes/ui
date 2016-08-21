@@ -19,6 +19,11 @@ import (
 // #include <cairo/cairo.h>
 import "C"
 
+const (
+	oneThird  = 1.0 / 3.0
+	twoThirds = 2.0 / 3.0
+)
+
 func (gc *graphics) platformSave() {
 	C.cairo_save(gc.gc)
 }
@@ -86,11 +91,6 @@ func (gc *graphics) platformStrokePath() {
 	gc.platformSetFillColor(gc.FillColor())
 }
 
-func (gc *graphics) platformFillAndStrokePath() {
-	C.cairo_fill_preserve(gc.gc)
-	gc.platformStrokePath()
-}
-
 func (gc *graphics) platformBeginPath() {
 	C.cairo_new_path(gc.gc)
 }
@@ -126,11 +126,7 @@ func (gc *graphics) platformCurveTo(cp1x, cp1y, cp2x, cp2y, x, y float32) {
 func (gc *graphics) platformQuadCurveTo(cpx, cpy, x, y float32) {
 	var x0, y0 C.double
 	C.cairo_get_current_point(gc.gc, &x0, &y0)
-	x1 := C.double(cpx)
-	y1 := C.double(cpy)
-	xx := C.double(x)
-	yy := C.double(y)
-	C.cairo_curve_to(gc.gc, 2.0/3.0*x1+1.0/3.0*x0, 2.0/3.0*y1+1.0/3.0*y0, 2.0/3.0*x1+1.0/3.0*xx, 2.0/3.0*y1+1.0/3.0*yy, xx, yy)
+	gc.platformCurveTo(twoThirds*cpx+oneThird*float32(x0), twoThirds*cpy+oneThird*float32(y0), twoThirds*cpx+oneThird*x, twoThirds*cpy+oneThird*y, x, y)
 }
 
 func (gc *graphics) platformAddPath(path *geom.Path) {

@@ -66,10 +66,6 @@ func (gc *graphics) platformStrokePath() {
 	// RAW: Implement platformStrokePath for Windows
 }
 
-func (gc *graphics) platformFillAndStrokePath() {
-	// RAW: Implement platformFillAndStrokePath for Windows
-}
-
 func (gc *graphics) platformBeginPath() {
 	// RAW: Implement platformBeginPath for Windows
 }

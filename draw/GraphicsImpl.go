@@ -179,11 +179,6 @@ func (gc *graphics) StrokePath() {
 	gc.platformStrokePath()
 }
 
-// FillAndStrokePath implements Graphics.
-func (gc *graphics) FillAndStrokePath() {
-	gc.platformFillAndStrokePath()
-}
-
 // BeginPath implements Graphics.
 func (gc *graphics) BeginPath() {
 	gc.platformBeginPath()

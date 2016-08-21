@@ -61,8 +61,6 @@ type Graphics interface {
 	FillPathEvenOdd()
 	// StrokePath strokes the current path, then clears the current path state.
 	StrokePath()
-	// FillAndStrokePath fills and strokes the current path, then clears the current path state.
-	FillAndStrokePath()
 	// BeginPath creates a new empty path in the context.
 	BeginPath()
 	// ClosePath closes and terminates the current path’s subpath.
