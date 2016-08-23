@@ -156,3 +156,28 @@ func (c Color) Blend(other Color, pct float32) Color {
 	rem := 1 - pct
 	return RGBA(clamp0To1AndScale255(c.RedIntensity()*rem+other.RedIntensity()*pct), clamp0To1AndScale255(c.GreenIntensity()*rem+other.GreenIntensity()*pct), clamp0To1AndScale255(c.BlueIntensity()*rem+other.BlueIntensity()*pct), c.AlphaIntensity())
 }
+
+// Premultiply multiplies the color channels by the alpha channel.
+func (c Color) Premultiply() Color {
+	a := c >> 24
+	r := ((((c >> 16) & 0xFF) * a) >> 8) << 16
+	g := ((((c >> 8) & 0xFF) * a) >> 8) << 8
+	b := ((c & 0xFF) * a) >> 8
+	a <<= 24
+	return a | r | g | b
+}
+
+// Unpremultiply divides the color channels by the alpha channel, effectively undoing a Premultiply
+// call. Note that you will not necessarily get the original value back after calling Premultiply
+// followed by Unpremultiply.
+func (c Color) Unpremultiply() Color {
+	a := c >> 24
+	if a == 0 {
+		return 0
+	}
+	r := ((((c >> 16) & 0xFF) << 8) / a) << 16
+	g := ((((c >> 8) & 0xFF) << 8) / a) << 8
+	b := ((c & 0xFF) << 8) / a
+	a <<= 24
+	return a | r | g | b
+}
