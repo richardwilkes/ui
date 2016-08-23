@@ -145,7 +145,7 @@ func (b *Block) RepaintBounds(bounds geom.Rect) {
 }
 
 // Paint implements the Widget interface.
-func (b *Block) Paint(g draw.Graphics, dirty geom.Rect) {
+func (b *Block) Paint(g *draw.Graphics, dirty geom.Rect) {
 	dirty.Intersect(b.LocalBounds())
 	if !dirty.IsEmpty() {
 		b.paintSelf(g, dirty)
@@ -160,18 +160,18 @@ func (b *Block) Paint(g draw.Graphics, dirty geom.Rect) {
 	}
 }
 
-func (b *Block) paintSelf(gc draw.Graphics, dirty geom.Rect) {
+func (b *Block) paintSelf(gc *draw.Graphics, dirty geom.Rect) {
 	gc.Save()
 	gc.ClipRect(dirty)
 	if b.background.Alpha() > 0 {
-		gc.SetFillColor(b.background)
+		gc.SetColor(b.background)
 		gc.FillRect(dirty)
 	}
 	event.Dispatch(event.NewPaint(b, gc, dirty))
 	gc.Restore()
 }
 
-func (b *Block) paintBorder(gc draw.Graphics) {
+func (b *Block) paintBorder(gc *draw.Graphics) {
 	if border := b.Border(); border != nil {
 		gc.Save()
 		defer gc.Restore()
@@ -179,7 +179,7 @@ func (b *Block) paintBorder(gc draw.Graphics) {
 	}
 }
 
-func (b *Block) paintChild(child Widget, g draw.Graphics, dirty geom.Rect) {
+func (b *Block) paintChild(child Widget, g *draw.Graphics, dirty geom.Rect) {
 	g.Save()
 	defer g.Restore()
 	bounds := child.Bounds()

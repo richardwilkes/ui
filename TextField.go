@@ -81,9 +81,7 @@ func (field *TextField) Sizes(hint geom.Size) (min, pref, max geom.Size) {
 	} else {
 		text = "M"
 	}
-	size := field.Theme.Font.Size(text)
-	// Add the descent height to allow for a more balanced vertical look
-	size.Height += field.Theme.Font.Descent()
+	size := field.Theme.Font.Measure(text)
 	size.GrowToInteger()
 	size.ConstrainForHint(hint)
 	if border := field.Border(); border != nil {
@@ -99,49 +97,48 @@ func (field *TextField) paint(evt event.Event) {
 	gc.Save()
 	defer gc.Restore()
 	if field.invalid && field.Theme.InvalidBackgroundColor.Alpha() > 0 {
-		gc.SetFillColor(field.Theme.InvalidBackgroundColor)
+		gc.SetColor(field.Theme.InvalidBackgroundColor)
 		gc.FillRect(e.DirtyRect())
 	} else if !field.Enabled() && field.Theme.DisabledBackgroundColor.Alpha() > 0 {
-		gc.SetFillColor(field.Theme.DisabledBackgroundColor)
+		gc.SetColor(field.Theme.DisabledBackgroundColor)
 		gc.FillRect(e.DirtyRect())
 	}
 	gc.ClipRect(bounds)
 	gc.SetFont(field.Theme.Font)
-	descent := field.Theme.Font.Descent()
-	textTop := bounds.Y + (bounds.Height-(field.Theme.Font.Height()-descent))/2
+	textTop := bounds.Y + (bounds.Height-field.Theme.Font.Height())/2
 	if field.HasSelectionRange() {
 		left := bounds.X + field.scrollOffset
 		if field.selectionStart > 0 {
-			gc.SetFillColor(color.Text)
+			gc.SetColor(color.Text)
 			pre := string(field.runes[:field.selectionStart])
 			gc.DrawString(left, textTop, pre)
-			left += field.Theme.Font.Width(pre)
+			left += field.Theme.Font.Measure(pre).Width
 		}
 		mid := string(field.runes[field.selectionStart:field.selectionEnd])
-		right := bounds.X + field.Theme.Font.Width(string(field.runes[:field.selectionEnd])) + field.scrollOffset
-		selRect := geom.Rect{Point: geom.Point{X: left, Y: textTop - descent}, Size: geom.Size{Width: right - left, Height: field.Theme.Font.Height() + descent}}
+		right := bounds.X + field.Theme.Font.Measure(string(field.runes[:field.selectionEnd])).Width + field.scrollOffset
+		selRect := geom.Rect{Point: geom.Point{X: left, Y: textTop}, Size: geom.Size{Width: right - left, Height: field.Theme.Font.Height()}}
 		if field.Focused() {
-			gc.SetFillColor(color.SelectedTextBackground)
+			gc.SetColor(color.SelectedTextBackground)
 			gc.FillRect(selRect)
 		} else {
-			gc.SetStrokeColor(color.SelectedTextBackground)
+			gc.SetColor(color.SelectedTextBackground)
 			gc.SetStrokeWidth(2)
 			selRect.InsetUniform(0.5)
 			gc.StrokeRect(selRect)
 		}
-		gc.SetFillColor(color.SelectedText)
+		gc.SetColor(color.SelectedText)
 		gc.DrawString(left, textTop, mid)
 		if field.selectionStart < len(field.runes) {
-			gc.SetFillColor(color.Text)
+			gc.SetColor(color.Text)
 			gc.DrawString(right, textTop, string(field.runes[field.selectionEnd:]))
 		}
 	} else if len(field.runes) == 0 {
 		if field.watermark != "" {
-			gc.SetFillColor(color.Gray)
+			gc.SetColor(color.Gray)
 			gc.DrawString(bounds.X, textTop, field.watermark)
 		}
 	} else {
-		gc.SetFillColor(color.Text)
+		gc.SetColor(color.Text)
 		gc.DrawString(bounds.X+field.scrollOffset, textTop, string(field.runes))
 	}
 	if !field.HasSelectionRange() && field.Focused() {
@@ -152,9 +149,9 @@ func (field *TextField) paint(evt event.Event) {
 			} else {
 				cursorColor = color.White
 			}
-			x := bounds.X + field.Theme.Font.Width(string(field.runes[:field.selectionEnd])) + field.scrollOffset
-			gc.SetStrokeColor(cursorColor)
-			gc.StrokeLine(x, textTop-descent, x, textTop+field.Theme.Font.Height()+descent-1)
+			x := bounds.X + field.Theme.Font.Measure(string(field.runes[:field.selectionEnd])).Width + field.scrollOffset
+			gc.SetColor(cursorColor)
+			gc.StrokeLine(x, textTop, x, textTop+field.Theme.Font.Height()-1)
 		}
 		field.scheduleBlink()
 	}
@@ -168,12 +165,14 @@ func (field *TextField) scheduleBlink() {
 }
 
 func (field *TextField) blink() {
-	field.pending = false
-	if time.Now().After(field.forceShowUntil) {
-		field.showCursor = !field.showCursor
-		field.Repaint()
+	if field.Window().Valid() {
+		field.pending = false
+		if time.Now().After(field.forceShowUntil) {
+			field.showCursor = !field.showCursor
+			field.Repaint()
+		}
+		field.scheduleBlink()
 	}
-	field.scheduleBlink()
 }
 
 func (field *TextField) focusGained(evt event.Event) {

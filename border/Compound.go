@@ -35,7 +35,7 @@ func (c *Compound) Insets() geom.Insets {
 }
 
 // Draw implements the Border interface.
-func (c *Compound) Draw(gc draw.Graphics, bounds geom.Rect) {
+func (c *Compound) Draw(gc *draw.Graphics, bounds geom.Rect) {
 	for _, one := range c.borders {
 		gc.Save()
 		one.Draw(gc, bounds)

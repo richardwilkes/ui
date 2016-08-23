@@ -19,5 +19,5 @@ type Border interface {
 	// Insets returns the insets describing the space the border occupies on each side.
 	Insets() geom.Insets
 	// Draw the border into 'bounds'.
-	Draw(gc draw.Graphics, bounds geom.Rect)
+	Draw(gc *draw.Graphics, bounds geom.Rect)
 }

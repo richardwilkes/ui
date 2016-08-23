@@ -116,9 +116,9 @@ func (sb *ScrollBar) paint(evt event.Event) {
 	}
 	bgColor := sb.baseBackground(scrollBarNone)
 	gc := evt.(*event.Paint).GC()
-	gc.SetFillColor(bgColor)
+	gc.SetColor(bgColor)
 	gc.FillRect(bounds)
-	gc.SetStrokeColor(bgColor.AdjustBrightness(sb.Theme.OutlineAdjustment))
+	gc.SetColor(bgColor.AdjustBrightness(sb.Theme.OutlineAdjustment))
 	gc.StrokeRect(bounds)
 	sb.drawLineButton(gc, scrollBarLineDown)
 	if sb.pressed == scrollBarPageUp || sb.pressed == scrollBarPageDown {
@@ -131,7 +131,7 @@ func (sb *ScrollBar) paint(evt event.Event) {
 				bounds.X++
 				bounds.Width -= 2
 			}
-			gc.SetFillColor(sb.baseBackground(sb.pressed))
+			gc.SetColor(sb.baseBackground(sb.pressed))
 			gc.FillRect(bounds)
 		}
 	}
@@ -179,24 +179,26 @@ func (sb *ScrollBar) mouseUp(evt event.Event) {
 }
 
 func (sb *ScrollBar) scheduleRepeat(part scrollBarPart, delay time.Duration) {
-	current := sb.sequence
-	switch part {
-	case scrollBarLineUp:
-		sb.SetScrolledPosition(sb.Target.ScrolledPosition(sb.horizontal) - xmath.AbsFloat32(sb.Target.LineScrollAmount(sb.horizontal, true)))
-	case scrollBarLineDown:
-		sb.SetScrolledPosition(sb.Target.ScrolledPosition(sb.horizontal) + xmath.AbsFloat32(sb.Target.LineScrollAmount(sb.horizontal, false)))
-	case scrollBarPageUp:
-		sb.SetScrolledPosition(sb.Target.ScrolledPosition(sb.horizontal) - xmath.AbsFloat32(sb.Target.PageScrollAmount(sb.horizontal, true)))
-	case scrollBarPageDown:
-		sb.SetScrolledPosition(sb.Target.ScrolledPosition(sb.horizontal) + xmath.AbsFloat32(sb.Target.PageScrollAmount(sb.horizontal, false)))
-	default:
-		return
-	}
-	event.InvokeAfter(func() {
-		if current == sb.sequence && sb.pressed == part {
-			sb.scheduleRepeat(part, sb.Theme.RepeatDelay)
+	if sb.Window().Valid() {
+		current := sb.sequence
+		switch part {
+		case scrollBarLineUp:
+			sb.SetScrolledPosition(sb.Target.ScrolledPosition(sb.horizontal) - xmath.AbsFloat32(sb.Target.LineScrollAmount(sb.horizontal, true)))
+		case scrollBarLineDown:
+			sb.SetScrolledPosition(sb.Target.ScrolledPosition(sb.horizontal) + xmath.AbsFloat32(sb.Target.LineScrollAmount(sb.horizontal, false)))
+		case scrollBarPageUp:
+			sb.SetScrolledPosition(sb.Target.ScrolledPosition(sb.horizontal) - xmath.AbsFloat32(sb.Target.PageScrollAmount(sb.horizontal, true)))
+		case scrollBarPageDown:
+			sb.SetScrolledPosition(sb.Target.ScrolledPosition(sb.horizontal) + xmath.AbsFloat32(sb.Target.PageScrollAmount(sb.horizontal, false)))
+		default:
+			return
 		}
-	}, delay)
+		event.InvokeAfter(func() {
+			if current == sb.sequence && sb.pressed == part {
+				sb.scheduleRepeat(part, sb.Theme.RepeatDelay)
+			}
+		}, delay)
+	}
 }
 
 func (sb *ScrollBar) over(where geom.Point) scrollBarPart {
@@ -320,7 +322,7 @@ func (sb *ScrollBar) partRect(part scrollBarPart) geom.Rect {
 	return result
 }
 
-func (sb *ScrollBar) drawThumb(g draw.Graphics) {
+func (sb *ScrollBar) drawThumb(g *draw.Graphics) {
 	bounds := sb.partRect(scrollBarThumb)
 	if !bounds.IsEmpty() {
 		bgColor := sb.baseBackground(scrollBarThumb)
@@ -332,9 +334,9 @@ func (sb *ScrollBar) drawThumb(g draw.Graphics) {
 			g.DrawLinearGradient(sb.Theme.Gradient(bgColor), bounds.X, bounds.Y, bounds.X+bounds.Width, bounds.Y)
 		}
 		g.Restore()
-		g.SetStrokeColor(bgColor.AdjustBrightness(sb.Theme.OutlineAdjustment))
+		g.SetColor(bgColor.AdjustBrightness(sb.Theme.OutlineAdjustment))
 		g.StrokeRect(bounds)
-		g.SetStrokeColor(sb.markColor(scrollBarThumb))
+		g.SetColor(sb.markColor(scrollBarThumb))
 		var v0, v1, v2 float32
 		if sb.horizontal {
 			v0 = xmath.FloorFloat32(bounds.X + bounds.Width/2)
@@ -359,14 +361,14 @@ func (sb *ScrollBar) drawThumb(g draw.Graphics) {
 	}
 }
 
-func (sb *ScrollBar) drawLineButton(g draw.Graphics, linePart scrollBarPart) {
+func (sb *ScrollBar) drawLineButton(g *draw.Graphics, linePart scrollBarPart) {
 	bounds := sb.partRect(linePart)
 	g.Save()
 	g.ClipRect(bounds)
 	bgColor := sb.baseBackground(linePart)
 	g.DrawLinearGradient(sb.Theme.Gradient(bgColor), bounds.X, bounds.Y, bounds.X, bounds.Y+bounds.Height)
 	g.Restore()
-	g.SetStrokeColor(bgColor.AdjustBrightness(sb.Theme.OutlineAdjustment))
+	g.SetColor(bgColor.AdjustBrightness(sb.Theme.OutlineAdjustment))
 	g.StrokeRect(bounds)
 	bounds.InsetUniform(1)
 	if sb.horizontal {
@@ -399,7 +401,7 @@ func (sb *ScrollBar) drawLineButton(g draw.Graphics, linePart scrollBarPart) {
 		g.LineTo(left+(right-left)/2, bottom)
 	}
 	g.ClosePath()
-	g.SetFillColor(sb.markColor(linePart))
+	g.SetColor(sb.markColor(linePart))
 	g.FillPath()
 }
 

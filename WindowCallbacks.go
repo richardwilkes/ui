@@ -13,16 +13,17 @@ import (
 	"github.com/richardwilkes/ui/draw"
 	"github.com/richardwilkes/ui/event"
 	"unsafe"
+	// #cgo pkg-config: pangocairo
+	// #include <pango/pangocairo.h>
+	// #include <stdlib.h>
+	// #include "Types.h"
+	"C"
 )
 
-// #include <stdlib.h>
-// #include "Types.h"
-import "C"
-
 //export drawWindow
-func drawWindow(cWindow platformWindow, gc unsafe.Pointer, bounds platformRect, inLiveResize bool) {
+func drawWindow(cWindow platformWindow, gc *C.cairo_t, bounds platformRect, inLiveResize bool) {
 	if window, ok := windowMap[cWindow]; ok {
-		window.paint(draw.NewGraphics(gc), bounds.toRect(), inLiveResize)
+		window.paint(draw.NewGraphics(draw.CairoContext(unsafe.Pointer(gc))), bounds.toRect(), inLiveResize)
 	}
 }
 

@@ -30,6 +30,6 @@ func (e *Empty) Insets() geom.Insets {
 }
 
 // Draw implements the Border interface.
-func (e *Empty) Draw(gc draw.Graphics, bounds geom.Rect) {
+func (e *Empty) Draw(gc *draw.Graphics, bounds geom.Rect) {
 	// Does nothing
 }

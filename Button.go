@@ -11,6 +11,7 @@ package ui
 
 import (
 	"github.com/richardwilkes/ui/color"
+	"github.com/richardwilkes/ui/draw"
 	"github.com/richardwilkes/ui/event"
 	"github.com/richardwilkes/ui/geom"
 	"github.com/richardwilkes/ui/keys"
@@ -60,7 +61,7 @@ func (button *Button) Sizes(hint geom.Size) (min, pref, max geom.Size) {
 			hint.Height = 1
 		}
 	}
-	size := button.Theme.Font.Size(button.Title)
+	size := button.Theme.Font.Measure(button.Title)
 	size.GrowToInteger()
 	size.ConstrainForHint(hint)
 	size.Width += hSpace
@@ -75,7 +76,7 @@ func (button *Button) paint(evt event.Event) {
 	var hSpace = button.Theme.HorizontalMargin*2 + 2
 	var vSpace = button.Theme.VerticalMargin*2 + 2
 	bounds := button.LocalInsetBounds()
-	path := geom.NewPath()
+	path := draw.NewPath()
 	path.MoveTo(bounds.X, bounds.Y+button.Theme.CornerRadius)
 	path.QuadCurveTo(bounds.X, bounds.Y, bounds.X+button.Theme.CornerRadius, bounds.Y)
 	path.LineTo(bounds.X+bounds.Width-button.Theme.CornerRadius, bounds.Y)
@@ -91,15 +92,16 @@ func (button *Button) paint(evt event.Event) {
 	base := button.BaseBackground()
 	gc.DrawLinearGradient(button.Theme.Gradient(base), bounds.X+bounds.Width/2, bounds.Y+1, bounds.X+bounds.Width/2, bounds.Y+bounds.Height-1)
 	gc.AddPath(path)
-	gc.SetStrokeColor(base.AdjustBrightness(button.Theme.OutlineAdjustment))
+	gc.SetColor(base.AdjustBrightness(button.Theme.OutlineAdjustment))
 	gc.StrokePath()
 	bounds.X += button.Theme.HorizontalMargin + 1
 	bounds.Y += button.Theme.VerticalMargin + 1
 	bounds.Width -= hSpace
 	bounds.Height -= vSpace
-	gc.SetFillColor(button.TextColor())
+	size := button.Theme.Font.Measure(button.Title)
+	gc.SetColor(button.TextColor())
 	gc.SetFont(button.Theme.Font)
-	gc.DrawString(bounds.X+(bounds.Width-button.Theme.Font.Width(button.Title))/2, bounds.Y+(bounds.Height-button.Theme.Font.Height())/2, button.Title)
+	gc.DrawString(bounds.X+(bounds.Width-size.Width)/2, bounds.Y+(bounds.Height-size.Height)/2, button.Title)
 }
 
 func (button *Button) mouseDown(evt event.Event) {

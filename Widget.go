@@ -54,7 +54,7 @@ type Widget interface {
 	// Paint is called by its owning window when a widget needs to be drawn. 'g' is the graphics
 	// context to use. It has already had its clip set to the 'dirty' rectangle. 'dirty' is the
 	// area that needs to be drawn.
-	Paint(g draw.Graphics, dirty geom.Rect)
+	Paint(g *draw.Graphics, dirty geom.Rect)
 
 	// Enabled returns true if this widget is currently enabled and can receive events.
 	Enabled() bool

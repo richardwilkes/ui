@@ -10,14 +10,20 @@
 package draw
 
 import (
-	"fmt"
 	"github.com/richardwilkes/errs"
 	"github.com/richardwilkes/ui/color"
 	"github.com/richardwilkes/ui/geom"
+	"image"
+	_ "image/gif"
+	_ "image/jpeg"
+	_ "image/png"
+	"io"
 	"net/http"
-	"os"
 	"sync"
 	"unsafe"
+	// #cgo pkg-config: pangocairo
+	// #include <cairo.h>
+	"C"
 )
 
 type imgRef struct {
@@ -34,7 +40,8 @@ type fsKey struct {
 type Image struct {
 	id         int
 	disabledID int
-	size       geom.Size
+	width      int
+	height     int
 	img        unsafe.Pointer
 	key        interface{}
 }
@@ -52,65 +59,67 @@ var (
 	imageRegistry     = make(map[interface{}]*imgRef)
 )
 
+func loadFromStream(key interface{}, stream io.ReadCloser) (ref *imgRef, err error) {
+	defer stream.Close()
+	var simg image.Image
+	if simg, _, err = image.Decode(stream); err != nil {
+		return nil, errs.Wrap(err)
+	}
+	bounds := simg.Bounds()
+	cimg := C.cairo_image_surface_create(C.CAIRO_FORMAT_ARGB32, C.int(bounds.Dx()), C.int(bounds.Dy()))
+	stride := int(C.cairo_image_surface_get_stride(cimg)) / 4
+	pixels := (*[1 << 30]color.Color)(unsafe.Pointer(C.cairo_image_surface_get_data(cimg)))
+	for y := bounds.Min.Y; y < bounds.Max.Y; y++ {
+		for x := bounds.Min.X; x < bounds.Max.X; x++ {
+			r, g, b, a := simg.At(x, y).RGBA()
+			pixels[(y-bounds.Min.Y)*stride+(x-bounds.Min.X)] = color.RGBA(int(r>>8), int(g>>8), int(b>>8), float32(a>>8)/255)
+		}
+	}
+	C.cairo_surface_mark_dirty(cimg)
+	ref = &imgRef{img: &Image{id: nextImageID, width: bounds.Dx(), height: bounds.Dy(), img: unsafe.Pointer(cimg), key: key}}
+	nextImageID++
+	return ref, nil
+}
+
 // AcquireImageFromFile attempts to load an image from the file system.
-func AcquireImageFromFile(fs http.FileSystem, path string) (img *Image, e error) {
+func AcquireImageFromFile(fs http.FileSystem, path string) (img *Image, err error) {
 	imageRegistryLock.Lock()
 	defer imageRegistryLock.Unlock()
-	var r *imgRef
+	var ref *imgRef
 	var ok bool
-	k := fsKey{fs: fs, path: path}
-	if r, ok = imageRegistry[k]; !ok {
+	key := fsKey{fs: fs, path: path}
+	if ref, ok = imageRegistry[key]; !ok {
 		var file http.File
-		if file, e = fs.Open(path); e != nil {
-			return nil, errs.Wrap(e)
+		if file, err = fs.Open(path); err != nil {
+			return nil, errs.Wrap(err)
 		}
-		defer file.Close()
-		var fi os.FileInfo
-		if fi, e = file.Stat(); e != nil {
-			return nil, errs.Wrap(e)
+		if ref, err = loadFromStream(key, file); err != nil {
+			return nil, err
 		}
-		size := int(fi.Size())
-		buffer := make([]byte, size)
-		var n int
-		if n, e = file.Read(buffer); e != nil {
-			return nil, errs.Wrap(e)
-		}
-		if n != size {
-			return nil, errs.New(fmt.Sprintf("Read %d bytes from file, expected %d", n, size))
-		}
-		img := platformNewImageFromBytes(buffer)
-		if img == nil {
-			return nil, errs.New(fmt.Sprintf("Unable to load image from %s", path))
-		}
-		img.key = k
-		img.id = nextImageID
-		nextImageID++
-		r = &imgRef{img: img}
-		imageRegistry[img.key] = r
+		imageRegistry[key] = ref
 	}
-	r.count++
-	return r.img, nil
+	ref.count++
+	return ref.img, nil
 }
 
 // AcquireImageFromURL attempts to load an image from a URL.
-func AcquireImageFromURL(url string) (img *Image, e error) {
+func AcquireImageFromURL(url string) (img *Image, err error) {
 	imageRegistryLock.Lock()
 	defer imageRegistryLock.Unlock()
-	var r *imgRef
+	var ref *imgRef
 	var ok bool
-	if r, ok = imageRegistry[url]; !ok {
-		img := platformNewImageFromURL(url)
-		if img == nil {
-			return nil, errs.New(fmt.Sprintf("Unable to load image from %s", url))
+	if ref, ok = imageRegistry[url]; !ok {
+		var resp *http.Response
+		if resp, err = http.Get(url); err != nil {
+			return nil, errs.Wrap(err)
 		}
-		img.key = url
-		img.id = nextImageID
-		nextImageID++
-		r = &imgRef{img: img}
-		imageRegistry[img.key] = r
+		if ref, err = loadFromStream(url, resp.Body); err != nil {
+			return nil, err
+		}
+		imageRegistry[url] = ref
 	}
-	r.count++
-	return r.img, nil
+	ref.count++
+	return ref.img, nil
 }
 
 // AcquireImageFromID attempts to find an already loaded image by its ID and return it. Returns nil
@@ -126,37 +135,27 @@ func AcquireImageFromID(id int) *Image {
 }
 
 // AcquireImageFromData creates a new image from the specified data.
-func AcquireImageFromData(data *ImageData) (img *Image, e error) {
-	img = platformNewImageFromData(data)
-	if img == nil {
-		return nil, errs.New("Unable to load image from data")
+func AcquireImageFromData(data *ImageData) (img *Image, err error) {
+	cimg := C.cairo_image_surface_create(C.CAIRO_FORMAT_ARGB32, C.int(data.Width), C.int(data.Height))
+	stride := int(C.cairo_image_surface_get_stride(cimg)) / 4
+	pixels := (*[1 << 30]color.Color)(unsafe.Pointer(C.cairo_image_surface_get_data(cimg)))
+	for y := 0; y < data.Height; y++ {
+		for x := 0; x < data.Width; x++ {
+			pixels[y*stride+x] = data.Pixels[y*data.Width+x].Premultiply()
+		}
 	}
+	C.cairo_surface_mark_dirty(cimg)
 	imageRegistryLock.Lock()
 	defer imageRegistryLock.Unlock()
-	img.id = nextImageID
-	img.key = nextImageID
+	ref := &imgRef{img: &Image{id: nextImageID, width: data.Width, height: data.Height, img: unsafe.Pointer(cimg), key: nextImageID}, count: 1}
+	imageRegistry[nextImageID] = ref
 	nextImageID++
-	r := &imgRef{img: img}
-	imageRegistry[img.key] = r
-	r.count++
-	return img, nil
+	return ref.img, nil
 }
 
-// AcquireImageBounds creates a new image from a region within this image.
-func (img *Image) AcquireImageBounds(bounds geom.Rect) (image *Image, e error) {
-	image = platformNewImageFromImage(img, bounds)
-	if image == nil {
-		return nil, errs.New("Unable to create image")
-	}
-	imageRegistryLock.Lock()
-	defer imageRegistryLock.Unlock()
-	image.id = nextImageID
-	image.key = nextImageID
-	nextImageID++
-	r := &imgRef{img: image}
-	imageRegistry[image.key] = r
-	r.count++
-	return image, nil
+// AcquireImageArea creates a new image from an area within this image.
+func (img *Image) AcquireImageArea(bounds geom.Rect) (image *Image, err error) {
+	return AcquireImageFromData(img.DataFromArea(bounds))
 }
 
 // AcquireDisabled returns an image based on this image which is desaturated and ghosted to
@@ -185,12 +184,46 @@ func (img *Image) ID() int {
 
 // Size returns the size of the image.
 func (img *Image) Size() geom.Size {
-	return img.size
+	return geom.Size{Width: float32(img.width), Height: float32(img.height)}
 }
 
 // Data extracts the raw image data.
 func (img *Image) Data() *ImageData {
-	return img.platformData()
+	data := &ImageData{Width: img.width, Height: img.height, Pixels: make([]color.Color, img.width*img.height)}
+	stride := int(C.cairo_image_surface_get_stride(img.img)) / 4
+	pixels := (*[1 << 30]color.Color)(unsafe.Pointer(C.cairo_image_surface_get_data(img.img)))
+	for y := 0; y < img.height; y++ {
+		for x := 0; x < img.width; x++ {
+			data.Pixels[y*img.width+x] = pixels[y*stride+x].Unpremultiply()
+		}
+	}
+	return data
+}
+
+// DataFromArea extracts the raw image data from an area within an image.
+func (img *Image) DataFromArea(bounds geom.Rect) *ImageData {
+	width := int(bounds.Width)
+	height := int(bounds.Height)
+	data := &ImageData{Width: width, Height: height, Pixels: make([]color.Color, width*height)}
+	stride := int(C.cairo_image_surface_get_stride(img.img)) / 4
+	pixels := (*[1 << 30]color.Color)(unsafe.Pointer(C.cairo_image_surface_get_data(img.img)))
+	baseX := int(bounds.X)
+	baseY := int(bounds.Y)
+	outsidePixel := color.RGBA(0, 0, 0, 0)
+	for y := 0; y < height; y++ {
+		yy := y + baseY
+		for x := 0; x < width; x++ {
+			var pixel color.Color
+			xx := x + baseX
+			if xx < 0 || xx >= img.width || yy < 0 || yy >= img.height {
+				pixel = outsidePixel
+			} else {
+				pixel = pixels[yy*stride+xx].Unpremultiply()
+			}
+			data.Pixels[y*width+x] = pixel
+		}
+	}
+	return data
 }
 
 // PlatformPtr returns a pointer to the underlying platform-specific data.
@@ -211,6 +244,6 @@ func (img *Image) Release() {
 		delete(imageRegistry, img.key)
 	}
 	if img.img != nil {
-		img.platformDispose()
+		C.cairo_surface_destroy(img.img)
 	}
 }

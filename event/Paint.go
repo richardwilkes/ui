@@ -20,7 +20,7 @@ import (
 // Paint is generated when a widget needs to be drawn.
 type Paint struct {
 	target   Target
-	gc       draw.Graphics
+	gc       *draw.Graphics
 	dirty    geom.Rect
 	finished bool
 }
@@ -28,7 +28,7 @@ type Paint struct {
 // NewPaint creates a new Paint event. 'target' is the widget to be painted. 'gc' is a graphics
 // context setup for drawing into the widget. 'dirty' is the area within the widget that needs to
 // be redrawn.
-func NewPaint(target Target, gc draw.Graphics, dirty geom.Rect) *Paint {
+func NewPaint(target Target, gc *draw.Graphics, dirty geom.Rect) *Paint {
 	return &Paint{target: target, gc: gc, dirty: dirty}
 }
 
@@ -58,7 +58,7 @@ func (e *Paint) Finish() {
 }
 
 // GC returns the graphics context to use when drawing the widget.
-func (e *Paint) GC() draw.Graphics {
+func (e *Paint) GC() *draw.Graphics {
 	return e.gc
 }
 

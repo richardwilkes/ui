@@ -11,6 +11,7 @@ package ui
 
 import (
 	"github.com/richardwilkes/ui/color"
+	"github.com/richardwilkes/ui/draw"
 	"github.com/richardwilkes/ui/event"
 	"github.com/richardwilkes/ui/geom"
 	"github.com/richardwilkes/ui/keys"
@@ -56,10 +57,14 @@ func NewCheckBox(title string) *CheckBox {
 	return checkbox
 }
 
+func (checkbox *CheckBox) BoxSize() float32 {
+	return xmath.CeilFloat32(checkbox.Theme.Font.Ascent() + checkbox.Theme.Font.Descent())
+}
+
 // Sizes implements Sizer
 func (checkbox *CheckBox) Sizes(hint geom.Size) (min, pref, max geom.Size) {
 	var size geom.Size
-	box := xmath.CeilFloat32(checkbox.Theme.Font.Ascent())
+	box := checkbox.BoxSize()
 	if checkbox.Title != "" {
 		if hint.Width != NoHint {
 			hint.Width -= checkbox.Theme.HorizontalGap + box
@@ -72,7 +77,7 @@ func (checkbox *CheckBox) Sizes(hint geom.Size) (min, pref, max geom.Size) {
 				hint.Height = 1
 			}
 		}
-		size = checkbox.Theme.Font.Size(checkbox.Title)
+		size = checkbox.Theme.Font.Measure(checkbox.Title)
 		size.GrowToInteger()
 		size.ConstrainForHint(hint)
 		size.Width += checkbox.Theme.HorizontalGap + box
@@ -90,12 +95,12 @@ func (checkbox *CheckBox) Sizes(hint geom.Size) (min, pref, max geom.Size) {
 }
 
 func (checkbox *CheckBox) paint(evt event.Event) {
-	box := xmath.CeilFloat32(checkbox.Theme.Font.Ascent())
+	box := checkbox.BoxSize()
 	bounds := checkbox.LocalInsetBounds()
 	bounds.Width = box
 	bounds.Y += (bounds.Height - box) / 2
 	bounds.Height = box
-	path := geom.NewPath()
+	path := draw.NewPath()
 	path.MoveTo(bounds.X, bounds.Y+checkbox.Theme.CornerRadius)
 	path.QuadCurveTo(bounds.X, bounds.Y, bounds.X+checkbox.Theme.CornerRadius, bounds.Y)
 	path.LineTo(bounds.X+bounds.Width-checkbox.Theme.CornerRadius, bounds.Y)
@@ -113,23 +118,23 @@ func (checkbox *CheckBox) paint(evt event.Event) {
 	if checkbox.Enabled() {
 		gc.DrawLinearGradient(checkbox.Theme.Gradient(base), bounds.X+bounds.Width/2, bounds.Y+1, bounds.X+bounds.Width/2, bounds.Y+bounds.Height-1)
 	} else {
-		gc.SetFillColor(color.Background)
+		gc.SetColor(color.Background)
 		gc.FillRect(bounds)
 	}
 	gc.AddPath(path)
-	gc.SetStrokeColor(base.AdjustBrightness(checkbox.Theme.OutlineAdjustment))
+	gc.SetColor(base.AdjustBrightness(checkbox.Theme.OutlineAdjustment))
 	gc.StrokePath()
 	gc.Restore()
 	switch checkbox.state {
 	case Mixed:
 		gc.Save()
-		gc.SetStrokeColor(checkbox.stateColor(base))
+		gc.SetColor(checkbox.stateColor(base))
 		gc.SetStrokeWidth(2)
 		gc.StrokeLine(bounds.X+bounds.Width*0.25, bounds.Y+bounds.Height*0.5, bounds.X+bounds.Width*0.7, bounds.Y+bounds.Height*0.5)
 		gc.Restore()
 	case Checked:
 		gc.Save()
-		gc.SetStrokeColor(checkbox.stateColor(base))
+		gc.SetColor(checkbox.stateColor(base))
 		gc.SetStrokeWidth(2)
 		gc.BeginPath()
 		gc.MoveTo(bounds.X+bounds.Width*0.25, bounds.Y+bounds.Height*0.55)
@@ -142,7 +147,7 @@ func (checkbox *CheckBox) paint(evt event.Event) {
 		bounds = checkbox.LocalInsetBounds()
 		if bounds.Width-(box+checkbox.Theme.HorizontalGap) > 0 {
 			gc.SetFont(checkbox.Theme.Font)
-			gc.SetFillColor(checkbox.TextColor())
+			gc.SetColor(checkbox.TextColor())
 			gc.DrawString(bounds.X+box+checkbox.Theme.HorizontalGap, bounds.Y, checkbox.Title)
 		}
 	}

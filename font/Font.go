@@ -10,265 +10,260 @@
 package font
 
 import (
-	"bytes"
-	"fmt"
 	"github.com/richardwilkes/ui/geom"
-	"sort"
 	"unsafe"
+	// #cgo pkg-config: pangocairo
+	// #include <pango/pangocairo.h>
+	"C"
 )
 
 const (
-	// Bold when set, indicates the font will be rendered as bold.
-	Bold Style = 1 << iota
-	// ActualBold when set, indicates the font is actually bold.
-	ActualBold
-	// Italic when set, indicates the font will be rendered as italic.
-	Italic
-	// ActualItalic when set, indicates the font is actually italic.
-	ActualItalic
-	// Condensed when set, indicates the font will be rendered with less spacing than normal
-	// between its characters. Cannot be set at the same time as Expanded.
-	Condensed
-	// Expanded when set, indicates the font will be rendered with more spacing than normal
-	// between its characters. Cannot be set at the same time as Condensed.
-	Expanded
-	// Monospaced when set, indicates the font has a uniform width for each character.
-	Monospaced
-	// UserSettable contains the masks that can be set by a client.
-	// All other bits will be ignored when the font is created.
-	UserSettable = Bold | Italic | Condensed | Expanded
+	// PangoScale is a constant used by the Pango font engine.
+	PangoScale = float32(C.PANGO_SCALE)
 )
 
-const (
-	userID = iota
-	userMonospacedID
-	systemID
-	emphasizedSystemID
-	smallSystemID
-	smallEmphasizedSystemID
-	viewsID
-	labelID
-	menuID
-	menuCmdKeyID
+var (
+	surface = C.cairo_image_surface_create(C.CAIRO_FORMAT_ARGB32, 8, 8)
+	context = C.pango_font_map_create_context(C.pango_cairo_font_map_get_default())
 )
 
-// Style holds the style flags for a Font.
-type Style uint8
-
-// Font holds font information.
+// Font represents a font.
 type Font struct {
-	font unsafe.Pointer
-	desc Desc
+	pfd           *C.PangoFontDescription
+	leading       float32
+	ascent        float32
+	descent       float32
+	monospaced    uint8
+	metricsLoaded bool
 }
 
-// Desc holds information necessary to reconstruct a Font.
-type Desc struct {
-	Family string  // Family name of the Font, such as "Times New Roman".
-	Size   float32 // Size of the font, in points.
-	Style  Style   // Style flags.
+func init() {
+	// Tell Pango we want our typographic points to be 1/72 of an inch.
+	C.pango_cairo_font_map_set_resolution(C.pango_cairo_font_map_get_default(), 72)
 }
 
-type fontRegistry struct {
-	font  *Font
-	count int
+// NewFont creates a font from a string.
+func NewFont(str string) *Font {
+	cstr := C.CString(str)
+	defer C.g_free(cstr)
+	return &Font{pfd: C.pango_font_description_from_string(cstr)}
 }
 
-var (
-	descToRegMap  = make(map[Desc]*fontRegistry, 0)
-	fontToDescMap = make(map[*Font]Desc, 0)
-)
+// Copy makes a copy of a font.
+func (d *Font) Copy() *Font {
+	desc := &Font{}
+	*desc = *d
+	desc.pfd = C.pango_font_description_copy(d.pfd)
+	return desc
+}
 
-var (
-	// UserDesc is the font used by default for documents and other text under the user’s control
-	// (that is, text whose font the user can normally change).
-	UserDesc = platformDesc(userID)
-	// UserMonospacedDesc is the font used by default for documents and other text under the user’s
-	// control when that font is fixed-pitch.
-	UserMonospacedDesc = platformDesc(userMonospacedID)
-	// SystemDesc is the system font used for standard user-interface items such as window titles,
-	// button labels, etc.
-	SystemDesc = platformDesc(systemID)
-	// EmphasizedSystemDesc is the system font used for emphasis in alerts.
-	EmphasizedSystemDesc = platformDesc(emphasizedSystemID)
-	// SmallSystemDesc is the standard small system font used for informative text in alerts,
-	// column headings in lists, help tags, utility window titles, toolbar item labels, tool
-	// palettes, tool tips, and small controls.
-	SmallSystemDesc = platformDesc(smallSystemID)
-	// SmallEmphasizedSystemDesc is the small system font used for emphasis.
-	SmallEmphasizedSystemDesc = platformDesc(smallEmphasizedSystemID)
-	// ViewsDesc is the font used as the default font of text in lists and tables.
-	ViewsDesc = platformDesc(viewsID)
-	// LabelDesc is the font used for labels.
-	LabelDesc = platformDesc(labelID)
-	// MenuDesc is the font used for menus.
-	MenuDesc = platformDesc(menuID)
-	// MenuCmdKeyDesc is the font used for menu item command key equivalents.
-	MenuCmdKeyDesc = platformDesc(menuCmdKeyID)
-)
+// Dispose of the underlying OS resources.
+func (d *Font) Dispose() {
+	C.pango_font_description_free(d.pfd)
+	d.pfd = nil
+}
 
-// Acquire a font and prepares it for use.
-func Acquire(desc Desc) *Font {
-	var reg *fontRegistry
-	var ok bool
-	if reg, ok = descToRegMap[desc]; !ok {
-		reg = &fontRegistry{font: platformNewFont(desc)}
-		descToRegMap[desc] = reg
-		fontToDescMap[reg.font] = desc
+// PangeFontDescription returns the pointer to the underlying Pango font description.
+func (d *Font) PangoFontDescription() unsafe.Pointer {
+	return unsafe.Pointer(d.pfd)
+}
+
+// Equals compares two fonts for equality. Two fonts are considered equal if the fonts they
+// describe are provably identical. This means that their masks do not have to match, as long as
+// other fields are all the same. Two fonts may result in identical fonts being loaded, but still
+// compare false.
+func (d *Font) Equals(other *Font) bool {
+	return C.pango_font_description_equal(d.pfd, other.pfd) != 0
+}
+
+// BetterMatch determines if the style attributes of newDesc are a closer match for this font
+// than those of oldDesc are, or if oldDesc is nil, determines if newDesc is a match at
+// all. Approximate matching is done for weight and style; other style attributes must match
+// exactly. Style attributes are all attributes other than family and size-related attributes.
+// Approximate matching for style considers SlantOblique and SlantItalic as matches, but not as
+// good a match as when the slants are equal. Note that oldDesc must match this font or be nil.
+func (d *Font) BetterMatch(oldDesc *Font, newDesc *Font) bool {
+	var old *C.PangoFontDescription
+	if oldDesc != nil {
+		old = oldDesc.pfd
 	}
-	reg.count++
-	return reg.font
+	return C.pango_font_description_better_match(d.pfd, old, newDesc.pfd) != 0
 }
 
-// PlatformPtr returns a pointer to the underlying platform-specific data.
-func (font *Font) PlatformPtr() unsafe.Pointer {
-	return font.font
+// Family returns the family name. May be empty if it has not been set.
+func (d *Font) Family() string {
+	return C.GoString(C.pango_font_description_get_family(d.pfd))
 }
 
-// Release a font.
-func (font *Font) Release() {
-	if desc, ok := fontToDescMap[font]; ok {
-		if reg, ok2 := descToRegMap[desc]; ok2 {
-			reg.count--
-			if reg.count < 1 {
-				delete(descToRegMap, desc)
-				delete(fontToDescMap, font)
-				font.dispose()
-			}
+// SetFamily sets the family name.
+func (d *Font) SetFamily(family string) {
+	cstr := C.CString(family)
+	C.pango_font_description_set_family(d.pfd, cstr)
+	C.g_free(cstr)
+	d.metricsLoaded = false
+}
+
+// Slant returns the font slant.
+func (d *Font) Slant() Slant {
+	return Slant(C.pango_font_description_get_style(d.pfd))
+}
+
+// SetSlant sets the font slant.
+func (d *Font) SetSlant(slant Slant) {
+	C.pango_font_description_set_style(d.pfd, C.PangoStyle(slant))
+	d.metricsLoaded = false
+}
+
+// Capitalization returns the font capitalization.
+func (d *Font) Capitalization() Capitalization {
+	return Capitalization(C.pango_font_description_get_variant(d.pfd))
+}
+
+// SetCapitalization sets the font capitalization.
+func (d *Font) SetCapitalization(capitalization Capitalization) {
+	C.pango_font_description_set_variant(d.pfd, C.PangoVariant(capitalization))
+	d.metricsLoaded = false
+}
+
+// Weight returns the font weight.
+func (d *Font) Weight() Weight {
+	return Weight(C.pango_font_description_get_weight(d.pfd))
+}
+
+// SetWeight sets the font weight.
+func (d *Font) SetWeight(weight Weight) {
+	C.pango_font_description_set_weight(d.pfd, C.PangoWeight(weight))
+	d.metricsLoaded = false
+}
+
+// Stretch returns the font stretch.
+func (d *Font) Stretch() Stretch {
+	return Stretch(C.pango_font_description_get_stretch(d.pfd))
+}
+
+// SetStretch sets the font stretch.
+func (d *Font) SetStretch(stretch Stretch) {
+	C.pango_font_description_set_stretch(d.pfd, C.PangoStretch(stretch))
+	d.metricsLoaded = false
+}
+
+// Size the size of the font, in points.
+func (d *Font) Size() float32 {
+	return float32(C.pango_font_description_get_size(d.pfd)) / PangoScale
+}
+
+// SetSize sets the size of the font, in points.
+func (d *Font) SetSize(size float32) {
+	C.pango_font_description_set_size(d.pfd, C.gint(size*PangoScale))
+	d.metricsLoaded = false
+}
+
+// String returns a string that can be used with NewFont.
+func (d *Font) String() string {
+	cstr := C.pango_font_description_to_string(d.pfd)
+	defer C.g_free(cstr)
+	return C.GoString(cstr)
+}
+
+// Monospaced returns true if this font has a fixed width.
+func (d *Font) Monospaced() bool {
+	d.loadMetrics()
+	return d.monospaced == 1
+}
+
+// Leading returns the amount of space before the ascent.
+func (d *Font) Leading() float32 {
+	d.loadMetrics()
+	return d.leading
+}
+
+// Ascent returns the amount of space used from the baseline to the top of the tallest character.
+func (d *Font) Ascent() float32 {
+	d.loadMetrics()
+	return d.ascent
+}
+
+// Descent returns the amount of space used from the baseline to the bottom.
+func (d *Font) Descent() float32 {
+	d.loadMetrics()
+	return d.descent
+}
+
+// Height returns the overall height of the font, effectively Leading() + Ascent() + Descent().
+func (d *Font) Height() float32 {
+	d.loadMetrics()
+	return d.leading + d.ascent + d.descent
+}
+
+func (d *Font) loadMetrics() {
+	if !d.metricsLoaded {
+		d.metricsLoaded = true
+		if f := C.pango_font_map_load_font(C.pango_cairo_font_map_get_default(), context, d.pfd); f != nil {
+			metrics := C.pango_font_get_metrics(f, C.pango_language_get_default())
+			d.ascent = float32(C.pango_font_metrics_get_ascent(metrics)) / PangoScale
+			d.descent = float32(C.pango_font_metrics_get_descent(metrics)) / PangoScale
+			d.leading = d.descent / 2
+			C.pango_font_metrics_unref(metrics)
 		} else {
-			delete(fontToDescMap, font)
-			font.dispose()
+			d.leading = 0
+			d.ascent = 0
+			d.descent = 0
+		}
+		// The monospaced attribute only needs to ever be determined once.
+		if d.monospaced == 0 {
+			d.monospaced = 2
+			for _, family := range MonospacedFamilies() {
+				if family.Name() == d.Family() {
+					d.monospaced = 1
+					break
+				}
+			}
 		}
 	}
 }
 
-// Desc returns a copy of the font's description information.
-func (font *Font) Desc() Desc {
-	return font.desc
-}
-
-func (font *Font) dispose() {
-	font.platformDispose()
-	font.font = nil
-}
-
-// Ascent of the Font, i.e. the distance from the baseline to the top of a typical capital letter.
-func (font *Font) Ascent() float32 {
-	return font.platformAscent()
-}
-
-// Descent of the Font, i.e. the distance from the baseline to the bottom of the typical letter
-// that has a descender, such as a lower case 'g'.
-func (font *Font) Descent() float32 {
-	return font.platformDescent()
-}
-
-// Leading of the Font, i.e. the recommended distance between the bottom of the descender line
-// to the top of the next line.
-func (font *Font) Leading() float32 {
-	return font.platformLeading()
-}
-
-// Height of the font, i.e. Ascent() + Descent().
-func (font *Font) Height() float32 {
-	return font.Ascent() + font.Descent()
-}
-
-// Width of the string rendered with this font.
-func (font *Font) Width(str string) float32 {
-	return font.platformWidth(str)
-}
-
-// Size of the string rendered with this font.
-func (font *Font) Size(str string) geom.Size {
-	return geom.Size{Width: font.Width(str), Height: font.Height()}
+// Measure the string rendered with this font. If you want to account for transformations in a
+// graphics context, you must use the Measure method on the Graphics object instead.
+func (d *Font) Measure(text string) geom.Size {
+	layout, gc := d.createLayout(text)
+	var width, height C.int
+	C.pango_layout_get_size(layout, &width, &height)
+	d.destroyLayout(layout, gc)
+	return geom.Size{Width: float32(width) / PangoScale, Height: d.Leading() + float32(height)/PangoScale}
 }
 
 // IndexForPosition returns the rune index within the string for the specified x-coordinate, where
 // 0 is the start of the string.
-func (font *Font) IndexForPosition(x float32, str string) int {
-	return font.platformIndexForPosition(x, str)
+func (d *Font) IndexForPosition(x float32, text string) int {
+	layout, gc := d.createLayout(text)
+	var index, trailing C.int
+	C.pango_layout_xy_to_index(layout, C.int(x*PangoScale), 0, &index, &trailing)
+	d.destroyLayout(layout, gc)
+	return int(index + trailing)
 }
 
 // PositionForIndex returns the x-coordinate where the specified rune index starts. The returned
 // coordinate assumes 0 is the start of the string.
-func (font *Font) PositionForIndex(index int, str string) float32 {
-	return font.platformPositionForIndex(index, str)
+func (d *Font) PositionForIndex(index int, text string) float32 {
+	layout, gc := d.createLayout(text)
+	var x C.int
+	C.pango_layout_index_to_line_x(layout, C.int(index), 0, nil, &x)
+	d.destroyLayout(layout, gc)
+	return float32(x) / PangoScale
 }
 
-// String implements the fmt.Stringer interface.
-func (font *Font) String() string {
-	return font.desc.String()
+func (d *Font) createLayout(text string) (layout *C.PangoLayout, gc *C.cairo_t) {
+	gc = C.cairo_create(surface)
+	layout = C.pango_cairo_create_layout(gc)
+	C.pango_layout_set_font_description(layout, d.pfd)
+	C.pango_layout_set_spacing(layout, C.int(d.Leading()*PangoScale))
+	cstr := C.CString(text)
+	C.pango_layout_set_text(layout, cstr, -1)
+	C.g_free(cstr)
+	return layout, gc
 }
 
-// AvailableFontFamilies retrieves the names of the installed font families.
-func AvailableFontFamilies() []string {
-	families := platformAvailableFontFamilies()
-	sort.Strings(families)
-	return families
-}
-
-// Bold when set, indicates the font will be rendered as bold.
-func (desc Desc) Bold() bool {
-	return (desc.Style & Bold) == Bold
-}
-
-// ActualBold when set, indicates the font is actually bold.
-func (desc Desc) ActualBold() bool {
-	return (desc.Style & ActualBold) == ActualBold
-}
-
-// Italic when set, indicates the font will be rendered as italic.
-func (desc Desc) Italic() bool {
-	return (desc.Style & Italic) == Italic
-}
-
-// ActualItalic when set, indicates the font is actually italic.
-func (desc Desc) ActualItalic() bool {
-	return (desc.Style & ActualItalic) == ActualItalic
-}
-
-// Condensed when set, indicates the font will be rendered with less spacing than normal between
-// its characters.
-func (desc Desc) Condensed() bool {
-	return (desc.Style & Condensed) == Condensed
-}
-
-// Expanded when set, indicates the font will be rendered with more spacing than normal between
-// its characters.
-func (desc Desc) Expanded() bool {
-	return (desc.Style & Expanded) == Expanded
-}
-
-// Monospaced when set, indicates the font has a uniform width for each character.
-func (desc Desc) Monospaced() bool {
-	return (desc.Style & Monospaced) == Monospaced
-}
-
-// String implements the fmt.Stringer interface.
-func (desc Desc) String() string {
-	var buffer bytes.Buffer
-	buffer.WriteString(desc.Family)
-	fmt.Fprintf(&buffer, " %v", desc.Size)
-	if desc.Bold() {
-		buffer.WriteString(" bold")
-		if !desc.ActualBold() {
-			buffer.WriteString(" (synthetic)")
-		}
-	}
-	if desc.Italic() {
-		buffer.WriteString(" italic")
-		if !desc.ActualItalic() {
-			buffer.WriteString(" (synthetic)")
-		}
-	}
-	if desc.Condensed() {
-		buffer.WriteString(" condensed")
-	}
-	if desc.Expanded() {
-		buffer.WriteString(" expanded")
-	}
-	if desc.Monospaced() {
-		buffer.WriteString(" monospaced")
-	}
-	return buffer.String()
+func (d *Font) destroyLayout(layout *C.PangoLayout, gc *C.cairo_t) {
+	C.g_object_unref(layout)
+	C.cairo_destroy(gc)
 }

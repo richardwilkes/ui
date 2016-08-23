@@ -11,6 +11,7 @@ package ui
 
 import (
 	"github.com/richardwilkes/ui/color"
+	"github.com/richardwilkes/ui/draw"
 	"github.com/richardwilkes/ui/event"
 	"github.com/richardwilkes/ui/geom"
 	"github.com/richardwilkes/ui/keys"
@@ -47,13 +48,17 @@ func NewRadioButton(title string) *RadioButton {
 	return button
 }
 
+func (button *RadioButton) CircleSize() float32 {
+	return xmath.CeilFloat32(button.Theme.Font.Ascent() + button.Theme.Font.Descent())
+}
+
 // Sizes implements Sizer
 func (button *RadioButton) Sizes(hint geom.Size) (min, pref, max geom.Size) {
 	var size geom.Size
-	box := xmath.CeilFloat32(button.Theme.Font.Ascent())
+	circle := button.CircleSize()
 	if button.Title != "" {
 		if hint.Width != NoHint {
-			hint.Width -= button.Theme.HorizontalGap + box
+			hint.Width -= button.Theme.HorizontalGap + circle
 			if hint.Width < 1 {
 				hint.Width = 1
 			}
@@ -63,16 +68,16 @@ func (button *RadioButton) Sizes(hint geom.Size) (min, pref, max geom.Size) {
 				hint.Height = 1
 			}
 		}
-		size = button.Theme.Font.Size(button.Title)
+		size = button.Theme.Font.Measure(button.Title)
 		size.GrowToInteger()
 		size.ConstrainForHint(hint)
-		size.Width += button.Theme.HorizontalGap + box
-		if size.Height < box {
-			size.Height = box
+		size.Width += button.Theme.HorizontalGap + circle
+		if size.Height < circle {
+			size.Height = circle
 		}
 	} else {
-		size.Width = box
-		size.Height = box
+		size.Width = circle
+		size.Height = circle
 	}
 	if border := button.Border(); border != nil {
 		size.AddInsets(border.Insets())
@@ -81,12 +86,12 @@ func (button *RadioButton) Sizes(hint geom.Size) (min, pref, max geom.Size) {
 }
 
 func (button *RadioButton) paint(evt event.Event) {
-	box := xmath.CeilFloat32(button.Theme.Font.Ascent())
+	circle := button.CircleSize()
 	bounds := button.LocalInsetBounds()
-	bounds.Width = box
-	bounds.Y += (bounds.Height - box) / 2
-	bounds.Height = box
-	path := geom.NewPath()
+	bounds.Width = circle
+	bounds.Y += (bounds.Height - circle) / 2
+	bounds.Height = circle
+	path := draw.NewPath()
 	path.Ellipse(bounds)
 	gc := evt.(*event.Paint).GC()
 	gc.AddPath(path)
@@ -96,28 +101,28 @@ func (button *RadioButton) paint(evt event.Event) {
 	if button.Enabled() {
 		gc.DrawLinearGradient(button.Theme.Gradient(base), bounds.X, bounds.Y, bounds.X, bounds.Y+bounds.Height)
 	} else {
-		gc.SetFillColor(color.Background)
+		gc.SetColor(color.Background)
 		gc.FillRect(bounds)
 	}
 	gc.AddPath(path)
 	c := base.AdjustBrightness(button.Theme.OutlineAdjustment)
-	gc.SetStrokeColor(c)
+	gc.SetColor(c)
 	gc.StrokePath()
 	gc.Restore()
 	if button.selected {
-		bounds.InsetUniform(0.2 * box)
+		bounds.InsetUniform(0.2 * circle)
 		if button.Enabled() {
 			c = color.KeyboardFocus
 		}
-		gc.SetFillColor(c)
+		gc.SetColor(c)
 		gc.FillEllipse(bounds)
 	}
 	if button.Title != "" {
 		bounds = button.LocalInsetBounds()
-		bounds.X += box + button.Theme.HorizontalGap
-		bounds.Width -= box + button.Theme.HorizontalGap
+		bounds.X += circle + button.Theme.HorizontalGap
+		bounds.Width -= circle + button.Theme.HorizontalGap
 		if bounds.Width > 0 {
-			gc.SetFillColor(button.TextColor())
+			gc.SetColor(button.TextColor())
 			gc.SetFont(button.Theme.Font)
 			gc.DrawString(bounds.X, bounds.Y+(bounds.Height-button.Theme.Font.Height())/2, button.Title)
 		}

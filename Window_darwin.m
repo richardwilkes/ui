@@ -9,6 +9,8 @@
 
 #include <Cocoa/Cocoa.h>
 #include <Quartz/Quartz.h>
+#include <cairo.h>
+#include <cairo-quartz.h>
 #include "_cgo_export.h"
 #include "Window_darwin.h"
 
@@ -129,6 +131,14 @@ void platformSetCursor(platformWindow window, void *cursor) {
 	[((NSCursor *)cursor) set];
 }
 
+cairo_t *platformGraphics(platformWindow window) {
+	CGRect rect = [[((NSWindow *)window) contentView] bounds];
+	cairo_surface_t *surface = cairo_quartz_surface_create_for_cg_context([[NSGraphicsContext graphicsContextWithWindow:(NSWindow *)window] CGContext], (unsigned int)rect.size.width, (unsigned int)rect.size.height);
+	cairo_t *gc = cairo_create(surface);
+	cairo_surface_destroy(surface); // surface won't actually be destroyed until the gc is destroyed
+	return gc;
+}
+
 @implementation drawingView
 
 -(BOOL)isFlipped {
@@ -145,7 +155,13 @@ void platformSetCursor(platformWindow window, void *cursor) {
 	bounds.y = dirtyRect.origin.y;
 	bounds.width = dirtyRect.size.width;
 	bounds.height = dirtyRect.size.height;
-	drawWindow((platformWindow)[self window], [[NSGraphicsContext currentContext] CGContext], bounds, [self inLiveResize]);
+	platformWindow wnd = (platformWindow)[self window];
+	CGRect rect = [self bounds];
+	cairo_surface_t *surface = cairo_quartz_surface_create_for_cg_context([[NSGraphicsContext currentContext] CGContext], (unsigned int)rect.size.width, (unsigned int)rect.size.height);
+	cairo_t *gc = cairo_create(surface);
+	cairo_surface_destroy(surface); // surface won't actually be destroyed until the gc is destroyed
+	drawWindow(wnd, gc, bounds, [self inLiveResize]);
+	cairo_destroy(gc);
 }
 
 -(int)getModifiers:(NSEvent *)theEvent {

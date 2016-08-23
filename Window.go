@@ -95,6 +95,12 @@ func (window *Window) Close() {
 	window.platformClose()
 }
 
+// Valid returns true if the window is still valid (i.e. has not been closed).
+func (window *Window) Valid() bool {
+	_, valid := windowMap[window.window]
+	return valid
+}
+
 // EventHandlers implements the event.Target interface.
 func (window *Window) EventHandlers() *event.Handlers {
 	if window.eventHandlers == nil {
@@ -346,7 +352,7 @@ func (window *Window) Resizable() bool {
 	return window.style&ResizableWindowMask != 0
 }
 
-func (window *Window) paint(gc draw.Graphics, bounds geom.Rect, inLiveResize bool) {
+func (window *Window) paint(gc *draw.Graphics, bounds geom.Rect, inLiveResize bool) {
 	window.root.ValidateLayout()
 	window.inLiveResize = inLiveResize
 	window.root.Paint(gc, bounds)

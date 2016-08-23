@@ -40,7 +40,7 @@ func (f *TextCellFactory) CreateCell(owner Widget, element interface{}, index in
 	default:
 		text = reflect.TypeOf(element).String()
 	}
-	label := NewLabelWithFont(text, font.Acquire(font.ViewsDesc))
+	label := NewLabelWithFont(text, font.Views)
 	if selected {
 		label.SetBackground(color.SelectedTextBackground)
 		label.SetForeground(color.SelectedText)

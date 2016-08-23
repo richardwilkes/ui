@@ -76,7 +76,7 @@ func (button *ImageButton) paint(evt event.Event) {
 	var hSpace = button.Theme.HorizontalMargin*2 + 2
 	var vSpace = button.Theme.VerticalMargin*2 + 2
 	bounds := button.LocalInsetBounds()
-	path := geom.NewPath()
+	path := draw.NewPath()
 	path.MoveTo(bounds.X, bounds.Y+button.Theme.CornerRadius)
 	path.QuadCurveTo(bounds.X, bounds.Y, bounds.X+button.Theme.CornerRadius, bounds.Y)
 	path.LineTo(bounds.X+bounds.Width-button.Theme.CornerRadius, bounds.Y)
@@ -92,7 +92,7 @@ func (button *ImageButton) paint(evt event.Event) {
 	base := button.BaseBackground()
 	gc.DrawLinearGradient(button.Theme.Gradient(base), bounds.X+bounds.Width/2, bounds.Y+1, bounds.X+bounds.Width/2, bounds.Y+bounds.Height-1)
 	gc.AddPath(path)
-	gc.SetStrokeColor(base.AdjustBrightness(button.Theme.OutlineAdjustment))
+	gc.SetColor(base.AdjustBrightness(button.Theme.OutlineAdjustment))
 	gc.StrokePath()
 	bounds.X += button.Theme.HorizontalMargin + 1
 	bounds.Y += button.Theme.VerticalMargin + 1

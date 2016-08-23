@@ -29,5 +29,5 @@ func (theme *BaseTextButton) Init() {
 	theme.TextWhenLight = color.Black
 	theme.TextWhenDark = color.White
 	theme.TextWhenDisabled = color.Gray
-	theme.Font = font.Acquire(font.SystemDesc)
+	theme.Font = font.System
 }

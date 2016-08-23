@@ -331,7 +331,7 @@ func createAboutWindow(evt event.Event) {
 		root := aboutWindow.RootWidget()
 		root.SetBorder(border.NewEmpty(geom.Insets{Top: 10, Left: 10, Bottom: 10, Right: 10}))
 		ui.NewPrecision(root)
-		title := ui.NewLabelWithFont(ui.AppName(), font.Acquire(font.EmphasizedSystemDesc))
+		title := ui.NewLabelWithFont(ui.AppName(), font.EmphasizedSystem)
 		title.SetLayoutData(ui.NewPrecisionData().SetHorizontalAlignment(draw.AlignMiddle))
 		root.AddChild(title)
 		desc := ui.NewLabel("Simple app to demonstrate the\ncapabilities of the ui framework.")

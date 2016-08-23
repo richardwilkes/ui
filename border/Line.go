@@ -38,7 +38,7 @@ func (line *Line) Insets() geom.Insets {
 }
 
 // Draw implements the Border interface.
-func (line *Line) Draw(gc draw.Graphics, bounds geom.Rect) {
+func (line *Line) Draw(gc *draw.Graphics, bounds geom.Rect) {
 	clip := bounds
 	clip.Inset(line.insets)
 	gc.Save()
@@ -54,7 +54,7 @@ func (line *Line) Draw(gc draw.Graphics, bounds geom.Rect) {
 	gc.LineTo(clip.X, clip.Y+clip.Height)
 	gc.LineTo(clip.X, clip.Y)
 	gc.ClipEvenOdd()
-	gc.SetFillColor(line.color)
+	gc.SetColor(line.color)
 	gc.FillRect(bounds)
 	gc.Restore()
 }

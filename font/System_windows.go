@@ -7,14 +7,18 @@
 // This Source Code Form is "Incompatible With Secondary Licenses", as
 // defined by the Mozilla Public License, version 2.0.
 
-package geom
+package font
 
-import (
-	"unsafe"
-)
-
-// PlatformPtr returns a pointer to the underlying platform-specific data.
-func (p *Path) PlatformPtr() unsafe.Pointer {
-	// RAW: Implement PlatformPtr for Windows
-	return nil
+func init() {
+	// RAW: Define the system fonts for windows
+	User = NewFont("")
+	UserMonospaced = NewFont("")
+	System = NewFont("")
+	EmphasizedSystem = NewFont("")
+	SmallSystem = NewFont("")
+	SmallEmphasizedSystem = NewFont("")
+	Views = NewFont("")
+	Label = NewFont("")
+	Menu = NewFont("")
+	MenuCmdKey = NewFont("")
 }

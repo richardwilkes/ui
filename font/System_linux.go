@@ -7,13 +7,18 @@
 // This Source Code Form is "Incompatible With Secondary Licenses", as
 // defined by the Mozilla Public License, version 2.0.
 
-package draw
+package font
 
-import (
-	"unsafe"
-)
-
-func (g *Gradient) platformData() unsafe.Pointer {
-	// RAW: Implement platformData for Windows
-	return nil
+func init() {
+	// RAW: Define the system fonts for windows
+	User = NewFont("")
+	UserMonospaced = NewFont("")
+	System = NewFont("")
+	EmphasizedSystem = NewFont("")
+	SmallSystem = NewFont("")
+	SmallEmphasizedSystem = NewFont("")
+	Views = NewFont("")
+	Label = NewFont("")
+	Menu = NewFont("")
+	MenuCmdKey = NewFont("")
 }

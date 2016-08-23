@@ -16,6 +16,7 @@ import (
 )
 
 // #cgo darwin LDFLAGS: -framework Cocoa -framework Quartz
+// #cgo pkg-config: pangocairo
 // #include <stdlib.h>
 // #include "Window_darwin.h"
 import "C"

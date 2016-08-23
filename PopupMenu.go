@@ -12,6 +12,7 @@ package ui
 import (
 	"fmt"
 	"github.com/richardwilkes/ui/color"
+	"github.com/richardwilkes/ui/draw"
 	"github.com/richardwilkes/ui/event"
 	"github.com/richardwilkes/ui/geom"
 	"github.com/richardwilkes/ui/keys"
@@ -63,7 +64,7 @@ func (pm *PopupMenu) Sizes(hint geom.Size) (min, pref, max geom.Size) {
 	}
 	var size geom.Size
 	for _, one := range pm.items {
-		current := pm.Theme.Font.Size(fmt.Sprintf("%v", one))
+		current := pm.Theme.Font.Measure(fmt.Sprintf("%v", one))
 		if size.Width < current.Width {
 			size.Width = current.Width
 		}
@@ -86,7 +87,7 @@ func (pm *PopupMenu) paint(evt event.Event) {
 	var hSpace = pm.Theme.HorizontalMargin*2 + 2
 	var vSpace = pm.Theme.VerticalMargin*2 + 2
 	bounds := pm.LocalInsetBounds()
-	path := geom.NewPath()
+	path := draw.NewPath()
 	path.MoveTo(bounds.X, bounds.Y+pm.Theme.CornerRadius)
 	path.QuadCurveTo(bounds.X, bounds.Y, bounds.X+pm.Theme.CornerRadius, bounds.Y)
 	path.LineTo(bounds.X+bounds.Width-pm.Theme.CornerRadius, bounds.Y)
@@ -102,7 +103,7 @@ func (pm *PopupMenu) paint(evt event.Event) {
 	base := pm.BaseBackground()
 	gc.DrawLinearGradient(pm.Theme.Gradient(base), bounds.X+bounds.Width/2, bounds.Y+1, bounds.X+bounds.Width/2, bounds.Y+bounds.Height-1)
 	gc.AddPath(path)
-	gc.SetStrokeColor(base.AdjustBrightness(pm.Theme.OutlineAdjustment))
+	gc.SetColor(base.AdjustBrightness(pm.Theme.OutlineAdjustment))
 	gc.StrokePath()
 	triWidth := (bounds.Height*0.75 - vSpace)
 	triHeight := triWidth / 2
@@ -111,14 +112,14 @@ func (pm *PopupMenu) paint(evt event.Event) {
 	gc.LineTo(bounds.X+bounds.Width-pm.Theme.HorizontalMargin-triWidth, bounds.Y+(bounds.Height-triHeight)/2)
 	gc.LineTo(bounds.X+bounds.Width-pm.Theme.HorizontalMargin-triWidth/2, bounds.Y+(bounds.Height-triHeight)/2+triHeight)
 	gc.ClosePath()
-	gc.SetFillColor(pm.TextColor())
+	gc.SetColor(pm.TextColor())
 	gc.FillPath()
 	bounds.X += pm.Theme.HorizontalMargin + 1
 	bounds.Y += pm.Theme.VerticalMargin + 1
 	bounds.Height -= vSpace
 	bounds.Width -= hSpace + bounds.Height
 	gc.SetFont(pm.Theme.Font)
-	gc.SetFillColor(pm.TextColor())
+	gc.SetColor(pm.TextColor())
 	gc.DrawString(bounds.X, bounds.Y, pm.title())
 }
 

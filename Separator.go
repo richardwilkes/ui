@@ -78,6 +78,6 @@ func (sep *Separator) paint(evt event.Event) {
 		}
 	}
 	gc := evt.(*event.Paint).GC()
-	gc.SetFillColor(color.Background.AdjustBrightness(-0.25))
+	gc.SetColor(color.Background.AdjustBrightness(-0.25))
 	gc.FillRect(bounds)
 }

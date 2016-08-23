@@ -26,7 +26,7 @@ type Label struct {
 
 // NewLabel creates a label with the specified text.
 func NewLabel(text string) *Label {
-	return NewLabelWithFont(text, font.Acquire(font.LabelDesc))
+	return NewLabelWithFont(text, font.Label)
 }
 
 // NewLabelWithFont creates a label with the specified text and font.
@@ -42,7 +42,7 @@ func NewLabelWithFont(text string, font *font.Font) *Label {
 
 // Sizes implements Sizer
 func (label *Label) Sizes(hint geom.Size) (min, pref, max geom.Size) {
-	size := label.font.Size(label.text)
+	size := label.font.Measure(label.text)
 	size.GrowToInteger()
 	size.ConstrainForHint(hint)
 	if border := label.Border(); border != nil {
@@ -54,9 +54,10 @@ func (label *Label) Sizes(hint geom.Size) (min, pref, max geom.Size) {
 func (label *Label) paint(evt event.Event) {
 	bounds := label.LocalInsetBounds()
 	gc := evt.(*event.Paint).GC()
-	gc.SetFillColor(label.foreground)
+	gc.SetColor(label.foreground)
 	gc.SetFont(label.font)
-	gc.DrawString(bounds.X, bounds.Y+(bounds.Height-label.font.Height())/2, label.text)
+	size := label.font.Measure(label.text)
+	gc.DrawString(bounds.X, bounds.Y+(bounds.Height-size.Height)/2, label.text)
 }
 
 // SetForeground sets the color used when drawing the text.
