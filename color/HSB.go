@@ -14,20 +14,20 @@ import (
 )
 
 // HSB creates a new opaque Color from HSB values in the range 0-1.
-func HSB(hue, saturation, brightness float32) Color {
+func HSB(hue, saturation, brightness float64) Color {
 	return HSBA(hue, saturation, brightness, 1)
 }
 
 // HSBA creates a new Color from HSBA values in the range 0-1.
-func HSBA(hue, saturation, brightness, alpha float32) Color {
+func HSBA(hue, saturation, brightness, alpha float64) Color {
 	saturation = clamp0To1(saturation)
 	brightness = clamp0To1(brightness)
 	v := clamp0To1AndScale255(brightness)
 	if saturation == 0 {
 		return RGBA(v, v, v, alpha)
 	}
-	h := (hue - float32(math.Floor(float64(hue)))) * 6
-	f := h - float32(math.Floor(float64(h)))
+	h := (hue - float64(math.Floor(float64(hue)))) * 6
+	f := h - float64(math.Floor(float64(h)))
 	p := clamp0To1AndScale255(brightness * (1 - saturation))
 	q := clamp0To1AndScale255(brightness * (1 - saturation*f))
 	t := clamp0To1AndScale255(brightness * (1 - (saturation * (1 - f))))
@@ -48,85 +48,85 @@ func HSBA(hue, saturation, brightness, alpha float32) Color {
 }
 
 // Hue of the color, a value from 0-1.
-func (c Color) Hue() float32 {
+func (c Color) Hue() float64 {
 	hue, _, _ := c.HSB()
 	return hue
 }
 
 // SetHue creates a new color from this color with the specified hue, a value from 0-1.
-func (c Color) SetHue(hue float32) Color {
+func (c Color) SetHue(hue float64) Color {
 	_, s, b := c.HSB()
 	return HSBA(hue, s, b, c.AlphaIntensity())
 }
 
 // AdjustHue creates a new color from this color with its hue adjusted by the specified amount.
-func (c Color) AdjustHue(amount float32) Color {
+func (c Color) AdjustHue(amount float64) Color {
 	h, s, b := c.HSB()
 	return HSBA(h+amount, s, b, c.AlphaIntensity())
 }
 
 // Saturation of the color, a value from 0-1.
-func (c Color) Saturation() float32 {
+func (c Color) Saturation() float64 {
 	brightness := c.Brightness()
 	if brightness != 0 {
-		return (brightness - (float32(min(c.Red(), c.Green(), c.Blue())) / 255)) / brightness
+		return (brightness - (float64(min(c.Red(), c.Green(), c.Blue())) / 255)) / brightness
 	}
 	return 0
 }
 
 // SetSaturation creates a new color from this color with the specified saturation.
-func (c Color) SetSaturation(saturation float32) Color {
+func (c Color) SetSaturation(saturation float64) Color {
 	h, _, b := c.HSB()
 	return HSBA(h, saturation, b, c.AlphaIntensity())
 }
 
 // AdjustSaturation creates a new color from this color with its saturation adjusted by the
 // specified amount.
-func (c Color) AdjustSaturation(amount float32) Color {
+func (c Color) AdjustSaturation(amount float64) Color {
 	h, s, b := c.HSB()
 	return HSBA(h, s+amount, b, c.AlphaIntensity())
 }
 
 // Brightness of the color, a value from 0-1.
-func (c Color) Brightness() float32 {
-	return float32(max(c.Red(), c.Green(), c.Blue())) / 255
+func (c Color) Brightness() float64 {
+	return float64(max(c.Red(), c.Green(), c.Blue())) / 255
 }
 
 // SetBrightness creates a new color from this color with the specified brightness.
-func (c Color) SetBrightness(brightness float32) Color {
+func (c Color) SetBrightness(brightness float64) Color {
 	h, s, _ := c.HSB()
 	return HSBA(h, s, brightness, c.AlphaIntensity())
 }
 
 // AdjustBrightness creates a new color from this color with its brightness adjusted by the
 // specified amount.
-func (c Color) AdjustBrightness(amount float32) Color {
+func (c Color) AdjustBrightness(amount float64) Color {
 	h, s, b := c.HSB()
 	return HSBA(h, s, b+amount, c.AlphaIntensity())
 }
 
 // HSB returns the hue, saturation and brightness of the color. Values are in the range 0-1.
-func (c Color) HSB() (hue, saturation, brightness float32) {
+func (c Color) HSB() (hue, saturation, brightness float64) {
 	red := c.Red()
 	green := c.Green()
 	blue := c.Blue()
 	cmax := max(red, green, blue)
 	cmin := min(red, green, blue)
 	if cmax != 0 {
-		saturation = float32(cmax-cmin) / float32(cmax)
+		saturation = float64(cmax-cmin) / float64(cmax)
 	} else {
 		saturation = 0
 	}
 	if saturation == 0 {
 		hue = 0
 	} else {
-		div := float32(cmax - cmin)
-		r := float32(cmax-red) / div
-		g := float32(cmax-green) / div
-		b := float32(cmax-blue) / div
-		if r == float32(cmax) {
+		div := float64(cmax - cmin)
+		r := float64(cmax-red) / div
+		g := float64(cmax-green) / div
+		b := float64(cmax-blue) / div
+		if r == float64(cmax) {
 			hue = b - g
-		} else if g == float32(cmax) {
+		} else if g == float64(cmax) {
 			hue = 2 + r - b
 		} else {
 			hue = 4 + g - r
@@ -136,10 +136,10 @@ func (c Color) HSB() (hue, saturation, brightness float32) {
 			hue++
 		}
 	}
-	return hue, saturation, float32(cmax) / 255
+	return hue, saturation, float64(cmax) / 255
 }
 
-func clamp0To1(value float32) float32 {
+func clamp0To1(value float64) float64 {
 	switch {
 	case value < 0:
 		return 0
@@ -161,7 +161,7 @@ func clamp0To255(value int) int {
 	}
 }
 
-func clamp0To1AndScale255(value float32) int {
+func clamp0To1AndScale255(value float64) int {
 	return clamp0To255(int(clamp0To1(value)*255 + 0.5))
 }
 

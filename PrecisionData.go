@@ -67,13 +67,13 @@ func (pd *PrecisionData) SetSizeHint(size geom.Size) *PrecisionData {
 }
 
 // SetWidthHint sets a hint requesting a particular width of the widget.
-func (pd *PrecisionData) SetWidthHint(width float32) *PrecisionData {
+func (pd *PrecisionData) SetWidthHint(width float64) *PrecisionData {
 	pd.sizeHint.Width = width
 	return pd
 }
 
 // SetHeightHint sets a hint requesting a particular height of the widget.
-func (pd *PrecisionData) SetHeightHint(height float32) *PrecisionData {
+func (pd *PrecisionData) SetHeightHint(height float64) *PrecisionData {
 	pd.sizeHint.Height = height
 	return pd
 }
@@ -112,13 +112,13 @@ func (pd *PrecisionData) SetMinSize(size geom.Size) *PrecisionData {
 }
 
 // SetMinWidth sets an override for the minimum width of the widget.
-func (pd *PrecisionData) SetMinWidth(width float32) *PrecisionData {
+func (pd *PrecisionData) SetMinWidth(width float64) *PrecisionData {
 	pd.minSize.Width = width
 	return pd
 }
 
 // SetMinHeight sets an override for the minimum height of the widget.
-func (pd *PrecisionData) SetMinHeight(height float32) *PrecisionData {
+func (pd *PrecisionData) SetMinHeight(height float64) *PrecisionData {
 	pd.minSize.Height = height
 	return pd
 }

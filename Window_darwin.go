@@ -75,8 +75,8 @@ func (window *Window) platformFlushPainting() {
 	C.platformFlushPainting(window.window)
 }
 
-func (window *Window) platformScalingFactor() float32 {
-	return float32(C.platformGetWindowScalingFactor(window.window))
+func (window *Window) platformScalingFactor() float64 {
+	return float64(C.platformGetWindowScalingFactor(window.window))
 }
 
 func (window *Window) platformMinimize() {

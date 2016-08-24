@@ -15,7 +15,7 @@ import (
 	"github.com/richardwilkes/ui/event"
 	"github.com/richardwilkes/ui/geom"
 	"github.com/richardwilkes/ui/theme"
-	"github.com/richardwilkes/xmath"
+	"math"
 	"time"
 )
 
@@ -35,24 +35,24 @@ type Pager interface {
 	// LineScrollAmount is called to determine how far to scroll in the given direction to reveal
 	// a full 'line' of content. A positive value should be returned regardless of the direction,
 	// although negative values will behave as if they were positive.
-	LineScrollAmount(horizontal, towardsStart bool) float32
+	LineScrollAmount(horizontal, towardsStart bool) float64
 	// PageScrollAmount is called to determine how far to scroll in the given direction to reveal
 	// a full 'page' of content. A positive value should be returned regardless of the direction,
 	// although negative values will behave as if they were positive.
-	PageScrollAmount(horizontal, towardsStart bool) float32
+	PageScrollAmount(horizontal, towardsStart bool) float64
 }
 
 // Scrollable objects can respond to ScrollBars.
 type Scrollable interface {
 	Pager
 	// ScrolledPosition is called to determine the current position of the Scrollable.
-	ScrolledPosition(horizontal bool) float32
+	ScrolledPosition(horizontal bool) float64
 	// SetScrolledPosition is called to set the current position of the Scrollable.
-	SetScrolledPosition(horizontal bool, position float32)
+	SetScrolledPosition(horizontal bool, position float64)
 	// VisibleSize is called to determine the size of the visible portion of the Scrollable.
-	VisibleSize(horizontal bool) float32
+	VisibleSize(horizontal bool) float64
 	// ContentSize is called to determine the total size of the Scrollable.
-	ContentSize(horizontal bool) float32
+	ContentSize(horizontal bool) float64
 }
 
 // ScrollBar represents a widget for controlling scrolling.
@@ -62,7 +62,7 @@ type ScrollBar struct {
 	Theme      *theme.ScrollBar // The theme the scrollbar will use to draw itself.
 	pressed    scrollBarPart
 	sequence   int
-	thumbDown  float32
+	thumbDown  float64
 	horizontal bool
 }
 
@@ -161,7 +161,7 @@ func (sb *ScrollBar) mouseDown(evt event.Event) {
 
 func (sb *ScrollBar) mouseDragged(evt event.Event) {
 	if sb.pressed == scrollBarThumb {
-		var pos float32
+		var pos float64
 		rect := sb.partRect(scrollBarLineUp)
 		where := sb.FromWindow(evt.(*event.MouseDragged).Where())
 		if sb.horizontal {
@@ -183,13 +183,13 @@ func (sb *ScrollBar) scheduleRepeat(part scrollBarPart, delay time.Duration) {
 		current := sb.sequence
 		switch part {
 		case scrollBarLineUp:
-			sb.SetScrolledPosition(sb.Target.ScrolledPosition(sb.horizontal) - xmath.AbsFloat32(sb.Target.LineScrollAmount(sb.horizontal, true)))
+			sb.SetScrolledPosition(sb.Target.ScrolledPosition(sb.horizontal) - math.Abs(sb.Target.LineScrollAmount(sb.horizontal, true)))
 		case scrollBarLineDown:
-			sb.SetScrolledPosition(sb.Target.ScrolledPosition(sb.horizontal) + xmath.AbsFloat32(sb.Target.LineScrollAmount(sb.horizontal, false)))
+			sb.SetScrolledPosition(sb.Target.ScrolledPosition(sb.horizontal) + math.Abs(sb.Target.LineScrollAmount(sb.horizontal, false)))
 		case scrollBarPageUp:
-			sb.SetScrolledPosition(sb.Target.ScrolledPosition(sb.horizontal) - xmath.AbsFloat32(sb.Target.PageScrollAmount(sb.horizontal, true)))
+			sb.SetScrolledPosition(sb.Target.ScrolledPosition(sb.horizontal) - math.Abs(sb.Target.PageScrollAmount(sb.horizontal, true)))
 		case scrollBarPageDown:
-			sb.SetScrolledPosition(sb.Target.ScrolledPosition(sb.horizontal) + xmath.AbsFloat32(sb.Target.PageScrollAmount(sb.horizontal, false)))
+			sb.SetScrolledPosition(sb.Target.ScrolledPosition(sb.horizontal) + math.Abs(sb.Target.PageScrollAmount(sb.horizontal, false)))
 		default:
 			return
 		}
@@ -211,12 +211,12 @@ func (sb *ScrollBar) over(where geom.Point) scrollBarPart {
 	return scrollBarNone
 }
 
-func (sb *ScrollBar) thumbScale() float32 {
-	var scale float32 = 1
+func (sb *ScrollBar) thumbScale() float64 {
+	var scale float64 = 1
 	content := sb.Target.ContentSize(sb.horizontal)
 	visible := sb.Target.VisibleSize(sb.horizontal)
 	if content-visible > 0 {
-		var size float32
+		var size float64
 		min := sb.Theme.Size * 0.75
 		bounds := sb.LocalInsetBounds()
 		if sb.horizontal {
@@ -337,24 +337,24 @@ func (sb *ScrollBar) drawThumb(g *draw.Graphics) {
 		g.SetColor(bgColor.AdjustBrightness(sb.Theme.OutlineAdjustment))
 		g.StrokeRect(bounds)
 		g.SetColor(sb.markColor(scrollBarThumb))
-		var v0, v1, v2 float32
+		var v0, v1, v2 float64
 		if sb.horizontal {
-			v0 = xmath.FloorFloat32(bounds.X + bounds.Width/2)
-			d := xmath.CeilFloat32(bounds.Height * 0.2)
+			v0 = math.Floor(bounds.X + bounds.Width/2)
+			d := math.Ceil(bounds.Height * 0.2)
 			v1 = bounds.Y + d
 			v2 = bounds.Y + bounds.Height - (d + 1)
 		} else {
-			v0 = xmath.FloorFloat32(bounds.Y + bounds.Height/2)
-			d := xmath.CeilFloat32(bounds.Width * 0.2)
+			v0 = math.Floor(bounds.Y + bounds.Height/2)
+			d := math.Ceil(bounds.Width * 0.2)
 			v1 = bounds.X + d
 			v2 = bounds.X + bounds.Width - (d + 1)
 		}
 		for i := -1; i < 2; i++ {
 			if sb.horizontal {
-				x := v0 + float32(i*2)
+				x := v0 + float64(i*2)
 				g.StrokeLine(x, v1, x, v2)
 			} else {
-				y := v0 + float32(i*2)
+				y := v0 + float64(i*2)
 				g.StrokeLine(v1, y, v2, y)
 			}
 		}
@@ -447,9 +447,9 @@ func (sb *ScrollBar) partEnabled(part scrollBarPart) bool {
 // SetScrolledPosition attempts to set the current scrolled position of this ScrollBar to the
 // specified value. The value will be clipped to the available range. If no target has been set,
 // then nothing will happen.
-func (sb *ScrollBar) SetScrolledPosition(position float32) {
+func (sb *ScrollBar) SetScrolledPosition(position float64) {
 	if sb.Target != nil {
-		position = xmath.MaxFloat32(xmath.MinFloat32(position, sb.Target.ContentSize(sb.horizontal)-sb.Target.VisibleSize(sb.horizontal)), 0)
+		position = math.Max(math.Min(position, sb.Target.ContentSize(sb.horizontal)-sb.Target.VisibleSize(sb.horizontal)), 0)
 		if sb.Target.ScrolledPosition(sb.horizontal) != position {
 			sb.Target.SetScrolledPosition(sb.horizontal, position)
 			sb.Repaint()

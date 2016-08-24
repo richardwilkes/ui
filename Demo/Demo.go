@@ -346,22 +346,22 @@ func createPreferencesWindow(evt event.Event) {
 }
 
 type scrollTarget struct {
-	hpos float32
-	vpos float32
+	hpos float64
+	vpos float64
 }
 
 // LineScrollAmount implements ui.Scrollable.
-func (st *scrollTarget) LineScrollAmount(horizontal, towardsStart bool) float32 {
+func (st *scrollTarget) LineScrollAmount(horizontal, towardsStart bool) float64 {
 	return 1
 }
 
 // PageScrollAmount implements ui.Scrollable.
-func (st *scrollTarget) PageScrollAmount(horizontal, towardsStart bool) float32 {
+func (st *scrollTarget) PageScrollAmount(horizontal, towardsStart bool) float64 {
 	return 10
 }
 
 // ScrolledPosition implements ui.Scrollable.
-func (st *scrollTarget) ScrolledPosition(horizontal bool) float32 {
+func (st *scrollTarget) ScrolledPosition(horizontal bool) float64 {
 	if horizontal {
 		return st.hpos
 	}
@@ -369,7 +369,7 @@ func (st *scrollTarget) ScrolledPosition(horizontal bool) float32 {
 }
 
 // SetScrolledPosition implements ui.Scrollable.
-func (st *scrollTarget) SetScrolledPosition(horizontal bool, position float32) {
+func (st *scrollTarget) SetScrolledPosition(horizontal bool, position float64) {
 	if horizontal {
 		st.hpos = position
 	} else {
@@ -378,11 +378,11 @@ func (st *scrollTarget) SetScrolledPosition(horizontal bool, position float32) {
 }
 
 // VisibleSize implements ui.Scrollable.
-func (st *scrollTarget) VisibleSize(horizontal bool) float32 {
+func (st *scrollTarget) VisibleSize(horizontal bool) float64 {
 	return 10
 }
 
 // ContentSize implements ui.Scrollable.
-func (st *scrollTarget) ContentSize(horizontal bool) float32 {
+func (st *scrollTarget) ContentSize(horizontal bool) float64 {
 	return 1000
 }

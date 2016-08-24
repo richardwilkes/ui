@@ -53,21 +53,21 @@ func windowDidClose(cWindow platformWindow) {
 }
 
 //export handleWindowMouseEvent
-func handleWindowMouseEvent(cWindow platformWindow, eventType platformEventType, keyModifiers, button, clickCount int, x, y float32) {
+func handleWindowMouseEvent(cWindow platformWindow, eventType platformEventType, keyModifiers, button, clickCount int, x, y float64) {
 	if window, ok := windowMap[cWindow]; ok {
 		window.mouseEvent(eventType, event.KeyMask(keyModifiers), button, clickCount, x, y)
 	}
 }
 
 //export handleWindowMouseWheelEvent
-func handleWindowMouseWheelEvent(cWindow platformWindow, eventType platformEventType, keyModifiers int, x, y, dx, dy float32) {
+func handleWindowMouseWheelEvent(cWindow platformWindow, eventType platformEventType, keyModifiers int, x, y, dx, dy float64) {
 	if window, ok := windowMap[cWindow]; ok {
 		window.mouseWheelEvent(eventType, event.KeyMask(keyModifiers), x, y, dx, dy)
 	}
 }
 
 //export handleCursorUpdateEvent
-func handleCursorUpdateEvent(cWindow platformWindow, keyModifiers int, x, y float32) {
+func handleCursorUpdateEvent(cWindow platformWindow, keyModifiers int, x, y float64) {
 	if window, ok := windowMap[cWindow]; ok {
 		window.cursorUpdateEvent(event.KeyMask(keyModifiers), x, y)
 	}

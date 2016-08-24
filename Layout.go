@@ -11,7 +11,7 @@ package ui
 
 import (
 	"github.com/richardwilkes/ui/geom"
-	"github.com/richardwilkes/xmath"
+	"math"
 )
 
 const (
@@ -48,7 +48,7 @@ type Layout interface {
 // DefaultMaxSize returns the size that is at least as large as DefaultMax in both dimensions, but
 // larger if the preferred size that is passed in is larger.
 func DefaultMaxSize(pref geom.Size) geom.Size {
-	return geom.Size{Width: xmath.MaxFloat32(DefaultMax, pref.Width), Height: xmath.MaxFloat32(DefaultMax, pref.Height)}
+	return geom.Size{Width: math.Max(DefaultMax, pref.Width), Height: math.Max(DefaultMax, pref.Height)}
 }
 
 // Sizes returns the minimum, preferred, and maximum sizes the 'widget' wishes to be. It does

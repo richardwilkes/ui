@@ -17,9 +17,9 @@ var (
 // Button contains the theme elements for Buttons.
 type Button struct {
 	BaseTextButton
-	HorizontalMargin float32 // The margin on the left and right side of the text.
-	VerticalMargin   float32 // The margin on the top and bottom of the text.
-	MinimumTextWidth float32 // The minimum space to permit for text.
+	HorizontalMargin float64 // The margin on the left and right side of the text.
+	VerticalMargin   float64 // The margin on the top and bottom of the text.
+	MinimumTextWidth float64 // The minimum space to permit for text.
 }
 
 // NewButton creates a new button theme.

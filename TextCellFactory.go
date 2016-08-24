@@ -21,11 +21,11 @@ import (
 // TextCellFactory provides simple text cells.
 type TextCellFactory struct {
 	// Height is returned when CellHeight() is called.
-	Height float32
+	Height float64
 }
 
 // CellHeight implements the CellFactory interface.
-func (f *TextCellFactory) CellHeight() float32 {
+func (f *TextCellFactory) CellHeight() float64 {
 	return f.Height
 }
 

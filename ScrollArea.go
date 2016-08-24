@@ -14,7 +14,7 @@ import (
 	"github.com/richardwilkes/ui/event"
 	"github.com/richardwilkes/ui/keys"
 	"github.com/richardwilkes/ui/theme"
-	"github.com/richardwilkes/xmath"
+	"math"
 )
 
 // Possible ways to handle auto-sizing of the scroll content's preferred size.
@@ -97,7 +97,7 @@ func (sa *ScrollArea) SetContent(content Widget, behavior ScrollContentBehavior)
 }
 
 // LineScrollAmount implements Pager and Scrollable.
-func (sa *ScrollArea) LineScrollAmount(horizontal, towardsStart bool) float32 {
+func (sa *ScrollArea) LineScrollAmount(horizontal, towardsStart bool) float64 {
 	if sa.content != nil {
 		if s, ok := interface{}(sa.content).(Pager); ok {
 			return s.LineScrollAmount(horizontal, towardsStart)
@@ -107,7 +107,7 @@ func (sa *ScrollArea) LineScrollAmount(horizontal, towardsStart bool) float32 {
 }
 
 // PageScrollAmount implements Pager and Scrollable.
-func (sa *ScrollArea) PageScrollAmount(horizontal, towardsStart bool) float32 {
+func (sa *ScrollArea) PageScrollAmount(horizontal, towardsStart bool) float64 {
 	if sa.content != nil {
 		if s, ok := interface{}(sa.content).(Pager); ok {
 			return s.PageScrollAmount(horizontal, towardsStart)
@@ -121,7 +121,7 @@ func (sa *ScrollArea) PageScrollAmount(horizontal, towardsStart bool) float32 {
 }
 
 // ScrolledPosition implements Scrollable.
-func (sa *ScrollArea) ScrolledPosition(horizontal bool) float32 {
+func (sa *ScrollArea) ScrolledPosition(horizontal bool) float64 {
 	if sa.content == nil {
 		return 0
 	}
@@ -133,7 +133,7 @@ func (sa *ScrollArea) ScrolledPosition(horizontal bool) float32 {
 }
 
 // SetScrolledPosition implements Scrollable.
-func (sa *ScrollArea) SetScrolledPosition(horizontal bool, position float32) {
+func (sa *ScrollArea) SetScrolledPosition(horizontal bool, position float64) {
 	if sa.content != nil {
 		loc := sa.content.Location()
 		if horizontal {
@@ -146,7 +146,7 @@ func (sa *ScrollArea) SetScrolledPosition(horizontal bool, position float32) {
 }
 
 // VisibleSize implements Scrollable.
-func (sa *ScrollArea) VisibleSize(horizontal bool) float32 {
+func (sa *ScrollArea) VisibleSize(horizontal bool) float64 {
 	size := sa.view.Size()
 	if horizontal {
 		return size.Width
@@ -155,7 +155,7 @@ func (sa *ScrollArea) VisibleSize(horizontal bool) float32 {
 }
 
 // ContentSize implements Scrollable.
-func (sa *ScrollArea) ContentSize(horizontal bool) float32 {
+func (sa *ScrollArea) ContentSize(horizontal bool) float64 {
 	if sa.content == nil {
 		return 0
 	}
@@ -173,10 +173,10 @@ func (sa *ScrollArea) viewResized(evt event.Event) {
 		cl := sa.content.Location()
 		nl := cl
 		if cl.Y != 0 && vs.Height > cl.Y+cs.Height {
-			nl.Y = xmath.MinFloat32(vs.Height-cs.Height, 0)
+			nl.Y = math.Min(vs.Height-cs.Height, 0)
 		}
 		if cl.X != 0 && vs.Width > cl.X+cs.Width {
-			nl.X = xmath.MinFloat32(vs.Width-cs.Width, 0)
+			nl.X = math.Min(vs.Width-cs.Width, 0)
 		}
 		if nl != cl {
 			sa.content.SetLocation(nl)

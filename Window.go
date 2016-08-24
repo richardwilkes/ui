@@ -282,7 +282,7 @@ func (window *Window) InLiveResize() bool {
 }
 
 // ScalingFactor returns the current OS scaling factor being applied to this window.
-func (window *Window) ScalingFactor() float32 {
+func (window *Window) ScalingFactor() float64 {
 	return window.platformScalingFactor()
 }
 
@@ -359,7 +359,7 @@ func (window *Window) paint(gc *draw.Graphics, bounds geom.Rect, inLiveResize bo
 	window.inLiveResize = false
 }
 
-func (window *Window) mouseEvent(eventType platformEventType, keyModifiers event.KeyMask, button, clickCount int, x, y float32) {
+func (window *Window) mouseEvent(eventType platformEventType, keyModifiers event.KeyMask, button, clickCount int, x, y float64) {
 	discardMouseDown := false
 	where := geom.Point{X: x, Y: y}
 	var widget Widget
@@ -419,7 +419,7 @@ func (window *Window) mouseEvent(eventType platformEventType, keyModifiers event
 	}
 }
 
-func (window *Window) mouseWheelEvent(eventType platformEventType, keyModifiers event.KeyMask, x, y, dx, dy float32) {
+func (window *Window) mouseWheelEvent(eventType platformEventType, keyModifiers event.KeyMask, x, y, dx, dy float64) {
 	where := geom.Point{X: x, Y: y}
 	widget := window.root.WidgetAt(where)
 	if widget != nil {
@@ -433,7 +433,7 @@ func (window *Window) mouseWheelEvent(eventType platformEventType, keyModifiers 
 	}
 }
 
-func (window *Window) cursorUpdateEvent(keyModifiers event.KeyMask, x, y float32) {
+func (window *Window) cursorUpdateEvent(keyModifiers event.KeyMask, x, y float64) {
 	where := geom.Point{X: x, Y: y}
 	var widget Widget
 	if window.inMouseDown {

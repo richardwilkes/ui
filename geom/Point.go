@@ -15,7 +15,7 @@ import (
 
 // Point defines a location.
 type Point struct {
-	X, Y float32
+	X, Y float64
 }
 
 // Add modifies this Point by adding the supplied coordinates.

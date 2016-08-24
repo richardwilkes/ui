@@ -28,7 +28,7 @@ type TextField struct {
 	Border                  border.Border // The border to use when not focused.
 	FocusBorder             border.Border // The border to use when focused.
 	BlinkRate               time.Duration // The rate at which the cursor blinks.
-	MinimumTextWidth        float32       // The minimum space to permit for text.
+	MinimumTextWidth        float64       // The minimum space to permit for text.
 	DisabledBackgroundColor color.Color   // The color to use for the background when disabled.
 	InvalidBackgroundColor  color.Color   // The color to use for the background when marked invalid.
 }

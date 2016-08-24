@@ -17,8 +17,8 @@ var (
 // ImageButton contains the theme elements for ImageButtons.
 type ImageButton struct {
 	BaseButton
-	HorizontalMargin float32 // The margin on the left and right side of the image.
-	VerticalMargin   float32 // The margin on the top and bottom of the image.
+	HorizontalMargin float64 // The margin on the left and right side of the image.
+	VerticalMargin   float64 // The margin on the top and bottom of the image.
 }
 
 // NewImageButton creates a new image button theme.

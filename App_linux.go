@@ -57,7 +57,7 @@ func platformStartUserInterface() {
 		case C.ButtonPress:
 			buttonEvent := (*C.XButtonEvent)(unsafe.Pointer(&event))
 			if isScrollWheelButton(buttonEvent.button) {
-				var dx, dy float32
+				var dx, dy float64
 				switch buttonEvent.button {
 				case 4: // Up
 					dy = -1
@@ -68,19 +68,19 @@ func platformStartUserInterface() {
 				case 7: // Right
 					dx = 1
 				}
-				handleWindowMouseWheelEvent(window, platformMouseWheel, convertKeyMask(buttonEvent.state), float32(buttonEvent.x), float32(buttonEvent.y), dx, dy)
+				handleWindowMouseWheelEvent(window, platformMouseWheel, convertKeyMask(buttonEvent.state), float64(buttonEvent.x), float64(buttonEvent.y), dx, dy)
 			} else {
 				mouseDownButton = getButton(buttonEvent.button)
 				lastMouseDownWindow = window
 				// RAW: Needs concept of click count
-				handleWindowMouseEvent(window, platformMouseDown, convertKeyMask(buttonEvent.state), mouseDownButton, 0, float32(buttonEvent.x), float32(buttonEvent.y))
+				handleWindowMouseEvent(window, platformMouseDown, convertKeyMask(buttonEvent.state), mouseDownButton, 0, float64(buttonEvent.x), float64(buttonEvent.y))
 			}
 		case C.ButtonRelease:
 			buttonEvent := (*C.XButtonEvent)(unsafe.Pointer(&event))
 			if !isScrollWheelButton(buttonEvent.button) {
 				mouseDownButton = -1
 				// RAW: Needs concept of click count
-				handleWindowMouseEvent(window, platformMouseUp, convertKeyMask(buttonEvent.state), getButton(buttonEvent.button), 0, float32(buttonEvent.x), float32(buttonEvent.y))
+				handleWindowMouseEvent(window, platformMouseUp, convertKeyMask(buttonEvent.state), getButton(buttonEvent.button), 0, float64(buttonEvent.x), float64(buttonEvent.y))
 			}
 		case C.MotionNotify:
 			motionEvent := (*C.XMotionEvent)(unsafe.Pointer(&event))
@@ -89,16 +89,16 @@ func platformStartUserInterface() {
 					// RAW: Translate coordinates appropriately
 					fmt.Println("need translation for mouse drag")
 				}
-				handleWindowMouseEvent(lastMouseDownWindow, platformMouseDragged, convertKeyMask(motionEvent.state), mouseDownButton, 0, float32(motionEvent.x), float32(motionEvent.y))
+				handleWindowMouseEvent(lastMouseDownWindow, platformMouseDragged, convertKeyMask(motionEvent.state), mouseDownButton, 0, float64(motionEvent.x), float64(motionEvent.y))
 			} else {
-				handleWindowMouseEvent(window, platformMouseMoved, convertKeyMask(motionEvent.state), 0, 0, float32(motionEvent.x), float32(motionEvent.y))
+				handleWindowMouseEvent(window, platformMouseMoved, convertKeyMask(motionEvent.state), 0, 0, float64(motionEvent.x), float64(motionEvent.y))
 			}
 		case C.EnterNotify:
 			crossingEvent := (*C.XCrossingEvent)(unsafe.Pointer(&event))
-			handleWindowMouseEvent(window, platformMouseEntered, convertKeyMask(crossingEvent.state), 0, 0, float32(crossingEvent.x), float32(crossingEvent.y))
+			handleWindowMouseEvent(window, platformMouseEntered, convertKeyMask(crossingEvent.state), 0, 0, float64(crossingEvent.x), float64(crossingEvent.y))
 		case C.LeaveNotify:
 			crossingEvent := (*C.XCrossingEvent)(unsafe.Pointer(&event))
-			handleWindowMouseEvent(window, platformMouseExited, convertKeyMask(crossingEvent.state), 0, 0, float32(crossingEvent.x), float32(crossingEvent.y))
+			handleWindowMouseEvent(window, platformMouseExited, convertKeyMask(crossingEvent.state), 0, 0, float64(crossingEvent.x), float64(crossingEvent.y))
 		case C.FocusIn:
 			appWillBecomeActive()
 			appDidBecomeActive()

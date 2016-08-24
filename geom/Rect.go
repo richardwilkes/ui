@@ -11,7 +11,7 @@ package geom
 
 import (
 	"fmt"
-	"github.com/richardwilkes/xmath"
+	"math"
 )
 
 // Rect defines a rectangle.
@@ -23,11 +23,11 @@ type Rect struct {
 // Align modifies this rectangle to align with integer coordinates that would encompass the
 // original rectangle.
 func (r *Rect) Align() {
-	x := xmath.FloorFloat32(r.X)
-	r.Width = xmath.CeilFloat32(r.X+r.Width) - x
+	x := math.Floor(r.X)
+	r.Width = math.Ceil(r.X+r.Width) - x
 	r.X = x
-	y := xmath.FloorFloat32(r.Y)
-	r.Height = xmath.CeilFloat32(r.Y+r.Height) - y
+	y := math.Floor(r.Y)
+	r.Height = math.Ceil(r.Y+r.Height) - y
 	r.Y = y
 }
 
@@ -47,10 +47,10 @@ func (r *Rect) Intersect(other Rect) {
 		r.Width = 0
 		r.Height = 0
 	} else {
-		x := xmath.MaxFloat32(r.X, other.X)
-		y := xmath.MaxFloat32(r.Y, other.Y)
-		w := xmath.MinFloat32(r.X+r.Width, other.X+other.Width) - x
-		h := xmath.MinFloat32(r.Y+r.Height, other.Y+other.Height) - y
+		x := math.Max(r.X, other.X)
+		y := math.Max(r.Y, other.Y)
+		w := math.Min(r.X+r.Width, other.X+other.Width) - x
+		h := math.Min(r.Y+r.Height, other.Y+other.Height) - y
 		if w > 0 && h > 0 {
 			r.X = x
 			r.Y = y
@@ -73,10 +73,10 @@ func (r *Rect) Union(other Rect) {
 	} else if e1 {
 		*r = other
 	} else if !e2 {
-		x := xmath.MinFloat32(r.X, other.X)
-		y := xmath.MinFloat32(r.Y, other.Y)
-		r.Width = xmath.MaxFloat32(r.X+r.Width, other.X+other.Width) - x
-		r.Height = xmath.MaxFloat32(r.Y+r.Height, other.Y+other.Height) - y
+		x := math.Min(r.X, other.X)
+		y := math.Min(r.Y, other.Y)
+		r.Width = math.Max(r.X+r.Width, other.X+other.Width) - x
+		r.Height = math.Max(r.Y+r.Height, other.Y+other.Height) - y
 		r.X = x
 		r.Y = y
 	}
@@ -84,7 +84,7 @@ func (r *Rect) Union(other Rect) {
 
 // InsetUniform insets this Rect by the specified amount on all sides. Positive values make the
 // Rect smaller, while negative values make it larger.
-func (r *Rect) InsetUniform(amount float32) {
+func (r *Rect) InsetUniform(amount float64) {
 	r.X += amount
 	r.Y += amount
 	r.Width -= amount * 2

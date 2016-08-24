@@ -15,6 +15,7 @@ import (
 	"github.com/richardwilkes/ui/geom"
 	"github.com/richardwilkes/ui/keys"
 	"github.com/richardwilkes/xmath"
+	"math"
 )
 
 // List provides a control that allows the user to select from a list of items, represented by cells.
@@ -46,7 +47,7 @@ func NewList(factory CellFactory) *List {
 // Sizes implements Sizer
 func (list *List) Sizes(hint geom.Size) (min, pref, max geom.Size) {
 	max = DefaultMaxSize(max)
-	height := xmath.CeilFloat32(list.factory.CellHeight())
+	height := math.Ceil(list.factory.CellHeight())
 	if height < 1 {
 		height = NoHint
 	}
@@ -68,7 +69,7 @@ func (list *List) Sizes(hint geom.Size) (min, pref, max geom.Size) {
 		}
 	}
 	if height >= 1 {
-		count := float32(len(list.rows))
+		count := float64(len(list.rows))
 		if count < 1 {
 			count = 1
 		}
@@ -104,10 +105,10 @@ func (list *List) Remove(index int) {
 	list.Repaint()
 }
 
-func (list *List) rowAt(y float32) (index int, top float32) {
+func (list *List) rowAt(y float64) (index int, top float64) {
 	count := len(list.rows)
 	top = list.LocalInsetBounds().Y
-	cellHeight := xmath.CeilFloat32(list.factory.CellHeight())
+	cellHeight := math.Ceil(list.factory.CellHeight())
 	if cellHeight < 1 {
 		for index < count {
 			cell := list.factory.CreateCell(list, list.rows[index], index, false, false)
@@ -120,8 +121,8 @@ func (list *List) rowAt(y float32) (index int, top float32) {
 			index++
 		}
 	} else {
-		index = int(xmath.FloorFloat32((y - top) / cellHeight))
-		top += float32(index) * cellHeight
+		index = int(math.Floor((y - top) / cellHeight))
+		top += float64(index) * cellHeight
 	}
 	if index >= count {
 		index = -1
@@ -201,7 +202,7 @@ func (list *List) paint(evt event.Event) {
 	dirty := e.DirtyRect()
 	index, y := list.rowAt(dirty.Y)
 	if index >= 0 {
-		cellHeight := xmath.CeilFloat32(list.factory.CellHeight())
+		cellHeight := math.Ceil(list.factory.CellHeight())
 		count := len(list.rows)
 		ymax := dirty.Y + dirty.Height
 		focused := list.Focused()

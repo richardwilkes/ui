@@ -11,7 +11,6 @@ package ui
 
 import (
 	"github.com/richardwilkes/ui/geom"
-	"github.com/richardwilkes/xmath"
 	"math"
 )
 
@@ -19,8 +18,8 @@ import (
 // sizes, if possible.
 type Flow struct {
 	widget   Widget
-	hSpacing float32
-	vSpacing float32
+	hSpacing float64
+	vSpacing float64
 	vCenter  bool
 }
 
@@ -32,24 +31,24 @@ func NewFlow(widget Widget) *Flow {
 }
 
 // HorizontalSpacing returns the horizontal spacing between widgets.
-func (flow *Flow) HorizontalSpacing() float32 {
+func (flow *Flow) HorizontalSpacing() float64 {
 	return flow.hSpacing
 }
 
 // SetHorizontalSpacing sets the horizontal spacing between widgets.
-func (flow *Flow) SetHorizontalSpacing(spacing float32) *Flow {
-	flow.hSpacing = xmath.MaxFloat32(spacing, 0)
+func (flow *Flow) SetHorizontalSpacing(spacing float64) *Flow {
+	flow.hSpacing = math.Max(spacing, 0)
 	return flow
 }
 
 // VerticalSpacing returns the vertical spacing between rows.
-func (flow *Flow) VerticalSpacing() float32 {
+func (flow *Flow) VerticalSpacing() float64 {
 	return flow.vSpacing
 }
 
 // SetVerticalSpacing sets the vertical spacing between rows.
-func (flow *Flow) SetVerticalSpacing(spacing float32) *Flow {
-	flow.vSpacing = xmath.MaxFloat32(spacing, 0)
+func (flow *Flow) SetVerticalSpacing(spacing float64) *Flow {
+	flow.vSpacing = math.Max(spacing, 0)
 	return flow
 }
 
@@ -81,7 +80,7 @@ func (flow *Flow) Sizes(hint geom.Size) (min, pref, max geom.Size) {
 	result := geom.Size{Width: pt.Y, Height: pt.Y}
 	availWidth := width
 	availHeight := hint.Height - (insets.Top + insets.Bottom)
-	var maxHeight float32
+	var maxHeight float64
 	var largestChildMin geom.Size
 	noHint := geom.Size{Width: NoHint, Height: NoHint}
 	for _, child := range flow.widget.Children() {
@@ -162,7 +161,7 @@ func (flow *Flow) Layout() {
 	pt := geom.Point{X: insets.Left, Y: insets.Top}
 	availWidth := width
 	availHeight := size.Height - (insets.Top + insets.Bottom)
-	var maxHeight float32
+	var maxHeight float64
 	noHint := geom.Size{Width: NoHint, Height: NoHint}
 	children := flow.widget.Children()
 	rects := make([]geom.Rect, len(children))
@@ -228,7 +227,7 @@ func (flow *Flow) Layout() {
 	}
 }
 
-func (flow *Flow) applyRects(children []Widget, rects []geom.Rect, maxHeight float32) {
+func (flow *Flow) applyRects(children []Widget, rects []geom.Rect, maxHeight float64) {
 	for i, child := range children {
 		if flow.vCenter {
 			if rects[i].Height < maxHeight {

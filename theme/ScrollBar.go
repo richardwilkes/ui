@@ -29,10 +29,10 @@ type ScrollBar struct {
 	MarkWhenLight         color.Color   // The color to use for control marks when the background is considered to be 'light'.
 	MarkWhenDark          color.Color   // The color to use for control marks when the background is considered to be 'dark'.
 	MarkWhenDisabled      color.Color   // The color to use for control marks when disabled.
-	GradientAdjustment    float32       // The amount to vary the color when creating the background gradient.
-	DisabledAdjustment    float32       // The amount to adjust the background brightness when disabled.
-	OutlineAdjustment     float32       // The amount to adjust the background brightness when using it to draw the button outline.
-	Size                  float32       // The height of a horizontal scrollbar or the width of a vertical scrollbar.
+	GradientAdjustment    float64       // The amount to vary the color when creating the background gradient.
+	DisabledAdjustment    float64       // The amount to adjust the background brightness when disabled.
+	OutlineAdjustment     float64       // The amount to adjust the background brightness when using it to draw the button outline.
+	Size                  float64       // The height of a horizontal scrollbar or the width of a vertical scrollbar.
 }
 
 // NewScrollBar creates a new image button theme.

@@ -15,10 +15,10 @@ import (
 
 // Insets defines margins on each side of a rectangle.
 type Insets struct {
-	Top    float32
-	Left   float32
-	Bottom float32
-	Right  float32
+	Top    float64
+	Left   float64
+	Bottom float64
+	Right  float64
 }
 
 // Add modifies this Insets by adding the supplied Insets.

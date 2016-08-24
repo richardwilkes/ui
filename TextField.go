@@ -36,7 +36,7 @@ type TextField struct {
 	selectionEnd    int
 	selectionAnchor int
 	forceShowUntil  time.Time
-	scrollOffset    float32
+	scrollOffset    float64
 	align           draw.Alignment
 	showCursor      bool
 	pending         bool
@@ -576,7 +576,7 @@ func (field *TextField) autoScroll() {
 }
 
 // ToSelectionIndex returns the rune index for the specified x-coordinate.
-func (field *TextField) ToSelectionIndex(x float32) int {
+func (field *TextField) ToSelectionIndex(x float64) int {
 	bounds := field.LocalInsetBounds()
 	return field.Theme.Font.IndexForPosition(x-(bounds.X+field.scrollOffset), string(field.runes))
 }

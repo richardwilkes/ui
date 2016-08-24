@@ -72,7 +72,7 @@ func loadFromStream(key interface{}, stream io.ReadCloser) (ref *imgRef, err err
 	for y := bounds.Min.Y; y < bounds.Max.Y; y++ {
 		for x := bounds.Min.X; x < bounds.Max.X; x++ {
 			r, g, b, a := simg.At(x, y).RGBA()
-			pixels[(y-bounds.Min.Y)*stride+(x-bounds.Min.X)] = color.RGBA(int(r>>8), int(g>>8), int(b>>8), float32(a>>8)/255)
+			pixels[(y-bounds.Min.Y)*stride+(x-bounds.Min.X)] = color.RGBA(int(r>>8), int(g>>8), int(b>>8), float64(a>>8)/255)
 		}
 	}
 	C.cairo_surface_mark_dirty(cimg)
@@ -184,7 +184,7 @@ func (img *Image) ID() int {
 
 // Size returns the size of the image.
 func (img *Image) Size() geom.Size {
-	return geom.Size{Width: float32(img.width), Height: float32(img.height)}
+	return geom.Size{Width: float64(img.width), Height: float64(img.height)}
 }
 
 // Data extracts the raw image data.

@@ -16,7 +16,7 @@ import (
 	"github.com/richardwilkes/ui/geom"
 	"github.com/richardwilkes/ui/keys"
 	"github.com/richardwilkes/ui/theme"
-	"github.com/richardwilkes/xmath"
+	"math"
 	"time"
 )
 
@@ -57,8 +57,8 @@ func NewCheckBox(title string) *CheckBox {
 	return checkbox
 }
 
-func (checkbox *CheckBox) BoxSize() float32 {
-	return xmath.CeilFloat32(checkbox.Theme.Font.Ascent() + checkbox.Theme.Font.Descent())
+func (checkbox *CheckBox) BoxSize() float64 {
+	return math.Ceil(checkbox.Theme.Font.Ascent() + checkbox.Theme.Font.Descent())
 }
 
 // Sizes implements Sizer

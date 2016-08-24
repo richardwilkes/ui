@@ -17,7 +17,7 @@ var (
 // RadioButton contains the theme elements for RadioButtons.
 type RadioButton struct {
 	BaseTextButton
-	HorizontalGap float32 // The gap between the radio button graphic and its label.
+	HorizontalGap float64 // The gap between the radio button graphic and its label.
 }
 
 // NewRadioButton creates a new radio button theme.

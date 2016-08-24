@@ -15,7 +15,7 @@ func RGB(red, green, blue int) Color {
 }
 
 // RGBA creates a new Color from RGB values in the range 0-255 and an alpha value in the range 0-1.
-func RGBA(red, green, blue int, alpha float32) Color {
+func RGBA(red, green, blue int, alpha float64) Color {
 	return Color(clamp0To1AndScale255(alpha))<<24 | Color(clamp0To255(red)<<16|clamp0To255(green)<<8|clamp0To255(blue))
 }
 
@@ -30,12 +30,12 @@ func (c Color) SetRed(red int) Color {
 }
 
 // RedIntensity returns the red channel, in the range of 0-1.
-func (c Color) RedIntensity() float32 {
-	return float32(c.Red()) / 255
+func (c Color) RedIntensity() float64 {
+	return float64(c.Red()) / 255
 }
 
 // SetRedIntensity returns a new color based on this color, but with the red channel replaced.
-func (c Color) SetRedIntensity(red float32) Color {
+func (c Color) SetRedIntensity(red float64) Color {
 	return RGBA(clamp0To1AndScale255(red), c.Green(), c.Blue(), c.AlphaIntensity())
 }
 
@@ -50,12 +50,12 @@ func (c Color) SetGreen(green int) Color {
 }
 
 // GreenIntensity returns the green channel, in the range of 0-1.
-func (c Color) GreenIntensity() float32 {
-	return float32(c.Green()) / 255
+func (c Color) GreenIntensity() float64 {
+	return float64(c.Green()) / 255
 }
 
 // SetGreenIntensity returns a new color based on this color, but with the green channel replaced.
-func (c Color) SetGreenIntensity(green float32) Color {
+func (c Color) SetGreenIntensity(green float64) Color {
 	return RGBA(c.Red(), clamp0To1AndScale255(green), c.Blue(), c.AlphaIntensity())
 }
 
@@ -70,11 +70,11 @@ func (c Color) SetBlue(blue int) Color {
 }
 
 // BlueIntensity returns the blue channel, in the range of 0-1.
-func (c Color) BlueIntensity() float32 {
-	return float32(c.Blue()) / 255
+func (c Color) BlueIntensity() float64 {
+	return float64(c.Blue()) / 255
 }
 
 // SetBlueIntensity returns a new color based on this color, but with the blue channel replaced.
-func (c Color) SetBlueIntensity(blue float32) Color {
+func (c Color) SetBlueIntensity(blue float64) Color {
 	return RGBA(c.Red(), c.Green(), clamp0To1AndScale255(blue), c.AlphaIntensity())
 }

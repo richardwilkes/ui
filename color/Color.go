@@ -65,12 +65,12 @@ func Decode(buffer string) Color {
 	case strings.HasPrefix(buffer, "hsl(") && strings.HasSuffix(buffer, ")"):
 		parts := strings.SplitN(strings.TrimSpace(buffer[4:len(buffer)-1]), ",", 4)
 		if len(parts) == 3 {
-			return HSB(float32(extractChannel(parts[0], 10))/360, extractPercentage(parts[1]), extractPercentage(parts[2]))
+			return HSB(float64(extractChannel(parts[0], 10))/360, extractPercentage(parts[1]), extractPercentage(parts[2]))
 		}
 	case strings.HasPrefix(buffer, "hsla(") && strings.HasSuffix(buffer, ")"):
 		parts := strings.SplitN(strings.TrimSpace(buffer[5:len(buffer)-1]), ",", 5)
 		if len(parts) == 4 {
-			return HSBA(float32(extractChannel(parts[0], 10))/360, extractPercentage(parts[1]), extractPercentage(parts[2]), extractAlpha(parts[3]))
+			return HSBA(float64(extractChannel(parts[0], 10))/360, extractPercentage(parts[1]), extractPercentage(parts[2]), extractAlpha(parts[3]))
 		}
 	}
 	return 0
@@ -83,22 +83,22 @@ func extractChannel(buffer string, base int) int {
 	return 0
 }
 
-func extractAlpha(buffer string) float32 {
+func extractAlpha(buffer string) float64 {
 	alpha, err := strconv.ParseFloat(strings.TrimSpace(buffer), 32)
 	if err != nil {
 		return 0
 	}
-	return clamp0To1(float32(alpha))
+	return clamp0To1(float64(alpha))
 }
 
-func extractPercentage(buffer string) float32 {
+func extractPercentage(buffer string) float64 {
 	buffer = strings.TrimSpace(buffer)
 	if strings.HasSuffix(buffer, "%") {
 		value, err := strconv.Atoi(strings.TrimSpace(buffer[:len(buffer)-1]))
 		if err != nil {
 			return 0
 		}
-		return clamp0To1(float32(value) / 100)
+		return clamp0To1(float64(value) / 100)
 	}
 	return 0
 }
@@ -129,12 +129,12 @@ func (c Color) SetAlpha(alpha int) Color {
 }
 
 // AlphaIntensity returns the alpha channel, in the range of 0-1.
-func (c Color) AlphaIntensity() float32 {
-	return float32(c.Alpha()) / 255
+func (c Color) AlphaIntensity() float64 {
+	return float64(c.Alpha()) / 255
 }
 
 // SetAlphaIntensity returns a new color based on this color, but with the alpha channel replaced.
-func (c Color) SetAlphaIntensity(alpha float32) Color {
+func (c Color) SetAlphaIntensity(alpha float64) Color {
 	return RGBA(c.Red(), c.Green(), c.Blue(), alpha)
 }
 
@@ -146,12 +146,12 @@ func (c Color) Monochrome() bool {
 
 // Luminance returns a value from 0-1 representing the perceived brightness.
 // Lower values represent darker colors, while higher values represent brighter colors.
-func (c Color) Luminance() float32 {
+func (c Color) Luminance() float64 {
 	return 0.299*c.RedIntensity() + 0.587*c.GreenIntensity() + 0.114*c.BlueIntensity()
 }
 
 // Blend blends this color with another color. pct is the amount of the other color to use.
-func (c Color) Blend(other Color, pct float32) Color {
+func (c Color) Blend(other Color, pct float64) Color {
 	pct = clamp0To1(pct)
 	rem := 1 - pct
 	return RGBA(clamp0To1AndScale255(c.RedIntensity()*rem+other.RedIntensity()*pct), clamp0To1AndScale255(c.GreenIntensity()*rem+other.GreenIntensity()*pct), clamp0To1AndScale255(c.BlueIntensity()*rem+other.BlueIntensity()*pct), c.AlphaIntensity())

@@ -18,7 +18,7 @@ import (
 // ColorStop provides information about the color and position of one 'color stop' in a Gradient.
 type ColorStop struct {
 	Color    color.Color
-	Location float32
+	Location float64
 }
 
 // String implements the fmt.Stringer interface.
@@ -50,8 +50,8 @@ func NewEvenlySpacedGradient(colors ...color.Color) *Gradient {
 		gradient.Stops[1].Color = colors[1]
 		gradient.Stops[1].Location = 1
 	default:
-		step := 1 / float32(count-1)
-		var location float32
+		step := 1 / float64(count-1)
+		var location float64
 		for i, color := range colors {
 			gradient.Stops[i].Color = color
 			gradient.Stops[i].Location = location

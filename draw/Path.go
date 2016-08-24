@@ -11,7 +11,6 @@ package draw
 
 import (
 	"github.com/richardwilkes/ui/geom"
-	"github.com/richardwilkes/xmath"
 	"math"
 	// #cgo pkg-config: pangocairo
 	// #include <pango/pangocairo.h>
@@ -19,24 +18,24 @@ import (
 )
 
 type moveToPathNode struct {
-	x, y float32
+	x, y float64
 }
 
 type lineToPathNode struct {
-	x, y float32
+	x, y float64
 }
 
 type arcPathNode struct {
-	cx, cy, radius, startAngleRadians, endAngleRadians float32
+	cx, cy, radius, startAngleRadians, endAngleRadians float64
 	clockwise                                          bool
 }
 
 type curveToPathNode struct {
-	cp1x, cp1y, cp2x, cp2y, x, y float32
+	cp1x, cp1y, cp2x, cp2y, x, y float64
 }
 
 type quadCurveToPathNode struct {
-	cpx, cpy, x, y float32
+	cpx, cpy, x, y float64
 }
 
 type rectPathNode struct {
@@ -66,29 +65,29 @@ func (p *Path) Copy() *Path {
 }
 
 // MoveTo begins a new subpath at the specified point.
-func (p *Path) MoveTo(x, y float32) {
+func (p *Path) MoveTo(x, y float64) {
 	p.data = append(p.data, &moveToPathNode{x: x, y: y})
 }
 
 // LineTo appends a straight line segment from the current point to the specified point.
-func (p *Path) LineTo(x, y float32) {
+func (p *Path) LineTo(x, y float64) {
 	p.data = append(p.data, &lineToPathNode{x: x, y: y})
 }
 
 // Arc adds an arc of a circle to the current path, possibly preceded by a straight line segment.
-func (p *Path) Arc(cx, cy, radius, startAngleRadians, endAngleRadians float32, clockwise bool) {
+func (p *Path) Arc(cx, cy, radius, startAngleRadians, endAngleRadians float64, clockwise bool) {
 	p.data = append(p.data, &arcPathNode{cx: cx, cy: cy, radius: radius, startAngleRadians: startAngleRadians, endAngleRadians: endAngleRadians, clockwise: clockwise})
 }
 
 // CurveTo appends a cubic Bezier curve from the current point, using the provided controls points
 // and end point.
-func (p *Path) CurveTo(cp1x, cp1y, cp2x, cp2y, x, y float32) {
+func (p *Path) CurveTo(cp1x, cp1y, cp2x, cp2y, x, y float64) {
 	p.data = append(p.data, &curveToPathNode{cp1x: cp1x, cp1y: cp1y, cp2x: cp2x, cp2y: cp2y, x: x, y: y})
 }
 
 // QuadCurveTo appends a quadratic Bezier curve from the current point, using a control point and
 // an end point.
-func (p *Path) QuadCurveTo(cpx, cpy, x, y float32) {
+func (p *Path) QuadCurveTo(cpx, cpy, x, y float64) {
 	p.data = append(p.data, &quadCurveToPathNode{cpx: cpx, cpy: cpy, x: x, y: y})
 }
 
@@ -146,7 +145,7 @@ func (p *Path) Apply(gc CairoContext) {
 			}
 			C.cairo_translate(gc, C.double(-cx), C.double(-cy))
 			C.cairo_new_path(gc)
-			C.cairo_arc(gc, C.double(cx), C.double(cy), C.double(xmath.MaxFloat32(t.bounds.Width, t.bounds.Height)/2), 0, C.double(2*math.Pi))
+			C.cairo_arc(gc, C.double(cx), C.double(cy), C.double(math.Max(t.bounds.Width, t.bounds.Height)/2), 0, C.double(2*math.Pi))
 			C.cairo_close_path(gc)
 			C.cairo_restore(gc)
 		case *closePathNode:

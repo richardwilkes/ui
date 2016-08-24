@@ -11,12 +11,12 @@ package geom
 
 import (
 	"fmt"
-	"github.com/richardwilkes/xmath"
+	"math"
 )
 
 // Size defines a width and height.
 type Size struct {
-	Width, Height float32
+	Width, Height float64
 }
 
 // Add modifies this Size by adding the supplied Size.
@@ -46,8 +46,8 @@ func (s *Size) SubtractInsets(insets Insets) {
 // GrowToInteger modifies this Size such that its width and height are both the smallest integers
 // greater than or equal to their original values.
 func (s *Size) GrowToInteger() {
-	s.Width = xmath.CeilFloat32(s.Width)
-	s.Height = xmath.CeilFloat32(s.Height)
+	s.Width = math.Ceil(s.Width)
+	s.Height = math.Ceil(s.Height)
 }
 
 // ConstrainForHint ensures this size is no larger than the hint. Hint values less than zero are

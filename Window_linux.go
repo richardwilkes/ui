@@ -96,7 +96,7 @@ func (window *Window) platformFrame() geom.Rect {
 	var x, y C.int
 	var width, height, border, depth C.uint
 	C.XGetGeometry(xDisplay, toXDrawable(window.window), &root, &x, &y, &width, &height, &border, &depth)
-	return geom.Rect{Point: geom.Point{X: float32(x), Y: float32(y)}, Size: geom.Size{Width: float32(width), Height: float32(height)}}
+	return geom.Rect{Point: geom.Point{X: float64(x), Y: float64(y)}, Size: geom.Size{Width: float64(width), Height: float64(height)}}
 }
 
 func (window *Window) platformSetFrame(bounds geom.Rect) {
@@ -121,7 +121,7 @@ func (window *Window) platformFlushPainting() {
 	C.XFlush(xDisplay)
 }
 
-func (window *Window) platformScalingFactor() float32 {
+func (window *Window) platformScalingFactor() float64 {
 	// RAW: Implement for Linux
 	return 1
 }

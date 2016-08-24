@@ -17,7 +17,7 @@ var (
 // CheckBox contains the theme elements for CheckBoxes.
 type CheckBox struct {
 	BaseTextButton
-	HorizontalGap float32 // The gap between the checkbox graphic and its label.
+	HorizontalGap float64 // The gap between the checkbox graphic and its label.
 }
 
 // NewCheckBox creates a new checkbox theme.

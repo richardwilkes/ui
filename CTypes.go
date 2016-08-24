@@ -69,11 +69,11 @@ type platformMenuItem C.platformMenuItem
 type platformRect C.platformRect
 
 func (r platformRect) toRect() geom.Rect {
-	return geom.Rect{Point: geom.Point{X: float32(r.x), Y: float32(r.y)}, Size: geom.Size{Width: float32(r.width), Height: float32(r.height)}}
+	return geom.Rect{Point: geom.Point{X: float64(r.x), Y: float64(r.y)}, Size: geom.Size{Width: float64(r.width), Height: float64(r.height)}}
 }
 
 func (r C.platformRect) toRect() geom.Rect {
-	return geom.Rect{Point: geom.Point{X: float32(r.x), Y: float32(r.y)}, Size: geom.Size{Width: float32(r.width), Height: float32(r.height)}}
+	return geom.Rect{Point: geom.Point{X: float64(r.x), Y: float64(r.y)}, Size: geom.Size{Width: float64(r.width), Height: float64(r.height)}}
 }
 
 func toCRect(bounds geom.Rect) C.platformRect {

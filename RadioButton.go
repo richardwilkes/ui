@@ -16,7 +16,7 @@ import (
 	"github.com/richardwilkes/ui/geom"
 	"github.com/richardwilkes/ui/keys"
 	"github.com/richardwilkes/ui/theme"
-	"github.com/richardwilkes/xmath"
+	"math"
 	"time"
 )
 
@@ -48,8 +48,8 @@ func NewRadioButton(title string) *RadioButton {
 	return button
 }
 
-func (button *RadioButton) CircleSize() float32 {
-	return xmath.CeilFloat32(button.Theme.Font.Ascent() + button.Theme.Font.Descent())
+func (button *RadioButton) CircleSize() float64 {
+	return math.Ceil(button.Theme.Font.Ascent() + button.Theme.Font.Descent())
 }
 
 // Sizes implements Sizer
