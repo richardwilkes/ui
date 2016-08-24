@@ -108,7 +108,7 @@ func platformStartUserInterface() {
 		case C.Expose:
 			if win, ok := windowMap[window]; ok {
 				exposeEvent := (*C.XExposeEvent)(unsafe.Pointer(&event))
-				gc := unsafe.Pointer(C.cairo_create(win.surface))
+				gc := C.cairo_create(win.surface)
 				C.cairo_set_line_width(gc, 1)
 				C.cairo_rectangle(gc, C.double(exposeEvent.x), C.double(exposeEvent.y), C.double(exposeEvent.width), C.double(exposeEvent.height))
 				C.cairo_clip(gc)
@@ -156,7 +156,7 @@ func platformStartUserInterface() {
 	}
 }
 
-func paintWindow(pWindow platformWindow, gc unsafe.Pointer, x, y, width, height C.double, future bool) {
+func paintWindow(pWindow platformWindow, gc *C.cairo_t, x, y, width, height C.double, future bool) {
 	C.cairo_save(gc)
 	C.cairo_rectangle(gc, x, y, width, height)
 	C.cairo_clip(gc)
