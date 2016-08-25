@@ -65,7 +65,7 @@ const (
 	// SoftLight darkens or lightens, dependent on source color.
 	SoftLight Op = C.CAIRO_OPERATOR_SOFT_LIGHT
 	// Difference takes the difference of the source and destination color.
-	Differernce Op = C.CAIRO_OPERATOR_DIFFERENCE
+	Difference Op = C.CAIRO_OPERATOR_DIFFERENCE
 	// Exclusion produces an effect similar to difference, but with lower contrast.
 	Exclusion Op = C.CAIRO_OPERATOR_EXCLUSION
 	// Hue creates a color with the hue of the source and the saturation and luminosity of the
