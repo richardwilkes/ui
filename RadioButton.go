@@ -48,14 +48,14 @@ func NewRadioButton(title string) *RadioButton {
 	return button
 }
 
-func (button *RadioButton) CircleSize() float64 {
+func (button *RadioButton) circleSize() float64 {
 	return math.Ceil(button.Theme.Font.Ascent() + button.Theme.Font.Descent())
 }
 
 // Sizes implements Sizer
 func (button *RadioButton) Sizes(hint geom.Size) (min, pref, max geom.Size) {
 	var size geom.Size
-	circle := button.CircleSize()
+	circle := button.circleSize()
 	if button.Title != "" {
 		if hint.Width != NoHint {
 			hint.Width -= button.Theme.HorizontalGap + circle
@@ -86,7 +86,7 @@ func (button *RadioButton) Sizes(hint geom.Size) (min, pref, max geom.Size) {
 }
 
 func (button *RadioButton) paint(evt event.Event) {
-	circle := button.CircleSize()
+	circle := button.circleSize()
 	bounds := button.LocalInsetBounds()
 	bounds.Width = circle
 	bounds.Y += (bounds.Height - circle) / 2
