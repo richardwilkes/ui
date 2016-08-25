@@ -51,7 +51,7 @@ func (e *AppLastWindowClosed) Finish() {
 	e.finished = true
 }
 
-// Terminate returns true if the app should quit.
+// Quit returns true if the app should quit.
 func (e *AppLastWindowClosed) Quit() bool {
 	return !e.remainOpen
 }
