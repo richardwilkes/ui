@@ -30,7 +30,7 @@ func Families() []*Family {
 	return familiesAll
 }
 
-// Families returns the installed font families.
+// MonospacedFamilies returns the installed font families that are monospaced.
 func MonospacedFamilies() []*Family {
 	familiesOnce.Do(initFamilyLists)
 	return familiesMono

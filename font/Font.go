@@ -63,7 +63,7 @@ func (d *Font) Dispose() {
 	d.pfd = nil
 }
 
-// PangeFontDescription returns the pointer to the underlying Pango font description.
+// PangoFontDescription returns the pointer to the underlying Pango font description.
 func (d *Font) PangoFontDescription() unsafe.Pointer {
 	return unsafe.Pointer(d.pfd)
 }
