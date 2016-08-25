@@ -7,6 +7,8 @@
 // This Source Code Form is "Incompatible With Secondary Licenses", as
 // defined by the Mozilla Public License, version 2.0.
 
+package cursor
+
 import (
 	"fmt"
 	"github.com/richardwilkes/ui/draw"
