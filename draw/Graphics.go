@@ -608,3 +608,11 @@ func (gc *Graphics) DrawString(x, y float64, str string, f *font.Font) {
 	C.pango_layout_get_pixel_extents(layout, &inkRect, &logicalRect)
 	C.g_object_unref(layout)
 }
+
+func toCairoMatrix(matrix *geom.Matrix) *C.cairo_matrix_t {
+	return &C.cairo_matrix_t{xx: C.double(matrix.XX), yx: C.double(matrix.YX), xy: C.double(matrix.XY), yy: C.double(matrix.YY), x0: C.double(matrix.X0), y0: C.double(matrix.Y0)}
+}
+
+func fromCairoMatrix(matrix *C.cairo_matrix_t) *geom.Matrix {
+	return &geom.Matrix{XX: float64(matrix.xx), YX: float64(matrix.yx), XY: float64(matrix.xy), YY: float64(matrix.yy), X0: float64(matrix.x0), Y0: float64(matrix.y0)}
+}
