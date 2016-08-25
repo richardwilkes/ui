@@ -87,6 +87,7 @@ const (
 // LineJoin indicates how to join the endpoints of a path when stroking it.
 type LineJoin int
 
+// CairoContext represents the underlying Cairo graphics context pointer.
 type CairoContext *C.cairo_t
 
 // Graphics provides a graphics context for drawing into.
@@ -576,7 +577,7 @@ func (gc *Graphics) FillEllipse(bounds geom.Rect) {
 	gc.FillPath()
 }
 
-// DragImage at the specified location.
+// DrawImage at the specified location.
 func (gc *Graphics) DrawImage(img *Image, where geom.Point) {
 	gc.DrawImageInRect(img, geom.Rect{Point: where, Size: img.Size()})
 }
