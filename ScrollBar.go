@@ -407,6 +407,7 @@ func (sb *ScrollBar) drawLineButton(g *draw.Graphics, linePart scrollBarPart) {
 	g.ClosePath()
 	g.SetColor(sb.markColor(linePart))
 	g.FillPath()
+	g.Restore()
 }
 
 func (sb *ScrollBar) baseBackground(part scrollBarPart) color.Color {
