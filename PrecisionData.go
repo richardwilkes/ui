@@ -10,20 +10,20 @@
 package ui
 
 import (
-	"github.com/richardwilkes/ui/draw"
 	"github.com/richardwilkes/geom"
+	"github.com/richardwilkes/ui/draw"
 )
 
 // PrecisionData is used to control how an object is laid out by the Precision layout.
 type PrecisionData struct {
 	hSpan        int
 	vSpan        int
-	hAlign       draw.Alignment
-	vAlign       draw.Alignment
 	sizeHint     geom.Size
 	minSize      geom.Size
 	cacheSize    geom.Size
 	minCacheSize geom.Size
+	hAlign       draw.Alignment
+	vAlign       draw.Alignment
 	hGrab        bool
 	vGrab        bool
 }
