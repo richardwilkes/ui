@@ -7,15 +7,16 @@
 // This Source Code Form is "Incompatible With Secondary Licenses", as
 // defined by the Mozilla Public License, version 2.0.
 
-package ui
+package menu
 
 import (
+	// #include "MenuTypes.h"
 	"C"
 	"github.com/richardwilkes/ui/event"
 )
 
 //export validateMenuItem
-func validateMenuItem(cMenuItem platformMenuItem) bool {
+func validateMenuItem(cMenuItem PlatformItem) bool {
 	if item, ok := itemMap[cMenuItem]; ok {
 		evt := event.NewValidate(item)
 		event.Dispatch(evt)
@@ -25,7 +26,7 @@ func validateMenuItem(cMenuItem platformMenuItem) bool {
 }
 
 //export handleMenuItem
-func handleMenuItem(cMenuItem platformMenuItem) {
+func handleMenuItem(cMenuItem PlatformItem) {
 	if item, ok := itemMap[cMenuItem]; ok {
 		event.Dispatch(event.NewSelection(item))
 	}

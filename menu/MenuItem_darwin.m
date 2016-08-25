@@ -8,10 +8,10 @@
 // defined by the Mozilla Public License, version 2.0.
 
 #include <Cocoa/Cocoa.h>
+#include "Menu_darwin.h"
 #include "_cgo_export.h"
-#include "MenuItem_darwin.h"
 
-platformMenu platformGetSubMenu(platformMenuItem item) {
+platformMenu platformGetSubMenu(platformItem item) {
     NSMenuItem *mitem = (NSMenuItem *)item;
     if ([mitem hasSubmenu]) {
         return (platformMenu)[mitem submenu];
@@ -19,11 +19,11 @@ platformMenu platformGetSubMenu(platformMenuItem item) {
     return nil;
 }
 
-void platformSetSubMenu(platformMenuItem item, platformMenu subMenu) {
+void platformSetSubMenu(platformItem item, platformMenu subMenu) {
     [((NSMenuItem *)item) setSubmenu: subMenu];
 }
 
-void platformSetKeyModifierMask(platformMenuItem item, int mask) {
+void platformSetKeyModifierMask(platformItem item, int mask) {
 	// macOS uses the same modifier mask bit order as we do, but it is shifted up by 16 bits
     [((NSMenuItem *)item) setKeyEquivalentModifierMask:mask << 16];
 }

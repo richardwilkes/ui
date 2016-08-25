@@ -11,17 +11,19 @@ package event
 
 import (
 	"bytes"
+	// #include "Event.h"
+	"C"
 )
 
 // Possible KeyMask values.
 const (
-	CapsLockKeyMask KeyMask = 1 << iota
-	ShiftKeyMask
-	ControlKeyMask
-	OptionKeyMask
-	CommandKeyMask   // On platforms that don't have a distinct command key, this will also be set if the Control key is pressed.
-	NonStickyKeyMask = ShiftKeyMask | ControlKeyMask | OptionKeyMask | CommandKeyMask
-	AllKeyMask       = CapsLockKeyMask | NonStickyKeyMask
+	CapsLockKeyMask  KeyMask = C.platformCapsLockKeyMask
+	ShiftKeyMask     KeyMask = C.platformShiftKeyMask
+	ControlKeyMask   KeyMask = C.platformControlKeyMask
+	OptionKeyMask    KeyMask = C.platformOptionKeyMask
+	CommandKeyMask   KeyMask = C.platformCommandKeyMask
+	NonStickyKeyMask         = ShiftKeyMask | ControlKeyMask | OptionKeyMask | CommandKeyMask
+	AllKeyMask               = CapsLockKeyMask | NonStickyKeyMask
 )
 
 // KeyMask contains flags indicating which modifier keys were down when an event occurred.

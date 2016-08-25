@@ -7,21 +7,12 @@
 // This Source Code Form is "Incompatible With Secondary Licenses", as
 // defined by the Mozilla Public License, version 2.0.
 
-package ui
+#ifndef __RW_GOUI_POPUPMENU__
+#define __RW_GOUI_POPUPMENU__
 
-import (
-	"github.com/richardwilkes/ui/event"
-)
+#include "Types.h"
+#include "menu/MenuTypes.h"
 
-func (item *MenuItem) platformSubMenu() platformMenu {
-	// RAW: Implement for Linux
-	return nil
-}
+void platformPopupMenu(platformWindow window, platformMenu menu, double x, double y, platformItem itemAtLocation);
 
-func (item *MenuItem) platformSetSubMenu(subMenu *Menu) {
-	// RAW: Implement for Linux
-}
-
-func (item *MenuItem) platformSetKeyModifierMask(modifierMask event.KeyMask) {
-	// RAW: Implement for Linux
-}
+#endif // __RW_GOUI_POPUPMENU__

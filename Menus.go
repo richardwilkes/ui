@@ -11,12 +11,13 @@ package ui
 
 import (
 	"github.com/richardwilkes/ui/event"
+	"github.com/richardwilkes/ui/menu"
 )
 
 // AddAppMenu adds a standard 'application' menu to the menu bar.
-func AddAppMenu() (appMenu *Menu, aboutItem *MenuItem, prefsItem *MenuItem) {
+func AddAppMenu() (appMenu *menu.Menu, aboutItem *menu.Item, prefsItem *menu.Item) {
 	name := AppName()
-	appMenu = MenuBar().AddMenu(name)
+	appMenu = menu.Bar().AddMenu(name)
 	aboutItem = appMenu.AddItem("About "+name, "")
 	appMenu.AddSeparator()
 	prefsItem = appMenu.AddItem("Preferences…", ",")
@@ -37,8 +38,8 @@ func AddAppMenu() (appMenu *Menu, aboutItem *MenuItem, prefsItem *MenuItem) {
 }
 
 // AddWindowMenu adds a standard 'Window' menu to the menu bar.
-func AddWindowMenu() *Menu {
-	windowMenu := MenuBar().AddMenu("Window")
+func AddWindowMenu() *menu.Menu {
+	windowMenu := menu.Bar().AddMenu("Window")
 	item := windowMenu.AddItem("Minimize", "m")
 	handlers := item.EventHandlers()
 	handlers.Add(event.SelectionType, func(evt event.Event) {
@@ -75,8 +76,8 @@ func AddWindowMenu() *Menu {
 }
 
 // AddHelpMenu adds a standard 'Help' menu to the menu bar.
-func AddHelpMenu() *Menu {
-	helpMenu := MenuBar().AddMenu("Help")
+func AddHelpMenu() *menu.Menu {
+	helpMenu := menu.Bar().AddMenu("Help")
 	helpMenu.SetAsHelpMenu()
 	return helpMenu
 }

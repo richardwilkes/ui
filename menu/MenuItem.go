@@ -7,32 +7,37 @@
 // This Source Code Form is "Incompatible With Secondary Licenses", as
 // defined by the Mozilla Public License, version 2.0.
 
-package ui
+package menu
 
 import (
 	"github.com/richardwilkes/ui/event"
 )
 
-// MenuItem represents individual actions that can be issued from a Menu.
-type MenuItem struct {
-	item          platformMenuItem
+// Item represents individual actions that can be issued from a Menu.
+type Item struct {
+	item          PlatformItem
 	eventHandlers *event.Handlers
 	title         string
 }
 
+// PlatformPtr returns the underlying platform data pointer.
+func (item *Item) PlatformPtr() PlatformItem {
+	return item.item
+}
+
 // Title returns this item's title.
-func (item *MenuItem) Title() string {
+func (item *Item) Title() string {
 	return item.title
 }
 
-// SetKeyModifiers sets the MenuItem's key equivalent modifiers. By default, a MenuItem's modifier
+// SetKeyModifiers sets the menu item's key equivalent modifiers. By default, a menu item's modifier
 // is set to event.CommandKeyMask.
-func (item *MenuItem) SetKeyModifiers(modifierMask event.KeyMask) {
+func (item *Item) SetKeyModifiers(modifierMask event.KeyMask) {
 	item.platformSetKeyModifierMask(modifierMask)
 }
 
-// SubMenu of this MenuItem or nil.
-func (item *MenuItem) SubMenu() *Menu {
+// SubMenu of this menu item or nil.
+func (item *Item) SubMenu() *Menu {
 	if menu, ok := menuMap[item.platformSubMenu()]; ok {
 		return menu
 	}
@@ -40,7 +45,7 @@ func (item *MenuItem) SubMenu() *Menu {
 }
 
 // EventHandlers implements the event.Target interface.
-func (item *MenuItem) EventHandlers() *event.Handlers {
+func (item *Item) EventHandlers() *event.Handlers {
 	if item.eventHandlers == nil {
 		item.eventHandlers = &event.Handlers{}
 	}
@@ -48,6 +53,6 @@ func (item *MenuItem) EventHandlers() *event.Handlers {
 }
 
 // ParentTarget implements the event.Target interface.
-func (item *MenuItem) ParentTarget() event.Target {
-	return &App
+func (item *Item) ParentTarget() event.Target {
+	return ParentTarget()
 }

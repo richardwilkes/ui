@@ -12,6 +12,7 @@ package ui
 import (
 	"github.com/richardwilkes/i18n"
 	"github.com/richardwilkes/ui/event"
+	"github.com/richardwilkes/ui/menu"
 )
 
 // Cutable defines the methods required of objects that can respond to the Cut menu item.
@@ -23,7 +24,7 @@ type Cutable interface {
 }
 
 // AddCutItem adds the standard Cut menu item to the specified menu.
-func AddCutItem(m *Menu) *MenuItem {
+func AddCutItem(m *menu.Menu) *menu.Item {
 	item := m.AddItem(i18n.Text("Cut"), "x")
 	handlers := item.EventHandlers()
 	handlers.Add(event.SelectionType, func(evt event.Event) {

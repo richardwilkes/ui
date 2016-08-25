@@ -11,13 +11,14 @@ package main
 
 import (
 	"fmt"
+	"github.com/richardwilkes/geom"
 	"github.com/richardwilkes/ui"
 	"github.com/richardwilkes/ui/Demo/images"
 	"github.com/richardwilkes/ui/border"
 	"github.com/richardwilkes/ui/draw"
 	"github.com/richardwilkes/ui/event"
 	"github.com/richardwilkes/ui/font"
-	"github.com/richardwilkes/geom"
+	"github.com/richardwilkes/ui/menu"
 	"unicode"
 )
 
@@ -46,7 +47,7 @@ func createMenuBar() {
 	aboutItem.EventHandlers().Add(event.SelectionType, createAboutWindow)
 	prefsItem.EventHandlers().Add(event.SelectionType, createPreferencesWindow)
 
-	fileMenu := ui.MenuBar().AddMenu("File")
+	fileMenu := menu.Bar().AddMenu("File")
 	fileMenu.AddItem("Open", "o")
 	fileMenu.AddSeparator()
 	item := fileMenu.AddItem("Close", "w")
@@ -64,7 +65,7 @@ func createMenuBar() {
 		}
 	})
 
-	m := ui.MenuBar().AddMenu("Edit")
+	m := menu.Bar().AddMenu("Edit")
 	ui.AddCutItem(m)
 	ui.AddCopyItem(m)
 	ui.AddPasteItem(m)

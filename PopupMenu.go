@@ -16,6 +16,7 @@ import (
 	"github.com/richardwilkes/ui/draw"
 	"github.com/richardwilkes/ui/event"
 	"github.com/richardwilkes/ui/keys"
+	"github.com/richardwilkes/ui/menu"
 	"github.com/richardwilkes/ui/theme"
 )
 
@@ -145,7 +146,7 @@ func (pm *PopupMenu) keyDown(evt event.Event) {
 // Click performs any animation associated with a click and triggers the popup menu to appear.
 func (pm *PopupMenu) Click() {
 	hasItem := false
-	menu := NewMenu("")
+	menu := menu.NewMenu("")
 	defer menu.Dispose()
 	for i := range pm.items {
 		if pm.addItemToMenu(menu, i) {
@@ -153,11 +154,11 @@ func (pm *PopupMenu) Click() {
 		}
 	}
 	if hasItem {
-		menu.Popup(pm, pm.LocalInsetBounds().Point, menu.Item(pm.selectedIndex))
+		platformPopupMenu(pm.Window(), pm.ToWindow(pm.LocalInsetBounds().Point), menu, menu.Item(pm.selectedIndex))
 	}
 }
 
-func (pm *PopupMenu) addItemToMenu(m *Menu, index int) bool {
+func (pm *PopupMenu) addItemToMenu(m *menu.Menu, index int) bool {
 	one := pm.items[index]
 	switch one.(type) {
 	case *separationMarker:

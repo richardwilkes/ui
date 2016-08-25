@@ -7,21 +7,15 @@
 // This Source Code Form is "Incompatible With Secondary Licenses", as
 // defined by the Mozilla Public License, version 2.0.
 
-package ui
+package menu
 
 import (
-	"github.com/richardwilkes/ui/event"
+	// #include "MenuTypes.h"
+	"C"
 )
 
-func (item *MenuItem) platformSubMenu() platformMenu {
-	// RAW: Implement for Linux
-	return nil
-}
+// PlatformMenu represents the underlying platform menu object.
+type PlatformMenu C.platformMenu
 
-func (item *MenuItem) platformSetSubMenu(subMenu *Menu) {
-	// RAW: Implement for Linux
-}
-
-func (item *MenuItem) platformSetKeyModifierMask(modifierMask event.KeyMask) {
-	// RAW: Implement for Linux
-}
+// PlatformItem represents the underlying platform menu item object.
+type PlatformItem C.platformItem

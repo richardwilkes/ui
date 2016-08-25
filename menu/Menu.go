@@ -7,25 +7,38 @@
 // This Source Code Form is "Incompatible With Secondary Licenses", as
 // defined by the Mozilla Public License, version 2.0.
 
-package ui
+package menu
 
 import (
-	"github.com/richardwilkes/geom"
+	"github.com/richardwilkes/ui/event"
 )
 
 var (
-	menuMap = make(map[platformMenu]*Menu)
-	itemMap = make(map[platformMenuItem]*MenuItem)
+	parentTarget event.Target
+	menuMap      = make(map[PlatformMenu]*Menu)
+	itemMap      = make(map[PlatformItem]*Item)
 )
 
 // Menu represents a set of menu items.
 type Menu struct {
-	menu  platformMenu
+	menu  PlatformMenu
 	title string
 }
 
-// MenuBar returns the application menu bar.
-func MenuBar() *Menu {
+// ParentTarget returns the value that will be returned on calls to a menu item's ParentTarget()
+// method.
+func ParentTarget() event.Target {
+	return parentTarget
+}
+
+// SetParentTarget sets the value that should be returned on calls to a menu item's ParentTarget()
+// method.
+func SetParentTarget(target event.Target) {
+	parentTarget = target
+}
+
+// Bar returns the application menu bar.
+func Bar() *Menu {
 	if menu, ok := menuMap[platformMenuBar()]; ok {
 		return menu
 	}
@@ -41,6 +54,11 @@ func NewMenu(title string) *Menu {
 	return menu
 }
 
+// PlatformPtr returns the underlying platform data pointer.
+func (menu *Menu) PlatformPtr() PlatformMenu {
+	return menu.menu
+}
+
 // Title returns the title of this Menu.
 func (menu *Menu) Title() string {
 	return menu.title
@@ -52,7 +70,7 @@ func (menu *Menu) Count() int {
 }
 
 // Item at the specified index, or nil.
-func (menu *Menu) Item(index int) *MenuItem {
+func (menu *Menu) Item(index int) *Item {
 	if item, ok := itemMap[menu.platformItem(index)]; ok {
 		return item
 	}
@@ -60,8 +78,8 @@ func (menu *Menu) Item(index int) *MenuItem {
 }
 
 // AddItem creates a new Item and appends it to the end of the Menu.
-func (menu *Menu) AddItem(title string, key string) *MenuItem {
-	item := &MenuItem{item: menu.platformAddItem(title, key), title: title}
+func (menu *Menu) AddItem(title string, key string) *Item {
+	item := &Item{item: menu.platformAddItem(title, key), title: title}
 	itemMap[item.item] = item
 	return item
 }
@@ -76,14 +94,8 @@ func (menu *Menu) AddMenu(title string) *Menu {
 
 // AddSeparator creates a new separator and appends it to the end of the Menu.
 func (menu *Menu) AddSeparator() {
-	item := &MenuItem{item: menu.platformAddSeparator()}
+	item := &Item{item: menu.platformAddSeparator()}
 	itemMap[item.item] = item
-}
-
-// Popup shows the menu at the specified location. If itemAtLocation is specified, it also tries to
-// position the menu such that the specified menu item is at that location.
-func (menu *Menu) Popup(widget Widget, where geom.Point, itemAtLocation *MenuItem) {
-	menu.platformPopup(widget, widget.ToWindow(where), itemAtLocation)
 }
 
 // Dispose of the Menu, releasing any operating system resources it consumed.

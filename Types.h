@@ -24,14 +24,6 @@ enum {
 };
 
 enum {
-	platformCapsLockKeyMask	= 1 << 0,
-	platformShiftKeyMask	= 1 << 1,
-	platformControlKeyMask	= 1 << 2,
-	platformOptionKeyMask	= 1 << 3,
-	platformCommandKeyMask	= 1 << 4
-};
-
-enum {
 	platformBorderlessWindowMask	= 0,
 	platformTitledWindowMask		= 1 << 0,
 	platformClosableWindowMask		= 1 << 1,
@@ -41,8 +33,6 @@ enum {
 
 typedef void *platformWindow;
 typedef void *platformSurface;
-typedef void *platformMenu;
-typedef void *platformMenuItem;
 
 typedef struct {
 	double x;

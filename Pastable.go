@@ -12,6 +12,7 @@ package ui
 import (
 	"github.com/richardwilkes/i18n"
 	"github.com/richardwilkes/ui/event"
+	"github.com/richardwilkes/ui/menu"
 )
 
 // Pastable defines the methods required of objects that can respond to the Paste menu item.
@@ -23,7 +24,7 @@ type Pastable interface {
 }
 
 // AddPasteItem adds the standard Paste menu item to the specified menu.
-func AddPasteItem(m *Menu) *MenuItem {
+func AddPasteItem(m *menu.Menu) *menu.Item {
 	item := m.AddItem(i18n.Text("Paste"), "v")
 	handlers := item.EventHandlers()
 	handlers.Add(event.SelectionType, func(evt event.Event) {

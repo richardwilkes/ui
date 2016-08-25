@@ -7,20 +7,10 @@
 // This Source Code Form is "Incompatible With Secondary Licenses", as
 // defined by the Mozilla Public License, version 2.0.
 
-#ifndef __RW_UI_EVENT__
-#define __RW_UI_EVENT__
+#include <Cocoa/Cocoa.h>
+#include "_cgo_export.h"
+#include "PopupMenu_darwin.h"
 
-#include <stdint.h>
-
-enum {
-	platformCapsLockKeyMask	= 1 << 0,
-	platformShiftKeyMask	= 1 << 1,
-	platformControlKeyMask	= 1 << 2,
-	platformOptionKeyMask	= 1 << 3,
-	platformCommandKeyMask	= 1 << 4
-};
-
-void platformInvoke(uint64_t id);
-void platformInvokeAfter(uint64_t id, int64_t afterNanos);
-
-#endif // __RW_UI_EVENT__
+void platformPopupMenu(platformWindow window, platformMenu menu, double x, double y, platformItem itemAtLocation) {
+	[((NSMenu *)menu) popUpMenuPositioningItem:itemAtLocation atLocation:NSMakePoint(x,y) inView:[((NSWindow *)window) contentView]];
+}

@@ -7,25 +7,24 @@
 // This Source Code Form is "Incompatible With Secondary Licenses", as
 // defined by the Mozilla Public License, version 2.0.
 
-package ui
+package menu
 
 import (
 	"github.com/richardwilkes/ui/event"
 )
 
 // #cgo darwin LDFLAGS: -framework Cocoa
-// #include <stdlib.h>
-// #include "MenuItem_darwin.h"
+// #include "Menu_darwin.h"
 import "C"
 
-func (item *MenuItem) platformSubMenu() platformMenu {
-	return platformMenu(C.platformGetSubMenu(item.item))
+func (item *Item) platformSubMenu() PlatformMenu {
+	return PlatformMenu(C.platformGetSubMenu(item.item))
 }
 
-func (item *MenuItem) platformSetSubMenu(subMenu *Menu) {
+func (item *Item) platformSetSubMenu(subMenu *Menu) {
 	C.platformSetSubMenu(item.item, subMenu.menu)
 }
 
-func (item *MenuItem) platformSetKeyModifierMask(modifierMask event.KeyMask) {
+func (item *Item) platformSetKeyModifierMask(modifierMask event.KeyMask) {
 	C.platformSetKeyModifierMask(item.item, C.int(modifierMask))
 }

@@ -7,20 +7,17 @@
 // This Source Code Form is "Incompatible With Secondary Licenses", as
 // defined by the Mozilla Public License, version 2.0.
 
-#ifndef __RW_UI_EVENT__
-#define __RW_UI_EVENT__
+package ui
 
-#include <stdint.h>
+import (
+	"github.com/richardwilkes/geom"
+	"github.com/richardwilkes/ui/menu"
+)
 
-enum {
-	platformCapsLockKeyMask	= 1 << 0,
-	platformShiftKeyMask	= 1 << 1,
-	platformControlKeyMask	= 1 << 2,
-	platformOptionKeyMask	= 1 << 3,
-	platformCommandKeyMask	= 1 << 4
-};
+// #cgo darwin LDFLAGS: -framework Cocoa
+// #include "PopupMenu_darwin.h"
+import "C"
 
-void platformInvoke(uint64_t id);
-void platformInvokeAfter(uint64_t id, int64_t afterNanos);
-
-#endif // __RW_UI_EVENT__
+func platformPopupMenu(window *Window, where geom.Point, menu *menu.Menu, item *menu.Item) {
+	C.platformPopupMenu(window.PlatformPtr(), menu.PlatformPtr(), C.double(where.X), C.double(where.Y), item.PlatformPtr())
+}

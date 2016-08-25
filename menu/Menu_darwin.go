@@ -7,10 +7,9 @@
 // This Source Code Form is "Incompatible With Secondary Licenses", as
 // defined by the Mozilla Public License, version 2.0.
 
-package ui
+package menu
 
 import (
-	"github.com/richardwilkes/geom"
 	"unsafe"
 )
 
@@ -19,30 +18,30 @@ import (
 // #include "Menu_darwin.h"
 import "C"
 
-func platformMenuBar() platformMenu {
-	return platformMenu(C.platformMenuBar())
+func platformMenuBar() PlatformMenu {
+	return PlatformMenu(C.platformMenuBar())
 }
 
-func platformNewMenu(title string) platformMenu {
+func platformNewMenu(title string) PlatformMenu {
 	cTitle := C.CString(title)
 	defer C.free(unsafe.Pointer(cTitle))
-	return platformMenu(C.platformNewMenu(cTitle))
+	return PlatformMenu(C.platformNewMenu(cTitle))
 }
 
-func (menu *Menu) platformItem(index int) platformMenuItem {
-	return platformMenuItem(C.platformGetMenuItem(menu.menu, C.int(index)))
+func (menu *Menu) platformItem(index int) PlatformItem {
+	return PlatformItem(C.platformGetMenuItem(menu.menu, C.int(index)))
 }
 
-func (menu *Menu) platformAddItem(title string, key string) platformMenuItem {
+func (menu *Menu) platformAddItem(title string, key string) PlatformItem {
 	cTitle := C.CString(title)
 	cKey := C.CString(key)
 	defer C.free(unsafe.Pointer(cTitle))
 	defer C.free(unsafe.Pointer(cKey))
-	return platformMenuItem(C.platformAddMenuItem(menu.menu, cTitle, cKey))
+	return PlatformItem(C.platformAddMenuItem(menu.menu, cTitle, cKey))
 }
 
-func (menu *Menu) platformAddSeparator() platformMenuItem {
-	return platformMenuItem(C.platformAddSeparator(menu.menu))
+func (menu *Menu) platformAddSeparator() PlatformItem {
+	return PlatformItem(C.platformAddSeparator(menu.menu))
 }
 
 func (menu *Menu) platformCount() int {
@@ -63,10 +62,6 @@ func (menu *Menu) platformSetAsWindowMenu() {
 
 func (menu *Menu) platformSetAsHelpMenu() {
 	C.platformSetHelpMenu(menu.menu)
-}
-
-func (menu *Menu) platformPopup(widget Widget, where geom.Point, itemAtLocation *MenuItem) {
-	C.platformPopupMenu(widget.Window().PlatformPtr(), menu.menu, C.float(where.X), C.float(where.Y), itemAtLocation.item)
 }
 
 func (menu *Menu) platformDispose() {

@@ -10,19 +10,24 @@
 #ifndef __RW_GOUI_MENU__
 #define __RW_GOUI_MENU__
 
-#include "Types.h"
+#include "MenuTypes.h"
 
 platformMenu platformMenuBar();
 void platformSetMenuBar(platformMenu menuBar);
+
 platformMenu platformNewMenu(const char *title);
 void platformDisposeMenu(platformMenu menu);
 int platformMenuItemCount(platformMenu menu);
-platformMenuItem platformGetMenuItem(platformMenu menu, int index);
-platformMenuItem platformAddMenuItem(platformMenu menu, const char *title, const char *key);
-platformMenuItem platformAddSeparator(platformMenu menu);
+
+platformMenu platformGetSubMenu(platformItem item);
+void platformSetSubMenu(platformItem item, platformMenu subMenu);
+void platformSetKeyModifierMask(platformItem item, int mask);
+
+platformItem platformGetMenuItem(platformMenu menu, int index);
+platformItem platformAddMenuItem(platformMenu menu, const char *title, const char *key);
+platformItem platformAddSeparator(platformMenu menu);
 void platformSetServicesMenu(platformMenu menu);
 void platformSetWindowMenu(platformMenu menu);
 void platformSetHelpMenu(platformMenu menu);
-void platformPopupMenu(platformWindow window, platformMenu menu, float x, float y, platformMenuItem itemAtLocation);
 
 #endif // __RW_GOUI_MENU__

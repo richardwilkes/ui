@@ -7,20 +7,21 @@
 // This Source Code Form is "Incompatible With Secondary Licenses", as
 // defined by the Mozilla Public License, version 2.0.
 
-#ifndef __RW_UI_EVENT__
-#define __RW_UI_EVENT__
+package menu
 
-#include <stdint.h>
+import (
+	"github.com/richardwilkes/ui/event"
+)
 
-enum {
-	platformCapsLockKeyMask	= 1 << 0,
-	platformShiftKeyMask	= 1 << 1,
-	platformControlKeyMask	= 1 << 2,
-	platformOptionKeyMask	= 1 << 3,
-	platformCommandKeyMask	= 1 << 4
-};
+func (item *MenuItem) platformSubMenu() platformMenu {
+	// RAW: Implement for Linux
+	return nil
+}
 
-void platformInvoke(uint64_t id);
-void platformInvokeAfter(uint64_t id, int64_t afterNanos);
+func (item *MenuItem) platformSetSubMenu(subMenu *Menu) {
+	// RAW: Implement for Linux
+}
 
-#endif // __RW_UI_EVENT__
+func (item *MenuItem) platformSetKeyModifierMask(modifierMask event.KeyMask) {
+	// RAW: Implement for Linux
+}

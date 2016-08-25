@@ -11,7 +11,6 @@ package ui
 
 import (
 	"github.com/richardwilkes/geom"
-	"github.com/richardwilkes/ui/event"
 )
 
 // #include "Types.h"
@@ -44,28 +43,12 @@ const (
 	platformKeyUp        platformEventType = C.platformKeyUp
 )
 
-const (
-	// Convert these to event.CapsLockKeyMask, etc.
-	platformCapsLockKeyMask event.KeyMask = C.platformCapsLockKeyMask
-	platformShiftKeyMask    event.KeyMask = C.platformShiftKeyMask
-	platformControlKeyMask  event.KeyMask = C.platformControlKeyMask
-	platformOptionKeyMask   event.KeyMask = C.platformOptionKeyMask
-	platformCommandKeyMask  event.KeyMask = C.platformCommandKeyMask
-)
-
 // WindowStyleMask controls the look and capabilities of a window.
 type WindowStyleMask C.int
 
 type platformEventType C.int
-
 type platformWindow C.platformWindow
-
 type platformSurface C.platformSurface
-
-type platformMenu C.platformMenu
-
-type platformMenuItem C.platformMenuItem
-
 type platformRect C.platformRect
 
 func toRect(r C.platformRect) geom.Rect {

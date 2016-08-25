@@ -11,6 +11,7 @@ package ui
 
 import (
 	"github.com/richardwilkes/ui/event"
+	"github.com/richardwilkes/ui/menu"
 	"runtime"
 )
 
@@ -40,6 +41,7 @@ func (app *Application) ParentTarget() event.Target {
 // thread. Does not return.
 func StartUserInterface() {
 	runtime.LockOSThread()
+	menu.SetParentTarget(&App)
 	platformStartUserInterface()
 }
 

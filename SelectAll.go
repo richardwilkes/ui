@@ -12,6 +12,7 @@ package ui
 import (
 	"github.com/richardwilkes/i18n"
 	"github.com/richardwilkes/ui/event"
+	"github.com/richardwilkes/ui/menu"
 )
 
 // SelectAll defines the methods required of objects that can respond to the SelectAll menu item.
@@ -23,7 +24,7 @@ type SelectAll interface {
 }
 
 // AddSelectAllItem adds the standard Select All menu item to the specified menu.
-func AddSelectAllItem(m *Menu) *MenuItem {
+func AddSelectAllItem(m *menu.Menu) *menu.Item {
 	item := m.AddItem(i18n.Text("Select All"), "a")
 	handlers := item.EventHandlers()
 	handlers.Add(event.SelectionType, func(evt event.Event) {

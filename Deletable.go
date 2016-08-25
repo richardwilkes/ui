@@ -12,6 +12,7 @@ package ui
 import (
 	"github.com/richardwilkes/i18n"
 	"github.com/richardwilkes/ui/event"
+	"github.com/richardwilkes/ui/menu"
 )
 
 // Deletable defines the methods required of objects that can respond to the Delete menu item.
@@ -23,7 +24,7 @@ type Deletable interface {
 }
 
 // AddDeleteItem adds the standard Delete menu item to the specified menu.
-func AddDeleteItem(m *Menu) *MenuItem {
+func AddDeleteItem(m *menu.Menu) *menu.Item {
 	item := m.AddItem(i18n.Text("Delete"), "\x08")
 	item.SetKeyModifiers(0)
 	handlers := item.EventHandlers()

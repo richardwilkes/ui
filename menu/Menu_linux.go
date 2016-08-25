@@ -7,11 +7,7 @@
 // This Source Code Form is "Incompatible With Secondary Licenses", as
 // defined by the Mozilla Public License, version 2.0.
 
-package ui
-
-import (
-	"github.com/richardwilkes/geom"
-)
+package menu
 
 func platformMenuBar() platformMenu {
 	// RAW: Implement for Linux
@@ -56,10 +52,6 @@ func (menu *Menu) platformSetAsWindowMenu() {
 }
 
 func (menu *Menu) platformSetAsHelpMenu() {
-	// RAW: Implement for Linux
-}
-
-func (menu *Menu) platformPopup(widget Widget, where geom.Point, itemAtLocation *MenuItem) {
 	// RAW: Implement for Linux
 }
 

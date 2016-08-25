@@ -8,19 +8,19 @@
 // defined by the Mozilla Public License, version 2.0.
 
 #include <Cocoa/Cocoa.h>
-#include "_cgo_export.h"
 #include "Menu_darwin.h"
+#include "_cgo_export.h"
 
 @interface menuDelegate : NSObject
 @end
 
 @implementation menuDelegate
 - (BOOL)validateMenuItem:(NSMenuItem *)menuItem {
-    return validateMenuItem((platformMenuItem)menuItem);
+    return validateMenuItem((platformItem)menuItem);
 }
 
 - (void)handleMenuItem:(id)sender {
-    handleMenuItem((platformMenuItem)sender);
+    handleMenuItem((platformItem)sender);
 }
 @end
 
@@ -45,20 +45,20 @@ int platformMenuItemCount(platformMenu menu) {
     return [((NSMenu *)menu) numberOfItems];
 }
 
-platformMenuItem platformGetMenuItem(platformMenu menu, int index) {
+platformItem platformGetMenuItem(platformMenu menu, int index) {
     if (index < 0 || index >= platformMenuItemCount(menu)) {
         return nil;
     }
-    return (platformMenuItem)[((NSMenu *)menu) itemAtIndex:index];
+    return (platformItem)[((NSMenu *)menu) itemAtIndex:index];
 }
 
-platformMenuItem platformAddMenuItem(platformMenu menu, const char *title, const char *key) {
+platformItem platformAddMenuItem(platformMenu menu, const char *title, const char *key) {
     NSMenuItem *item = [((NSMenu *)menu) addItemWithTitle:[NSString stringWithUTF8String:title] action:@selector(handleMenuItem:) keyEquivalent:[NSString stringWithUTF8String:key]];
     [item setTarget:[menuDelegate new]];
-    return (platformMenuItem)item;
+    return (platformItem)item;
 }
 
-platformMenuItem platformAddSeparator(platformMenu menu) {
+platformItem platformAddSeparator(platformMenu menu) {
     NSMenuItem *item = [NSMenuItem separatorItem];
     [((NSMenu *)menu) addItem:item];
     return item;
@@ -74,8 +74,4 @@ void platformSetWindowMenu(platformMenu menu) {
 
 void platformSetHelpMenu(platformMenu menu) {
 	[NSApp setHelpMenu:(NSMenu *)menu];
-}
-
-void platformPopupMenu(platformWindow window, platformMenu menu, float x, float y, platformMenuItem itemAtLocation) {
-	[((NSMenu *)menu) popUpMenuPositioningItem:itemAtLocation atLocation:NSMakePoint(x,y) inView:[((NSWindow *)window) contentView]];
 }

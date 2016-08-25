@@ -13,6 +13,7 @@
 #include <cairo-quartz.h>
 #include "_cgo_export.h"
 #include "Window_darwin.h"
+#include "event/Event.h"
 
 @interface drawingView : NSView
 @end
