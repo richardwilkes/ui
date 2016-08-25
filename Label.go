@@ -13,7 +13,7 @@ import (
 	"github.com/richardwilkes/ui/color"
 	"github.com/richardwilkes/ui/event"
 	"github.com/richardwilkes/ui/font"
-	"github.com/richardwilkes/ui/geom"
+	"github.com/richardwilkes/geom"
 )
 
 // Label represents a non-interactive piece of text.
@@ -55,9 +55,8 @@ func (label *Label) paint(evt event.Event) {
 	bounds := label.LocalInsetBounds()
 	gc := evt.(*event.Paint).GC()
 	gc.SetColor(label.foreground)
-	gc.SetFont(label.font)
 	size := label.font.Measure(label.text)
-	gc.DrawString(bounds.X, bounds.Y+(bounds.Height-size.Height)/2, label.text)
+	gc.DrawString(bounds.X, bounds.Y+(bounds.Height-size.Height)/2, label.text, label.font)
 }
 
 // SetForeground sets the color used when drawing the text.

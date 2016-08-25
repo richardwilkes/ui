@@ -11,7 +11,7 @@ package border
 
 import (
 	"github.com/richardwilkes/ui/draw"
-	"github.com/richardwilkes/ui/geom"
+	"github.com/richardwilkes/geom"
 )
 
 // Compound is a border that contains other borders.

@@ -13,7 +13,7 @@ import (
 	"github.com/richardwilkes/ui/border"
 	"github.com/richardwilkes/ui/color"
 	"github.com/richardwilkes/ui/font"
-	"github.com/richardwilkes/ui/geom"
+	"github.com/richardwilkes/geom"
 	"time"
 )
 

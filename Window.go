@@ -15,7 +15,7 @@ import (
 	"github.com/richardwilkes/ui/cursor"
 	"github.com/richardwilkes/ui/draw"
 	"github.com/richardwilkes/ui/event"
-	"github.com/richardwilkes/ui/geom"
+	"github.com/richardwilkes/geom"
 	"github.com/richardwilkes/ui/keys"
 	"unsafe"
 )

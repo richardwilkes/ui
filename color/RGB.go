@@ -16,7 +16,12 @@ func RGB(red, green, blue int) Color {
 
 // RGBA creates a new Color from RGB values in the range 0-255 and an alpha value in the range 0-1.
 func RGBA(red, green, blue int, alpha float64) Color {
-	return Color(clamp0To1AndScale255(alpha))<<24 | Color(clamp0To255(red)<<16|clamp0To255(green)<<8|clamp0To255(blue))
+	return Color(clamp0To1AndScale255(alpha)<<24 | clamp0To255(red)<<16 | clamp0To255(green)<<8 | clamp0To255(blue))
+}
+
+// RGBAfloat creates a new Color from RGBA values in the range 0-1.
+func RGBAfloat(red, green, blue, alpha float64) Color {
+	return Color(clamp0To1AndScale255(alpha)<<24 | clamp0To1AndScale255(red)<<16 | clamp0To1AndScale255(green)<<8 | clamp0To1AndScale255(blue))
 }
 
 // Red returns the red channel, in the range of 0-255.

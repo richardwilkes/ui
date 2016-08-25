@@ -10,10 +10,10 @@
 package ui
 
 import (
+	"github.com/richardwilkes/geom"
 	"github.com/richardwilkes/ui/color"
 	"github.com/richardwilkes/ui/draw"
 	"github.com/richardwilkes/ui/event"
-	"github.com/richardwilkes/ui/geom"
 	"github.com/richardwilkes/ui/keys"
 	"github.com/richardwilkes/ui/theme"
 	"math"
@@ -115,11 +115,15 @@ func (checkbox *CheckBox) paint(evt event.Event) {
 	gc.Save()
 	gc.Clip()
 	base := checkbox.BaseBackground()
+	gc.AddPath(path)
 	if checkbox.Enabled() {
-		gc.DrawLinearGradient(checkbox.Theme.Gradient(base), bounds.X+bounds.Width/2, bounds.Y+1, bounds.X+bounds.Width/2, bounds.Y+bounds.Height-1)
+		paint := draw.NewLinearGradientPaint(checkbox.Theme.Gradient(base), bounds.X+bounds.Width/2, bounds.Y+1, bounds.X+bounds.Width/2, bounds.Y+bounds.Height-1)
+		gc.SetPaint(paint)
+		gc.FillPath()
+		paint.Dispose()
 	} else {
 		gc.SetColor(color.Background)
-		gc.FillRect(bounds)
+		gc.FillPath()
 	}
 	gc.AddPath(path)
 	gc.SetColor(base.AdjustBrightness(checkbox.Theme.OutlineAdjustment))
@@ -146,9 +150,8 @@ func (checkbox *CheckBox) paint(evt event.Event) {
 	if checkbox.Title != "" {
 		bounds = checkbox.LocalInsetBounds()
 		if bounds.Width-(box+checkbox.Theme.HorizontalGap) > 0 {
-			gc.SetFont(checkbox.Theme.Font)
 			gc.SetColor(checkbox.TextColor())
-			gc.DrawString(bounds.X+box+checkbox.Theme.HorizontalGap, bounds.Y, checkbox.Title)
+			gc.DrawString(bounds.X+box+checkbox.Theme.HorizontalGap, bounds.Y, checkbox.Title, checkbox.Theme.Font)
 		}
 	}
 }

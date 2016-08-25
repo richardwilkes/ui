@@ -12,7 +12,7 @@ package draw
 import (
 	"github.com/richardwilkes/errs"
 	"github.com/richardwilkes/ui/color"
-	"github.com/richardwilkes/ui/geom"
+	"github.com/richardwilkes/geom"
 	"image"
 	_ "image/gif"
 	_ "image/jpeg"
@@ -22,7 +22,7 @@ import (
 	"sync"
 	"unsafe"
 	// #cgo pkg-config: pangocairo
-	// #include <cairo.h>
+	// #include <pango/pangocairo.h>
 	"C"
 )
 
@@ -42,7 +42,7 @@ type Image struct {
 	disabledID int
 	width      int
 	height     int
-	img        unsafe.Pointer
+	surface    *C.cairo_surface_t
 	key        interface{}
 }
 
@@ -66,17 +66,17 @@ func loadFromStream(key interface{}, stream io.ReadCloser) (ref *imgRef, err err
 		return nil, errs.Wrap(err)
 	}
 	bounds := simg.Bounds()
-	cimg := C.cairo_image_surface_create(C.CAIRO_FORMAT_ARGB32, C.int(bounds.Dx()), C.int(bounds.Dy()))
-	stride := int(C.cairo_image_surface_get_stride(cimg)) / 4
-	pixels := (*[1 << 30]color.Color)(unsafe.Pointer(C.cairo_image_surface_get_data(cimg)))
+	surface := C.cairo_image_surface_create(C.CAIRO_FORMAT_ARGB32, C.int(bounds.Dx()), C.int(bounds.Dy()))
+	stride := int(C.cairo_image_surface_get_stride(surface)) / 4
+	pixels := (*[1 << 30]color.Color)(unsafe.Pointer(C.cairo_image_surface_get_data(surface)))
 	for y := bounds.Min.Y; y < bounds.Max.Y; y++ {
 		for x := bounds.Min.X; x < bounds.Max.X; x++ {
 			r, g, b, a := simg.At(x, y).RGBA()
 			pixels[(y-bounds.Min.Y)*stride+(x-bounds.Min.X)] = color.RGBA(int(r>>8), int(g>>8), int(b>>8), float64(a>>8)/255)
 		}
 	}
-	C.cairo_surface_mark_dirty(cimg)
-	ref = &imgRef{img: &Image{id: nextImageID, width: bounds.Dx(), height: bounds.Dy(), img: unsafe.Pointer(cimg), key: key}}
+	C.cairo_surface_mark_dirty(surface)
+	ref = &imgRef{img: &Image{id: nextImageID, width: bounds.Dx(), height: bounds.Dy(), surface: surface, key: key}}
 	nextImageID++
 	return ref, nil
 }
@@ -136,18 +136,18 @@ func AcquireImageFromID(id int) *Image {
 
 // AcquireImageFromData creates a new image from the specified data.
 func AcquireImageFromData(data *ImageData) (img *Image, err error) {
-	cimg := C.cairo_image_surface_create(C.CAIRO_FORMAT_ARGB32, C.int(data.Width), C.int(data.Height))
-	stride := int(C.cairo_image_surface_get_stride(cimg)) / 4
-	pixels := (*[1 << 30]color.Color)(unsafe.Pointer(C.cairo_image_surface_get_data(cimg)))
+	surface := C.cairo_image_surface_create(C.CAIRO_FORMAT_ARGB32, C.int(data.Width), C.int(data.Height))
+	stride := int(C.cairo_image_surface_get_stride(surface)) / 4
+	pixels := (*[1 << 30]color.Color)(unsafe.Pointer(C.cairo_image_surface_get_data(surface)))
 	for y := 0; y < data.Height; y++ {
 		for x := 0; x < data.Width; x++ {
 			pixels[y*stride+x] = data.Pixels[y*data.Width+x].Premultiply()
 		}
 	}
-	C.cairo_surface_mark_dirty(cimg)
+	C.cairo_surface_mark_dirty(surface)
 	imageRegistryLock.Lock()
 	defer imageRegistryLock.Unlock()
-	ref := &imgRef{img: &Image{id: nextImageID, width: data.Width, height: data.Height, img: unsafe.Pointer(cimg), key: nextImageID}, count: 1}
+	ref := &imgRef{img: &Image{id: nextImageID, width: data.Width, height: data.Height, surface: surface, key: nextImageID}, count: 1}
 	imageRegistry[nextImageID] = ref
 	nextImageID++
 	return ref.img, nil
@@ -190,8 +190,8 @@ func (img *Image) Size() geom.Size {
 // Data extracts the raw image data.
 func (img *Image) Data() *ImageData {
 	data := &ImageData{Width: img.width, Height: img.height, Pixels: make([]color.Color, img.width*img.height)}
-	stride := int(C.cairo_image_surface_get_stride(img.img)) / 4
-	pixels := (*[1 << 30]color.Color)(unsafe.Pointer(C.cairo_image_surface_get_data(img.img)))
+	stride := int(C.cairo_image_surface_get_stride(img.surface)) / 4
+	pixels := (*[1 << 30]color.Color)(unsafe.Pointer(C.cairo_image_surface_get_data(img.surface)))
 	for y := 0; y < img.height; y++ {
 		for x := 0; x < img.width; x++ {
 			data.Pixels[y*img.width+x] = pixels[y*stride+x].Unpremultiply()
@@ -205,8 +205,8 @@ func (img *Image) DataFromArea(bounds geom.Rect) *ImageData {
 	width := int(bounds.Width)
 	height := int(bounds.Height)
 	data := &ImageData{Width: width, Height: height, Pixels: make([]color.Color, width*height)}
-	stride := int(C.cairo_image_surface_get_stride(img.img)) / 4
-	pixels := (*[1 << 30]color.Color)(unsafe.Pointer(C.cairo_image_surface_get_data(img.img)))
+	stride := int(C.cairo_image_surface_get_stride(img.surface)) / 4
+	pixels := (*[1 << 30]color.Color)(unsafe.Pointer(C.cairo_image_surface_get_data(img.surface)))
 	baseX := int(bounds.X)
 	baseY := int(bounds.Y)
 	outsidePixel := color.RGBA(0, 0, 0, 0)
@@ -226,11 +226,6 @@ func (img *Image) DataFromArea(bounds geom.Rect) *ImageData {
 	return data
 }
 
-// PlatformPtr returns a pointer to the underlying platform-specific data.
-func (img *Image) PlatformPtr() unsafe.Pointer {
-	return img.img
-}
-
 // Release releases the image. If no other client is using the image, then the underlying OS
 // resources for the image will be disposed of.
 func (img *Image) Release() {
@@ -243,7 +238,8 @@ func (img *Image) Release() {
 		}
 		delete(imageRegistry, img.key)
 	}
-	if img.img != nil {
-		C.cairo_surface_destroy(img.img)
+	if img.surface != nil {
+		C.cairo_surface_destroy(img.surface)
+		img.surface = nil
 	}
 }

@@ -10,7 +10,7 @@
 package ui
 
 import (
-	"github.com/richardwilkes/ui/geom"
+	"github.com/richardwilkes/geom"
 )
 
 func platformMenuBar() platformMenu {

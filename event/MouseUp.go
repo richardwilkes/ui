@@ -12,7 +12,7 @@ package event
 import (
 	"bytes"
 	"fmt"
-	"github.com/richardwilkes/ui/geom"
+	"github.com/richardwilkes/geom"
 	"reflect"
 )
 

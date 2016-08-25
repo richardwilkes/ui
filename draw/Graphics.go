@@ -10,17 +10,17 @@
 package draw
 
 import (
+	"github.com/richardwilkes/geom"
 	"github.com/richardwilkes/ui/color"
+	"github.com/richardwilkes/ui/draw/compositing"
 	"github.com/richardwilkes/ui/font"
-	"github.com/richardwilkes/ui/geom"
 	"math"
+	// #cgo darwin LDFLAGS: -framework Cocoa -framework Quartz
+	// #cgo linux LDFLAGS: -lX11
+	// #cgo pkg-config: pangocairo
+	// #include <pango/pangocairo.h>
+	"C"
 )
-
-// #cgo darwin LDFLAGS: -framework Cocoa -framework Quartz
-// #cgo linux LDFLAGS: -lX11
-// #cgo pkg-config: pangocairo
-// #include <pango/pangocairo.h>
-import "C"
 
 const (
 	unlimitedSize = 1000000
@@ -28,24 +28,75 @@ const (
 	twoThirds     = 2.0 / 3.0
 )
 
+const (
+	// AntiAliasKindDefault indicates that the default anti-aliasing for the graphics subsystem and
+	// target device should be used.
+	AntiAliasKindDefault AntiAliasKind = C.CAIRO_ANTIALIAS_DEFAULT
+	// AntiAliasKindNone indicates no anti-aliasing should be used.
+	AntiAliasKindNone AntiAliasKind = C.CAIRO_ANTIALIAS_NONE
+	// AntiAliasKindGray indicates a single-color anti-aliasing should be used.
+	AntiAliasKindGray AntiAliasKind = C.CAIRO_ANTIALIAS_GRAY
+	// AntiAliasKindSubPixel indicates anti-aliasing should be perfomed by taking advantage of the
+	// order of sub-pixel elements on devices such as LCD panels.
+	AntiAliasKindSubPixel AntiAliasKind = C.CAIRO_ANTIALIAS_SUBPIXEL
+	// AntiAliasKindFast indicates that some anti-aliasing should be performed, but speed should be
+	// preferred over quality.
+	AntiAliasKindFast AntiAliasKind = C.CAIRO_ANTIALIAS_FAST
+	// AntiAliasKindGood indicates that the backend should balance quality against performance.
+	AntiAliasKindGood AntiAliasKind = C.CAIRO_ANTIALIAS_GOOD
+	// AntiAliasKindBest indicates that the backend should render at the highest quality,
+	// sacrificing speed if necessary.
+	AntiAliasKindBest AntiAliasKind = C.CAIRO_ANTIALIAS_BEST
+)
+
+// AntiAliasKind holds the type of anti-aliasing that is being performed.
+type AntiAliasKind int
+
+const (
+	// FillRuleWinding uses this algorithm: if the path crosses the ray from left-to-right, counts
+	// +1. If the path crosses the ray from right to left, counts -1. Left and right are determined
+	// from the perspective of looking along the ray from the starting point. If the total count
+	// is non-zero, the point will be filled.
+	FillRuleWinding FillRule = C.CAIRO_FILL_RULE_WINDING
+	// FillRuleEvenOdd uses this algorithm: counts the total number of intersections, without regard
+	// to the orientation of the contour. If the total number of intersections is odd, the point
+	// will be filled.
+	FillRuleEvenOdd FillRule = C.CAIRO_FILL_RULE_EVEN_ODD
+)
+
+// FillRule holds the type of fill rule to use when filling paths.
+type FillRule int
+
+// Possible line caps.
+const (
+	LineCapButt   LineCap = C.CAIRO_LINE_CAP_BUTT
+	LineCapRound  LineCap = C.CAIRO_LINE_CAP_ROUND
+	LineCapSquare LineCap = C.CAIRO_LINE_CAP_SQUARE
+)
+
+// LineCap indicates how to render the endpoints of a path when stroking it.
+type LineCap int
+
+// Possible line joins.
+const (
+	LineJoinMiter LineJoin = C.CAIRO_LINE_JOIN_MITER
+	LineJoinRound LineJoin = C.CAIRO_LINE_JOIN_ROUND
+	LineJoinBevel LineJoin = C.CAIRO_LINE_JOIN_BEVEL
+)
+
+// LineJoin indicates how to join the endpoints of a path when stroking it.
+type LineJoin int
+
 type CairoContext *C.cairo_t
 
 // Graphics provides a graphics context for drawing into.
 type Graphics struct {
-	gc    CairoContext
-	stack []*graphicsState
-}
-
-type graphicsState struct {
-	color       color.Color
-	strokeWidth float64
-	font        *font.Font
+	gc CairoContext
 }
 
 // NewGraphics creates a new Graphics object with a Cairo graphics context.
 func NewGraphics(cc CairoContext) *Graphics {
 	gc := &Graphics{gc: cc}
-	gc.stack = append(gc.stack, &graphicsState{})
 	gc.SetStrokeWidth(1)
 	gc.SetColor(color.Black)
 	return gc
@@ -55,151 +106,86 @@ func NewGraphics(cc CairoContext) *Graphics {
 func (gc *Graphics) Dispose() {
 	C.cairo_destroy(gc.gc)
 	gc.gc = nil
-	gc.stack = nil
 }
 
 // Save pushes a copy of the current graphics state onto the stack for the context.
 // The current path is not saved as part of this call.
 func (gc *Graphics) Save() {
-	gs := *gc.stack[len(gc.stack)-1]
-	gc.stack = append(gc.stack, &gs)
 	C.cairo_save(gc.gc)
 }
 
 // Restore sets the current graphics state to the state most recently saved by call to Save().
 func (gc *Graphics) Restore() {
-	gc.stack[len(gc.stack)-1] = nil
-	gc.stack = gc.stack[:len(gc.stack)-1]
 	C.cairo_restore(gc.gc)
 }
 
-// Color returns the current color.
-func (gc *Graphics) Color() color.Color {
-	return gc.stack[len(gc.stack)-1].color
+// Translate the coordinate system.
+func (gc *Graphics) Translate(x, y float64) {
+	C.cairo_translate(gc.gc, C.double(x), C.double(y))
 }
 
-// SetColor sets the current color.
-func (gc *Graphics) SetColor(color color.Color) {
-	gc.stack[len(gc.stack)-1].color = color
-	C.cairo_set_source_rgba(gc.gc, C.double(color.RedIntensity()), C.double(color.GreenIntensity()), C.double(color.BlueIntensity()), C.double(color.AlphaIntensity()))
+// Scale the coordinate system.
+func (gc *Graphics) Scale(x, y float64) {
+	C.cairo_scale(gc.gc, C.double(x), C.double(y))
 }
 
-// StrokeWidth returns the current stroke width.
-func (gc *Graphics) StrokeWidth() float64 {
-	return gc.stack[len(gc.stack)-1].strokeWidth
+// Rotate the coordinate system.
+func (gc *Graphics) Rotate(angleInRadians float64) {
+	C.cairo_rotate(gc.gc, C.double(angleInRadians))
 }
 
-// SetStrokeWidth sets the current stroke width.
-func (gc *Graphics) SetStrokeWidth(width float64) {
-	if width > 0 {
-		gc.stack[len(gc.stack)-1].strokeWidth = width
-		C.cairo_set_line_width(gc.gc, C.double(width))
-	}
+// Transform the coordinate system by the matrix.
+func (gc *Graphics) Transform(matrix *geom.Matrix) {
+	C.cairo_transform(gc.gc, toCairoMatrix(matrix))
 }
 
-// Font returns the current font.
-func (gc *Graphics) Font() *font.Font {
-	return gc.stack[len(gc.stack)-1].font
+// Matrix returns the current transformation matrix.
+func (gc *Graphics) Matrix() *geom.Matrix {
+	var matrix C.cairo_matrix_t
+	C.cairo_get_matrix(gc.gc, &matrix)
+	return fromCairoMatrix(&matrix)
 }
 
-// SetFont sets the current font.
-func (gc *Graphics) SetFont(font *font.Font) {
-	gc.stack[len(gc.stack)-1].font = font
+// SetMatrix sets the current transformation matrix.
+func (gc *Graphics) SetMatrix(matrix *geom.Matrix) {
+	C.cairo_set_matrix(gc.gc, toCairoMatrix(matrix))
 }
 
-// StrokeLine draws a line between two points. To ensure the line is aligned to pixel boundaries,
-// 0.5 is added to each coordinate.
-func (gc *Graphics) StrokeLine(x1, y1, x2, y2 float64) {
-	gc.BeginPath()
-	gc.MoveTo(x1+0.5, y1+0.5)
-	gc.LineTo(x2+0.5, y2+0.5)
-	gc.StrokePath()
+// SetIdentityMatrix sets the current transformation matrix to the identity matrix.
+func (gc *Graphics) SetIdentityMatrix() {
+	C.cairo_identity_matrix(gc.gc)
 }
 
-// FillRect fills a rectangle in the specified bounds.
-func (gc *Graphics) FillRect(bounds geom.Rect) {
-	C.cairo_rectangle(gc.gc, C.double(bounds.X), C.double(bounds.Y), C.double(bounds.Width), C.double(bounds.Height))
-	C.cairo_fill(gc.gc)
+// UserToDevice converts the user-space coordinates to device-space.
+func (gc *Graphics) UserToDevice(ux, uy float64) (x, y float64) {
+	dx := C.double(ux)
+	dy := C.double(uy)
+	C.cairo_user_to_device(gc.gc, &dx, &dy)
+	return float64(dx), float64(dy)
 }
 
-// StrokeRect draws a rectangle in the specified bounds. To ensure the rectangle is aligned to pixel
-// boundaries, 0.5 is added to the origin coordinates and 1 is subtracted from the size values.
-func (gc *Graphics) StrokeRect(bounds geom.Rect) {
-	if bounds.Width <= 1 || bounds.Height <= 1 {
-		gc.FillRect(bounds)
-	} else {
-		bounds.InsetUniform(0.5)
-		C.cairo_rectangle(gc.gc, C.double(bounds.X), C.double(bounds.Y), C.double(bounds.Width), C.double(bounds.Height))
-		C.cairo_stroke(gc.gc)
-	}
+// UserToDeviceDistance converts the user-space distance to device-space.
+func (gc *Graphics) UserToDeviceDistance(uw, uh float64) (w, h float64) {
+	dw := C.double(uw)
+	dh := C.double(uh)
+	C.cairo_user_to_device_distance(gc.gc, &dw, &dh)
+	return float64(dw), float64(dh)
 }
 
-// FillEllipse fills an ellipse in the specified bounds.
-func (gc *Graphics) FillEllipse(bounds geom.Rect) {
-	gc.Save()
-	cx := bounds.X + bounds.Width/2
-	cy := bounds.Y + bounds.Height/2
-	gc.Translate(cx, cy)
-	if bounds.Width > bounds.Height {
-		gc.Scale(1, bounds.Height/bounds.Width)
-	} else {
-		gc.Scale(bounds.Width/bounds.Height, 1)
-	}
-	gc.Translate(-cx, -cy)
-	gc.BeginPath()
-	gc.Arc(cx, cy, math.Max(bounds.Width, bounds.Height)/2, 0, 2*math.Pi, true)
-	gc.Restore()
-	gc.FillPath()
+// DeviceToUser converts the device-space coordinates to user-space.
+func (gc *Graphics) DeviceToUser(ux, uy float64) (x, y float64) {
+	dx := C.double(ux)
+	dy := C.double(uy)
+	C.cairo_device_to_user(gc.gc, &dx, &dy)
+	return float64(dx), float64(dy)
 }
 
-// StrokeEllipse draws an ellipse in the specified bounds. To ensure the ellipse is aligned to pixel
-// boundaries, 0.5 is added to the origin coordinates and 1 is subtracted from the size values.
-func (gc *Graphics) StrokeEllipse(bounds geom.Rect) {
-	if bounds.Width <= 1 || bounds.Height <= 1 {
-		gc.FillEllipse(bounds)
-	} else {
-		bounds.InsetUniform(0.5)
-		lineWidth := gc.StrokeWidth()
-		gc.Save()
-		cx := bounds.X + bounds.Width/2
-		cy := bounds.Y + bounds.Height/2
-		gc.Translate(cx, cy)
-		if bounds.Width > bounds.Height {
-			gc.Scale(1, bounds.Height/bounds.Width)
-		} else {
-			gc.Scale(bounds.Width/bounds.Height, 1)
-		}
-		gc.Translate(-cx, -cy)
-		gc.BeginPath()
-		gc.Arc(cx, cy, math.Max(bounds.Width, bounds.Height)/2, 0, 2*math.Pi, true)
-		gc.Restore()
-		gc.SetStrokeWidth(lineWidth)
-		gc.StrokePath()
-	}
-}
-
-// FillPath fills the current path using the Non-Zero winding rule
-// (https://en.wikipedia.org/wiki/Nonzero-rule), then clears the current path state.
-func (gc *Graphics) FillPath() {
-	C.cairo_fill(gc.gc)
-}
-
-// FillPathEvenOdd fills the current path using the Even-Odd winding rule
-// (https://en.wikipedia.org/wiki/Even–odd_rule), then clears the current path state.
-func (gc *Graphics) FillPathEvenOdd() {
-	current := C.cairo_get_fill_rule(gc.gc)
-	if current != C.CAIRO_FILL_RULE_EVEN_ODD {
-		C.cairo_set_fill_rule(gc.gc, C.CAIRO_FILL_RULE_EVEN_ODD)
-	}
-	C.cairo_fill(gc.gc)
-	if current != C.CAIRO_FILL_RULE_EVEN_ODD {
-		C.cairo_set_fill_rule(gc.gc, current)
-	}
-}
-
-// StrokePath strokes the current path, then clears the current path state.
-func (gc *Graphics) StrokePath() {
-	C.cairo_stroke(gc.gc)
+// DeviceToUserDistance converts the device-space distance to user-space.
+func (gc *Graphics) DeviceToUserDistance(uw, uh float64) (w, h float64) {
+	dw := C.double(uw)
+	dh := C.double(uh)
+	C.cairo_device_to_user_distance(gc.gc, &dw, &dh)
+	return float64(dw), float64(dh)
 }
 
 // BeginPath creates a new empty path in the context.
@@ -207,9 +193,37 @@ func (gc *Graphics) BeginPath() {
 	C.cairo_new_path(gc.gc)
 }
 
-// ClosePath closes and terminates the current path’s subpath.
-func (gc *Graphics) ClosePath() {
-	C.cairo_close_path(gc.gc)
+// AddPath adds a previously created Path object to the current path.
+func (gc *Graphics) AddPath(path *Path) {
+	for _, node := range path.data {
+		switch t := node.(type) {
+		case *moveToPathNode:
+			gc.MoveTo(t.x, t.y)
+		case *lineToPathNode:
+			gc.LineTo(t.x, t.y)
+		case *arcPathNode:
+			gc.Arc(t.cx, t.cy, t.radius, t.startAngleRadians, t.endAngleRadians, t.clockwise)
+		case *curveToPathNode:
+			gc.CurveTo(t.cp1x, t.cp1y, t.cp2x, t.cp2y, t.x, t.y)
+		case *quadCurveToPathNode:
+			gc.QuadCurveTo(t.cpx, t.cpy, t.x, t.y)
+		case *rectPathNode:
+			gc.Rect(t.bounds)
+		case *ellipsePathNode:
+			gc.Ellipse(t.bounds)
+		case *subPathNode:
+			gc.BeginSubPath()
+		case *closePathNode:
+			gc.ClosePath()
+		default:
+			panic("Unknown path node type")
+		}
+	}
+}
+
+// BeginSubPath creates a new empty sub-path in the context. Any existing path is not affected.
+func (gc *Graphics) BeginSubPath() {
+	C.cairo_new_sub_path(gc.gc)
 }
 
 // MoveTo begins a new subpath at the specified point.
@@ -245,59 +259,321 @@ func (gc *Graphics) QuadCurveTo(cpx, cpy, x, y float64) {
 	gc.CurveTo(twoThirds*cpx+oneThird*float64(x0), twoThirds*cpy+oneThird*float64(y0), twoThirds*cpx+oneThird*x, twoThirds*cpy+oneThird*y, x, y)
 }
 
-// AddPath adds a previously created Path object to the current path.
-func (gc *Graphics) AddPath(path *Path) {
-	path.Apply(gc.gc)
+// Rect appends a rectangle to the current path.
+func (gc *Graphics) Rect(bounds geom.Rect) {
+	C.cairo_rectangle(gc.gc, C.double(bounds.X), C.double(bounds.Y), C.double(bounds.Width), C.double(bounds.Height))
 }
 
-// Clip sets the clipping path to the intersection of the current clipping path with the area
-// defined by the current path using the Non-Zero winding rule
-// (https://en.wikipedia.org/wiki/Nonzero-rule), then clears the current path state.
+// Ellipse appends an ellipse to the current path.
+func (gc *Graphics) Ellipse(bounds geom.Rect) {
+	gc.Save()
+	cx := bounds.X + bounds.Width/2
+	cy := bounds.Y + bounds.Height/2
+	gc.Translate(cx, cy)
+	if bounds.Width > bounds.Height {
+		gc.Scale(1, bounds.Height/bounds.Width)
+	} else {
+		gc.Scale(bounds.Width/bounds.Height, 1)
+	}
+	gc.Translate(-cx, -cy)
+	gc.BeginPath()
+	gc.Arc(cx, cy, math.Max(bounds.Width, bounds.Height)/2, 0, 2*math.Pi, true)
+	gc.Restore()
+}
+
+// ClosePath closes and terminates the current path’s subpath.
+func (gc *Graphics) ClosePath() {
+	C.cairo_close_path(gc.gc)
+}
+
+// PushGroup temporarily redirects drawing to an intermediate surface known as a group. The
+// redirection lasts until the group is completed by a call to PopGroup() or PopGroupToSource().
+// Groups can be nested arbitrarily deep.
+func (gc *Graphics) PushGroup() {
+	C.cairo_push_group(gc.gc)
+}
+
+// PopGroup terminates the redirection begun by a call to PushGroup and returns a new Paint
+// containing the results of all drawing operations performed to the group.
+func (gc *Graphics) PopGroup() Paint {
+	return Paint{pattern: C.cairo_pop_group(gc.gc)}
+}
+
+// PopGroupToPaint terminates the redirection begun by a call to PushGroup and installs the
+// resulting Paint as the current source paint.
+func (gc *Graphics) PopGroupToPaint() {
+	C.cairo_pop_group_to_source(gc.gc)
+}
+
+// Paint returns a copy of the current paint. You are responsible for calling its Dispose() method.
+func (gc *Graphics) Paint() Paint {
+	pattern := C.cairo_get_source(gc.gc)
+	C.cairo_pattern_reference(pattern)
+	return Paint{pattern: pattern}
+}
+
+// SetPaint sets the current paint.
+func (gc *Graphics) SetPaint(paint Paint) {
+	C.cairo_set_source(gc.gc, paint.pattern)
+}
+
+// SetColor sets the current paint with a color.
+func (gc *Graphics) SetColor(color color.Color) {
+	C.cairo_set_source_rgba(gc.gc, C.double(color.RedIntensity()), C.double(color.GreenIntensity()), C.double(color.BlueIntensity()), C.double(color.AlphaIntensity()))
+}
+
+// SetImage sets the current paint with a tiled image. 'dx' and 'dy' specify the amount to offset
+// the image pattern.
+func (gc *Graphics) SetImage(img *Image, dx, dy float64) {
+	C.cairo_set_source_surface(gc.gc, img.surface, C.double(dx), C.double(dy))
+	C.cairo_pattern_set_extend(C.cairo_get_source(gc.gc), C.CAIRO_EXTEND_REPEAT)
+}
+
+// AntiAlias returns the current anti-aliasing mode.
+func (gc *Graphics) AntiAlias() AntiAliasKind {
+	return AntiAliasKind(C.cairo_get_antialias(gc.gc))
+}
+
+// SetAntiAlias sets the anti-aliasing mode of the rasterizer used for drawing shapes. This value is
+// a hint and a particular backend may or may not support a particular value. Note that this option
+// does not affect text rendering.
+func (gc *Graphics) SetAntiAlias(kind AntiAliasKind) {
+	C.cairo_set_antialias(gc.gc, C.cairo_antialias_t(kind))
+}
+
+// StrokeWidth returns the current stroke width.
+func (gc *Graphics) StrokeWidth() float64 {
+	return float64(C.cairo_get_line_width(gc.gc))
+}
+
+// SetStrokeWidth sets the current stroke width.
+func (gc *Graphics) SetStrokeWidth(width float64) {
+	C.cairo_set_line_width(gc.gc, C.double(width))
+}
+
+// Dash returns the current dash settings.
+func (gc *Graphics) Dash() (segments []float64, offset float64) {
+	count := C.cairo_get_dash_count(gc.gc)
+	if count == 0 {
+		return nil, 0
+	}
+	segments = make([]float64, count)
+	C.cairo_get_dash(gc.gc, (*C.double)(&segments[0]), (*C.double)(&offset))
+	return
+}
+
+// SetDash sets the dash pattern to be used when stroking. A dash pattern is specified by an array
+// of positive values. Each value provides the length of alternate "on" and "off" portions of the
+// stroke. The offset specifies an offset into the pattern at which the stroke begins. Each "on"
+// segment will have caps applied as if the segment were a separate sub-path. In particular, it is
+// valid to use an "on" length of 0 with LineCapRound or LineCapSquare in order to distribute dots
+// or squares along a path. Note: The length values are in user-space units as evaluated at the time
+// of stroking. This is not necessarily the same as the user space at the time of SetDash(). If
+// 'segments' is nil, dashing is disabled. If 'segments' only contains one value, a symmetric
+// pattern is assumed with alternating on and off portions of the size specified by the single
+// value. If any value in 'segments' is negative, or if all values are 0, this call will be ignored.
+func (gc *Graphics) SetDash(segments []float64, offset float64) {
+	if segments == nil {
+		C.cairo_set_dash(gc.gc, nil, 0, 0)
+	} else {
+		var hasNonZero bool
+		for one := range segments {
+			if one < 0 {
+				return
+			}
+			if one > 0 {
+				hasNonZero = true
+			}
+		}
+		if hasNonZero {
+			C.cairo_set_dash(gc.gc, (*C.double)(&segments[0]), C.int(len(segments)), C.double(offset))
+		}
+	}
+}
+
+// FillRule returns the current FillRule.
+func (gc *Graphics) FillRule() FillRule {
+	return FillRule(C.cairo_get_fill_rule(gc.gc))
+}
+
+// SetFillRule sets the current FillRule.
+func (gc *Graphics) SetFillRule(rule FillRule) {
+	C.cairo_set_fill_rule(gc.gc, C.cairo_fill_rule_t(rule))
+}
+
+// LineCap returns the current LineCap.
+func (gc *Graphics) LineCap() LineCap {
+	return LineCap(C.cairo_get_line_cap(gc.gc))
+}
+
+// SetLineCap sets the current LineCap.
+func (gc *Graphics) SetLineCap(cap LineCap) {
+	C.cairo_set_line_cap(gc.gc, C.cairo_line_cap_t(cap))
+}
+
+// LineJoin returns the current LineJoin.
+func (gc *Graphics) LineJoin() LineJoin {
+	return LineJoin(C.cairo_get_line_join(gc.gc))
+}
+
+// SetLineJoin sets the current LineJoin.
+func (gc *Graphics) SetLineJoin(cap LineJoin) {
+	C.cairo_set_line_join(gc.gc, C.cairo_line_join_t(cap))
+}
+
+// MiterLimit returns the current miter limit.
+func (gc *Graphics) MiterLimit() float64 {
+	return float64(C.cairo_get_miter_limit(gc.gc))
+}
+
+// SetMiterLimit sets the current miter limit.
+func (gc *Graphics) SetMiterLimit(limit float64) {
+	C.cairo_set_miter_limit(gc.gc, C.double(limit))
+}
+
+// CompositingOperator returns the current compositing operator.
+func (gc *Graphics) CompositingOperator() compositing.Op {
+	return compositing.Op(C.cairo_get_operator(gc.gc))
+}
+
+// SetCompositingOperator sets the current compositing operator.
+func (gc *Graphics) SetCompositingOperator(op compositing.Op) {
+	C.cairo_set_operator(gc.gc, C.cairo_operator_t(op))
+}
+
+// Clip establishes a new clip region by intersecting the current clip region with the current path
+// as it would be filled by Fill() and according to the current FillRule. After Clip(), the current
+// path will be cleared from the context. The current clip region affects all drawing operations by
+// effectively masking out any changes to the surface that are outside the current clip region.
+// Calling Clip() can only make the clip region smaller, never larger. The current clip is part of
+// the graphics state, so a temporary restriction of the clip region can be achieved by calling
+// Clip() within a Save()/Restore() pair. The only other means of increasing the size of the clip
+// region is ResetClip().
 func (gc *Graphics) Clip() {
 	C.cairo_clip(gc.gc)
 }
 
-// ClipEvenOdd sets the clipping path to the intersection of the current clipping path with
-// the area defined by the current path using the Even-Odd winding rule
-// (https://en.wikipedia.org/wiki/Even–odd_rule), then clears the current path state.
-func (gc *Graphics) ClipEvenOdd() {
-	current := C.cairo_get_fill_rule(gc.gc)
-	if current != C.CAIRO_FILL_RULE_EVEN_ODD {
-		C.cairo_set_fill_rule(gc.gc, C.CAIRO_FILL_RULE_EVEN_ODD)
-	}
-	C.cairo_clip(gc.gc)
-	if current != C.CAIRO_FILL_RULE_EVEN_ODD {
-		C.cairo_set_fill_rule(gc.gc, current)
-	}
+// ClipPreserve operates as Clip(), but does not clear the path from the context.
+func (gc *Graphics) ClipPreserve() {
+	C.cairo_clip_preserve(gc.gc)
 }
 
-// ClipRect sets the clipping path to the intersection of the current clipping path with the
-// area defined by the specified rectangle, then clears the current path state.
-func (gc *Graphics) ClipRect(bounds geom.Rect) {
-	C.cairo_rectangle(gc.gc, C.double(bounds.X), C.double(bounds.Y), C.double(bounds.Width), C.double(bounds.Height))
-	C.cairo_clip(gc.gc)
+// InClip returns true if the specific location would be visible through the current clip.
+func (gc *Graphics) InClip(x, y float64) bool {
+	return C.cairo_in_clip(gc.gc, C.double(x), C.double(y)) != 0
 }
 
-// DrawLinearGradient from sx, sy to ex, ey.
-func (gc *Graphics) DrawLinearGradient(gradient *Gradient, sx, sy, ex, ey float64) {
-	pattern := C.cairo_pattern_create_linear(C.double(sx), C.double(sy), C.double(ex), C.double(ey))
-	for _, one := range gradient.Stops {
-		C.cairo_pattern_add_color_stop_rgba(pattern, C.double(one.Location), C.double(one.Color.RedIntensity()), C.double(one.Color.GreenIntensity()), C.double(one.Color.BlueIntensity()), C.double(one.Color.AlphaIntensity()))
-	}
-	C.cairo_set_source(gc.gc, pattern)
+// ResetClip resets the current clip region to its original, unrestricted state. That is, set the
+// clip region to an infinitely large shape containing the target surface. Note that code meant to
+// be reusable should not call ResetClip() as it will cause results unexpected by higher-level code
+// which calls Clip(). Consider using Save() and Restore() around Clip() as a more robust means of
+// temporarily restricting the clip region.
+func (gc *Graphics) ResetClip() {
+	C.cairo_reset_clip(gc.gc)
+}
+
+// FillPath fills the current path, then clears the current path state.
+func (gc *Graphics) FillPath() {
+	C.cairo_fill(gc.gc)
+}
+
+// FillPathPreserve fills the current path without clearing the current path state.
+func (gc *Graphics) FillPathPreserve() {
+	C.cairo_fill_preserve(gc.gc)
+}
+
+// InFill returns true if the specific location would be inside the area affected by FillPath() or
+// FillPathPreserve(). Note that the clip area is not taken into account.
+func (gc *Graphics) InFill(x, y float64) bool {
+	return C.cairo_in_fill(gc.gc, C.double(x), C.double(y)) != 0
+}
+
+// MaskClipWithPaint uses the current Paint to cover the entire clip region, but uses the alpha
+// channel of 'mask' as a mask (i.e. opaque areas of 'mask' are painted with the current Paint,
+// transparent areas are not painted).
+func (gc *Graphics) MaskClipWithPaint(mask Paint) {
+	C.cairo_mask(gc.gc, mask.pattern)
+}
+
+// MaskClipWithImage uses the current Paint to cover the entire clip region, but uses the alpha
+// channel of 'mask' as a mask (i.e. opaque areas of 'mask' are painted with the current Paint,
+// transparent areas are not painted). The image's mask will be offset by 'dx' and 'dy'.
+func (gc *Graphics) MaskClipWithImage(mask *Image, dx, dy float64) {
+	C.cairo_mask_surface(gc.gc, mask.surface, C.double(dx), C.double(dy))
+}
+
+// FillClip uses the current Paint to fill the entire clip region.
+func (gc *Graphics) FillClip() {
 	C.cairo_paint(gc.gc)
-	C.cairo_pattern_destroy(pattern)
 }
 
-// DrawRadialGradient from sx, sy to ex, ey.
-func (gc *Graphics) DrawRadialGradient(gradient *Gradient, scx, scy, startRadius, ecx, ecy, endRadius float64) {
-	pattern := C.cairo_pattern_create_radial(C.double(scx), C.double(scy), C.double(startRadius), C.double(ecx), C.double(ecy), C.double(endRadius))
-	for _, one := range gradient.Stops {
-		C.cairo_pattern_add_color_stop_rgba(pattern, C.double(one.Location), C.double(one.Color.RedIntensity()), C.double(one.Color.GreenIntensity()), C.double(one.Color.BlueIntensity()), C.double(one.Color.AlphaIntensity()))
+// FillClipWithAlpha uses the current Paint to cover the entire clip region, but with the specified
+// 'alpha' value applied.
+func (gc *Graphics) FillClipWithAlpha(alpha float64) {
+	C.cairo_paint_with_alpha(gc.gc, C.double(alpha))
+}
+
+// StrokePath strokes the current path, then clears the current path state.
+func (gc *Graphics) StrokePath() {
+	C.cairo_stroke(gc.gc)
+}
+
+// StrokePathPreserve strokes the current path without clearing the current path state.
+func (gc *Graphics) StrokePathPreserve() {
+	C.cairo_stroke_preserve(gc.gc)
+}
+
+// InStroke returns true if the specific location would be inside the area affected by StrokePath()
+// or StrokePathPreserve(). Note that the clip area is not taken into account.
+func (gc *Graphics) InStroke(x, y float64) bool {
+	return C.cairo_in_stroke(gc.gc, C.double(x), C.double(y)) != 0
+}
+
+// StrokeLine draws a line between two points. To ensure the line is aligned to pixel boundaries,
+// 0.5 is added to each coordinate.
+func (gc *Graphics) StrokeLine(x1, y1, x2, y2 float64) {
+	gc.BeginPath()
+	gc.MoveTo(x1+0.5, y1+0.5)
+	gc.LineTo(x2+0.5, y2+0.5)
+	gc.StrokePath()
+}
+
+// StrokeRect draws a rectangle in the specified bounds. To ensure the rectangle is aligned to pixel
+// boundaries, 0.5 is added to the origin coordinates and 1 is subtracted from the size values.
+func (gc *Graphics) StrokeRect(bounds geom.Rect) {
+	if bounds.Width <= 1 || bounds.Height <= 1 {
+		gc.FillRect(bounds)
+	} else {
+		bounds.InsetUniform(0.5)
+		gc.Rect(bounds)
+		gc.StrokePath()
 	}
-	C.cairo_set_source(gc.gc, pattern)
-	C.cairo_paint(gc.gc)
-	C.cairo_pattern_destroy(pattern)
+}
+
+// StrokeEllipse draws an ellipse in the specified bounds. To ensure the ellipse is aligned to pixel
+// boundaries, 0.5 is added to the origin coordinates and 1 is subtracted from the size values.
+func (gc *Graphics) StrokeEllipse(bounds geom.Rect) {
+	if bounds.Width <= 1 || bounds.Height <= 1 {
+		gc.FillEllipse(bounds)
+	} else {
+		bounds.InsetUniform(0.5)
+		lineWidth := gc.StrokeWidth()
+		gc.Ellipse(bounds)
+		gc.SetStrokeWidth(lineWidth)
+		gc.StrokePath()
+	}
+}
+
+// FillRect fills a rectangle in the specified bounds.
+func (gc *Graphics) FillRect(bounds geom.Rect) {
+	gc.Rect(bounds)
+	gc.FillPath()
+}
+
+// FillEllipse fills an ellipse in the specified bounds.
+func (gc *Graphics) FillEllipse(bounds geom.Rect) {
+	gc.Ellipse(bounds)
+	gc.FillPath()
 }
 
 // DragImage at the specified location.
@@ -308,18 +584,18 @@ func (gc *Graphics) DrawImage(img *Image, where geom.Point) {
 // DrawImageInRect draws the image in the bounds, scaling if necessary.
 func (gc *Graphics) DrawImageInRect(img *Image, bounds geom.Rect) {
 	gc.Save()
-	gc.ClipRect(bounds)
+	gc.Rect(bounds)
+	gc.Clip()
 	gc.Translate(bounds.X, bounds.Y)
 	size := img.Size()
 	gc.Scale(bounds.Width/size.Width, bounds.Height/size.Height)
-	C.cairo_set_source_surface(gc.gc, img.PlatformPtr(), 0, 0)
-	C.cairo_paint(gc.gc)
+	C.cairo_set_source_surface(gc.gc, img.surface, 0, 0)
+	gc.FillClip()
 	gc.Restore()
 }
 
 // DrawString at the specified location using the current font and fill color.
-func (gc *Graphics) DrawString(x, y float64, str string) {
-	f := gc.Font()
+func (gc *Graphics) DrawString(x, y float64, str string, f *font.Font) {
 	layout := C.pango_cairo_create_layout(gc.gc)
 	C.pango_layout_set_font_description(layout, f.PangoFontDescription())
 	C.pango_layout_set_spacing(layout, C.int(f.Leading()*font.PangoScale))
@@ -331,19 +607,4 @@ func (gc *Graphics) DrawString(x, y float64, str string) {
 	var inkRect, logicalRect C.PangoRectangle
 	C.pango_layout_get_pixel_extents(layout, &inkRect, &logicalRect)
 	C.g_object_unref(layout)
-}
-
-// Translate the coordinate system.
-func (gc *Graphics) Translate(x, y float64) {
-	C.cairo_translate(gc.gc, C.double(x), C.double(y))
-}
-
-// Scale the coordinate system.
-func (gc *Graphics) Scale(x, y float64) {
-	C.cairo_scale(gc.gc, C.double(x), C.double(y))
-}
-
-// Rotate the coordinate system.
-func (gc *Graphics) Rotate(angleInRadians float64) {
-	C.cairo_rotate(gc.gc, C.double(angleInRadians))
 }

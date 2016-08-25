@@ -10,7 +10,7 @@
 package font
 
 import (
-	"github.com/richardwilkes/ui/geom"
+	"github.com/richardwilkes/geom"
 	"unsafe"
 	// #cgo pkg-config: pangocairo
 	// #include <pango/pangocairo.h>

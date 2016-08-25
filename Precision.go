@@ -11,7 +11,7 @@ package ui
 
 import (
 	"github.com/richardwilkes/ui/draw"
-	"github.com/richardwilkes/ui/geom"
+	"github.com/richardwilkes/geom"
 	"github.com/richardwilkes/xmath"
 	"math"
 )

@@ -9,55 +9,84 @@
 
 #include <Cocoa/Cocoa.h>
 #include "_cgo_export.h"
-#include "Cursor.h"
+#include "Cursor_darwin.h"
 
-uiCursor platformSystemCursor(int id) {
-	switch (id) {
-		case platformArrowID:
-			return [NSCursor arrowCursor];
-		case platformTextID:
-			return [NSCursor IBeamCursor];
-		case platformVerticalTextID:
-			return [NSCursor IBeamCursorForVerticalLayout];
-		case platformCrossHairID:
-			return [NSCursor crosshairCursor];
-		case platformClosedHandID:
-			return [NSCursor closedHandCursor];
-		case platformOpenHandID:
-			return [NSCursor openHandCursor];
-		case platformPointingHandID:
-			return [NSCursor pointingHandCursor];
-		case platformResizeLeftID:
-			return [NSCursor resizeLeftCursor];
-		case platformResizeRightID:
-			return [NSCursor resizeRightCursor];
-		case platformResizeLeftRightID:
-			return [NSCursor resizeLeftRightCursor];
-		case platformResizeUpID:
-			return [NSCursor resizeUpCursor];
-		case platformResizeDownID:
-			return [NSCursor resizeDownCursor];
-		case platformResizeUpDownID:
-			return [NSCursor resizeUpDownCursor];
-		case platformDisappearingItemID:
-			return [NSCursor disappearingItemCursor];
-		case platformNotAllowedID:
-			return [NSCursor operationNotAllowedCursor];
-		case platformDragLinkID:
-			return [NSCursor dragLinkCursor];
-		case platformDragCopyID:
-			return [NSCursor dragCopyCursor];
-		case platformContextMenuID:
-			return [NSCursor contextualMenuCursor];
-		default:
-			return NULL;
-	}
+void *platformArrow() {
+	return [NSCursor arrowCursor];
 }
 
-uiCursor platformNewCursor(void *img, float hotX, float hotY) {
+void *platformText() {
+	return [NSCursor IBeamCursor];
+}
+
+void *platformVerticalText() {
+	return [NSCursor IBeamCursorForVerticalLayout];
+}
+
+void *platformCrossHair() {
+	return [NSCursor crosshairCursor];
+}
+
+void *platformClosedHand() {
+	return [NSCursor closedHandCursor];
+}
+
+void *platformOpenHand() {
+	return [NSCursor openHandCursor];
+}
+
+void *platformPointingHand() {
+	return [NSCursor pointingHandCursor];
+}
+
+void *platformResizeLeft() {
+	return [NSCursor resizeLeftCursor];
+}
+
+void *platformResizeRight() {
+	return [NSCursor resizeRightCursor];
+}
+
+void *platformResizeLeftRight() {
+	return [NSCursor resizeLeftRightCursor];
+}
+
+void *platformResizeUp() {
+	return [NSCursor resizeUpCursor];
+}
+
+void *platformResizeDown() {
+	return [NSCursor resizeDownCursor];
+}
+
+void *platformResizeUpDown() {
+	return [NSCursor resizeUpDownCursor];
+}
+
+void *platformDisappearingItem() {
+	return [NSCursor disappearingItemCursor];
+}
+
+void *platformNotAllowed() {
+	return [NSCursor operationNotAllowedCursor];
+}
+
+void *platformDragLink() {
+	return [NSCursor dragLinkCursor];
+}
+
+void *platformDragCopy() {
+	return [NSCursor dragCopyCursor];
+}
+
+void *platformContextMenu() {
+	return [NSCursor contextualMenuCursor];
+}
+
+void *platformNewCursor(void *img, float hotX, float hotY) {
 	return [[[NSCursor alloc] initWithImage:img hotSpot:NSMakePoint(hotX,hotY)] retain];
 }
 
-void platformDisposeCursor(uiCursor cursor) {
+void platformDisposeCursor(void *cursor) {
 	[((NSCursor *)cursor) release];
 }

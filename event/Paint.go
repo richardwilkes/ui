@@ -13,7 +13,7 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/richardwilkes/ui/draw"
-	"github.com/richardwilkes/ui/geom"
+	"github.com/richardwilkes/geom"
 	"reflect"
 )
 

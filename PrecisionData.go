@@ -11,7 +11,7 @@ package ui
 
 import (
 	"github.com/richardwilkes/ui/draw"
-	"github.com/richardwilkes/ui/geom"
+	"github.com/richardwilkes/geom"
 )
 
 // PrecisionData is used to control how an object is laid out by the Precision layout.

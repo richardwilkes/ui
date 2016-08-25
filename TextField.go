@@ -11,12 +11,12 @@ package ui
 
 import (
 	"fmt"
+	"github.com/richardwilkes/geom"
 	"github.com/richardwilkes/ui/clipboard"
 	"github.com/richardwilkes/ui/color"
 	"github.com/richardwilkes/ui/cursor"
 	"github.com/richardwilkes/ui/draw"
 	"github.com/richardwilkes/ui/event"
-	"github.com/richardwilkes/ui/geom"
 	"github.com/richardwilkes/ui/keys"
 	"github.com/richardwilkes/ui/theme"
 	"github.com/richardwilkes/xmath"
@@ -103,15 +103,15 @@ func (field *TextField) paint(evt event.Event) {
 		gc.SetColor(field.Theme.DisabledBackgroundColor)
 		gc.FillRect(e.DirtyRect())
 	}
-	gc.ClipRect(bounds)
-	gc.SetFont(field.Theme.Font)
+	gc.Rect(bounds)
+	gc.Clip()
 	textTop := bounds.Y + (bounds.Height-field.Theme.Font.Height())/2
 	if field.HasSelectionRange() {
 		left := bounds.X + field.scrollOffset
 		if field.selectionStart > 0 {
 			gc.SetColor(color.Text)
 			pre := string(field.runes[:field.selectionStart])
-			gc.DrawString(left, textTop, pre)
+			gc.DrawString(left, textTop, pre, field.Theme.Font)
 			left += field.Theme.Font.Measure(pre).Width
 		}
 		mid := string(field.runes[field.selectionStart:field.selectionEnd])
@@ -127,19 +127,19 @@ func (field *TextField) paint(evt event.Event) {
 			gc.StrokeRect(selRect)
 		}
 		gc.SetColor(color.SelectedText)
-		gc.DrawString(left, textTop, mid)
+		gc.DrawString(left, textTop, mid, field.Theme.Font)
 		if field.selectionStart < len(field.runes) {
 			gc.SetColor(color.Text)
-			gc.DrawString(right, textTop, string(field.runes[field.selectionEnd:]))
+			gc.DrawString(right, textTop, string(field.runes[field.selectionEnd:]), field.Theme.Font)
 		}
 	} else if len(field.runes) == 0 {
 		if field.watermark != "" {
 			gc.SetColor(color.Gray)
-			gc.DrawString(bounds.X, textTop, field.watermark)
+			gc.DrawString(bounds.X, textTop, field.watermark, field.Theme.Font)
 		}
 	} else {
 		gc.SetColor(color.Text)
-		gc.DrawString(bounds.X+field.scrollOffset, textTop, string(field.runes))
+		gc.DrawString(bounds.X+field.scrollOffset, textTop, string(field.runes), field.Theme.Font)
 	}
 	if !field.HasSelectionRange() && field.Focused() {
 		if field.showCursor {

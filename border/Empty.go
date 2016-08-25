@@ -11,7 +11,7 @@ package border
 
 import (
 	"github.com/richardwilkes/ui/draw"
-	"github.com/richardwilkes/ui/geom"
+	"github.com/richardwilkes/geom"
 )
 
 // Empty is a border that contains empty space, effectively providing an empty margin.

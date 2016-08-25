@@ -12,7 +12,7 @@ package ui
 import (
 	"github.com/richardwilkes/ui/color"
 	"github.com/richardwilkes/ui/event"
-	"github.com/richardwilkes/ui/geom"
+	"github.com/richardwilkes/geom"
 )
 
 // Separator provides a simple vertical or horizontal separator line.

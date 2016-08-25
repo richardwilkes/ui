@@ -14,7 +14,7 @@ import (
 	"github.com/richardwilkes/ui/color"
 	"github.com/richardwilkes/ui/draw"
 	"github.com/richardwilkes/ui/event"
-	"github.com/richardwilkes/ui/geom"
+	"github.com/richardwilkes/geom"
 )
 
 // A Widget is the basic user interface block that interacts with the user.

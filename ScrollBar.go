@@ -10,10 +10,10 @@
 package ui
 
 import (
+	"github.com/richardwilkes/geom"
 	"github.com/richardwilkes/ui/color"
 	"github.com/richardwilkes/ui/draw"
 	"github.com/richardwilkes/ui/event"
-	"github.com/richardwilkes/ui/geom"
 	"github.com/richardwilkes/ui/theme"
 	"math"
 	"time"
@@ -326,14 +326,16 @@ func (sb *ScrollBar) drawThumb(g *draw.Graphics) {
 	bounds := sb.partRect(scrollBarThumb)
 	if !bounds.IsEmpty() {
 		bgColor := sb.baseBackground(scrollBarThumb)
-		g.Save()
-		g.ClipRect(bounds)
+		g.Rect(bounds)
+		var paint draw.Paint
 		if sb.horizontal {
-			g.DrawLinearGradient(sb.Theme.Gradient(bgColor), bounds.X, bounds.Y, bounds.X, bounds.Y+bounds.Height)
+			paint = draw.NewLinearGradientPaint(sb.Theme.Gradient(bgColor), bounds.X, bounds.Y, bounds.X, bounds.Y+bounds.Height)
 		} else {
-			g.DrawLinearGradient(sb.Theme.Gradient(bgColor), bounds.X, bounds.Y, bounds.X+bounds.Width, bounds.Y)
+			paint = draw.NewLinearGradientPaint(sb.Theme.Gradient(bgColor), bounds.X, bounds.Y, bounds.X+bounds.Width, bounds.Y)
 		}
-		g.Restore()
+		g.SetPaint(paint)
+		g.FillPath()
+		paint.Dispose()
 		g.SetColor(bgColor.AdjustBrightness(sb.Theme.OutlineAdjustment))
 		g.StrokeRect(bounds)
 		g.SetColor(sb.markColor(scrollBarThumb))
@@ -364,10 +366,12 @@ func (sb *ScrollBar) drawThumb(g *draw.Graphics) {
 func (sb *ScrollBar) drawLineButton(g *draw.Graphics, linePart scrollBarPart) {
 	bounds := sb.partRect(linePart)
 	g.Save()
-	g.ClipRect(bounds)
+	g.Rect(bounds)
 	bgColor := sb.baseBackground(linePart)
-	g.DrawLinearGradient(sb.Theme.Gradient(bgColor), bounds.X, bounds.Y, bounds.X, bounds.Y+bounds.Height)
-	g.Restore()
+	paint := draw.NewLinearGradientPaint(sb.Theme.Gradient(bgColor), bounds.X, bounds.Y, bounds.X, bounds.Y+bounds.Height)
+	g.SetPaint(paint)
+	g.FillPath()
+	paint.Dispose()
 	g.SetColor(bgColor.AdjustBrightness(sb.Theme.OutlineAdjustment))
 	g.StrokeRect(bounds)
 	bounds.InsetUniform(1)

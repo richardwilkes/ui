@@ -13,7 +13,7 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/richardwilkes/ui/cursor"
-	"github.com/richardwilkes/ui/geom"
+	"github.com/richardwilkes/geom"
 	"reflect"
 )
 

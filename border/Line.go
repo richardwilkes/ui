@@ -10,9 +10,9 @@
 package border
 
 import (
+	"github.com/richardwilkes/geom"
 	"github.com/richardwilkes/ui/color"
 	"github.com/richardwilkes/ui/draw"
-	"github.com/richardwilkes/ui/geom"
 )
 
 // Line is a border that draws a line along some or all of its sides.
@@ -53,7 +53,8 @@ func (line *Line) Draw(gc *draw.Graphics, bounds geom.Rect) {
 	gc.LineTo(clip.X+clip.Width, clip.Y+clip.Height)
 	gc.LineTo(clip.X, clip.Y+clip.Height)
 	gc.LineTo(clip.X, clip.Y)
-	gc.ClipEvenOdd()
+	gc.SetFillRule(draw.FillRuleEvenOdd)
+	gc.Clip()
 	gc.SetColor(line.color)
 	gc.FillRect(bounds)
 	gc.Restore()

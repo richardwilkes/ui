@@ -10,10 +10,10 @@
 package ui
 
 import (
+	"github.com/richardwilkes/geom"
 	"github.com/richardwilkes/ui/color"
 	"github.com/richardwilkes/ui/draw"
 	"github.com/richardwilkes/ui/event"
-	"github.com/richardwilkes/ui/geom"
 	"github.com/richardwilkes/ui/keys"
 	"github.com/richardwilkes/ui/theme"
 	"time"
@@ -90,7 +90,11 @@ func (button *ImageButton) paint(evt event.Event) {
 	gc.AddPath(path)
 	gc.Clip()
 	base := button.BaseBackground()
-	gc.DrawLinearGradient(button.Theme.Gradient(base), bounds.X+bounds.Width/2, bounds.Y+1, bounds.X+bounds.Width/2, bounds.Y+bounds.Height-1)
+	gc.AddPath(path)
+	paint := draw.NewLinearGradientPaint(button.Theme.Gradient(base), bounds.X+bounds.Width/2, bounds.Y+1, bounds.X+bounds.Width/2, bounds.Y+bounds.Height-1)
+	gc.SetPaint(paint)
+	gc.FillPath()
+	paint.Dispose()
 	gc.AddPath(path)
 	gc.SetColor(base.AdjustBrightness(button.Theme.OutlineAdjustment))
 	gc.StrokePath()

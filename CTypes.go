@@ -11,7 +11,7 @@ package ui
 
 import (
 	"github.com/richardwilkes/ui/event"
-	"github.com/richardwilkes/ui/geom"
+	"github.com/richardwilkes/geom"
 )
 
 // #include "Types.h"

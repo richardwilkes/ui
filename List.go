@@ -10,9 +10,9 @@
 package ui
 
 import (
+	"github.com/richardwilkes/geom"
 	"github.com/richardwilkes/ui/color"
 	"github.com/richardwilkes/ui/event"
-	"github.com/richardwilkes/ui/geom"
 	"github.com/richardwilkes/ui/keys"
 	"github.com/richardwilkes/xmath"
 	"math"

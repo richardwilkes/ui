@@ -10,11 +10,11 @@
 package ui
 
 import (
+	"github.com/richardwilkes/geom"
 	"github.com/richardwilkes/ui/border"
 	"github.com/richardwilkes/ui/color"
 	"github.com/richardwilkes/ui/draw"
 	"github.com/richardwilkes/ui/event"
-	"github.com/richardwilkes/ui/geom"
 	"reflect"
 )
 
@@ -162,7 +162,8 @@ func (b *Block) Paint(g *draw.Graphics, dirty geom.Rect) {
 
 func (b *Block) paintSelf(gc *draw.Graphics, dirty geom.Rect) {
 	gc.Save()
-	gc.ClipRect(dirty)
+	gc.Rect(dirty)
+	gc.Clip()
 	if b.background.Alpha() > 0 {
 		gc.SetColor(b.background)
 		gc.FillRect(dirty)

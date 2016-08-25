@@ -11,10 +11,10 @@ package ui
 
 import (
 	"fmt"
+	"github.com/richardwilkes/geom"
 	"github.com/richardwilkes/ui/color"
 	"github.com/richardwilkes/ui/draw"
 	"github.com/richardwilkes/ui/event"
-	"github.com/richardwilkes/ui/geom"
 	"github.com/richardwilkes/ui/keys"
 	"github.com/richardwilkes/ui/theme"
 )
@@ -101,7 +101,11 @@ func (pm *PopupMenu) paint(evt event.Event) {
 	gc.AddPath(path)
 	gc.Clip()
 	base := pm.BaseBackground()
-	gc.DrawLinearGradient(pm.Theme.Gradient(base), bounds.X+bounds.Width/2, bounds.Y+1, bounds.X+bounds.Width/2, bounds.Y+bounds.Height-1)
+	gc.AddPath(path)
+	paint := draw.NewLinearGradientPaint(pm.Theme.Gradient(base), bounds.X+bounds.Width/2, bounds.Y+1, bounds.X+bounds.Width/2, bounds.Y+bounds.Height-1)
+	gc.SetPaint(paint)
+	gc.FillPath()
+	paint.Dispose()
 	gc.AddPath(path)
 	gc.SetColor(base.AdjustBrightness(pm.Theme.OutlineAdjustment))
 	gc.StrokePath()
@@ -118,9 +122,8 @@ func (pm *PopupMenu) paint(evt event.Event) {
 	bounds.Y += pm.Theme.VerticalMargin + 1
 	bounds.Height -= vSpace
 	bounds.Width -= hSpace + bounds.Height
-	gc.SetFont(pm.Theme.Font)
 	gc.SetColor(pm.TextColor())
-	gc.DrawString(bounds.X, bounds.Y, pm.title())
+	gc.DrawString(bounds.X, bounds.Y, pm.title(), pm.Theme.Font)
 }
 
 func (pm *PopupMenu) mouseDown(evt event.Event) {

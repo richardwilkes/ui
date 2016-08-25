@@ -10,10 +10,10 @@
 package ui
 
 import (
+	"github.com/richardwilkes/geom"
 	"github.com/richardwilkes/ui/color"
 	"github.com/richardwilkes/ui/draw"
 	"github.com/richardwilkes/ui/event"
-	"github.com/richardwilkes/ui/geom"
 	"github.com/richardwilkes/ui/keys"
 	"github.com/richardwilkes/ui/theme"
 	"math"
@@ -98,11 +98,15 @@ func (button *RadioButton) paint(evt event.Event) {
 	gc.Save()
 	gc.Clip()
 	base := button.BaseBackground()
+	gc.AddPath(path)
 	if button.Enabled() {
-		gc.DrawLinearGradient(button.Theme.Gradient(base), bounds.X, bounds.Y, bounds.X, bounds.Y+bounds.Height)
+		paint := draw.NewLinearGradientPaint(button.Theme.Gradient(base), bounds.X, bounds.Y, bounds.X, bounds.Y+bounds.Height)
+		gc.SetPaint(paint)
+		gc.FillPath()
+		paint.Dispose()
 	} else {
 		gc.SetColor(color.Background)
-		gc.FillRect(bounds)
+		gc.FillPath()
 	}
 	gc.AddPath(path)
 	c := base.AdjustBrightness(button.Theme.OutlineAdjustment)
@@ -114,8 +118,12 @@ func (button *RadioButton) paint(evt event.Event) {
 		if button.Enabled() {
 			c = color.KeyboardFocus
 		}
-		gc.SetColor(c)
-		gc.FillEllipse(bounds)
+		gradient := draw.NewEvenlySpacedGradient(c.AdjustBrightness(button.Theme.GradientAdjustment), c.AdjustBrightness(-button.Theme.GradientAdjustment*2))
+		paint := draw.NewRadialGradientPaint(gradient, bounds.CenterX(), bounds.CenterY(), bounds.Width/4, bounds.CenterX(), bounds.CenterY(), bounds.Width/2)
+		gc.SetPaint(paint)
+		gc.Ellipse(bounds)
+		gc.FillPath()
+		paint.Dispose()
 	}
 	if button.Title != "" {
 		bounds = button.LocalInsetBounds()
@@ -123,8 +131,7 @@ func (button *RadioButton) paint(evt event.Event) {
 		bounds.Width -= circle + button.Theme.HorizontalGap
 		if bounds.Width > 0 {
 			gc.SetColor(button.TextColor())
-			gc.SetFont(button.Theme.Font)
-			gc.DrawString(bounds.X, bounds.Y+(bounds.Height-button.Theme.Font.Height())/2, button.Title)
+			gc.DrawString(bounds.X, bounds.Y+(bounds.Height-button.Theme.Font.Height())/2, button.Title, button.Theme.Font)
 		}
 	}
 }

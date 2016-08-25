@@ -11,7 +11,7 @@ package ui
 
 import (
 	"github.com/richardwilkes/ui/cursor"
-	"github.com/richardwilkes/ui/geom"
+	"github.com/richardwilkes/geom"
 	"unsafe"
 )
 
