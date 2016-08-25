@@ -11,12 +11,12 @@ package draw
 
 import (
 	"github.com/richardwilkes/errs"
-	"github.com/richardwilkes/ui/color"
 	"github.com/richardwilkes/geom"
+	"github.com/richardwilkes/ui/color"
 	"image"
-	_ "image/gif"
-	_ "image/jpeg"
-	_ "image/png"
+	_ "image/gif"  // Support loading of GIF
+	_ "image/jpeg" // Support loading of JPEG
+	_ "image/png"  // Support loading of PNG
 	"io"
 	"net/http"
 	"sync"
