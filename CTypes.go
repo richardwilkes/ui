@@ -10,8 +10,8 @@
 package ui
 
 import (
-	"github.com/richardwilkes/ui/event"
 	"github.com/richardwilkes/geom"
+	"github.com/richardwilkes/ui/event"
 )
 
 // #include "Types.h"
@@ -68,14 +68,10 @@ type platformMenuItem C.platformMenuItem
 
 type platformRect C.platformRect
 
-func (r platformRect) toRect() geom.Rect {
+func toRect(r C.platformRect) geom.Rect {
 	return geom.Rect{Point: geom.Point{X: float64(r.x), Y: float64(r.y)}, Size: geom.Size{Width: float64(r.width), Height: float64(r.height)}}
 }
 
-func (r C.platformRect) toRect() geom.Rect {
-	return geom.Rect{Point: geom.Point{X: float64(r.x), Y: float64(r.y)}, Size: geom.Size{Width: float64(r.width), Height: float64(r.height)}}
-}
-
-func toCRect(bounds geom.Rect) C.platformRect {
-	return C.platformRect{x: C.float(bounds.X), y: C.float(bounds.Y), width: C.float(bounds.Width), height: C.float(bounds.Height)}
+func toCRect(r geom.Rect) C.platformRect {
+	return C.platformRect{x: C.double(r.X), y: C.double(r.Y), width: C.double(r.Width), height: C.double(r.Height)}
 }

@@ -23,7 +23,7 @@ import (
 //export drawWindow
 func drawWindow(cWindow platformWindow, gc *C.cairo_t, bounds platformRect, inLiveResize bool) {
 	if window, ok := windowMap[cWindow]; ok {
-		window.paint(draw.NewGraphics(draw.CairoContext(unsafe.Pointer(gc))), bounds.toRect(), inLiveResize)
+		window.paint(draw.NewGraphics(draw.CairoContext(unsafe.Pointer(gc))), toRect(C.platformRect(bounds)), inLiveResize)
 	}
 }
 

@@ -45,10 +45,10 @@ typedef void *platformMenu;
 typedef void *platformMenuItem;
 
 typedef struct {
-	float x;
-	float y;
-	float width;
-	float height;
+	double x;
+	double y;
+	double width;
+	double height;
 } platformRect;
 
 #endif // __RW_GOUI_TYPES__

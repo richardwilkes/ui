@@ -10,8 +10,8 @@
 package ui
 
 import (
-	"github.com/richardwilkes/ui/cursor"
 	"github.com/richardwilkes/geom"
+	"github.com/richardwilkes/ui/cursor"
 	"unsafe"
 )
 
@@ -52,7 +52,7 @@ func (window *Window) platformSetTitle(title string) {
 }
 
 func (window *Window) platformFrame() geom.Rect {
-	return C.platformGetWindowFrame(window.window).toRect()
+	return toRect(C.platformGetWindowFrame(window.window))
 }
 
 func (window *Window) platformSetFrame(bounds geom.Rect) {
@@ -60,7 +60,7 @@ func (window *Window) platformSetFrame(bounds geom.Rect) {
 }
 
 func (window *Window) platformContentFrame() geom.Rect {
-	return C.platformGetWindowContentFrame(window.window).toRect()
+	return toRect(C.platformGetWindowContentFrame(window.window))
 }
 
 func (window *Window) platformToFront() {
