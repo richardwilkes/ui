@@ -104,17 +104,17 @@ func (menu *Menu) Dispose() {
 	}
 }
 
-// SetServicesMenu marks the specified menu as the services menu.
+// SetAsServicesMenu marks the specified menu as the services menu.
 func (menu *Menu) SetAsServicesMenu() {
 	menu.platformSetAsServicesMenu()
 }
 
-// SetWindowMenu marks the specified menu as the window menu.
+// SetAsWindowMenu marks the specified menu as the window menu.
 func (menu *Menu) SetAsWindowMenu() {
 	menu.platformSetAsWindowMenu()
 }
 
-// SetHelpMenu marks the specified menu as the help menu.
+// SetAsHelpMenu marks the specified menu as the help menu.
 func (menu *Menu) SetAsHelpMenu() {
 	menu.platformSetAsHelpMenu()
 }

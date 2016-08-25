@@ -13,7 +13,7 @@ import (
 	"github.com/richardwilkes/ui/event"
 )
 
-// Item represents individual actions that can be issued from a Menu.
+// MenuItem represents individual actions that can be issued from a Menu.
 type MenuItem struct {
 	item          platformMenuItem
 	eventHandlers *event.Handlers
