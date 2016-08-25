@@ -57,14 +57,14 @@ func NewCheckBox(title string) *CheckBox {
 	return checkbox
 }
 
-func (checkbox *CheckBox) BoxSize() float64 {
+func (checkbox *CheckBox) boxSize() float64 {
 	return math.Ceil(checkbox.Theme.Font.Ascent() + checkbox.Theme.Font.Descent())
 }
 
 // Sizes implements Sizer
 func (checkbox *CheckBox) Sizes(hint geom.Size) (min, pref, max geom.Size) {
 	var size geom.Size
-	box := checkbox.BoxSize()
+	box := checkbox.boxSize()
 	if checkbox.Title != "" {
 		if hint.Width != NoHint {
 			hint.Width -= checkbox.Theme.HorizontalGap + box
@@ -95,7 +95,7 @@ func (checkbox *CheckBox) Sizes(hint geom.Size) (min, pref, max geom.Size) {
 }
 
 func (checkbox *CheckBox) paint(evt event.Event) {
-	box := checkbox.BoxSize()
+	box := checkbox.boxSize()
 	bounds := checkbox.LocalInsetBounds()
 	bounds.Width = box
 	bounds.Y += (bounds.Height - box) / 2
