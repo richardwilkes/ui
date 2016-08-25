@@ -112,7 +112,7 @@ func platformStartUserInterface() {
 				C.cairo_set_line_width(gc, 1)
 				C.cairo_rectangle(gc, C.double(exposeEvent.x), C.double(exposeEvent.y), C.double(exposeEvent.width), C.double(exposeEvent.height))
 				C.cairo_clip(gc)
-				drawWindow(window, gc, platformRect{x: C.float(exposeEvent.x), y: C.float(exposeEvent.y), width: C.float(exposeEvent.width), height: C.float(exposeEvent.height)}, false)
+				drawWindow(window, gc, platformRect{x: C.double(exposeEvent.x), y: C.double(exposeEvent.y), width: C.double(exposeEvent.width), height: C.double(exposeEvent.height)}, false)
 				C.cairo_destroy(gc)
 			}
 		case C.DestroyNotify:
@@ -160,7 +160,7 @@ func paintWindow(pWindow platformWindow, gc *C.cairo_t, x, y, width, height C.do
 	C.cairo_save(gc)
 	C.cairo_rectangle(gc, x, y, width, height)
 	C.cairo_clip(gc)
-	drawWindow(pWindow, gc, platformRect{x: C.float(x), y: C.float(y), width: C.float(width), height: C.float(height)}, false)
+	drawWindow(pWindow, gc, platformRect{x: C.double(x), y: C.double(y), width: C.double(width), height: C.double(height)}, false)
 	C.cairo_restore(gc)
 }
 

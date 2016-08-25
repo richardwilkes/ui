@@ -13,15 +13,15 @@ import (
 	"github.com/richardwilkes/ui/event"
 )
 
-func (item *MenuItem) platformSubMenu() platformMenu {
+func (item *Item) platformSubMenu() PlatformMenu {
 	// RAW: Implement for Linux
 	return nil
 }
 
-func (item *MenuItem) platformSetSubMenu(subMenu *Menu) {
+func (item *Item) platformSetSubMenu(subMenu *Menu) {
 	// RAW: Implement for Linux
 }
 
-func (item *MenuItem) platformSetKeyModifierMask(modifierMask event.KeyMask) {
+func (item *Item) platformSetKeyModifierMask(modifierMask event.KeyMask) {
 	// RAW: Implement for Linux
 }

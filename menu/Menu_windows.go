@@ -9,27 +9,27 @@
 
 package menu
 
-func platformMenuBar() platformMenu {
+func platformMenuBar() PlatformMenu {
 	// RAW: Implement for Windows
 	return nil
 }
 
-func platformNewMenu(title string) platformMenu {
+func platformNewMenu(title string) PlatformMenu {
 	// RAW: Implement for Windows
 	return nil
 }
 
-func (menu *Menu) platformItem(index int) platformMenuItem {
+func (menu *Menu) platformItem(index int) PlatformItem {
 	// RAW: Implement for Windows
 	return nil
 }
 
-func (menu *Menu) platformAddItem(title string, key string) platformMenuItem {
+func (menu *Menu) platformAddItem(title string, key string) PlatformItem {
 	// RAW: Implement for Windows
 	return nil
 }
 
-func (menu *Menu) platformAddSeparator() platformMenuItem {
+func (menu *Menu) platformAddSeparator() PlatformItem {
 	// RAW: Implement for Windows
 	return nil
 }
