@@ -10,8 +10,9 @@
 package ui
 
 import (
-	"github.com/richardwilkes/ui/cursor"
+	//	"fmt"
 	"github.com/richardwilkes/geom"
+	"github.com/richardwilkes/ui/cursor"
 	"unsafe"
 )
 
@@ -24,6 +25,10 @@ import (
 // #include <cairo/cairo-xlib.h>
 // #include "Types.h"
 import "C"
+
+var (
+	lastKnownWindowBounds = make(map[platformWindow]geom.Rect)
+)
 
 func toXWindow(window platformWindow) C.Window {
 	return C.Window(uintptr(window))
@@ -54,22 +59,19 @@ func platformHideCursorUntilMouseMoves() {
 
 func platformNewWindow(bounds geom.Rect, styleMask WindowStyleMask) (window platformWindow, surface platformSurface) {
 	screen := C.XDefaultScreen(xDisplay)
-	//	win := C.XCreateSimpleWindow(xDisplay, C.XRootWindow(xDisplay, screen), C.int(bounds.X), C.int(bounds.Y), C.uint(bounds.Width), C.uint(bounds.Height), 1, C.XBlackPixel(xDisplay, screen), C.XWhitePixel(xDisplay, screen))
-	//	win := C.XCreateSimpleWindow(xDisplay, C.XRootWindow(xDisplay, screen), C.int(bounds.X), C.int(bounds.Y), C.uint(bounds.Width), C.uint(bounds.Height), 0, 0, 0)
 	var windowAttributes C.XSetWindowAttributes
 	windowAttributes.background_pixmap = C.None
 	windowAttributes.backing_store = C.WhenMapped
 	win := C.XCreateWindow(xDisplay, C.XRootWindow(xDisplay, screen), C.int(bounds.X), C.int(bounds.Y), C.uint(bounds.Width), C.uint(bounds.Height), 0, C.CopyFromParent, C.InputOutput, nil, C.CWBackPixmap|C.CWBackingStore, &windowAttributes)
+	lastKnownWindowBounds[toPlatformWindow(win)] = bounds
 	C.XSelectInput(xDisplay, win, C.KeyPressMask|C.KeyReleaseMask|C.ButtonPressMask|C.ButtonReleaseMask|C.EnterWindowMask|C.LeaveWindowMask|C.ExposureMask|C.PointerMotionMask|C.ExposureMask|C.VisibilityChangeMask|C.StructureNotifyMask|C.FocusChangeMask)
 	C.XSetWMProtocols(xDisplay, win, &wmDeleteMessage, 1)
-	C.XMapWindow(xDisplay, win)
-	// Move it back to the original location, as the window manager might have set it somewhere else
-	C.XMoveWindow(xDisplay, win, C.int(bounds.X), C.int(bounds.Y))
 	xWindowCount++
 	return toPlatformWindow(win), platformSurface(C.cairo_xlib_surface_create(xDisplay, C.Drawable(uintptr(win)), C.XDefaultVisual(xDisplay, screen), C.int(bounds.Width), C.int(bounds.Height)))
 }
 
 func (window *Window) platformClose() {
+	delete(lastKnownWindowBounds, window.window)
 	xWindowCount--
 	C.cairo_surface_destroy(window.surface)
 	C.XDestroyWindow(xDisplay, toXWindow(window.window))
@@ -92,6 +94,11 @@ func (window *Window) platformSetTitle(title string) {
 }
 
 func (window *Window) platformFrame() geom.Rect {
+	// Use the last set bounds instead of querying the server. I do this because reporting often lags behind, which
+	// means the call to XGetGeometry may not have the correct values.
+	if bounds, ok := lastKnownWindowBounds[window.window]; ok {
+		return bounds
+	}
 	var root C.Window
 	var x, y C.int
 	var width, height, border, depth C.uint
@@ -100,7 +107,9 @@ func (window *Window) platformFrame() geom.Rect {
 }
 
 func (window *Window) platformSetFrame(bounds geom.Rect) {
-	C.XMoveResizeWindow(xDisplay, toXWindow(window.window), C.int(bounds.X), C.int(bounds.Y), C.uint(bounds.Width), C.uint(bounds.Height))
+	lastKnownWindowBounds[window.window] = bounds
+	win := toXWindow(window.window)
+	C.XMoveResizeWindow(xDisplay, win, C.int(bounds.X), C.int(bounds.Y), C.uint(bounds.Width), C.uint(bounds.Height))
 }
 
 func (window *Window) platformContentFrame() geom.Rect {
@@ -109,7 +118,17 @@ func (window *Window) platformContentFrame() geom.Rect {
 }
 
 func (window *Window) platformToFront() {
-	C.XRaiseWindow(xDisplay, toXWindow(window.window))
+	win := toXWindow(window.window)
+	if window.wasMapped {
+		C.XRaiseWindow(xDisplay, win)
+	} else {
+		window.wasMapped = true
+		bounds, ok := lastKnownWindowBounds[window.window]
+		C.XMapWindow(xDisplay, win)
+		if ok {
+			C.XMoveWindow(xDisplay, win, C.int(bounds.X), C.int(bounds.Y))
+		}
+	}
 }
 
 func (window *Window) platformRepaint(bounds geom.Rect) {

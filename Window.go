@@ -11,11 +11,11 @@ package ui
 
 import (
 	"fmt"
+	"github.com/richardwilkes/geom"
 	"github.com/richardwilkes/ui/color"
 	"github.com/richardwilkes/ui/cursor"
 	"github.com/richardwilkes/ui/draw"
 	"github.com/richardwilkes/ui/event"
-	"github.com/richardwilkes/geom"
 	"github.com/richardwilkes/ui/keys"
 	"unsafe"
 )
@@ -34,6 +34,7 @@ type Window struct {
 	inMouseDown     bool
 	inLiveResize    bool
 	ignoreRepaint   bool // Currently only used by Linux
+	wasMapped       bool // Currently only used by Linux
 }
 
 var (
