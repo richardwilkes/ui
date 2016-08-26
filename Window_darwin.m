@@ -13,7 +13,6 @@
 #include <cairo-quartz.h>
 #include "_cgo_export.h"
 #include "Window_darwin.h"
-#include "event/Event.h"
 
 @interface drawingView : NSView
 @end
@@ -254,33 +253,32 @@ cairo_t *platformGraphics(platformWindow window) {
 }
 
 - (void)flagsChanged:(NSEvent *)theEvent {
-	int modifiers = [self getModifiers:theEvent];
 	unsigned char type;
 	switch (theEvent.keyCode) {
 		case 57:	// Caps Lock
-			type = (modifiers & platformCapsLockKeyMask) == 0 ? platformKeyUp : platformKeyDown;
+			type = (theEvent.modifierFlags & NSAlphaShiftKeyMask) == 0 ? platformKeyUp : platformKeyDown;
 			break;
 		case 56:	// Left Shift
 		case 60:	// Right Shift
-			type = (modifiers & platformShiftKeyMask) == 0 ? platformKeyUp : platformKeyDown;
+			type = (theEvent.modifierFlags & NSShiftKeyMask) == 0 ? platformKeyUp : platformKeyDown;
 			break;
 		case 59:	// Left Control
 		case 62:	// Right Control
-			type = (modifiers & platformControlKeyMask) == 0 ? platformKeyUp : platformKeyDown;
+			type = (theEvent.modifierFlags & NSControlKeyMask) == 0 ? platformKeyUp : platformKeyDown;
 			break;
 		case 58:	// Left Option
 		case 61:	// Right Option
-			type = (modifiers & platformOptionKeyMask) == 0 ? platformKeyUp : platformKeyDown;
+			type = (theEvent.modifierFlags & NSAlternateKeyMask) == 0 ? platformKeyUp : platformKeyDown;
 			break;
 		case 54:	// Right Cmd
 		case 55:	// Left Cmd
-			type = (modifiers & platformCommandKeyMask) == 0 ? platformKeyUp : platformKeyDown;
+			type = (theEvent.modifierFlags & NSCommandKeyMask) == 0 ? platformKeyUp : platformKeyDown;
 			break;
 		default:
 			type = platformKeyDown;
 			break;
 	}
-	handleWindowKeyEvent((platformWindow)[self window], type, modifiers, theEvent.keyCode, nil, NO);
+	handleWindowKeyEvent((platformWindow)[self window], type, [self getModifiers:theEvent], theEvent.keyCode, nil, NO);
 }
 
 @end
