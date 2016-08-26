@@ -17,18 +17,12 @@
 void platformStartUserInterface() {
     @autoreleasepool {
         [NSApplication sharedApplication];
-
         // Required for apps without bundle & Info.plist
         [NSApp setActivationPolicy:NSApplicationActivationPolicyRegular];
-        NSRunningApplication *runningApp = [NSRunningApplication currentApplication];
-        // Required to 'unhide' before trying to activate the first time, otherwise windows
-        // other than the key window don't get brought forward.
-        [runningApp unhide];
+        [NSApp setDelegate:[appDelegate new]];
         // Required to use 'NSApplicationActivateIgnoringOtherApps' otherwise our windows
         // end up in the background.
-        [runningApp activateWithOptions:NSApplicationActivateIgnoringOtherApps];
-
-        [NSApp setDelegate:[appDelegate new]];
+       	[[NSRunningApplication currentApplication] activateWithOptions:NSApplicationActivateAllWindows | NSApplicationActivateIgnoringOtherApps];
         [NSApp run];
     }
 }
