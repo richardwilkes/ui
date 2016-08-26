@@ -65,7 +65,7 @@ func platformNewWindow(bounds geom.Rect, styleMask WindowStyleMask) (window plat
 	win := C.XCreateWindow(xDisplay, C.XRootWindow(xDisplay, screen), C.int(bounds.X), C.int(bounds.Y), C.uint(bounds.Width), C.uint(bounds.Height), 0, C.CopyFromParent, C.InputOutput, nil, C.CWBackPixmap|C.CWBackingStore, &windowAttributes)
 	lastKnownWindowBounds[toPlatformWindow(win)] = bounds
 	C.XSelectInput(xDisplay, win, C.KeyPressMask|C.KeyReleaseMask|C.ButtonPressMask|C.ButtonReleaseMask|C.EnterWindowMask|C.LeaveWindowMask|C.ExposureMask|C.PointerMotionMask|C.ExposureMask|C.VisibilityChangeMask|C.StructureNotifyMask|C.FocusChangeMask)
-	C.XSetWMProtocols(xDisplay, win, &wmDeleteMessage, 1)
+	C.XSetWMProtocols(xDisplay, win, &wmDeleteAtom, C.True)
 	xWindowCount++
 	return toPlatformWindow(win), platformSurface(C.cairo_xlib_surface_create(xDisplay, C.Drawable(uintptr(win)), C.XDefaultVisual(xDisplay, screen), C.int(bounds.Width), C.int(bounds.Height)))
 }

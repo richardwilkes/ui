@@ -9,10 +9,34 @@
 
 package event
 
+import (
+	"time"
+	"unsafe"
+	// #cgo linux LDFLAGS: -lX11
+	// #include <X11/Xlib.h>
+	"C"
+)
+
+var (
+	xDisplay *C.Display
+	taskAtom C.Atom
+)
+
 func platformInvoke(id uint64) {
-	// RAW: Implement for Linux
+	event := C.XClientMessageEvent{_type: C.ClientMessage, message_type: taskAtom, format: 32}
+	data := (*uint64)(unsafe.Pointer(&event.data))
+	*data = id
+	C.XSendEvent(xDisplay, 0, 0, C.NoEventMask, (*C.XEvent)(unsafe.Pointer(&event)))
+	C.XFlush(xDisplay)
 }
 
 func platformInvokeAfter(id uint64, after time.Duration) {
-	// RAW: Implement for Linux
+	time.AfterFunc(after, func() {
+		platformInvoke(id)
+	})
+}
+
+func PlatformSetXDisplay(display unsafe.Pointer, goTaskAtom uint32) {
+	xDisplay = (*C.Display)(display)
+	taskAtom = C.Atom(goTaskAtom)
 }
