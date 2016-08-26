@@ -7,12 +7,12 @@
 // This Source Code Form is "Incompatible With Secondary Licenses", as
 // defined by the Mozilla Public License, version 2.0.
 
-#include "_cgo_export.h"
+package event
 
-void platformInvoke(uint64_t id) {
-	// RAW: Implement platformInvoke for Windows
+func platformInvoke(id uint64) {
+	// RAW: Implement for Linux
 }
 
-void platformInvokeAfter(uint64_t id, int64_t afterNanos) {
-	// RAW: Implement platformInvokeAfter for Windows
+func platformInvokeAfter(id uint64, after time.Duration) {
+	// RAW: Implement for Linux
 }

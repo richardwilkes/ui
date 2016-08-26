@@ -15,10 +15,6 @@ import (
 	"time"
 )
 
-// #cgo darwin LDFLAGS: -framework Cocoa
-// #include "Event.h"
-import "C"
-
 // Common button ids.
 const (
 	LeftButton   = 0
@@ -46,8 +42,8 @@ var (
 	// TraceEventTypes will cause the types present in the slice to be logged.
 	TraceEventTypes  []Type
 	dispatchMapLock  sync.Mutex
-	nextInvocationID C.uint64_t = 1
-	dispatchMap                 = make(map[C.uint64_t]func())
+	nextInvocationID uint64 = 1
+	dispatchMap             = make(map[uint64]func())
 )
 
 // Dispatch an event. If there is more than one handler for the event type registered with the
@@ -88,16 +84,16 @@ func Dispatch(e Event) {
 // Invoke a task on the UI thread. The task is put into the event queue and will be run at the next
 // opportunity.
 func Invoke(task func()) {
-	C.platformInvoke(recordTask(task))
+	platformInvoke(recordTask(task))
 }
 
 // InvokeAfter schedules a task to be run on the UI thread after waiting for the specified
 // duration.
 func InvokeAfter(task func(), after time.Duration) {
-	C.platformInvokeAfter(recordTask(task), C.int64_t(after.Nanoseconds()))
+	platformInvokeAfter(recordTask(task), after)
 }
 
-func recordTask(task func()) C.uint64_t {
+func recordTask(task func()) uint64 {
 	dispatchMapLock.Lock()
 	defer dispatchMapLock.Unlock()
 	id := nextInvocationID
@@ -106,7 +102,7 @@ func recordTask(task func()) C.uint64_t {
 	return id
 }
 
-func removeTask(id C.uint64_t) func() {
+func removeTask(id uint64) func() {
 	dispatchMapLock.Lock()
 	defer dispatchMapLock.Unlock()
 	if f, ok := dispatchMap[id]; ok {
@@ -116,8 +112,9 @@ func removeTask(id C.uint64_t) func() {
 	return nil
 }
 
-//export dispatchInvocation
-func dispatchInvocation(id C.uint64_t) {
+// DispatchInvocation executes the task associated with the specified ID. Exposed because some
+// platforms need access from outside the event package.
+func DispatchInvocation(id uint64) {
 	if f := removeTask(id); f != nil {
 		f()
 	}
