@@ -9,6 +9,10 @@
 
 package event
 
+import (
+	"time"
+)
+
 func platformInvoke(id uint64) {
 	// RAW: Implement for Windows
 }
