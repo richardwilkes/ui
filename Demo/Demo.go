@@ -120,7 +120,7 @@ func createButtonsWindow() *ui.Window {
 
 	addSeparator(root)
 
-	img, err := draw.AcquireImageFromURL("http://allwallpapersnew.com/wp-content/gallery/stock-photos-for-free/grassy_field_sunset___free_stock_by_kevron2001-d5blgkr.jpg")
+	img, err := draw.AcquireImageFromURL("http://legends.trollworks.com/mountains.jpg")
 	if err == nil {
 		content := ui.NewImageLabel(img)
 		content.SetFocusable(true)
