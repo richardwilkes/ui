@@ -17,6 +17,8 @@ import (
 	"github.com/richardwilkes/ui/draw"
 	"github.com/richardwilkes/ui/event"
 	"github.com/richardwilkes/ui/keys"
+	"sync"
+	"time"
 	"unsafe"
 )
 
@@ -38,8 +40,11 @@ type Window struct {
 }
 
 var (
-	windowMap = make(map[platformWindow]*Window)
-	diacritic int
+	windowMap        = make(map[platformWindow]*Window)
+	diacritic        int
+	nextInvocationID uintptr = 1
+	dispatchMapLock  sync.Mutex
+	dispatchMap      = make(map[uintptr]func())
 )
 
 // AllWindowsToFront attempts to bring all of the application's windows to the foreground.
@@ -598,4 +603,35 @@ func (window *Window) keyEvent(eventType platformEventType, keyModifiers event.K
 	default:
 		panic(fmt.Sprintf("Unknown event type: %d", eventType))
 	}
+}
+
+// Invoke a task on the UI thread. The task is put into the system event queue and will be run at
+// the next opportunity.
+func (window *Window) Invoke(task func()) {
+	window.platformInvoke(recordTask(task))
+}
+
+// InvokeAfter schedules a task to be run on the UI thread after waiting for the specified
+// duration.
+func (window *Window) InvokeAfter(task func(), after time.Duration) {
+	window.platformInvokeAfter(recordTask(task), after)
+}
+
+func recordTask(task func()) uintptr {
+	dispatchMapLock.Lock()
+	defer dispatchMapLock.Unlock()
+	id := nextInvocationID
+	nextInvocationID++
+	dispatchMap[id] = task
+	return id
+}
+
+func removeTask(id uintptr) func() {
+	dispatchMapLock.Lock()
+	defer dispatchMapLock.Unlock()
+	if f, ok := dispatchMap[id]; ok {
+		delete(dispatchMap, id)
+		return f
+	}
+	return nil
 }

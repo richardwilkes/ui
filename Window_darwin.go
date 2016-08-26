@@ -18,7 +18,19 @@ import (
 // #cgo darwin LDFLAGS: -framework Cocoa -framework Quartz
 // #cgo pkg-config: pangocairo
 // #include <stdlib.h>
+// #include <dispatch/dispatch.h>
 // #include "Window_darwin.h"
+//
+// void dispatchTask(void *)
+//
+// void invoke(void *id) {
+//	dispatch_async_f(dispatch_get_main_queue(), id, dispatchTask);
+//}
+//
+//void invokeAfter(void *id, int64_t afterNanos) {
+//	dispatch_after_f(dispatch_time(DISPATCH_TIME_NOW, afterNanos), dispatch_get_main_queue(), id, dispatchTask);
+//}
+
 import "C"
 
 func platformGetKeyWindow() platformWindow {
@@ -99,4 +111,12 @@ func (window *Window) platformSetToolTip(tip string) {
 
 func (window *Window) platformSetCursor(c *cursor.Cursor) {
 	C.platformSetCursor(window.window, c.PlatformPtr())
+}
+
+func (window *Window) platformInvoke(id uintptr) {
+	C.invoke(C.uint64_t(id))
+}
+
+func (window *Window) platformInvokeAfter(id uintptr, after time.Duration) {
+	C.invokeAfter(C.uint64_t(id), C.int64_t(after.Nanoseconds()))
 }

@@ -179,7 +179,8 @@ func (sb *ScrollBar) mouseUp(evt event.Event) {
 }
 
 func (sb *ScrollBar) scheduleRepeat(part scrollBarPart, delay time.Duration) {
-	if sb.Window().Valid() {
+	window := sb.Window()
+	if window.Valid() {
 		current := sb.sequence
 		switch part {
 		case scrollBarLineUp:
@@ -193,7 +194,7 @@ func (sb *ScrollBar) scheduleRepeat(part scrollBarPart, delay time.Duration) {
 		default:
 			return
 		}
-		event.InvokeAfter(func() {
+		window.InvokeAfter(func() {
 			if current == sb.sequence && sb.pressed == part {
 				sb.scheduleRepeat(part, sb.Theme.RepeatDelay)
 			}

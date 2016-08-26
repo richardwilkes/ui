@@ -11,8 +11,6 @@ package event
 
 import (
 	"log"
-	"sync"
-	"time"
 )
 
 // Common button ids.
@@ -40,10 +38,7 @@ var (
 	// TraceAllEvents will cause all events to be logged if true. Overrides TraceEventTypes.
 	TraceAllEvents bool
 	// TraceEventTypes will cause the types present in the slice to be logged.
-	TraceEventTypes  []Type
-	dispatchMapLock  sync.Mutex
-	nextInvocationID uint64 = 1
-	dispatchMap             = make(map[uint64]func())
+	TraceEventTypes []Type
 )
 
 // Dispatch an event. If there is more than one handler for the event type registered with the
@@ -78,44 +73,5 @@ func Dispatch(e Event) {
 			break
 		}
 		target = target.ParentTarget()
-	}
-}
-
-// Invoke a task on the UI thread. The task is put into the event queue and will be run at the next
-// opportunity.
-func Invoke(task func()) {
-	platformInvoke(recordTask(task))
-}
-
-// InvokeAfter schedules a task to be run on the UI thread after waiting for the specified
-// duration.
-func InvokeAfter(task func(), after time.Duration) {
-	platformInvokeAfter(recordTask(task), after)
-}
-
-func recordTask(task func()) uint64 {
-	dispatchMapLock.Lock()
-	defer dispatchMapLock.Unlock()
-	id := nextInvocationID
-	nextInvocationID++
-	dispatchMap[id] = task
-	return id
-}
-
-func removeTask(id uint64) func() {
-	dispatchMapLock.Lock()
-	defer dispatchMapLock.Unlock()
-	if f, ok := dispatchMap[id]; ok {
-		delete(dispatchMap, id)
-		return f
-	}
-	return nil
-}
-
-// DispatchInvocation executes the task associated with the specified ID. Exposed because some
-// platforms need access from outside the event package.
-func DispatchInvocation(id uint64) {
-	if f := removeTask(id); f != nil {
-		f()
 	}
 }

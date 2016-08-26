@@ -10,8 +10,8 @@
 package ui
 
 import (
-	"github.com/richardwilkes/ui/cursor"
 	"github.com/richardwilkes/geom"
+	"github.com/richardwilkes/ui/cursor"
 )
 
 func platformGetKeyWindow() platformWindow {
@@ -89,5 +89,13 @@ func (window *Window) platformSetToolTip(tip string) {
 }
 
 func (window *Window) platformSetCursor(c *cursor.Cursor) {
+	// RAW: Implement for Windows
+}
+
+func (window *Window) platformInvoke(id uintptr) {
+	// RAW: Implement for Windows
+}
+
+func (window *Window) platformInvokeAfter(id uintptr, after time.Duration) {
 	// RAW: Implement for Windows
 }

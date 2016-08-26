@@ -19,6 +19,7 @@ import (
 
 // #cgo linux LDFLAGS: -lX11 -lcairo
 // #include <X11/Xlib.h>
+// #include <X11/Xutil.h>
 // #include <cairo/cairo.h>
 // #include <cairo/cairo-xlib.h>
 import "C"
@@ -37,13 +38,13 @@ var (
 )
 
 func platformStartUserInterface() {
+	C.XInitThreads()
 	if xDisplay = C.XOpenDisplay(nil); xDisplay == nil {
 		panic("Failed to open the X11 display")
 	}
 	wmProtocolsAtom = C.XInternAtom(xDisplay, C.CString("WM_PROTOCOLS"), C.False)
 	wmDeleteAtom = C.XInternAtom(xDisplay, C.CString("WM_DELETE_WINDOW"), C.False)
 	goTaskAtom = C.XInternAtom(xDisplay, C.CString("GoTask"), C.False)
-	event.PlatformSetXDisplay(unsafe.Pointer(xDisplay), uint32(goTaskAtom))
 	running = true
 	appWillFinishStartup()
 	appDidFinishStartup()
@@ -53,20 +54,29 @@ func platformStartUserInterface() {
 	for running {
 		var event C.XEvent
 		C.XNextEvent(xDisplay, &event)
-		processOneEvent(event)
+		processOneEvent(&event)
 	}
 }
 
-func processOneEvent(evt C.XEvent) {
-	anyEvent := (*C.XAnyEvent)(unsafe.Pointer(&evt))
+func processKeyEvent(evt *C.XEvent, window platformWindow, eventType platformEventType) {
+	keyEvent := (*C.XKeyEvent)(unsafe.Pointer(evt))
+	var buffer [256]C.char
+	var keySym C.KeySym
+	buffer[C.XLookupString(keyEvent, &buffer[0], C.int(len(buffer)-1), &keySym, nil)] = 0
+	//fmt.Printf("code: %v, str: '%v'\n", keyEvent.keycode, C.GoString(&buffer[0]))
+	handleWindowKeyEvent(window, eventType, convertKeyMask(keyEvent.state), int(keyEvent.keycode), &buffer[0], false)
+}
+
+func processOneEvent(evt *C.XEvent) {
+	anyEvent := (*C.XAnyEvent)(unsafe.Pointer(evt))
 	window := platformWindow(uintptr(anyEvent.window))
 	switch anyEvent._type {
 	case C.KeyPress:
-		fmt.Println("KeyPress")
+		processKeyEvent(evt, window, platformKeyDown)
 	case C.KeyRelease:
-		fmt.Println("KeyRelease")
+		processKeyEvent(evt, window, platformKeyUp)
 	case C.ButtonPress:
-		buttonEvent := (*C.XButtonEvent)(unsafe.Pointer(&evt))
+		buttonEvent := (*C.XButtonEvent)(unsafe.Pointer(evt))
 		if isScrollWheelButton(buttonEvent.button) {
 			var dx, dy float64
 			switch buttonEvent.button {
@@ -87,14 +97,14 @@ func processOneEvent(evt C.XEvent) {
 			handleWindowMouseEvent(window, platformMouseDown, convertKeyMask(buttonEvent.state), lastMouseDownButton, 0, float64(buttonEvent.x), float64(buttonEvent.y))
 		}
 	case C.ButtonRelease:
-		buttonEvent := (*C.XButtonEvent)(unsafe.Pointer(&evt))
+		buttonEvent := (*C.XButtonEvent)(unsafe.Pointer(evt))
 		if !isScrollWheelButton(buttonEvent.button) {
 			lastMouseDownButton = -1
 			// RAW: Needs concept of click count
 			handleWindowMouseEvent(window, platformMouseUp, convertKeyMask(buttonEvent.state), getButton(buttonEvent.button), 0, float64(buttonEvent.x), float64(buttonEvent.y))
 		}
 	case C.MotionNotify:
-		motionEvent := (*C.XMotionEvent)(unsafe.Pointer(&evt))
+		motionEvent := (*C.XMotionEvent)(unsafe.Pointer(evt))
 		if lastMouseDownButton != -1 {
 			if window != lastMouseDownWindow {
 				// RAW: Translate coordinates appropriately
@@ -105,10 +115,10 @@ func processOneEvent(evt C.XEvent) {
 			handleWindowMouseEvent(window, platformMouseMoved, convertKeyMask(motionEvent.state), 0, 0, float64(motionEvent.x), float64(motionEvent.y))
 		}
 	case C.EnterNotify:
-		crossingEvent := (*C.XCrossingEvent)(unsafe.Pointer(&evt))
+		crossingEvent := (*C.XCrossingEvent)(unsafe.Pointer(evt))
 		handleWindowMouseEvent(window, platformMouseEntered, convertKeyMask(crossingEvent.state), 0, 0, float64(crossingEvent.x), float64(crossingEvent.y))
 	case C.LeaveNotify:
-		crossingEvent := (*C.XCrossingEvent)(unsafe.Pointer(&evt))
+		crossingEvent := (*C.XCrossingEvent)(unsafe.Pointer(evt))
 		handleWindowMouseEvent(window, platformMouseExited, convertKeyMask(crossingEvent.state), 0, 0, float64(crossingEvent.x), float64(crossingEvent.y))
 	case C.FocusIn:
 		appWillBecomeActive()
@@ -118,7 +128,7 @@ func processOneEvent(evt C.XEvent) {
 		appDidResignActive()
 	case C.Expose:
 		if win, ok := windowMap[window]; ok {
-			exposeEvent := (*C.XExposeEvent)(unsafe.Pointer(&evt))
+			exposeEvent := (*C.XExposeEvent)(unsafe.Pointer(evt))
 			gc := C.cairo_create(win.surface)
 			C.cairo_set_line_width(gc, 1)
 			C.cairo_rectangle(gc, C.double(exposeEvent.x), C.double(exposeEvent.y), C.double(exposeEvent.width), C.double(exposeEvent.height))
@@ -140,11 +150,11 @@ func processOneEvent(evt C.XEvent) {
 		var other C.XEvent
 		for C.XCheckTypedWindowEvent(xDisplay, anyEvent.window, C.ConfigureNotify, &other) != 0 {
 			// Collect up the last resize event for this window that is already in the queue and use that one instead
-			evt = other
+			evt = &other
 		}
 		if win, ok := windowMap[window]; ok {
 			win.ignoreRepaint = true
-			configEvent := (*C.XConfigureEvent)(unsafe.Pointer(&evt))
+			configEvent := (*C.XConfigureEvent)(unsafe.Pointer(evt))
 			lastKnownWindowBounds[window] = geom.Rect{Point: geom.Point{X: float64(configEvent.x), Y: float64(configEvent.y)}, Size: geom.Size{Width: float64(configEvent.width), Height: float64(configEvent.height)}}
 			windowResized(window)
 			win.root.ValidateLayout()
@@ -153,7 +163,7 @@ func processOneEvent(evt C.XEvent) {
 			C.cairo_xlib_surface_set_size(win.surface, C.int(size.Width), C.int(size.Height))
 		}
 	case C.ClientMessage:
-		clientEvent := (*C.XClientMessageEvent)(unsafe.Pointer(&evt))
+		clientEvent := (*C.XClientMessageEvent)(unsafe.Pointer(evt))
 		switch clientEvent.message_type {
 		case wmProtocolsAtom:
 			if clientEvent.format == 32 {
@@ -168,8 +178,8 @@ func processOneEvent(evt C.XEvent) {
 			}
 		case goTaskAtom:
 			if clientEvent.format == 32 {
-				data := (*uint64)(unsafe.Pointer(&clientEvent.data))
-				event.DispatchInvocation(*data)
+				data := (*uintptr)(unsafe.Pointer(&clientEvent.data))
+				dispatchTask(*data)
 			}
 		}
 	}

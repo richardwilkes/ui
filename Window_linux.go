@@ -10,21 +10,20 @@
 package ui
 
 import (
-	//	"fmt"
 	"github.com/richardwilkes/geom"
 	"github.com/richardwilkes/ui/cursor"
+	"time"
 	"unsafe"
+	// #cgo linux LDFLAGS: -lX11 -lcairo
+	// #include <stdlib.h>
+	// #include <stdio.h>
+	// #include <string.h>
+	// #include <X11/Xlib.h>
+	// #include <cairo/cairo.h>
+	// #include <cairo/cairo-xlib.h>
+	// #include "Types.h"
+	"C"
 )
-
-// #cgo linux LDFLAGS: -lX11 -lcairo
-// #include <stdlib.h>
-// #include <stdio.h>
-// #include <string.h>
-// #include <X11/Xlib.h>
-// #include <cairo/cairo.h>
-// #include <cairo/cairo-xlib.h>
-// #include "Types.h"
-import "C"
 
 var (
 	lastKnownWindowBounds = make(map[platformWindow]geom.Rect)
@@ -159,4 +158,20 @@ func (window *Window) platformSetToolTip(tip string) {
 
 func (window *Window) platformSetCursor(c *cursor.Cursor) {
 	// RAW: Implement for Linux
+}
+
+func (window *Window) platformInvoke(id uintptr) {
+	if window.Valid() {
+		event := C.XClientMessageEvent{_type: C.ClientMessage, message_type: goTaskAtom, format: 32}
+		data := (*uintptr)(unsafe.Pointer(&event.data))
+		*data = id
+		C.XSendEvent(xDisplay, toXWindow(window.window), 0, C.NoEventMask, (*C.XEvent)(unsafe.Pointer(&event)))
+		C.XFlush(xDisplay)
+	}
+}
+
+func (window *Window) platformInvokeAfter(id uintptr, after time.Duration) {
+	time.AfterFunc(after, func() {
+		window.platformInvoke(id)
+	})
 }

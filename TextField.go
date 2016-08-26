@@ -158,9 +158,10 @@ func (field *TextField) paint(evt event.Event) {
 }
 
 func (field *TextField) scheduleBlink() {
-	if !field.pending && field.Focused() {
+	window := field.Window()
+	if window.Valid() && !field.pending && field.Focused() {
 		field.pending = true
-		event.InvokeAfter(field.blink, field.Theme.BlinkRate)
+		window.InvokeAfter(field.blink, field.Theme.BlinkRate)
 	}
 }
 

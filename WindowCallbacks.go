@@ -76,13 +76,20 @@ func handleCursorUpdateEvent(cWindow platformWindow, keyModifiers int, x, y floa
 //export handleWindowKeyEvent
 func handleWindowKeyEvent(cWindow platformWindow, eventType platformEventType, keyModifiers, keyCode int, chars *C.char, repeat bool) {
 	if window, ok := windowMap[cWindow]; ok {
-		var ch rune
+		var keyChar rune
 		runes := ([]rune)(C.GoString(chars))
 		if len(runes) > 0 {
-			ch = runes[0]
+			keyChar = runes[0]
 		} else {
-			ch = 0
+			keyChar = 0
 		}
-		window.keyEvent(eventType, event.KeyMask(keyModifiers), keyCode, ch, repeat)
+		window.keyEvent(eventType, event.KeyMask(keyModifiers), keyCode, keyChar, repeat)
+	}
+}
+
+//export dispatchTask
+func dispatchTask(id uintptr) {
+	if f := removeTask(id); f != nil {
+		f()
 	}
 }
