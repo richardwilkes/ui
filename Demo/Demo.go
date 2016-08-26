@@ -31,8 +31,8 @@ func main() {
 	// event.TraceEventTypes = append(event.TraceEventTypes, event.MouseDownType, event.MouseDraggedType, event.MouseUpType)
 	ui.App.EventHandlers().Add(event.AppWillFinishStartupType, func(evt event.Event) {
 		createMenuBar()
-		w1 := createButtonsWindow()
-		w2 := createButtonsWindow()
+		w1 := createButtonsWindow("Demo #1")
+		w2 := createButtonsWindow("Demo #2")
 		frame1 := w1.Frame()
 		frame2 := w2.Frame()
 		frame2.X = frame1.X + frame1.Width + 5
@@ -77,9 +77,9 @@ func createMenuBar() {
 	ui.AddHelpMenu()
 }
 
-func createButtonsWindow() *ui.Window {
+func createButtonsWindow(title string) *ui.Window {
 	wnd := ui.NewWindow(geom.Point{}, ui.StdWindowMask)
-	wnd.SetTitle("Demo")
+	wnd.SetTitle(title)
 
 	root := wnd.RootWidget()
 	root.SetBorder(border.NewEmpty(geom.Insets{Top: 10, Left: 10, Bottom: 10, Right: 10}))
