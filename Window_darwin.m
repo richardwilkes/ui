@@ -11,6 +11,7 @@
 #include <Quartz/Quartz.h>
 #include <cairo.h>
 #include <cairo-quartz.h>
+#include <dispatch/dispatch.h>
 #include "_cgo_export.h"
 #include "Window_darwin.h"
 
@@ -137,6 +138,14 @@ cairo_t *platformGraphics(platformWindow window) {
 	cairo_t *gc = cairo_create(surface);
 	cairo_surface_destroy(surface); // surface won't actually be destroyed until the gc is destroyed
 	return gc;
+}
+
+void platformInvoke(unsigned long id) {
+	dispatch_async_f(dispatch_get_main_queue(), (void *)id, (dispatch_function_t)dispatchTask);
+}
+
+void platformInvokeAfter(unsigned long id, long afterNanos) {
+	dispatch_after_f(dispatch_time(DISPATCH_TIME_NOW, afterNanos), dispatch_get_main_queue(), (void *)id, (dispatch_function_t)dispatchTask);
 }
 
 @implementation drawingView

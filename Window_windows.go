@@ -92,10 +92,10 @@ func (window *Window) platformSetCursor(c *cursor.Cursor) {
 	// RAW: Implement for Windows
 }
 
-func (window *Window) platformInvoke(id uintptr) {
+func (window *Window) platformInvoke(id uint64) {
 	// RAW: Implement for Windows
 }
 
-func (window *Window) platformInvokeAfter(id uintptr, after time.Duration) {
+func (window *Window) platformInvokeAfter(id uint64, after time.Duration) {
 	// RAW: Implement for Windows
 }

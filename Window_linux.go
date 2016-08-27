@@ -160,17 +160,17 @@ func (window *Window) platformSetCursor(c *cursor.Cursor) {
 	// RAW: Implement for Linux
 }
 
-func (window *Window) platformInvoke(id uintptr) {
+func (window *Window) platformInvoke(id uint64) {
 	if window.Valid() {
 		event := C.XClientMessageEvent{_type: C.ClientMessage, message_type: goTaskAtom, format: 32}
-		data := (*uintptr)(unsafe.Pointer(&event.data))
+		data := (*uint64)(unsafe.Pointer(&event.data))
 		*data = id
 		C.XSendEvent(xDisplay, toXWindow(window.window), 0, C.NoEventMask, (*C.XEvent)(unsafe.Pointer(&event)))
 		C.XFlush(xDisplay)
 	}
 }
 
-func (window *Window) platformInvokeAfter(id uintptr, after time.Duration) {
+func (window *Window) platformInvokeAfter(id uint64, after time.Duration) {
 	time.AfterFunc(after, func() {
 		window.platformInvoke(id)
 	})

@@ -32,5 +32,7 @@ void platformZoomWindow(platformWindow window);
 void platformSetToolTip(platformWindow window, const char *tooltip);
 void platformSetCursor(platformWindow window, void *cursor);
 cairo_t *platformGraphics(platformWindow window);
+void platformInvoke(unsigned long id);
+void platformInvokeAfter(unsigned long id, long afterNanos);
 
 #endif // __RW_GOUI_WINDOW__

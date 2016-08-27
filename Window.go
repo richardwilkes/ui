@@ -42,9 +42,9 @@ type Window struct {
 var (
 	windowMap        = make(map[platformWindow]*Window)
 	diacritic        int
-	nextInvocationID uintptr = 1
+	nextInvocationID uint64 = 1
 	dispatchMapLock  sync.Mutex
-	dispatchMap      = make(map[uintptr]func())
+	dispatchMap      = make(map[uint64]func())
 )
 
 // AllWindowsToFront attempts to bring all of the application's windows to the foreground.
@@ -617,7 +617,7 @@ func (window *Window) InvokeAfter(task func(), after time.Duration) {
 	window.platformInvokeAfter(recordTask(task), after)
 }
 
-func recordTask(task func()) uintptr {
+func recordTask(task func()) uint64 {
 	dispatchMapLock.Lock()
 	defer dispatchMapLock.Unlock()
 	id := nextInvocationID
@@ -626,7 +626,7 @@ func recordTask(task func()) uintptr {
 	return id
 }
 
-func removeTask(id uintptr) func() {
+func removeTask(id uint64) func() {
 	dispatchMapLock.Lock()
 	defer dispatchMapLock.Unlock()
 	if f, ok := dispatchMap[id]; ok {

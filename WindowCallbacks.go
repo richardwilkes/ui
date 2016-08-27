@@ -88,7 +88,7 @@ func handleWindowKeyEvent(cWindow platformWindow, eventType platformEventType, k
 }
 
 //export dispatchTask
-func dispatchTask(id uintptr) {
+func dispatchTask(id uint64) {
 	if f := removeTask(id); f != nil {
 		f()
 	}
