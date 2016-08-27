@@ -13,7 +13,6 @@ import (
 	"fmt"
 	"github.com/richardwilkes/geom"
 	"github.com/richardwilkes/ui/event"
-	"github.com/richardwilkes/ui/keys"
 	"syscall"
 	"unsafe"
 )
