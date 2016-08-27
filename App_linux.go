@@ -177,10 +177,8 @@ func processOneEvent(evt *C.XEvent) {
 				}
 			}
 		case goTaskAtom:
-			if clientEvent.format == 32 {
-				data := (*uintptr)(unsafe.Pointer(&clientEvent.data))
-				dispatchTask(*data)
-			}
+			data := (*uint64)(unsafe.Pointer(&clientEvent.data))
+			dispatchTask(*data)
 		}
 	}
 }
