@@ -74,7 +74,11 @@ func (e *KeyUp) Modifiers() KeyMask {
 // String implements the fmt.Stringer interface.
 func (e *KeyUp) String() string {
 	var buffer bytes.Buffer
-	buffer.WriteString(fmt.Sprintf("KeyUp[Code: %d, Rune '%v', Target: %v", e.code, e.ch, reflect.ValueOf(e.target).Pointer()))
+	buffer.WriteString(fmt.Sprintf("KeyUp[Code: %d", e.code))
+	if e.ch != 0 {
+		buffer.WriteString(fmt.Sprintf(", Rune: %d (%s)", e.ch, string(e.ch)))
+	}
+	buffer.WriteString(fmt.Sprintf(", Target: %v", reflect.ValueOf(e.target).Pointer()))
 	modifiers := e.modifiers.String()
 	if modifiers != "" {
 		buffer.WriteString(", ")

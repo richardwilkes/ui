@@ -96,7 +96,11 @@ func (e *KeyDown) String() string {
 	if e.discarded {
 		buffer.WriteString("Discarded, ")
 	}
-	buffer.WriteString(fmt.Sprintf("Code: %d, Rune '%v', Target: %v", e.code, e.ch, reflect.ValueOf(e.target).Pointer()))
+	buffer.WriteString(fmt.Sprintf("Code: %d", e.code))
+	if e.ch != 0 {
+		buffer.WriteString(fmt.Sprintf(", Rune: %d (%s)", e.ch, string(e.ch)))
+	}
+	buffer.WriteString(fmt.Sprintf(", Target: %v", reflect.ValueOf(e.target).Pointer()))
 	modifiers := e.modifiers.String()
 	if modifiers != "" {
 		buffer.WriteString(", ")
