@@ -589,6 +589,9 @@ func (window *Window) keyEvent(eventType platformEventType, keyModifiers event.K
 				diacritic = 0
 			}
 		}
+		if diacritic != 0 {
+			ch = 0
+		}
 		e := event.NewKeyDown(window.Focus(), keyCode, ch, repeat, keyModifiers)
 		event.Dispatch(e)
 		if !e.Discarded() && keyCode == keys.Tab && (keyModifiers&(event.AllKeyMask & ^event.ShiftKeyMask)) == 0 {
