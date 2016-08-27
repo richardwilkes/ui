@@ -13,12 +13,14 @@ import (
 	"fmt"
 	"github.com/richardwilkes/geom"
 	"github.com/richardwilkes/ui/event"
+	"github.com/richardwilkes/ui/keys"
 	"syscall"
 	"unsafe"
 )
 
 // #cgo linux LDFLAGS: -lX11 -lcairo
 // #include <X11/Xlib.h>
+// #include <X11/keysym.h>
 // #include <X11/Xutil.h>
 // #include <cairo/cairo.h>
 // #include <cairo/cairo-xlib.h>
@@ -56,15 +58,6 @@ func platformStartUserInterface() {
 		C.XNextEvent(xDisplay, &event)
 		processOneEvent(&event)
 	}
-}
-
-func processKeyEvent(evt *C.XEvent, window platformWindow, eventType platformEventType) {
-	keyEvent := (*C.XKeyEvent)(unsafe.Pointer(evt))
-	var buffer [256]C.char
-	var keySym C.KeySym
-	buffer[C.XLookupString(keyEvent, &buffer[0], C.int(len(buffer)-1), &keySym, nil)] = 0
-	//fmt.Printf("code: %v, str: '%v'\n", keyEvent.keycode, C.GoString(&buffer[0]))
-	handleWindowKeyEvent(window, eventType, convertKeyMask(keyEvent.state), int(keyEvent.keycode), &buffer[0], false)
 }
 
 func processOneEvent(evt *C.XEvent) {
@@ -181,6 +174,23 @@ func processOneEvent(evt *C.XEvent) {
 			dispatchTask(*data)
 		}
 	}
+}
+
+func processKeyEvent(evt *C.XEvent, window platformWindow, eventType platformEventType) {
+	keyEvent := (*C.XKeyEvent)(unsafe.Pointer(evt))
+	keyCode := int(keyEvent.keycode)
+	var buffer [5]C.char
+	var keySym C.KeySym
+	buffer[C.XLookupString(keyEvent, &buffer[0], C.int(len(buffer)-1), &keySym, nil)] = 0
+	if mapping := keys.MappingForScanCode(int(keySym)); mapping != nil {
+		keyCode = mapping.KeyCode
+		str := string(mapping.KeyChar)
+		for i := range str {
+			buffer[i] = C.char(str[i])
+		}
+		buffer[len(str)] = 0
+	}
+	handleWindowKeyEvent(window, eventType, convertKeyMask(keyEvent.state), keyCode, &buffer[0], false)
 }
 
 func paintWindow(pWindow platformWindow, gc *C.cairo_t, x, y, width, height C.double, future bool) {
