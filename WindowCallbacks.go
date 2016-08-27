@@ -12,6 +12,7 @@ package ui
 import (
 	"github.com/richardwilkes/ui/draw"
 	"github.com/richardwilkes/ui/event"
+	"github.com/richardwilkes/ui/keys"
 	"unsafe"
 	// #cgo pkg-config: pangocairo
 	// #include <pango/pangocairo.h>
@@ -77,11 +78,16 @@ func handleCursorUpdateEvent(cWindow platformWindow, keyModifiers int, x, y floa
 func handleWindowKeyEvent(cWindow platformWindow, eventType platformEventType, keyModifiers, keyCode int, chars *C.char, repeat bool) {
 	if window, ok := windowMap[cWindow]; ok {
 		var keyChar rune
-		runes := ([]rune)(C.GoString(chars))
-		if len(runes) > 0 {
-			keyChar = runes[0]
-		} else {
-			keyChar = 0
+		extractKeyChar := true
+		if mapping := keys.MappingForScanCode(keyCode); mapping != nil {
+			keyCode = mapping.KeyCode
+			if !mapping.Dynamic {
+				keyChar = mapping.KeyChar
+				extractKeyChar = false
+			}
+		}
+		if extractKeyChar && chars != nil && *chars != 0 {
+			keyChar = (([]rune)(C.GoString(chars)))[0]
 		}
 		window.keyEvent(eventType, event.KeyMask(keyModifiers), keyCode, keyChar, repeat)
 	}

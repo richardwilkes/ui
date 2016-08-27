@@ -178,19 +178,10 @@ func processOneEvent(evt *C.XEvent) {
 
 func processKeyEvent(evt *C.XEvent, window platformWindow, eventType platformEventType) {
 	keyEvent := (*C.XKeyEvent)(unsafe.Pointer(evt))
-	keyCode := int(keyEvent.keycode)
 	var buffer [5]C.char
 	var keySym C.KeySym
 	buffer[C.XLookupString(keyEvent, &buffer[0], C.int(len(buffer)-1), &keySym, nil)] = 0
-	if mapping := keys.MappingForScanCode(int(keySym)); mapping != nil {
-		keyCode = mapping.KeyCode
-		str := string(mapping.KeyChar)
-		for i := range str {
-			buffer[i] = C.char(str[i])
-		}
-		buffer[len(str)] = 0
-	}
-	handleWindowKeyEvent(window, eventType, convertKeyMask(keyEvent.state), keyCode, &buffer[0], false)
+	handleWindowKeyEvent(window, eventType, convertKeyMask(keyEvent.state), int(keySym), &buffer[0], false)
 }
 
 func paintWindow(pWindow platformWindow, gc *C.cairo_t, x, y, width, height C.double, future bool) {

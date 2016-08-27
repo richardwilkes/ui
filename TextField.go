@@ -279,7 +279,7 @@ func (field *TextField) keyDown(evt event.Event) {
 		}
 		evt.Finish()
 		field.Repaint()
-	case keys.Del:
+	case keys.Delete:
 		if field.HasSelectionRange() {
 			field.Delete()
 		} else if field.selectionStart < len(field.runes) {

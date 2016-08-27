@@ -14,13 +14,12 @@ import (
 	"github.com/richardwilkes/ui/cursor"
 	"time"
 	"unsafe"
+	// #cgo darwin LDFLAGS: -framework Cocoa -framework Quartz
+	// #cgo pkg-config: pangocairo
+	// #include <stdlib.h>
+	// #include "Window_darwin.h"
+	"C"
 )
-
-// #cgo darwin LDFLAGS: -framework Cocoa -framework Quartz
-// #cgo pkg-config: pangocairo
-// #include <stdlib.h>
-// #include "Window_darwin.h"
-import "C"
 
 func platformGetKeyWindow() platformWindow {
 	return platformWindow(C.platformGetKeyWindow())

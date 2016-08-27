@@ -63,6 +63,7 @@ var (
 	RightName = i18n.Text("Right")
 
 	NumLockName        = i18n.Text("Num Lock")
+	NumPadClearName    = i18n.Text("NumPad Clear")
 	NumPadDivideName   = i18n.Text("NumPad Divide")
 	NumPadMultiplyName = i18n.Text("NumPad Multiply")
 	NumPadMinusName    = i18n.Text("NumPad Minus")
