@@ -12,15 +12,10 @@ package color
 var (
 	// Background is the system color used for the window background.
 	Background = RGB(236, 236, 236)
-	// KeyboardFocus is the system color used to highlight controls that have the keyboard
-	// focus.
-	KeyboardFocus Color
-	// SelectedControl is the system color used to highlight controls that have a selection.
-	SelectedControl Color
-	// SelectedControlText is the system color used for text in the selected portion of a control.
-	SelectedControlText = Black
+	// KeyboardFocus is the system color used to highlight controls that have the keyboard focus.
+	KeyboardFocus = RGB(59, 153, 252)
 	// SelectedTextBackground is the system color used for the background of selected text.
-	SelectedTextBackground Color
+	SelectedTextBackground = RGB(178, 215, 255)
 	// SelectedText is the system color used for selected text.
 	SelectedText = White
 	// TextBackground is the system color used for the background of editable text areas.
