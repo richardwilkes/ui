@@ -9,42 +9,22 @@
 
 package color
 
-// #cgo darwin LDFLAGS: -framework Cocoa
-// #include "SystemColors.h"
-import "C"
-
 var (
 	// Background is the system color used for the window background.
-	Background = systemColor(C.platformBackgroundColor)
+	Background = RGB(236, 236, 236)
 	// KeyboardFocus is the system color used to highlight controls that have the keyboard
 	// focus.
-	KeyboardFocus = systemColor(C.platformKeyboardFocusColor)
+	KeyboardFocus Color
 	// SelectedControl is the system color used to highlight controls that have a selection.
-	SelectedControl = systemColor(C.platformSelectedControlColor)
+	SelectedControl Color
 	// SelectedControlText is the system color used for text in the selected portion of a control.
-	SelectedControlText = systemColor(C.platformSelectedControlTextColor)
+	SelectedControlText = Black
 	// SelectedTextBackground is the system color used for the background of selected text.
-	SelectedTextBackground = systemColor(C.platformSelectedTextBackgroundColor)
+	SelectedTextBackground Color
 	// SelectedText is the system color used for selected text.
-	SelectedText = systemColor(C.platformSelectedTextColor)
+	SelectedText = White
 	// TextBackground is the system color used for the background of editable text areas.
-	TextBackground = systemColor(C.platformTextBackgroundColor)
+	TextBackground = White
 	// Text is the system color used for the text in editable text areas.
-	Text = systemColor(C.platformTextColor)
+	Text = Black
 )
-
-func systemColor(id C.SystemColorId) Color {
-	return Color(uint32(C.platformSystemColor(id)))
-}
-
-// UpdateSystemColors updates the system color variables to reflect the current state of the OS.
-func UpdateSystemColors() {
-	Background = systemColor(C.platformBackgroundColor)
-	KeyboardFocus = systemColor(C.platformKeyboardFocusColor)
-	SelectedControl = systemColor(C.platformSelectedControlColor)
-	SelectedControlText = systemColor(C.platformSelectedControlTextColor)
-	SelectedTextBackground = systemColor(C.platformSelectedTextBackgroundColor)
-	SelectedText = systemColor(C.platformSelectedTextColor)
-	TextBackground = systemColor(C.platformTextBackgroundColor)
-	Text = systemColor(C.platformTextColor)
-}

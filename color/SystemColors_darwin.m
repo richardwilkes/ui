@@ -10,42 +10,36 @@
 #include <AppKit/AppKit.h>
 #include "SystemColors.h"
 
-unsigned int platformSystemColor(SystemColorId id) {
-	NSColorList *list;
-	NSColor *nsColor = nil;
-	unsigned int color = 0;
-	switch (id) {
-		case platformBackgroundColor:
-			color = 0xFFECECEC;
-			break;
-		case platformKeyboardFocusColor:
-			nsColor = [NSColor keyboardFocusIndicatorColor];
-			break;
-		case platformSelectedControlColor:
-			nsColor = [NSColor alternateSelectedControlColor];
-			break;
-		case platformSelectedControlTextColor:
-			nsColor = [NSColor alternateSelectedControlTextColor];
-			break;
-		case platformSelectedTextBackgroundColor:
-			nsColor = [NSColor selectedTextBackgroundColor];
-			break;
-		case platformSelectedTextColor:
-			nsColor = [NSColor selectedTextColor];
-			break;
-		case platformTextBackgroundColor:
-			nsColor = [NSColor textBackgroundColor];
-			break;
-		case platformTextColor:
-			nsColor = [NSColor textColor];
-			break;
-		default:
-			break;
-	}
-	if (nsColor != nil) {
-		CGFloat red, green, blue, alpha;
-		[[nsColor colorUsingColorSpaceName: NSDeviceRGBColorSpace] getRed:&red green:&green blue:&blue alpha:&alpha];
-		color = ((((unsigned int)(255 * alpha + 0.5)) & 0xFF) << 24) | ((((unsigned int)(255 * red + 0.5)) & 0xFF) << 16) | ((((unsigned int)(255 * green + 0.5)) & 0xFF) << 8) | (((unsigned int)(255 * blue + 0.5)) & 0xFF);
-	}
-	return color;
+unsigned int convertNSColor(NSColor *color) {
+	CGFloat red, green, blue, alpha;
+	[[nsColor colorUsingColorSpaceName: NSDeviceRGBColorSpace] getRed:&red green:&green blue:&blue alpha:&alpha];
+	return ((((unsigned int)(255 * alpha + 0.5)) & 0xFF) << 24) | ((((unsigned int)(255 * red + 0.5)) & 0xFF) << 16) | ((((unsigned int)(255 * green + 0.5)) & 0xFF) << 8) | (((unsigned int)(255 * blue + 0.5)) & 0xFF);
+}
+
+unsigned int platformKeyboardFocusColor() {
+	return convertNSColor([NSColor keyboardFocusIndicatorColor]);
+}
+
+unsigned int platformSelectedControlColor() {
+	return convertNSColor([NSColor alternateSelectedControlColor]);
+}
+
+unsigned int platformSelectedControlTextColor() {
+	return convertNSColor([NSColor alternateSelectedControlTextColor]);
+}
+
+unsigned int platformSelectedTextBackgroundColor() {
+	return convertNSColor([NSColor selectedTextBackgroundColor]);
+}
+
+unsigned int platformSelectedTextColor() {
+	return convertNSColor([NSColor selectedTextColor]);
+}
+
+unsigned int platformTextBackgroundColor() {
+	return convertNSColor([NSColor textBackgroundColor]);
+}
+
+unsigned int platformTextColor() {
+	return convertNSColor([NSColor textColor]);
 }

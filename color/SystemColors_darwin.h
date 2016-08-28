@@ -10,18 +10,12 @@
 #ifndef __RW_GOUI_SYSTEM_COLORS__
 #define __RW_GOUI_SYSTEM_COLORS__
 
-typedef enum {
-	platformBackgroundColor,
-	platformKeyboardFocusColor,
-	platformSelectedControlColor,
-	platformSelectedControlTextColor,
-	platformSelectedTextBackgroundColor,
-	platformSelectedTextColor,
-	platformTextBackgroundColor,
-	platformTextColor
-} SystemColorId;
-
-// The returned color is in the format 0xAARRGGBB
-unsigned int platformSystemColor(SystemColorId id);
+unsigned int platformKeyboardFocusColor();
+unsigned int platformSelectedControlColor();
+unsigned int platformSelectedControlTextColor();
+unsigned int platformSelectedTextBackgroundColor();
+unsigned int platformSelectedTextColor();
+unsigned int platformTextBackgroundColor();
+unsigned int platformTextColor();
 
 #endif // __RW_GOUI_SYSTEM_COLORS__
