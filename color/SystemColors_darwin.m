@@ -8,11 +8,11 @@
 // defined by the Mozilla Public License, version 2.0.
 
 #include <AppKit/AppKit.h>
-#include "SystemColors.h"
+#include "SystemColors_darwin.h"
 
 unsigned int convertNSColor(NSColor *color) {
 	CGFloat red, green, blue, alpha;
-	[[nsColor colorUsingColorSpaceName: NSDeviceRGBColorSpace] getRed:&red green:&green blue:&blue alpha:&alpha];
+	[[color colorUsingColorSpaceName: NSDeviceRGBColorSpace] getRed:&red green:&green blue:&blue alpha:&alpha];
 	return ((((unsigned int)(255 * alpha + 0.5)) & 0xFF) << 24) | ((((unsigned int)(255 * red + 0.5)) & 0xFF) << 16) | ((((unsigned int)(255 * green + 0.5)) & 0xFF) << 8) | (((unsigned int)(255 * blue + 0.5)) & 0xFF);
 }
 

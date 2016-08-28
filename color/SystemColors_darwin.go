@@ -14,11 +14,11 @@ package color
 import "C"
 
 func init() {
-	KeyboardFocus = C.platformKeyboardFocusColor()
-	SelectedControl = C.platformSelectedControlColor()
-	SelectedControlText = C.platformSelectedControlTextColor()
-	SelectedTextBackground = C.platformSelectedTextBackgroundColor()
-	SelectedText = C.platformSelectedTextColor()
-	TextBackground = C.platformTextBackgroundColor()
-	Text = C.platformTextColor()
+	KeyboardFocus = Color(C.platformKeyboardFocusColor())
+	SelectedControl = Color(C.platformSelectedControlColor())
+	SelectedControlText = Color(C.platformSelectedControlTextColor())
+	SelectedTextBackground = Color(C.platformSelectedTextBackgroundColor())
+	SelectedText = Color(C.platformSelectedTextColor())
+	TextBackground = Color(C.platformTextBackgroundColor())
+	Text = Color(C.platformTextColor())
 }
