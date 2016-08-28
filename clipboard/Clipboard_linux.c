@@ -12,7 +12,7 @@
 #include "Clipboard.h"
 
 int platformClipboardChangeCount() {
-	// RAW: Implement platformClipboardChangeCount for Linux
+	// RAW: Implement for Linux
 	return 0;
 }
 

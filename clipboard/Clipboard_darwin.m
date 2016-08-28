@@ -10,7 +10,7 @@
 #include <Cocoa/Cocoa.h>
 #include <stdlib.h>
 #include "_cgo_export.h"
-#include "Clipboard.h"
+#include "Clipboard_darwin.h"
 
 int platformClipboardChangeCount() {
 	return [[NSPasteboard generalPasteboard] changeCount];
