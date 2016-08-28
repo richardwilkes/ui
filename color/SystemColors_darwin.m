@@ -20,14 +20,6 @@ unsigned int platformKeyboardFocusColor() {
 	return convertNSColor([NSColor keyboardFocusIndicatorColor]);
 }
 
-unsigned int platformSelectedControlColor() {
-	return convertNSColor([NSColor alternateSelectedControlColor]);
-}
-
-unsigned int platformSelectedControlTextColor() {
-	return convertNSColor([NSColor alternateSelectedControlTextColor]);
-}
-
 unsigned int platformSelectedTextBackgroundColor() {
 	return convertNSColor([NSColor selectedTextBackgroundColor]);
 }

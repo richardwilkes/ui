@@ -11,8 +11,6 @@
 #define __RW_GOUI_SYSTEM_COLORS__
 
 unsigned int platformKeyboardFocusColor();
-unsigned int platformSelectedControlColor();
-unsigned int platformSelectedControlTextColor();
 unsigned int platformSelectedTextBackgroundColor();
 unsigned int platformSelectedTextColor();
 unsigned int platformTextBackgroundColor();

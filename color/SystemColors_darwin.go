@@ -15,8 +15,6 @@ import "C"
 
 func init() {
 	KeyboardFocus = Color(C.platformKeyboardFocusColor())
-	SelectedControl = Color(C.platformSelectedControlColor())
-	SelectedControlText = Color(C.platformSelectedControlTextColor())
 	SelectedTextBackground = Color(C.platformSelectedTextBackgroundColor())
 	SelectedText = Color(C.platformSelectedTextColor())
 	TextBackground = Color(C.platformTextBackgroundColor())

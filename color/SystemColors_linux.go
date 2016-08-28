@@ -11,6 +11,5 @@ package color
 
 func init() {
 	KeyboardFocus = RGB(240, 119, 70)
-	SelectedControl = RGB(238, 238, 255)
-	SelectedTextBackground = RGB(240, 119, 70)
+	SelectedTextBackground = KeyboardFocus
 }
