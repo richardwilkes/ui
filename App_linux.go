@@ -13,7 +13,9 @@ import (
 	"fmt"
 	"github.com/richardwilkes/geom"
 	"github.com/richardwilkes/ui/event"
+	"math"
 	"syscall"
+	"time"
 	"unsafe"
 )
 
@@ -26,16 +28,26 @@ import (
 import "C"
 
 var (
-	running             bool
-	awaitingQuit        bool
-	xWindowCount        int
-	xDisplay            *C.Display
-	wmProtocolsAtom     C.Atom
-	wmDeleteAtom        C.Atom
-	goTaskAtom          C.Atom
-	quitting            bool
+	running         bool
+	quitting        bool
+	awaitingQuit    bool
+	xWindowCount    int
+	xDisplay        *C.Display
+	wmProtocolsAtom C.Atom
+	wmDeleteAtom    C.Atom
+	goTaskAtom      C.Atom
+	// DoubleClickTime holds the maximum amount of time that can elapse between two clicks for them
+	// to be considered part of a multi-click event.
+	DoubleClickTime time.Duration = time.Millisecond * 250
+	// DoubleClickDistance holds the maximum distance subsequent clicks can be from the last click
+	// when determining if a click is part of a multi-click event.
+	DoubleClickDistance float64 = 5
+	clickCount          int
+	lastClick           time.Time
+	lastClickSpot       geom.Point
+	lastClickButton     int = -1
 	lastMouseDownWindow platformWindow
-	lastMouseDownButton = -1
+	lastMouseDownButton int = -1
 )
 
 func platformStartUserInterface() {
@@ -85,15 +97,25 @@ func processOneEvent(evt *C.XEvent) {
 		} else {
 			lastMouseDownButton = getButton(buttonEvent.button)
 			lastMouseDownWindow = window
-			// RAW: Needs concept of click count
-			handleWindowMouseEvent(window, platformMouseDown, convertKeyMask(buttonEvent.state), lastMouseDownButton, 0, float64(buttonEvent.x), float64(buttonEvent.y))
+			x := float64(buttonEvent.x)
+			y := float64(buttonEvent.y)
+			now := time.Now()
+			if lastClickButton == lastMouseDownButton && now.Sub(lastClick) <= DoubleClickTime && math.Abs(lastClickSpot.X-x) <= DoubleClickDistance && math.Abs(lastClickSpot.Y-y) <= DoubleClickDistance {
+				clickCount++
+			} else {
+				clickCount = 1
+			}
+			lastClick = now
+			lastClickButton = lastMouseDownButton
+			lastClickSpot.X = x
+			lastClickSpot.Y = y
+			handleWindowMouseEvent(window, platformMouseDown, convertKeyMask(buttonEvent.state), lastMouseDownButton, clickCount, x, y)
 		}
 	case C.ButtonRelease:
 		buttonEvent := (*C.XButtonEvent)(unsafe.Pointer(evt))
 		if !isScrollWheelButton(buttonEvent.button) {
 			lastMouseDownButton = -1
-			// RAW: Needs concept of click count
-			handleWindowMouseEvent(window, platformMouseUp, convertKeyMask(buttonEvent.state), getButton(buttonEvent.button), 0, float64(buttonEvent.x), float64(buttonEvent.y))
+			handleWindowMouseEvent(window, platformMouseUp, convertKeyMask(buttonEvent.state), getButton(buttonEvent.button), clickCount, float64(buttonEvent.x), float64(buttonEvent.y))
 		}
 	case C.MotionNotify:
 		motionEvent := (*C.XMotionEvent)(unsafe.Pointer(evt))
