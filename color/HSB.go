@@ -107,11 +107,12 @@ func (c Color) AdjustBrightness(amount float64) Color {
 
 // HSB returns the hue, saturation and brightness of the color. Values are in the range 0-1.
 func (c Color) HSB() (hue, saturation, brightness float64) {
-	red := c.Red()
-	green := c.Green()
-	blue := c.Blue()
-	cmax := max(red, green, blue)
-	cmin := min(red, green, blue)
+	r := c.Red()
+	g := c.Green()
+	b := c.Blue()
+	cmax := max(r, g, b)
+	cmin := min(r, g, b)
+	brightness = float64(cmax) / 255
 	if cmax != 0 {
 		saturation = float64(cmax-cmin) / float64(cmax)
 	} else {
@@ -121,22 +122,22 @@ func (c Color) HSB() (hue, saturation, brightness float64) {
 		hue = 0
 	} else {
 		div := float64(cmax - cmin)
-		r := float64(cmax-red) / div
-		g := float64(cmax-green) / div
-		b := float64(cmax-blue) / div
-		if r == float64(cmax) {
-			hue = b - g
-		} else if g == float64(cmax) {
-			hue = 2 + r - b
+		rc := float64(cmax-r) / div
+		gc := float64(cmax-g) / div
+		bc := float64(cmax-b) / div
+		if r == cmax {
+			hue = bc - gc
+		} else if g == cmax {
+			hue = 2 + rc - bc
 		} else {
-			hue = 4 + g - r
+			hue = 4 + gc - rc
 		}
 		hue /= 6
 		if hue < 0 {
 			hue++
 		}
 	}
-	return hue, saturation, float64(cmax) / 255
+	return
 }
 
 func clamp0To1(value float64) float64 {
