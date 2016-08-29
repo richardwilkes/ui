@@ -17,6 +17,7 @@ import (
 
 // Application represents the overall application.
 type Application struct {
+	id            int64
 	eventHandlers event.Handlers
 }
 
@@ -26,6 +27,14 @@ var (
 	// along the line.
 	App Application
 )
+
+// ID returns the unique ID for this application.
+func (app *Application) ID() int64 {
+	if app.id == 0 {
+		app.id = event.NextID()
+	}
+	return app.id
+}
 
 // EventHandlers implements the event.Target interface.
 func (app *Application) EventHandlers() *event.Handlers {

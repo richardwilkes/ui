@@ -15,9 +15,18 @@ import (
 
 // Item represents individual actions that can be issued from a Menu.
 type Item struct {
+	id            int64
 	item          PlatformItem
 	eventHandlers *event.Handlers
 	title         string
+}
+
+// ID returns the unique ID for this menu item.
+func (item *Item) ID() int64 {
+	if item.id == 0 {
+		item.id = event.NextID()
+	}
+	return item.id
 }
 
 // PlatformPtr returns the underlying platform data pointer.
