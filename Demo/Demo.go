@@ -133,6 +133,7 @@ func createButtonsWindow(title string) *ui.Window {
 		fmt.Println(err)
 	}
 
+	wnd.SetFocus(textFieldsPanel.Children()[0])
 	wnd.Pack()
 	wnd.ToFront()
 	return wnd
@@ -297,10 +298,10 @@ func createTextFieldsPanel() ui.Widget {
 	panel := ui.NewBlock()
 	ui.NewPrecision(panel)
 
-	createTextField("First Text Field", panel)
+	field := createTextField("First Text Field", panel)
 	createTextField("Second Text Field (disabled)", panel).SetEnabled(false)
 	createTextField("", panel).SetWatermark("Watermarked")
-	field := createTextField("", panel)
+	field = createTextField("", panel)
 	field.SetWatermark("Enter only numbers")
 	field.EventHandlers().Add(event.ValidateType, func(evt event.Event) {
 		e := evt.(*event.Validate)
