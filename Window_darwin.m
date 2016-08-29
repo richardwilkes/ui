@@ -298,6 +298,14 @@ void platformInvokeAfter(unsigned long id, long afterNanos) {
 	windowResized((platformWindow)[notification object]);
 }
 
+- (void)windowDidBecomeKey:(NSNotification *)notification {
+	windowGainedKey((platformWindow)[notification object]);
+}
+
+- (void)windowDidResignKey:(NSNotification *)notification {
+	windowLostKey((platformWindow)[notification object]);
+}
+
 - (BOOL)windowShouldClose:(id)sender {
 	return (BOOL)windowShouldClose((platformWindow)sender);
 }
