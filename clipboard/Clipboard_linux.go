@@ -30,7 +30,8 @@ func platformTypes() []string {
 	types := make([]string, len(clipData))
 	i := 0
 	for key := range clipData {
-		types[i++] = key
+		types[i] = key
+		i++
 	}
 	return types
 }
