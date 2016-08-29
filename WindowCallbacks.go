@@ -35,6 +35,20 @@ func windowResized(cWindow platformWindow) {
 	}
 }
 
+//export windowGainedKey
+func windowGainedKey(cWindow platformWindow) {
+	if window, ok := windowMap[cWindow]; ok {
+		event.Dispatch(event.NewFocusGained(window))
+	}
+}
+
+//export windowLostKey
+func windowLostKey(cWindow platformWindow) {
+	if window, ok := windowMap[cWindow]; ok {
+		event.Dispatch(event.NewFocusLost(window))
+	}
+}
+
 //export windowShouldClose
 func windowShouldClose(cWindow platformWindow) bool {
 	if window, ok := windowMap[cWindow]; ok {
