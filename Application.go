@@ -10,6 +10,7 @@
 package ui
 
 import (
+	"fmt"
 	"github.com/richardwilkes/ui/event"
 	"github.com/richardwilkes/ui/menu"
 	"runtime"
@@ -27,6 +28,10 @@ var (
 	// along the line.
 	App Application
 )
+
+func (app *Application) String() string {
+	return fmt.Sprintf("Application #%d", app.ID())
+}
 
 // ID returns the unique ID for this application.
 func (app *Application) ID() int64 {

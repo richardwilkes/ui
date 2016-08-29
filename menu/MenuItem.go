@@ -10,6 +10,7 @@
 package menu
 
 import (
+	"fmt"
 	"github.com/richardwilkes/ui/event"
 )
 
@@ -19,6 +20,10 @@ type Item struct {
 	item          PlatformItem
 	eventHandlers *event.Handlers
 	title         string
+}
+
+func (item *Item) String() string {
+	return fmt.Sprintf("menu.Item #%d (%s)", item.ID(), item.Title())
 }
 
 // ID returns the unique ID for this menu item.

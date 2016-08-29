@@ -44,7 +44,7 @@ func NewBlock() *Block {
 }
 
 func (b *Block) String() string {
-	return fmt.Sprintf("Block #%d", b.id)
+	return fmt.Sprintf("Block #%d", b.ID())
 }
 
 // ID returns the unique ID for this block.

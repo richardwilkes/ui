@@ -93,6 +93,10 @@ func NewWindowWithContentSize(where geom.Point, contentSize geom.Size, styleMask
 	return window
 }
 
+func (window *Window) String() string {
+	return fmt.Sprintf("Window #%d (%s)", window.ID(), window.Title())
+}
+
 // ID returns the unique ID for this window.
 func (window *Window) ID() int64 {
 	if window.id == 0 {
