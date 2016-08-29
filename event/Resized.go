@@ -12,7 +12,6 @@ package event
 import (
 	"bytes"
 	"fmt"
-	"reflect"
 )
 
 // Resized is generated when a widget is resized.
@@ -54,7 +53,7 @@ func (e *Resized) Finish() {
 // String implements the fmt.Stringer interface.
 func (e *Resized) String() string {
 	var buffer bytes.Buffer
-	buffer.WriteString(fmt.Sprintf("Resized[Target: %v", reflect.ValueOf(e.target).Pointer()))
+	buffer.WriteString(fmt.Sprintf("Resized[Target: %v", e.target))
 	if e.finished {
 		buffer.WriteString(", Finished")
 	}

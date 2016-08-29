@@ -12,7 +12,6 @@ package event
 import (
 	"bytes"
 	"fmt"
-	"reflect"
 )
 
 // FocusGained is generated when a widget gains the keyboard focus.
@@ -55,7 +54,7 @@ func (e *FocusGained) Finish() {
 // String implements the fmt.Stringer interface.
 func (e *FocusGained) String() string {
 	var buffer bytes.Buffer
-	buffer.WriteString(fmt.Sprintf("FocusGained[Target: %v", reflect.ValueOf(e.target).Pointer()))
+	buffer.WriteString(fmt.Sprintf("FocusGained[Target: %v", e.target))
 	if e.finished {
 		buffer.WriteString(", Finished")
 	}

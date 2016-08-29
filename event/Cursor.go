@@ -12,9 +12,8 @@ package event
 import (
 	"bytes"
 	"fmt"
-	"github.com/richardwilkes/ui/cursor"
 	"github.com/richardwilkes/geom"
-	"reflect"
+	"github.com/richardwilkes/ui/cursor"
 )
 
 // Cursor is generated when a cursor is being requested for the widget.
@@ -74,7 +73,7 @@ func (e *Cursor) Finish() {
 // String implements the fmt.Stringer interface.
 func (e *Cursor) String() string {
 	var buffer bytes.Buffer
-	buffer.WriteString(fmt.Sprintf("Cursor[Where: [%v], Target: %v", e.where, reflect.ValueOf(e.target).Pointer()))
+	buffer.WriteString(fmt.Sprintf("Cursor[Where: [%v], Target: %v", e.where, e.target))
 	if e.finished {
 		buffer.WriteString(", Finished")
 	}

@@ -12,7 +12,6 @@ package event
 import (
 	"bytes"
 	"fmt"
-	"reflect"
 )
 
 // KeyUp is generated when a key is released.
@@ -78,7 +77,7 @@ func (e *KeyUp) String() string {
 	if e.ch != 0 {
 		buffer.WriteString(fmt.Sprintf(", Rune: %d (%s)", e.ch, string(e.ch)))
 	}
-	buffer.WriteString(fmt.Sprintf(", Target: %v", reflect.ValueOf(e.target).Pointer()))
+	buffer.WriteString(fmt.Sprintf(", Target: %v", e.target))
 	modifiers := e.modifiers.String()
 	if modifiers != "" {
 		buffer.WriteString(", ")

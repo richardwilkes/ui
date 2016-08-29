@@ -13,7 +13,6 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/richardwilkes/geom"
-	"reflect"
 )
 
 // MouseExited is generated when the mouse leaves a widget.
@@ -70,7 +69,7 @@ func (e *MouseExited) Modifiers() KeyMask {
 // String implements the fmt.Stringer interface.
 func (e *MouseExited) String() string {
 	var buffer bytes.Buffer
-	buffer.WriteString(fmt.Sprintf("MouseExited[Where: [%v], Target: %v", e.where, reflect.ValueOf(e.target).Pointer()))
+	buffer.WriteString(fmt.Sprintf("MouseExited[Where: [%v], Target: %v", e.where, e.target))
 	modifiers := e.modifiers.String()
 	if modifiers != "" {
 		buffer.WriteString(", ")

@@ -12,7 +12,6 @@ package event
 import (
 	"bytes"
 	"fmt"
-	"reflect"
 )
 
 // FocusLost is generated when a widget loses the keyboard focus.
@@ -55,7 +54,7 @@ func (e *FocusLost) Finish() {
 // String implements the fmt.Stringer interface.
 func (e *FocusLost) String() string {
 	var buffer bytes.Buffer
-	buffer.WriteString(fmt.Sprintf("FocusLost[Target: %v", reflect.ValueOf(e.target).Pointer()))
+	buffer.WriteString(fmt.Sprintf("FocusLost[Target: %v", e.target))
 	if e.finished {
 		buffer.WriteString(", Finished")
 	}

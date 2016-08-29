@@ -13,7 +13,6 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/richardwilkes/geom"
-	"reflect"
 )
 
 // MouseDown is generated when a mouse button is pressed while over a widget.
@@ -98,7 +97,7 @@ func (e *MouseDown) String() string {
 	if e.discarded {
 		buffer.WriteString("Discarded, ")
 	}
-	buffer.WriteString(fmt.Sprintf("Where: [%v], Target: %v, Button: %d, Clicks: %d", e.where, reflect.ValueOf(e.target).Pointer(), e.button, e.clicks))
+	buffer.WriteString(fmt.Sprintf("Where: [%v], Target: %v, Button: %d, Clicks: %d", e.where, e.target, e.button, e.clicks))
 	modifiers := e.modifiers.String()
 	if modifiers != "" {
 		buffer.WriteString(", ")

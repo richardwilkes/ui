@@ -12,7 +12,6 @@ package event
 import (
 	"bytes"
 	"fmt"
-	"reflect"
 )
 
 // Modified is generated when some widgets are modified.
@@ -54,7 +53,7 @@ func (e *Modified) Finish() {
 // String implements the fmt.Stringer interface.
 func (e *Modified) String() string {
 	var buffer bytes.Buffer
-	buffer.WriteString(fmt.Sprintf("Modified[Target: %v", reflect.ValueOf(e.target).Pointer()))
+	buffer.WriteString(fmt.Sprintf("Modified[Target: %v", e.target))
 	if e.finished {
 		buffer.WriteString(", Finished")
 	}

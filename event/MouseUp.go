@@ -13,7 +13,6 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/richardwilkes/geom"
-	"reflect"
 )
 
 // MouseUp is generated when a mouse button is released after a MouseDown was generated in the
@@ -77,7 +76,7 @@ func (e *MouseUp) Button() int {
 // String implements the fmt.Stringer interface.
 func (e *MouseUp) String() string {
 	var buffer bytes.Buffer
-	buffer.WriteString(fmt.Sprintf("MouseUp[Where: [%v], Target: %v, Button: %d", e.where, reflect.ValueOf(e.target).Pointer(), e.button))
+	buffer.WriteString(fmt.Sprintf("MouseUp[Where: [%v], Target: %v, Button: %d", e.where, e.target, e.button))
 	modifiers := e.modifiers.String()
 	if modifiers != "" {
 		buffer.WriteString(", ")

@@ -12,7 +12,6 @@ package event
 import (
 	"bytes"
 	"fmt"
-	"reflect"
 )
 
 // Closing is generated when a window is asked to close.
@@ -70,7 +69,7 @@ func (e *Closing) String() string {
 	if e.aborted {
 		buffer.WriteString("Aborted, ")
 	}
-	buffer.WriteString(fmt.Sprintf("Target: %v", reflect.ValueOf(e.target).Pointer()))
+	buffer.WriteString(fmt.Sprintf("Target: %v", e.target))
 	if e.finished {
 		buffer.WriteString(", Finished")
 	}

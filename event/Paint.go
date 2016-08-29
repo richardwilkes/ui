@@ -12,9 +12,8 @@ package event
 import (
 	"bytes"
 	"fmt"
-	"github.com/richardwilkes/ui/draw"
 	"github.com/richardwilkes/geom"
-	"reflect"
+	"github.com/richardwilkes/ui/draw"
 )
 
 // Paint is generated when a widget needs to be drawn.
@@ -70,7 +69,7 @@ func (e *Paint) DirtyRect() geom.Rect {
 // String implements the fmt.Stringer interface.
 func (e *Paint) String() string {
 	var buffer bytes.Buffer
-	buffer.WriteString(fmt.Sprintf("Paint[Dirty: [%v], Target: %v", e.dirty, reflect.ValueOf(e.target).Pointer()))
+	buffer.WriteString(fmt.Sprintf("Paint[Dirty: [%v], Target: %v", e.dirty, e.target))
 	if e.finished {
 		buffer.WriteString(", Finished")
 	}

@@ -12,7 +12,6 @@ package event
 import (
 	"bytes"
 	"fmt"
-	"reflect"
 )
 
 // Click is generated when a widget is being clicked on.
@@ -54,7 +53,7 @@ func (e *Click) Finish() {
 // String implements the fmt.Stringer interface.
 func (e *Click) String() string {
 	var buffer bytes.Buffer
-	buffer.WriteString(fmt.Sprintf("Click[Target: %v", reflect.ValueOf(e.target).Pointer()))
+	buffer.WriteString(fmt.Sprintf("Click[Target: %v", e.target))
 	if e.finished {
 		buffer.WriteString(", Finished")
 	}

@@ -12,7 +12,6 @@ package event
 import (
 	"bytes"
 	"fmt"
-	"reflect"
 )
 
 // Closed is generated when a window is closed.
@@ -54,7 +53,7 @@ func (e *Closed) Finish() {
 // String implements the fmt.Stringer interface.
 func (e *Closed) String() string {
 	var buffer bytes.Buffer
-	buffer.WriteString(fmt.Sprintf("Closed[Target: %v", reflect.ValueOf(e.target).Pointer()))
+	buffer.WriteString(fmt.Sprintf("Closed[Target: %v", e.target))
 	if e.finished {
 		buffer.WriteString(", Finished")
 	}

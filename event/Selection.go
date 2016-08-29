@@ -12,7 +12,6 @@ package event
 import (
 	"bytes"
 	"fmt"
-	"reflect"
 )
 
 // Selection is generated when an item is selected.
@@ -54,7 +53,7 @@ func (e *Selection) Finish() {
 // String implements the fmt.Stringer interface.
 func (e *Selection) String() string {
 	var buffer bytes.Buffer
-	buffer.WriteString(fmt.Sprintf("Selection[Target: %v", reflect.ValueOf(e.target).Pointer()))
+	buffer.WriteString(fmt.Sprintf("Selection[Target: %v", e.target))
 	if e.finished {
 		buffer.WriteString(", Finished")
 	}

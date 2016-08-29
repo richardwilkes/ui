@@ -13,7 +13,6 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/richardwilkes/geom"
-	"reflect"
 )
 
 // MouseWheel is generated when the mouse wheel is used over a widget.
@@ -76,7 +75,7 @@ func (e *MouseWheel) Modifiers() KeyMask {
 // String implements the fmt.Stringer interface.
 func (e *MouseWheel) String() string {
 	var buffer bytes.Buffer
-	buffer.WriteString(fmt.Sprintf("MouseWheel[Delta: [%v], Where: [%v], Target: %v", e.delta, e.where, reflect.ValueOf(e.target).Pointer()))
+	buffer.WriteString(fmt.Sprintf("MouseWheel[Delta: [%v], Where: [%v], Target: %v", e.delta, e.where, e.target))
 	modifiers := e.modifiers.String()
 	if modifiers != "" {
 		buffer.WriteString(", ")

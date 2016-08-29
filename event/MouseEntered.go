@@ -13,7 +13,6 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/richardwilkes/geom"
-	"reflect"
 )
 
 // MouseEntered is generated when the mouse moves enters a widget.
@@ -70,7 +69,7 @@ func (e *MouseEntered) Modifiers() KeyMask {
 // String implements the fmt.Stringer interface.
 func (e *MouseEntered) String() string {
 	var buffer bytes.Buffer
-	buffer.WriteString(fmt.Sprintf("MouseEntered[Where: [%v], Target: %v", e.where, reflect.ValueOf(e.target).Pointer()))
+	buffer.WriteString(fmt.Sprintf("MouseEntered[Where: [%v], Target: %v", e.where, e.target))
 	modifiers := e.modifiers.String()
 	if modifiers != "" {
 		buffer.WriteString(", ")

@@ -13,7 +13,6 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/richardwilkes/geom"
-	"reflect"
 )
 
 // MouseDragged is generated when the mouse is moved within a widget while a mouse button
@@ -77,7 +76,7 @@ func (e *MouseDragged) Button() int {
 // String implements the fmt.Stringer interface.
 func (e *MouseDragged) String() string {
 	var buffer bytes.Buffer
-	buffer.WriteString(fmt.Sprintf("MouseDragged[Where: [%v], Target: %v, Button: %d", e.where, reflect.ValueOf(e.target).Pointer(), e.button))
+	buffer.WriteString(fmt.Sprintf("MouseDragged[Where: [%v], Target: %v, Button: %d", e.where, e.target, e.button))
 	modifiers := e.modifiers.String()
 	if modifiers != "" {
 		buffer.WriteString(", ")

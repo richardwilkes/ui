@@ -13,7 +13,6 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/richardwilkes/geom"
-	"reflect"
 )
 
 // ToolTip is generated when a tooltip is being requested for the widget.
@@ -73,7 +72,7 @@ func (e *ToolTip) Finish() {
 // String implements the fmt.Stringer interface.
 func (e *ToolTip) String() string {
 	var buffer bytes.Buffer
-	buffer.WriteString(fmt.Sprintf("ToolTip[Where: [%v], Target: %v", e.where, reflect.ValueOf(e.target).Pointer()))
+	buffer.WriteString(fmt.Sprintf("ToolTip[Where: [%v], Target: %v", e.where, e.target))
 	if e.tooltip != "" {
 		buffer.WriteString(", Text: '")
 		buffer.WriteString(e.tooltip)

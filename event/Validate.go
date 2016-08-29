@@ -12,7 +12,6 @@ package event
 import (
 	"bytes"
 	"fmt"
-	"reflect"
 )
 
 // Validate is generated when a widget needs to validate its state.
@@ -72,7 +71,7 @@ func (e *Validate) String() string {
 	} else {
 		buffer.WriteString("Valid")
 	}
-	buffer.WriteString(fmt.Sprintf(", Target: %v", reflect.ValueOf(e.target).Pointer()))
+	buffer.WriteString(fmt.Sprintf(", Target: %v", e.target))
 	if e.finished {
 		buffer.WriteString(", Finished")
 	}
