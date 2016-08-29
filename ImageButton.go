@@ -10,6 +10,7 @@
 package ui
 
 import (
+	"fmt"
 	"github.com/richardwilkes/geom"
 	"github.com/richardwilkes/ui/color"
 	"github.com/richardwilkes/ui/draw"
@@ -44,6 +45,7 @@ func NewImageButtonWithImageSize(img *draw.Image, size geom.Size) *ImageButton {
 		button.disabledImage = img
 	}
 	button.Theme = theme.StdImageButton
+	button.Describer = func() string { return fmt.Sprintf("ImageButton #%d (%v)", button.ID(), button.Image()) }
 	button.SetFocusable(true)
 	if size.Width <= 0 || size.Height <= 0 {
 		button.SetSizer(button)

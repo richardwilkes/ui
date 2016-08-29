@@ -12,6 +12,7 @@ package ui
 import (
 	"fmt"
 	"github.com/richardwilkes/ui/event"
+	"github.com/richardwilkes/ui/id"
 	"github.com/richardwilkes/ui/menu"
 	"runtime"
 )
@@ -36,7 +37,7 @@ func (app *Application) String() string {
 // ID returns the unique ID for this application.
 func (app *Application) ID() int64 {
 	if app.id == 0 {
-		app.id = event.NextID()
+		app.id = id.NextID()
 	}
 	return app.id
 }

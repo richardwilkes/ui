@@ -10,9 +10,10 @@
 package ui
 
 import (
+	"fmt"
+	"github.com/richardwilkes/geom"
 	"github.com/richardwilkes/ui/color"
 	"github.com/richardwilkes/ui/event"
-	"github.com/richardwilkes/geom"
 )
 
 // Separator provides a simple vertical or horizontal separator line.
@@ -25,6 +26,7 @@ type Separator struct {
 func NewSeparator(horizontal bool) *Separator {
 	sep := &Separator{}
 	sep.horizontal = horizontal
+	sep.Describer = func() string { return fmt.Sprintf("Separator #%d", sep.ID()) }
 	sep.SetSizer(sep)
 	sep.EventHandlers().Add(event.PaintType, sep.paint)
 	return sep

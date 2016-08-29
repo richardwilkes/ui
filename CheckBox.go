@@ -10,6 +10,7 @@
 package ui
 
 import (
+	"fmt"
 	"github.com/richardwilkes/geom"
 	"github.com/richardwilkes/ui/color"
 	"github.com/richardwilkes/ui/draw"
@@ -44,6 +45,7 @@ func NewCheckBox(title string) *CheckBox {
 	checkbox := &CheckBox{}
 	checkbox.Title = title
 	checkbox.Theme = theme.StdCheckBox
+	checkbox.Describer = func() string { return fmt.Sprintf("CheckBox #%d (%s)", checkbox.ID(), checkbox.Title) }
 	checkbox.SetFocusable(true)
 	checkbox.SetSizer(checkbox)
 	handlers := checkbox.EventHandlers()

@@ -10,10 +10,11 @@
 package ui
 
 import (
+	"fmt"
+	"github.com/richardwilkes/geom"
 	"github.com/richardwilkes/ui/color"
 	"github.com/richardwilkes/ui/event"
 	"github.com/richardwilkes/ui/font"
-	"github.com/richardwilkes/geom"
 )
 
 // Label represents a non-interactive piece of text.
@@ -35,6 +36,7 @@ func NewLabelWithFont(text string, font *font.Font) *Label {
 	label.text = text
 	label.foreground = color.Black
 	label.font = font
+	label.Describer = func() string { return fmt.Sprintf("Label #%d (%s)", label.ID(), label.text) }
 	label.SetSizer(label)
 	label.EventHandlers().Add(event.PaintType, label.paint)
 	return label

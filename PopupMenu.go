@@ -36,6 +36,7 @@ func NewPopupMenu() *PopupMenu {
 	pm := &PopupMenu{}
 	pm.selectedIndex = -1
 	pm.Theme = theme.StdPopupMenu
+	pm.Describer = func() string { return fmt.Sprintf("PopupMenu #%d", pm.ID()) }
 	pm.SetFocusable(true)
 	pm.SetSizer(pm)
 	handlers := pm.EventHandlers()

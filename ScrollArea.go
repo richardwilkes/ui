@@ -10,6 +10,7 @@
 package ui
 
 import (
+	"fmt"
 	"github.com/richardwilkes/ui/color"
 	"github.com/richardwilkes/ui/event"
 	"github.com/richardwilkes/ui/keys"
@@ -45,6 +46,7 @@ type ScrollArea struct {
 func NewScrollArea(content Widget, behavior ScrollContentBehavior) *ScrollArea {
 	sa := &ScrollArea{}
 	sa.Theme = theme.StdScrollArea
+	sa.Describer = func() string { return fmt.Sprintf("ScrollArea #%d", sa.ID()) }
 	sa.SetBorder(sa.Theme.Border)
 	handlers := sa.EventHandlers()
 	handlers.Add(event.MouseWheelType, sa.mouseWheel)

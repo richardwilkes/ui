@@ -10,6 +10,7 @@
 package ui
 
 import (
+	"fmt"
 	"github.com/richardwilkes/geom"
 	"github.com/richardwilkes/ui/color"
 	"github.com/richardwilkes/ui/draw"
@@ -35,6 +36,7 @@ func NewRadioButton(title string) *RadioButton {
 	button := &RadioButton{}
 	button.Title = title
 	button.Theme = theme.StdRadioButton
+	button.Describer = func() string { return fmt.Sprintf("RadioButton #%d (%s)", button.ID(), button.Title) }
 	button.SetFocusable(true)
 	button.SetSizer(button)
 	handlers := button.EventHandlers()

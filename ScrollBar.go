@@ -10,6 +10,7 @@
 package ui
 
 import (
+	"fmt"
 	"github.com/richardwilkes/geom"
 	"github.com/richardwilkes/ui/color"
 	"github.com/richardwilkes/ui/draw"
@@ -72,6 +73,7 @@ func NewScrollBar(horizontal bool, target Scrollable) *ScrollBar {
 	sb.Theme = theme.StdScrollBar
 	sb.Target = target
 	sb.horizontal = horizontal
+	sb.Describer = func() string { return fmt.Sprintf("ScrollBar #%d", sb.ID()) }
 	sb.SetSizer(sb)
 	handlers := sb.EventHandlers()
 	handlers.Add(event.PaintType, sb.paint)

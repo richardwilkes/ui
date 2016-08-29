@@ -16,6 +16,7 @@ import (
 	"github.com/richardwilkes/ui/cursor"
 	"github.com/richardwilkes/ui/draw"
 	"github.com/richardwilkes/ui/event"
+	"github.com/richardwilkes/ui/id"
 	"github.com/richardwilkes/ui/keys"
 	"sync"
 	"time"
@@ -100,7 +101,7 @@ func (window *Window) String() string {
 // ID returns the unique ID for this window.
 func (window *Window) ID() int64 {
 	if window.id == 0 {
-		window.id = event.NextID()
+		window.id = id.NextID()
 	}
 	return window.id
 }

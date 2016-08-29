@@ -10,6 +10,7 @@
 package ui
 
 import (
+	"fmt"
 	"github.com/richardwilkes/geom"
 	"github.com/richardwilkes/ui/border"
 	"github.com/richardwilkes/ui/color"
@@ -33,6 +34,7 @@ type List struct {
 // NewList creates a new List control.
 func NewList(factory CellFactory) *List {
 	list := &List{factory: factory, anchor: -1}
+	list.Describer = func() string { return fmt.Sprintf("List #%d", list.ID()) }
 	list.SetBackground(color.White)
 	list.SetBorder(border.NewEmpty(geom.Insets{Top: 2, Left: 2, Bottom: 2, Right: 2}))
 	list.SetFocusable(true)

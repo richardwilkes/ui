@@ -16,11 +16,13 @@ import (
 	"github.com/richardwilkes/ui/color"
 	"github.com/richardwilkes/ui/draw"
 	"github.com/richardwilkes/ui/event"
+	"github.com/richardwilkes/ui/id"
 )
 
 // Block is the basic graphical block in a window.
 type Block struct {
 	id            int64
+	Describer     func() string
 	eventHandlers *event.Handlers
 	window        *Window
 	parent        Widget
@@ -44,13 +46,16 @@ func NewBlock() *Block {
 }
 
 func (b *Block) String() string {
+	if b.Describer != nil {
+		return b.Describer()
+	}
 	return fmt.Sprintf("Block #%d", b.ID())
 }
 
 // ID returns the unique ID for this block.
 func (b *Block) ID() int64 {
 	if b.id == 0 {
-		b.id = event.NextID()
+		b.id = id.NextID()
 	}
 	return b.id
 }

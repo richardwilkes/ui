@@ -12,6 +12,7 @@ package menu
 import (
 	"fmt"
 	"github.com/richardwilkes/ui/event"
+	"github.com/richardwilkes/ui/id"
 )
 
 // Item represents individual actions that can be issued from a Menu.
@@ -29,7 +30,7 @@ func (item *Item) String() string {
 // ID returns the unique ID for this menu item.
 func (item *Item) ID() int64 {
 	if item.id == 0 {
-		item.id = event.NextID()
+		item.id = id.NextID()
 	}
 	return item.id
 }

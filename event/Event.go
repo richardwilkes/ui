@@ -11,7 +11,6 @@ package event
 
 import (
 	"log"
-	"sync/atomic"
 )
 
 // Common button ids.
@@ -40,14 +39,7 @@ var (
 	TraceAllEvents bool
 	// TraceEventTypes will cause the types present in the slice to be logged.
 	TraceEventTypes []Type
-
-	nextID int64 = 1
 )
-
-// NextID returns the next available unique ID.
-func NextID() int64 {
-	return atomic.AddInt64(&nextID, 1)
-}
 
 // Dispatch an event. If there is more than one handler for the event type registered with the
 // target, they will each be given a chance to handle the event in order. Should one of them set

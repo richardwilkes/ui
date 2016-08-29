@@ -10,6 +10,7 @@
 package ui
 
 import (
+	"fmt"
 	"github.com/richardwilkes/geom"
 	"github.com/richardwilkes/ui/color"
 	"github.com/richardwilkes/ui/draw"
@@ -32,6 +33,7 @@ func NewButton(title string) *Button {
 	button := &Button{}
 	button.Title = title
 	button.Theme = theme.StdButton
+	button.Describer = func() string { return fmt.Sprintf("Button #%d (%s)", button.ID(), button.Title) }
 	button.SetFocusable(true)
 	button.SetSizer(button)
 	handlers := button.EventHandlers()

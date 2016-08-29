@@ -48,6 +48,7 @@ type TextField struct {
 func NewTextField() *TextField {
 	field := &TextField{}
 	field.Theme = theme.StdTextField
+	field.Describer = func() string { return fmt.Sprintf("TextField #%d", field.ID()) }
 	field.SetBackground(color.TextBackground)
 	field.SetBorder(field.Theme.Border)
 	field.SetFocusable(true)

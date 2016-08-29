@@ -10,9 +10,10 @@
 package ui
 
 import (
+	"fmt"
+	"github.com/richardwilkes/geom"
 	"github.com/richardwilkes/ui/draw"
 	"github.com/richardwilkes/ui/event"
-	"github.com/richardwilkes/geom"
 )
 
 // ImageLabel represents a non-interactive image.
@@ -30,6 +31,7 @@ func NewImageLabel(img *draw.Image) *ImageLabel {
 // set to the specified size.
 func NewImageLabelWithImageSize(img *draw.Image, size geom.Size) *ImageLabel {
 	label := &ImageLabel{image: img}
+	label.Describer = func() string { return fmt.Sprintf("ImageLabel #%d (%v)", label.ID(), label.image) }
 	if size.Width <= 0 || size.Height <= 0 {
 		label.SetSizer(label)
 	} else {

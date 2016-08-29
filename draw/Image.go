@@ -10,9 +10,11 @@
 package draw
 
 import (
+	"fmt"
 	"github.com/richardwilkes/errs"
 	"github.com/richardwilkes/geom"
 	"github.com/richardwilkes/ui/color"
+	"github.com/richardwilkes/ui/id"
 	"image"
 	_ "image/gif"  // Support loading of GIF
 	_ "image/jpeg" // Support loading of JPEG
@@ -38,8 +40,8 @@ type fsKey struct {
 
 // Image represents a set of pixels that can be drawn to a graphics.Context.
 type Image struct {
-	id         int
-	disabledID int
+	id         int64
+	disabledID int64
 	width      int
 	height     int
 	surface    *C.cairo_surface_t
@@ -55,7 +57,6 @@ type ImageData struct {
 
 var (
 	imageRegistryLock sync.Mutex
-	nextImageID       = 1
 	imageRegistry     = make(map[interface{}]*imgRef)
 )
 
@@ -76,9 +77,7 @@ func loadFromStream(key interface{}, stream io.ReadCloser) (ref *imgRef, err err
 		}
 	}
 	C.cairo_surface_mark_dirty(surface)
-	ref = &imgRef{img: &Image{id: nextImageID, width: bounds.Dx(), height: bounds.Dy(), surface: surface, key: key}}
-	nextImageID++
-	return ref, nil
+	return &imgRef{img: &Image{id: id.NextID(), width: bounds.Dx(), height: bounds.Dy(), surface: surface, key: key}}, nil
 }
 
 // AcquireImageFromFile attempts to load an image from the file system.
@@ -124,7 +123,7 @@ func AcquireImageFromURL(url string) (img *Image, err error) {
 
 // AcquireImageFromID attempts to find an already loaded image by its ID and return it. Returns nil
 // if it cannot be found.
-func AcquireImageFromID(id int) *Image {
+func AcquireImageFromID(id int64) *Image {
 	imageRegistryLock.Lock()
 	defer imageRegistryLock.Unlock()
 	if r, ok := imageRegistry[id]; ok {
@@ -147,9 +146,9 @@ func AcquireImageFromData(data *ImageData) (img *Image, err error) {
 	C.cairo_surface_mark_dirty(surface)
 	imageRegistryLock.Lock()
 	defer imageRegistryLock.Unlock()
-	ref := &imgRef{img: &Image{id: nextImageID, width: data.Width, height: data.Height, surface: surface, key: nextImageID}, count: 1}
-	imageRegistry[nextImageID] = ref
-	nextImageID++
+	id := id.NextID()
+	ref := &imgRef{img: &Image{id: id, width: data.Width, height: data.Height, surface: surface, key: id}, count: 1}
+	imageRegistry[id] = ref
 	return ref.img, nil
 }
 
@@ -178,7 +177,7 @@ func (img *Image) AcquireDisabled() (image *Image, e error) {
 }
 
 // ID returns the underlying ID of the image.
-func (img *Image) ID() int {
+func (img *Image) ID() int64 {
 	return img.id
 }
 
@@ -242,4 +241,8 @@ func (img *Image) Release() {
 		C.cairo_surface_destroy(img.surface)
 		img.surface = nil
 	}
+}
+
+func (img *Image) String() string {
+	return fmt.Sprintf("Image #%d", img.ID())
 }
