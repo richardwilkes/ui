@@ -10,16 +10,17 @@
 package ui
 
 import (
+	"fmt"
 	"github.com/richardwilkes/geom"
 	"github.com/richardwilkes/ui/border"
 	"github.com/richardwilkes/ui/color"
 	"github.com/richardwilkes/ui/draw"
 	"github.com/richardwilkes/ui/event"
-	"reflect"
 )
 
 // Block is the basic graphical block in a window.
 type Block struct {
+	id            int64
 	eventHandlers *event.Handlers
 	window        *Window
 	parent        Widget
@@ -33,12 +34,25 @@ type Block struct {
 	needLayout    bool
 	disabled      bool
 	focusable     bool
+	grabsFocus    bool
 	padding       bool // Just here to quiet aligncheck, since there is nothing I can do about it
 }
 
 // NewBlock creates a new, empty block.
 func NewBlock() *Block {
 	return &Block{}
+}
+
+func (b *Block) String() string {
+	return fmt.Sprintf("Block #%d", b.id)
+}
+
+// ID returns the unique ID for this block.
+func (b *Block) ID() int64 {
+	if b.id == 0 {
+		b.id = event.NextID()
+	}
+	return b.id
 }
 
 // EventHandlers implements the event.Target interface.
@@ -145,49 +159,39 @@ func (b *Block) RepaintBounds(bounds geom.Rect) {
 }
 
 // Paint implements the Widget interface.
-func (b *Block) Paint(g *draw.Graphics, dirty geom.Rect) {
+func (b *Block) Paint(gc *draw.Graphics, dirty geom.Rect) {
 	dirty.Intersect(b.LocalBounds())
 	if !dirty.IsEmpty() {
-		b.paintSelf(g, dirty)
+		gc.Save()
+		gc.Rect(dirty)
+		gc.Clip()
+		gc.Save()
+		if b.background.Alpha() > 0 {
+			gc.SetColor(b.background)
+			gc.FillRect(dirty)
+		}
+		event.Dispatch(event.NewPaint(b, gc, dirty))
+		gc.Restore()
 		for _, child := range b.children {
 			adjusted := dirty
-			adjusted.Intersect(child.Bounds())
+			bounds := child.Bounds()
+			adjusted.Intersect(bounds)
 			if !adjusted.IsEmpty() {
-				b.paintChild(child, g, adjusted)
+				gc.Save()
+				gc.Translate(bounds.X, bounds.Y)
+				adjusted.X -= bounds.X
+				adjusted.Y -= bounds.Y
+				child.Paint(gc, adjusted)
+				gc.Restore()
 			}
 		}
-		b.paintBorder(g)
+		if border := b.Border(); border != nil {
+			gc.Save()
+			border.Draw(gc, b.LocalBounds())
+			gc.Restore()
+		}
+		gc.Restore()
 	}
-}
-
-func (b *Block) paintSelf(gc *draw.Graphics, dirty geom.Rect) {
-	gc.Save()
-	gc.Rect(dirty)
-	gc.Clip()
-	if b.background.Alpha() > 0 {
-		gc.SetColor(b.background)
-		gc.FillRect(dirty)
-	}
-	event.Dispatch(event.NewPaint(b, gc, dirty))
-	gc.Restore()
-}
-
-func (b *Block) paintBorder(gc *draw.Graphics) {
-	if border := b.Border(); border != nil {
-		gc.Save()
-		defer gc.Restore()
-		border.Draw(gc, b.LocalBounds())
-	}
-}
-
-func (b *Block) paintChild(child Widget, g *draw.Graphics, dirty geom.Rect) {
-	g.Save()
-	defer g.Restore()
-	bounds := child.Bounds()
-	g.Translate(bounds.X, bounds.Y)
-	dirty.X -= bounds.X
-	dirty.Y -= bounds.Y
-	child.Paint(g, dirty)
 }
 
 // Enabled implements the Widget interface.
@@ -216,10 +220,22 @@ func (b *Block) SetFocusable(focusable bool) {
 	}
 }
 
+// GrabFocusWhenClickedOn implements the Widget interface.
+func (b *Block) GrabFocusWhenClickedOn() bool {
+	return b.grabsFocus
+}
+
+// SetGrabFocusWhenClickedOn implements the Widget interface.
+func (b *Block) SetGrabFocusWhenClickedOn(grabsFocus bool) {
+	if b.grabsFocus != grabsFocus {
+		b.grabsFocus = grabsFocus
+	}
+}
+
 // Focused implements the Widget interface.
 func (b *Block) Focused() bool {
 	if window := b.Window(); window != nil {
-		return reflect.ValueOf(Widget(b)).Pointer() == reflect.ValueOf(window.Focus()).Pointer()
+		return window == KeyWindow() && b.ID() == window.Focus().ID()
 	}
 	return false
 }
