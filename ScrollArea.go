@@ -196,7 +196,7 @@ func (sa *ScrollArea) mouseWheel(evt event.Event) {
 }
 
 func (sa *ScrollArea) focusGained(evt event.Event) {
-	if sa.content == nil || sa.content == evt.Target() {
+	if sa.content == nil || sa.content.ID() == evt.Target().ID() {
 		sa.view.SetBorder(sa.Theme.FocusBorder)
 		sa.SetNeedLayout(true)
 		sa.Repaint()
@@ -204,7 +204,7 @@ func (sa *ScrollArea) focusGained(evt event.Event) {
 }
 
 func (sa *ScrollArea) focusLost(evt event.Event) {
-	if sa.content == nil || sa.content == evt.Target() {
+	if sa.content == nil || sa.content.ID() == evt.Target().ID() {
 		sa.view.SetBorder(nil)
 		sa.SetNeedLayout(true)
 		sa.Repaint()
