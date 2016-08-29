@@ -11,6 +11,7 @@ package ui
 
 import (
 	"github.com/richardwilkes/geom"
+	"github.com/richardwilkes/ui/border"
 	"github.com/richardwilkes/ui/color"
 	"github.com/richardwilkes/ui/event"
 	"github.com/richardwilkes/ui/keys"
@@ -33,7 +34,9 @@ type List struct {
 func NewList(factory CellFactory) *List {
 	list := &List{factory: factory, anchor: -1}
 	list.SetBackground(color.White)
+	list.SetBorder(border.NewEmpty(geom.Insets{Top: 2, Left: 2, Bottom: 2, Right: 2}))
 	list.SetFocusable(true)
+	list.SetGrabFocusWhenClickedOn(true)
 	list.SetSizer(list)
 	handlers := list.EventHandlers()
 	handlers.Add(event.PaintType, list.paint)
@@ -207,6 +210,7 @@ func (list *List) paint(evt event.Event) {
 		ymax := dirty.Y + dirty.Height
 		focused := list.Focused()
 		selCount := list.Selection.Count()
+		fullBounds := list.LocalBounds()
 		bounds := list.LocalInsetBounds()
 		gc := e.GC()
 		for index < count && y < ymax {
@@ -220,6 +224,10 @@ func (list *List) paint(evt event.Event) {
 			}
 			cell.SetBounds(cellBounds)
 			y += cellBounds.Height
+			if selected {
+				gc.SetColor(color.SelectedTextBackground)
+				gc.FillRect(geom.Rect{Point: geom.Point{X: fullBounds.X, Y: cellBounds.Y}, Size: geom.Size{Width: fullBounds.Width, Height: cellBounds.Height}})
+			}
 			gc.Save()
 			tl := cellBounds.Point
 			dirty.Point.Subtract(tl)
