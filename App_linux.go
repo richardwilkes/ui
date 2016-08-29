@@ -137,7 +137,9 @@ func processOneEvent(evt *C.XEvent) {
 	case C.FocusIn:
 		appWillBecomeActive()
 		appDidBecomeActive()
+		windowGainedKey(window)
 	case C.FocusOut:
+		windowLostKey(window)
 		appWillResignActive()
 		appDidResignActive()
 	case C.Expose:
@@ -186,6 +188,7 @@ func processOneEvent(evt *C.XEvent) {
 					if windowShouldClose(window) {
 						if win, ok := windowMap[window]; ok {
 							win.Close()
+							windowDidClose(window)
 						}
 					}
 				}
