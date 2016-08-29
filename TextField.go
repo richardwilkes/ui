@@ -51,6 +51,7 @@ func NewTextField() *TextField {
 	field.SetBackground(color.TextBackground)
 	field.SetBorder(field.Theme.Border)
 	field.SetFocusable(true)
+	field.SetGrabFocusWhenClickedOn(true)
 	field.SetSizer(field)
 	handlers := field.EventHandlers()
 	handlers.Add(event.PaintType, field.paint)
