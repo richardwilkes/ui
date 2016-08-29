@@ -10,11 +10,11 @@
 package ui
 
 import (
+	"github.com/richardwilkes/geom"
 	"github.com/richardwilkes/ui/border"
 	"github.com/richardwilkes/ui/color"
 	"github.com/richardwilkes/ui/draw"
 	"github.com/richardwilkes/ui/event"
-	"github.com/richardwilkes/geom"
 )
 
 // A Widget is the basic user interface block that interacts with the user.
@@ -66,6 +66,12 @@ type Widget interface {
 	SetFocusable(focusable bool)
 	// Focused returns true if this widget has the keyboard focus.
 	Focused() bool
+	// GrabFocusWhenClickedOn returns true if this widget wants to have the keyboard focus when it
+	// is clicked on.
+	GrabFocusWhenClickedOn() bool
+	// SetGrabFocusWhenClickedOn sets whether this widget wants to have the keyboard focus when it
+	// is clicked on.
+	SetGrabFocusWhenClickedOn(grabsFocus bool)
 
 	// Children returns the direct descendents of this widget.
 	Children() []Widget
