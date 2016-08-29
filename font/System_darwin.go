@@ -35,7 +35,7 @@ func init() {
 func systemFont(fontType C.CTFontUIFontType) *Font {
 	var buffer bytes.Buffer
 	font := C.CTFontCreateUIFontForLanguage(fontType, 0, nil)
-	buffer.WriteString(stringFromCFString2(C.CTFontCopyFamilyName(font)))
+	buffer.WriteString(stringFromCFString(C.CTFontCopyFamilyName(font)))
 	traits := C.CTFontGetSymbolicTraits(font)
 	if traits&C.kCTFontBoldTrait != 0 {
 		buffer.WriteString(" ")
@@ -57,7 +57,7 @@ func systemFont(fontType C.CTFontUIFontType) *Font {
 	return NewFont(buffer.String())
 }
 
-func stringFromCFString2(cfStr C.CFStringRef) string {
+func stringFromCFString(cfStr C.CFStringRef) string {
 	var freeUTF8StringPtr *C.char
 	useUTF8StringPtr := C.CFStringGetCStringPtr(cfStr, C.kCFStringEncodingUTF8)
 	if useUTF8StringPtr == nil {
