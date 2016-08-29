@@ -24,6 +24,7 @@ import (
 
 // Window represents a window on the display.
 type Window struct {
+	id              int64
 	window          platformWindow
 	surface         platformSurface // Currently only used by Linux
 	eventHandlers   *event.Handlers
@@ -86,7 +87,24 @@ func NewWindowWithContentSize(where geom.Point, contentSize geom.Size, styleMask
 	root.window = window
 	root.bounds = window.ContentLocalFrame()
 	window.root = root
+	handlers := window.EventHandlers()
+	handlers.Add(event.FocusGainedType, func(evt event.Event) { window.repaintFocus() })
+	handlers.Add(event.FocusLostType, func(evt event.Event) { window.repaintFocus() })
 	return window
+}
+
+// ID returns the unique ID for this window.
+func (window *Window) ID() int64 {
+	if window.id == 0 {
+		window.id = event.NextID()
+	}
+	return window.id
+}
+
+func (window *Window) repaintFocus() {
+	if focus := window.Focus(); focus != nil {
+		focus.Repaint()
+	}
 }
 
 // AttemptClose closes the window if a Closing event permits it.
@@ -386,6 +404,9 @@ func (window *Window) mouseEvent(eventType platformEventType, keyModifiers event
 	switch eventType {
 	case platformMouseDown:
 		if widget.Enabled() {
+			if widget.Focusable() && widget.GrabFocusWhenClickedOn() {
+				window.SetFocus(widget)
+			}
 			e := event.NewMouseDown(widget, where, keyModifiers, button, clickCount)
 			event.Dispatch(e)
 			discardMouseDown = e.Discarded()
