@@ -11,6 +11,7 @@ package ui
 
 import (
 	"github.com/richardwilkes/ui/event"
+	"github.com/richardwilkes/ui/keys"
 	"github.com/richardwilkes/ui/menu"
 )
 
@@ -27,7 +28,7 @@ func AddAppMenu() (appMenu *menu.Menu, aboutItem *menu.Item, prefsItem *menu.Ite
 	item := appMenu.AddItem("Hide "+name, "h")
 	item.EventHandlers().Add(event.SelectionType, func(evt event.Event) { HideApp() })
 	item = appMenu.AddItem("Hide Others", "h")
-	item.SetKeyModifiers(event.OptionKeyMask | event.CommandKeyMask)
+	item.SetKeyModifiers(keys.OptionModifier | keys.PlatformMenuModifier())
 	item.EventHandlers().Add(event.SelectionType, func(evt event.Event) { HideOtherApps() })
 	item = appMenu.AddItem("Show All", "")
 	item.EventHandlers().Add(event.SelectionType, func(evt event.Event) { ShowAllApps() })

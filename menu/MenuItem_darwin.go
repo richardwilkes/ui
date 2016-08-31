@@ -10,7 +10,7 @@
 package menu
 
 import (
-	"github.com/richardwilkes/ui/event"
+	"github.com/richardwilkes/ui/keys"
 )
 
 // #cgo darwin LDFLAGS: -framework Cocoa
@@ -25,6 +25,6 @@ func (item *Item) platformSetSubMenu(subMenu *Menu) {
 	C.platformSetSubMenu(item.item, subMenu.menu)
 }
 
-func (item *Item) platformSetKeyModifierMask(modifierMask event.KeyMask) {
+func (item *Item) platformSetKeyModifierMask(modifierMask keys.Modifiers) {
 	C.platformSetKeyModifierMask(item.item, C.int(modifierMask))
 }

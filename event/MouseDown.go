@@ -13,13 +13,14 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/richardwilkes/geom"
+	"github.com/richardwilkes/ui/keys"
 )
 
 // MouseDown is generated when a mouse button is pressed while over a widget.
 type MouseDown struct {
 	target    Target
 	where     geom.Point
-	modifiers KeyMask
+	modifiers keys.Modifiers
 	button    int
 	clicks    int
 	finished  bool
@@ -30,7 +31,7 @@ type MouseDown struct {
 // 'where' is the location in the window the mouse is being pressed. 'modifiers' are the keyboard
 // modifiers keys that were down. 'button' is the button number. 'clicks' is the number of
 // consecutive clicks in this widget.
-func NewMouseDown(target Target, where geom.Point, modifiers KeyMask, button int, clicks int) *MouseDown {
+func NewMouseDown(target Target, where geom.Point, modifiers keys.Modifiers, button int, clicks int) *MouseDown {
 	return &MouseDown{target: target, where: where, modifiers: modifiers, button: button, clicks: clicks}
 }
 
@@ -65,7 +66,7 @@ func (e *MouseDown) Where() geom.Point {
 }
 
 // Modifiers returns the key modifiers that were down.
-func (e *MouseDown) Modifiers() KeyMask {
+func (e *MouseDown) Modifiers() keys.Modifiers {
 	return e.modifiers
 }
 

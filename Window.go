@@ -389,7 +389,7 @@ func (window *Window) paint(gc *draw.Graphics, bounds geom.Rect, inLiveResize bo
 	window.inLiveResize = false
 }
 
-func (window *Window) mouseEvent(eventType platformEventType, keyModifiers event.KeyMask, button, clickCount int, x, y float64) {
+func (window *Window) mouseEvent(eventType platformEventType, keyModifiers keys.Modifiers, button, clickCount int, x, y float64) {
 	discardMouseDown := false
 	where := geom.Point{X: x, Y: y}
 	var widget Widget
@@ -452,7 +452,7 @@ func (window *Window) mouseEvent(eventType platformEventType, keyModifiers event
 	}
 }
 
-func (window *Window) mouseWheelEvent(eventType platformEventType, keyModifiers event.KeyMask, x, y, dx, dy float64) {
+func (window *Window) mouseWheelEvent(eventType platformEventType, keyModifiers keys.Modifiers, x, y, dx, dy float64) {
 	where := geom.Point{X: x, Y: y}
 	widget := window.root.WidgetAt(where)
 	if widget != nil {
@@ -466,7 +466,7 @@ func (window *Window) mouseWheelEvent(eventType platformEventType, keyModifiers 
 	}
 }
 
-func (window *Window) cursorUpdateEvent(keyModifiers event.KeyMask, x, y float64) {
+func (window *Window) cursorUpdateEvent(keyModifiers keys.Modifiers, x, y float64) {
 	where := geom.Point{X: x, Y: y}
 	var widget Widget
 	if window.inMouseDown {
@@ -480,11 +480,11 @@ func (window *Window) cursorUpdateEvent(keyModifiers event.KeyMask, x, y float64
 	window.updateToolTipAndCursor(widget, where)
 }
 
-func (window *Window) keyEvent(eventType platformEventType, keyModifiers event.KeyMask, keyCode int, ch rune, repeat bool) {
+func (window *Window) keyEvent(eventType platformEventType, keyModifiers keys.Modifiers, keyCode int, ch rune, repeat bool) {
 	switch eventType {
 	case platformKeyDown:
 		if diacritic != 0 {
-			if keyModifiers&^event.ShiftKeyMask == 0 {
+			if keyModifiers&^keys.ShiftModifier == 0 {
 				switch ch {
 				case 'a':
 					switch diacritic {
@@ -608,7 +608,7 @@ func (window *Window) keyEvent(eventType platformEventType, keyModifiers event.K
 			}
 			diacritic = 0
 		}
-		if keyModifiers&^event.ShiftKeyMask == event.OptionKeyMask {
+		if keyModifiers&^keys.ShiftModifier == keys.OptionModifier {
 			switch keyCode {
 			case keys.E, keys.I, keys.Backtick, keys.N, keys.U:
 				diacritic = keyCode
@@ -621,7 +621,7 @@ func (window *Window) keyEvent(eventType platformEventType, keyModifiers event.K
 		}
 		e := event.NewKeyDown(window.Focus(), keyCode, ch, repeat, keyModifiers)
 		event.Dispatch(e)
-		if !e.Discarded() && keyCode == keys.Tab && (keyModifiers&(event.AllKeyMask & ^event.ShiftKeyMask)) == 0 {
+		if !e.Discarded() && keyCode == keys.Tab && (keyModifiers&(keys.AllModifiers & ^keys.ShiftModifier)) == 0 {
 			if keyModifiers.ShiftDown() {
 				window.FocusPrevious()
 			} else {

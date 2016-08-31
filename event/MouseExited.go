@@ -13,13 +13,14 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/richardwilkes/geom"
+	"github.com/richardwilkes/ui/keys"
 )
 
 // MouseExited is generated when the mouse leaves a widget.
 type MouseExited struct {
 	target    Target
 	where     geom.Point
-	modifiers KeyMask
+	modifiers keys.Modifiers
 	finished  bool
 	discarded bool
 }
@@ -27,7 +28,7 @@ type MouseExited struct {
 // NewMouseExited creates a new MouseExited event. 'target' is the widget that mouse is leaving.
 // 'where' is the location in the window where the mouse is. 'modifiers' are the keyboard
 // modifiers keys that were down.
-func NewMouseExited(target Target, where geom.Point, modifiers KeyMask) *MouseExited {
+func NewMouseExited(target Target, where geom.Point, modifiers keys.Modifiers) *MouseExited {
 	return &MouseExited{target: target, where: where, modifiers: modifiers}
 }
 
@@ -62,7 +63,7 @@ func (e *MouseExited) Where() geom.Point {
 }
 
 // Modifiers returns the key modifiers that were down.
-func (e *MouseExited) Modifiers() KeyMask {
+func (e *MouseExited) Modifiers() keys.Modifiers {
 	return e.modifiers
 }
 

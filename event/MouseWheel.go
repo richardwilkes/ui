@@ -13,6 +13,7 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/richardwilkes/geom"
+	"github.com/richardwilkes/ui/keys"
 )
 
 // MouseWheel is generated when the mouse wheel is used over a widget.
@@ -20,7 +21,7 @@ type MouseWheel struct {
 	target    Target
 	delta     geom.Point
 	where     geom.Point
-	modifiers KeyMask
+	modifiers keys.Modifiers
 	finished  bool
 	discarded bool
 }
@@ -28,7 +29,7 @@ type MouseWheel struct {
 // NewMouseWheel creates a new MouseWheel event. 'target' is the widget that mouse is over. 'delta'
 // is the amount the wheel was moved on each axis. 'where' is the location in the window where the
 // mouse is. 'modifiers' are the keyboard modifiers keys that were down.
-func NewMouseWheel(target Target, delta geom.Point, where geom.Point, modifiers KeyMask) *MouseWheel {
+func NewMouseWheel(target Target, delta geom.Point, where geom.Point, modifiers keys.Modifiers) *MouseWheel {
 	return &MouseWheel{target: target, delta: delta, where: where, modifiers: modifiers}
 }
 
@@ -68,7 +69,7 @@ func (e *MouseWheel) Where() geom.Point {
 }
 
 // Modifiers returns the key modifiers that were down.
-func (e *MouseWheel) Modifiers() KeyMask {
+func (e *MouseWheel) Modifiers() keys.Modifiers {
 	return e.modifiers
 }
 

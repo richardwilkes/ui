@@ -13,6 +13,7 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/richardwilkes/geom"
+	"github.com/richardwilkes/ui/keys"
 )
 
 // MouseMoved is generated when the mouse moves within a widget, except when a mouse button
@@ -20,7 +21,7 @@ import (
 type MouseMoved struct {
 	target    Target
 	where     geom.Point
-	modifiers KeyMask
+	modifiers keys.Modifiers
 	finished  bool
 	discarded bool
 }
@@ -28,7 +29,7 @@ type MouseMoved struct {
 // NewMouseMoved creates a new MouseMoved event. 'target' is the widget that mouse is over.
 // 'where' is the location in the window where the mouse is. 'modifiers' are the keyboard
 // modifiers keys that were down.
-func NewMouseMoved(target Target, where geom.Point, modifiers KeyMask) *MouseMoved {
+func NewMouseMoved(target Target, where geom.Point, modifiers keys.Modifiers) *MouseMoved {
 	return &MouseMoved{target: target, where: where, modifiers: modifiers}
 }
 
@@ -63,7 +64,7 @@ func (e *MouseMoved) Where() geom.Point {
 }
 
 // Modifiers returns the key modifiers that were down.
-func (e *MouseMoved) Modifiers() KeyMask {
+func (e *MouseMoved) Modifiers() keys.Modifiers {
 	return e.modifiers
 }
 

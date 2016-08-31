@@ -13,6 +13,7 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/richardwilkes/geom"
+	"github.com/richardwilkes/ui/keys"
 )
 
 // MouseDragged is generated when the mouse is moved within a widget while a mouse button
@@ -20,7 +21,7 @@ import (
 type MouseDragged struct {
 	target    Target
 	where     geom.Point
-	modifiers KeyMask
+	modifiers keys.Modifiers
 	button    int
 	finished  bool
 	discarded bool
@@ -29,7 +30,7 @@ type MouseDragged struct {
 // NewMouseDragged creates a new MouseDragged event. 'target' is the widget that was being clicked
 // on. 'where' is the location in the window where the mouse is. 'modifiers' are the keyboard
 // modifiers keys that were down. 'button' is the button number.
-func NewMouseDragged(target Target, where geom.Point, modifiers KeyMask, button int) *MouseDragged {
+func NewMouseDragged(target Target, where geom.Point, modifiers keys.Modifiers, button int) *MouseDragged {
 	return &MouseDragged{target: target, where: where, modifiers: modifiers, button: button}
 }
 
@@ -64,7 +65,7 @@ func (e *MouseDragged) Where() geom.Point {
 }
 
 // Modifiers returns the key modifiers that were down.
-func (e *MouseDragged) Modifiers() KeyMask {
+func (e *MouseDragged) Modifiers() keys.Modifiers {
 	return e.modifiers
 }
 

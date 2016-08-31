@@ -13,13 +13,14 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/richardwilkes/geom"
+	"github.com/richardwilkes/ui/keys"
 )
 
 // MouseEntered is generated when the mouse moves enters a widget.
 type MouseEntered struct {
 	target    Target
 	where     geom.Point
-	modifiers KeyMask
+	modifiers keys.Modifiers
 	finished  bool
 	discarded bool
 }
@@ -27,7 +28,7 @@ type MouseEntered struct {
 // NewMouseEntered creates a new MouseEntered event. 'target' is the widget that mouse is entering.
 // 'where' is the location in the window where the mouse is. 'modifiers' are the keyboard
 // modifiers keys that were down.
-func NewMouseEntered(target Target, where geom.Point, modifiers KeyMask) *MouseEntered {
+func NewMouseEntered(target Target, where geom.Point, modifiers keys.Modifiers) *MouseEntered {
 	return &MouseEntered{target: target, where: where, modifiers: modifiers}
 }
 
@@ -62,7 +63,7 @@ func (e *MouseEntered) Where() geom.Point {
 }
 
 // Modifiers returns the key modifiers that were down.
-func (e *MouseEntered) Modifiers() KeyMask {
+func (e *MouseEntered) Modifiers() keys.Modifiers {
 	return e.modifiers
 }
 

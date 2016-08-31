@@ -12,13 +12,14 @@ package event
 import (
 	"bytes"
 	"fmt"
+	"github.com/richardwilkes/ui/keys"
 )
 
 // KeyUp is generated when a key is released.
 type KeyUp struct {
 	target    Target
 	code      int
-	modifiers KeyMask
+	modifiers keys.Modifiers
 	ch        rune
 	finished  bool
 }
@@ -26,7 +27,7 @@ type KeyUp struct {
 // NewKeyUp creates a new KeyUp event. 'target' is the widget that has the keyboard focus.
 // 'code' is the key that was typed. 'ch' is the rune (may be 0). 'modifiers' are the keyboard
 // modifiers keys that were down.
-func NewKeyUp(target Target, code int, ch rune, modifiers KeyMask) *KeyUp {
+func NewKeyUp(target Target, code int, ch rune, modifiers keys.Modifiers) *KeyUp {
 	return &KeyUp{target: target, code: code, ch: ch, modifiers: modifiers}
 }
 
@@ -66,7 +67,7 @@ func (e *KeyUp) Rune() rune {
 }
 
 // Modifiers returns the key modifiers that were down.
-func (e *KeyUp) Modifiers() KeyMask {
+func (e *KeyUp) Modifiers() keys.Modifiers {
 	return e.modifiers
 }
 

@@ -12,13 +12,14 @@ package event
 import (
 	"bytes"
 	"fmt"
+	"github.com/richardwilkes/ui/keys"
 )
 
 // KeyDown is generated when a key is pressed.
 type KeyDown struct {
 	target    Target
 	code      int
-	modifiers KeyMask
+	modifiers keys.Modifiers
 	ch        rune
 	repeat    bool
 	finished  bool
@@ -28,7 +29,7 @@ type KeyDown struct {
 // NewKeyDown creates a new KeyDown event. 'target' is the widget that has the keyboard focus.
 // 'code' is the virtual key code. 'ch' is the rune (may be 0). 'autoRepeat' is true if the key is
 // auto-repeating. 'modifiers' are the keyboard modifiers keys that were down.
-func NewKeyDown(target Target, code int, ch rune, autoRepeat bool, modifiers KeyMask) *KeyDown {
+func NewKeyDown(target Target, code int, ch rune, autoRepeat bool, modifiers keys.Modifiers) *KeyDown {
 	return &KeyDown{target: target, code: code, ch: ch, modifiers: modifiers, repeat: autoRepeat}
 }
 
@@ -68,7 +69,7 @@ func (e *KeyDown) Rune() rune {
 }
 
 // Modifiers returns the key modifiers that were down.
-func (e *KeyDown) Modifiers() KeyMask {
+func (e *KeyDown) Modifiers() keys.Modifiers {
 	return e.modifiers
 }
 

@@ -13,6 +13,7 @@ import (
 	"fmt"
 	"github.com/richardwilkes/ui/event"
 	"github.com/richardwilkes/ui/id"
+	"github.com/richardwilkes/ui/keys"
 )
 
 // Item represents individual actions that can be issued from a Menu.
@@ -47,7 +48,7 @@ func (item *Item) Title() string {
 
 // SetKeyModifiers sets the menu item's key equivalent modifiers. By default, a menu item's modifier
 // is set to event.CommandKeyMask.
-func (item *Item) SetKeyModifiers(modifierMask event.KeyMask) {
+func (item *Item) SetKeyModifiers(modifierMask keys.Modifiers) {
 	item.platformSetKeyModifierMask(modifierMask)
 }
 

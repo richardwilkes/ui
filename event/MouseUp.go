@@ -13,6 +13,7 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/richardwilkes/geom"
+	"github.com/richardwilkes/ui/keys"
 )
 
 // MouseUp is generated when a mouse button is released after a MouseDown was generated in the
@@ -20,7 +21,7 @@ import (
 type MouseUp struct {
 	target    Target
 	where     geom.Point
-	modifiers KeyMask
+	modifiers keys.Modifiers
 	button    int
 	finished  bool
 	discarded bool
@@ -29,7 +30,7 @@ type MouseUp struct {
 // NewMouseUp creates a new MouseUp event. 'target' is the widget that was being clicked on.
 // 'where' is the location in the window where the mouse is. 'modifiers' are the keyboard
 // modifiers keys that were down. 'button' is the button number.
-func NewMouseUp(target Target, where geom.Point, modifiers KeyMask, button int) *MouseUp {
+func NewMouseUp(target Target, where geom.Point, modifiers keys.Modifiers, button int) *MouseUp {
 	return &MouseUp{target: target, where: where, modifiers: modifiers, button: button}
 }
 
@@ -64,7 +65,7 @@ func (e *MouseUp) Where() geom.Point {
 }
 
 // Modifiers returns the key modifiers that were down.
-func (e *MouseUp) Modifiers() KeyMask {
+func (e *MouseUp) Modifiers() keys.Modifiers {
 	return e.modifiers
 }
 
