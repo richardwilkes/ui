@@ -52,25 +52,28 @@ func (km KeyMask) CommandDown() bool {
 	return km&CommandKeyMask == CommandKeyMask
 }
 
+// PlatformMenuKeyMaskDown returns true if the platform's menu command key is being pressed.
+func (km KeyMask) PlatformMenuKeyMaskDown() bool {
+	mask := PlatformMenuKeyMask()
+	return km&mask == mask
+}
+
 // String implements the fmt.Stringer interface.
 func (km KeyMask) String() string {
-	var buffer bytes.Buffer
-	km.append(&buffer, CapsLockKeyMask, "CapsLock")
-	km.append(&buffer, ShiftKeyMask, "Shift")
-	km.append(&buffer, ControlKeyMask, "Control")
-	km.append(&buffer, OptionKeyMask, "Option")
-	km.append(&buffer, CommandKeyMask, "Command")
-	if buffer.Len() == 0 {
-		buffer.WriteString("None")
+	if km == 0 {
+		return ""
 	}
+	var buffer bytes.Buffer
+	km.append(&buffer, ControlKeyMask, "\u2303")
+	km.append(&buffer, OptionKeyMask, "\u2387")
+	km.append(&buffer, ShiftKeyMask, "\u21e7")
+	km.append(&buffer, CapsLockKeyMask, "\u21ea")
+	km.append(&buffer, CommandKeyMask, "\u2318")
 	return buffer.String()
 }
 
 func (km KeyMask) append(buffer *bytes.Buffer, mask KeyMask, name string) {
 	if km&mask == mask {
-		if buffer.Len() > 0 {
-			buffer.WriteString(" | ")
-		}
 		buffer.WriteString(name)
 	}
 }
