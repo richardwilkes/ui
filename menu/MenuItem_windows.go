@@ -10,7 +10,7 @@
 package menu
 
 import (
-	"github.com/richardwilkes/ui/event"
+	"github.com/richardwilkes/ui/keys"
 )
 
 func (item *Item) platformSubMenu() PlatformMenu {
@@ -22,6 +22,6 @@ func (item *Item) platformSetSubMenu(subMenu *Menu) {
 	// RAW: Implement for Linux
 }
 
-func (item *Item) platformSetKeyModifierMask(modifierMask event.KeyMask) {
+func (item *Item) platformSetKeyModifierMask(modifiers keys.Modifiers) {
 	// RAW: Implement for Linux
 }

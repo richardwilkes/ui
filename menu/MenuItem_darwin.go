@@ -25,6 +25,6 @@ func (item *Item) platformSetSubMenu(subMenu *Menu) {
 	C.platformSetSubMenu(item.item, subMenu.menu)
 }
 
-func (item *Item) platformSetKeyModifierMask(modifierMask keys.Modifiers) {
-	C.platformSetKeyModifierMask(item.item, C.int(modifierMask))
+func (item *Item) platformSetKeyModifierMask(modifiers keys.Modifiers) {
+	C.platformSetKeyModifierMask(item.item, C.int(modifiers))
 }

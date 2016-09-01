@@ -12,7 +12,7 @@ package ui
 import (
 	"fmt"
 	"github.com/richardwilkes/geom"
-	"github.com/richardwilkes/ui/event"
+	"github.com/richardwilkes/ui/keys"
 	"math"
 	"syscall"
 	"time"
@@ -286,21 +286,21 @@ func getButton(button C.uint) int {
 }
 
 func convertKeyMask(state C.uint) int {
-	var keyMask event.KeyMask
-	if state&C.LockMask == C.LockMask {
-		keyMask |= event.CapsLockKeyMask
+	var modifiers keys.Modifiers
+	if state&C.LockMask != 0 {
+		modifiers |= keys.CapsLockModifier
 	}
-	if state&C.ShiftMask == C.ShiftMask {
-		keyMask |= event.ShiftKeyMask
+	if state&C.ShiftMask != 0 {
+		modifiers |= keys.ShiftModifier
 	}
-	if state&C.ControlMask == C.ControlMask {
-		keyMask |= event.ControlKeyMask
+	if state&C.ControlMask != 0 {
+		modifiers |= keys.ControlModifier
 	}
-	if state&C.Mod1Mask == C.Mod1Mask {
-		keyMask |= event.OptionKeyMask
+	if state&C.Mod1Mask != 0 {
+		modifiers |= keys.OptionModifier
 	}
-	if state&C.Mod4Mask == C.Mod4Mask {
-		keyMask |= event.CommandKeyMask
+	if state&C.Mod4Mask != 0 {
+		modifiers |= keys.CommandModifier
 	}
-	return int(keyMask)
+	return int(modifiers)
 }
