@@ -45,7 +45,7 @@ func init() {
 // NewFont creates a font from a string.
 func NewFont(str string) *Font {
 	cstr := C.CString(str)
-	defer C.g_free(cstr)
+	defer C.g_free(C.gpointer(cstr))
 	return &Font{pfd: C.pango_font_description_from_string(cstr)}
 }
 
@@ -161,7 +161,7 @@ func (d *Font) SetSize(size float64) {
 // String returns a string that can be used with NewFont.
 func (d *Font) String() string {
 	cstr := C.pango_font_description_to_string(d.pfd)
-	defer C.g_free(cstr)
+	defer C.g_free(C.gpointer(cstr))
 	return C.GoString(cstr)
 }
 
