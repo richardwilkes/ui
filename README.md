@@ -1,7 +1,14 @@
 # go-ui
 A user interface for Go.
 
-Dependencies:
+C Dependencies:
+```
+Cairo
+Pango
+X11 (linux only)
+```
+
+Go Dependencies:
 ```
 go get -u github.com/richardwilkes/errs
 go get -u github.com/richardwilkes/i18n
@@ -11,8 +18,6 @@ go get -u github.com/richardwilkes/xmath
 This is very much a work in progress. My intent is to make this work for Mac, Linux & Windows.
 At the moment, the Mac implementation works well. I am in the midst of implementing the Linux
 version.
-
-The Linux version requires that you have the X11 and Cairo development packages installed.
 
 Widgets that have been implemented:
 
