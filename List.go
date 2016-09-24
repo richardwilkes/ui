@@ -253,7 +253,7 @@ func (list *List) keyDown(evt event.Event) {
 		}
 	} else {
 		switch code {
-		case keys.Up:
+		case keys.VK_Up, keys.VK_NumPadUp:
 			evt.Finish()
 			var first int
 			if list.Selection.Count() == 0 {
@@ -266,7 +266,7 @@ func (list *List) keyDown(evt event.Event) {
 			}
 			list.Select(e.Modifiers().ShiftDown(), first)
 			event.Dispatch(event.NewSelection(list))
-		case keys.Down:
+		case keys.VK_Down, keys.VK_NumPadDown:
 			evt.Finish()
 			last := list.Selection.LastSet() + 1
 			if last >= len(list.rows) {
@@ -274,11 +274,11 @@ func (list *List) keyDown(evt event.Event) {
 			}
 			list.Select(e.Modifiers().ShiftDown(), last)
 			event.Dispatch(event.NewSelection(list))
-		case keys.Home:
+		case keys.VK_Home, keys.VK_NumPadHome:
 			evt.Finish()
 			list.Select(e.Modifiers().ShiftDown(), 0)
 			event.Dispatch(event.NewSelection(list))
-		case keys.End:
+		case keys.VK_End, keys.VK_NumPadEnd:
 			evt.Finish()
 			list.Select(e.Modifiers().ShiftDown(), len(list.rows)-1)
 			event.Dispatch(event.NewSelection(list))

@@ -488,120 +488,120 @@ func (window *Window) keyEvent(eventType platformEventType, keyModifiers keys.Mo
 				switch ch {
 				case 'a':
 					switch diacritic {
-					case keys.E:
+					case keys.VK_E:
 						ch = 'á'
-					case keys.I:
+					case keys.VK_I:
 						ch = 'â'
-					case keys.Backtick:
+					case keys.VK_Backtick:
 						ch = 'à'
-					case keys.N:
+					case keys.VK_N:
 						ch = 'ã'
-					case keys.U:
+					case keys.VK_U:
 						ch = 'ä'
 					}
 				case 'A':
 					switch diacritic {
-					case keys.E:
+					case keys.VK_E:
 						ch = 'Á'
-					case keys.I:
+					case keys.VK_I:
 						ch = 'Â'
-					case keys.Backtick:
+					case keys.VK_Backtick:
 						ch = 'À'
-					case keys.N:
+					case keys.VK_N:
 						ch = 'Ã'
-					case keys.U:
+					case keys.VK_U:
 						ch = 'Ä'
 					}
 				case 'e':
 					switch diacritic {
-					case keys.E:
+					case keys.VK_E:
 						ch = 'é'
-					case keys.I:
+					case keys.VK_I:
 						ch = 'ê'
-					case keys.Backtick:
+					case keys.VK_Backtick:
 						ch = 'è'
-					case keys.U:
+					case keys.VK_U:
 						ch = 'ë'
 					}
 				case 'E':
 					switch diacritic {
-					case keys.E:
+					case keys.VK_E:
 						ch = 'É'
-					case keys.I:
+					case keys.VK_I:
 						ch = 'Ê'
-					case keys.Backtick:
+					case keys.VK_Backtick:
 						ch = 'È'
-					case keys.U:
+					case keys.VK_U:
 						ch = 'Ë'
 					}
 				case 'i':
 					switch diacritic {
-					case keys.E:
+					case keys.VK_E:
 						ch = 'í'
-					case keys.I:
+					case keys.VK_I:
 						ch = 'î'
-					case keys.Backtick:
+					case keys.VK_Backtick:
 						ch = 'ì'
-					case keys.U:
+					case keys.VK_U:
 						ch = 'ï'
 					}
 				case 'I':
 					switch diacritic {
-					case keys.E:
+					case keys.VK_E:
 						ch = 'Í'
-					case keys.I:
+					case keys.VK_I:
 						ch = 'Î'
-					case keys.Backtick:
+					case keys.VK_Backtick:
 						ch = 'Ì'
-					case keys.U:
+					case keys.VK_U:
 						ch = 'Ï'
 					}
 				case 'o':
 					switch diacritic {
-					case keys.E:
+					case keys.VK_E:
 						ch = 'ó'
-					case keys.I:
+					case keys.VK_I:
 						ch = 'ô'
-					case keys.Backtick:
+					case keys.VK_Backtick:
 						ch = 'ò'
-					case keys.N:
+					case keys.VK_N:
 						ch = 'õ'
-					case keys.U:
+					case keys.VK_U:
 						ch = 'ö'
 					}
 				case 'O':
 					switch diacritic {
-					case keys.E:
+					case keys.VK_E:
 						ch = 'Ó'
-					case keys.I:
+					case keys.VK_I:
 						ch = 'Ô'
-					case keys.Backtick:
+					case keys.VK_Backtick:
 						ch = 'Ò'
-					case keys.N:
+					case keys.VK_N:
 						ch = 'Õ'
-					case keys.U:
+					case keys.VK_U:
 						ch = 'Ö'
 					}
 				case 'u':
 					switch diacritic {
-					case keys.E:
+					case keys.VK_E:
 						ch = 'ú'
-					case keys.I:
+					case keys.VK_I:
 						ch = 'û'
-					case keys.Backtick:
+					case keys.VK_Backtick:
 						ch = 'ù'
-					case keys.U:
+					case keys.VK_U:
 						ch = 'ü'
 					}
 				case 'U':
 					switch diacritic {
-					case keys.E:
+					case keys.VK_E:
 						ch = 'Ú'
-					case keys.I:
+					case keys.VK_I:
 						ch = 'Û'
-					case keys.Backtick:
+					case keys.VK_Backtick:
 						ch = 'Ù'
-					case keys.U:
+					case keys.VK_U:
 						ch = 'Ü'
 					}
 				}
@@ -610,7 +610,7 @@ func (window *Window) keyEvent(eventType platformEventType, keyModifiers keys.Mo
 		}
 		if keyModifiers&^keys.ShiftModifier == keys.OptionModifier {
 			switch keyCode {
-			case keys.E, keys.I, keys.Backtick, keys.N, keys.U:
+			case keys.VK_E, keys.VK_I, keys.VK_Backtick, keys.VK_N, keys.VK_U:
 				diacritic = keyCode
 			default:
 				diacritic = 0
@@ -621,7 +621,7 @@ func (window *Window) keyEvent(eventType platformEventType, keyModifiers keys.Mo
 		}
 		e := event.NewKeyDown(window.Focus(), keyCode, ch, repeat, keyModifiers)
 		event.Dispatch(e)
-		if !e.Discarded() && keyCode == keys.Tab && (keyModifiers&(keys.AllModifiers & ^keys.ShiftModifier)) == 0 {
+		if !e.Discarded() && keyCode == keys.VK_Tab && (keyModifiers&(keys.AllModifiers & ^keys.ShiftModifier)) == 0 {
 			if keyModifiers.ShiftDown() {
 				window.FocusPrevious()
 			} else {

@@ -271,7 +271,7 @@ func (field *TextField) keyDown(evt event.Event) {
 	e := evt.(*event.KeyDown)
 	code := e.Code()
 	switch code {
-	case keys.Backspace:
+	case keys.VK_Backspace:
 		if field.HasSelectionRange() {
 			field.Delete()
 		} else if field.selectionStart > 0 {
@@ -281,7 +281,7 @@ func (field *TextField) keyDown(evt event.Event) {
 		}
 		evt.Finish()
 		field.Repaint()
-	case keys.Delete:
+	case keys.VK_Delete, keys.VK_NumPadDelete:
 		if field.HasSelectionRange() {
 			field.Delete()
 		} else if field.selectionStart < len(field.runes) {
@@ -290,7 +290,7 @@ func (field *TextField) keyDown(evt event.Event) {
 		}
 		evt.Finish()
 		field.Repaint()
-	case keys.Left:
+	case keys.VK_Left, keys.VK_NumPadLeft:
 		extend := e.Modifiers().ShiftDown()
 		if e.Modifiers().CommandDown() {
 			field.handleHome(extend)
@@ -298,7 +298,7 @@ func (field *TextField) keyDown(evt event.Event) {
 			field.handleArrowLeft(extend, e.Modifiers().OptionDown())
 		}
 		evt.Finish()
-	case keys.Right:
+	case keys.VK_Right, keys.VK_NumPadRight:
 		extend := e.Modifiers().ShiftDown()
 		if e.Modifiers().CommandDown() {
 			field.handleEnd(extend)
@@ -306,10 +306,10 @@ func (field *TextField) keyDown(evt event.Event) {
 			field.handleArrowRight(extend, e.Modifiers().OptionDown())
 		}
 		evt.Finish()
-	case keys.End, keys.PageDown, keys.Down:
+	case keys.VK_End, keys.VK_NumPadEnd, keys.VK_PageDown, keys.VK_NumPadPageDown, keys.VK_Down, keys.VK_NumPadDown:
 		field.handleEnd(e.Modifiers().ShiftDown())
 		evt.Finish()
-	case keys.Home, keys.PageUp, keys.Up:
+	case keys.VK_Home, keys.VK_NumPadHome, keys.VK_PageUp, keys.VK_NumPadPageUp, keys.VK_Up, keys.VK_NumPadUp:
 		field.handleHome(e.Modifiers().ShiftDown())
 		evt.Finish()
 	default:

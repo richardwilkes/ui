@@ -216,19 +216,19 @@ func (sa *ScrollArea) focusLost(evt event.Event) {
 func (sa *ScrollArea) keyDown(evt event.Event) {
 	e := evt.(*event.KeyDown)
 	switch e.Code() {
-	case keys.Up:
+	case keys.VK_Up, keys.VK_NumPadUp:
 		evt.Finish()
 		sa.vBar.SetScrolledPosition(sa.ScrolledPosition(false) - sa.LineScrollAmount(false, true))
-	case keys.Down:
+	case keys.VK_Down, keys.VK_NumPadDown:
 		evt.Finish()
 		sa.vBar.SetScrolledPosition(sa.ScrolledPosition(false) + sa.LineScrollAmount(false, false))
-	case keys.Left:
+	case keys.VK_Left, keys.VK_NumPadLeft:
 		evt.Finish()
 		sa.hBar.SetScrolledPosition(sa.ScrolledPosition(true) - sa.LineScrollAmount(true, true))
-	case keys.Right:
+	case keys.VK_Right, keys.VK_NumPadRight:
 		evt.Finish()
 		sa.hBar.SetScrolledPosition(sa.ScrolledPosition(true) + sa.LineScrollAmount(true, false))
-	case keys.Home:
+	case keys.VK_Home, keys.VK_NumPadHome:
 		evt.Finish()
 		var bar *ScrollBar
 		if e.Modifiers().ShiftDown() {
@@ -237,7 +237,7 @@ func (sa *ScrollArea) keyDown(evt event.Event) {
 			bar = sa.vBar
 		}
 		bar.SetScrolledPosition(0)
-	case keys.End:
+	case keys.VK_End, keys.VK_NumPadEnd:
 		evt.Finish()
 		var bar *ScrollBar
 		horizontal := e.Modifiers().ShiftDown()
@@ -247,7 +247,7 @@ func (sa *ScrollArea) keyDown(evt event.Event) {
 			bar = sa.vBar
 		}
 		bar.SetScrolledPosition(sa.ContentSize(horizontal))
-	case keys.PageUp:
+	case keys.VK_PageUp, keys.VK_NumPadPageUp:
 		evt.Finish()
 		var bar *ScrollBar
 		horizontal := e.Modifiers().ShiftDown()
@@ -257,7 +257,7 @@ func (sa *ScrollArea) keyDown(evt event.Event) {
 			bar = sa.vBar
 		}
 		bar.SetScrolledPosition(sa.ScrolledPosition(horizontal) - sa.PageScrollAmount(horizontal, true))
-	case keys.PageDown:
+	case keys.VK_PageDown, keys.VK_NumPadPageDown:
 		evt.Finish()
 		var bar *ScrollBar
 		horizontal := e.Modifiers().ShiftDown()

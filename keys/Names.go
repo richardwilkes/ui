@@ -33,6 +33,10 @@ var (
 	F13Name    = "F13"
 	F14Name    = "F14"
 	F15Name    = "F15"
+	F16Name    = "F16"
+	F17Name    = "F17"
+	F18Name    = "F18"
+	F19Name    = "F19"
 
 	BackspaceName    = "\u232b"
 	TabName          = "\u21e5"
@@ -96,8 +100,9 @@ var (
 	NumPadPageDownName = numPad(PageDownName)
 	NumPadCenterName   = numPad("\u2295")
 
-	Eject = "\u23cf"
-	Power = "\u233d"
+	EjectName = "\u23cf"
+	PowerName = "\u233d"
+	FnName    = "fn"
 )
 
 func left(text string) string {
