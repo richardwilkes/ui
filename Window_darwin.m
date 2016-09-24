@@ -175,7 +175,7 @@ void platformInvokeAfter(unsigned long id, long afterNanos) {
 
 -(int)getModifiers:(NSEvent *)theEvent {
 	// macOS uses the same modifier mask bit order as we do, but it is shifted up by 16 bits
-	return (theEvent.modifierFlags & (NSAlphaShiftKeyMask | NSShiftKeyMask | NSControlKeyMask | NSAlternateKeyMask | NSCommandKeyMask)) >> 16;
+	return (theEvent.modifierFlags & (NSEventModifierFlagCapsLock | NSEventModifierFlagShift | NSEventModifierFlagControl | NSEventModifierFlagOption | NSEventModifierFlagCommand)) >> 16;
 }
 
 -(void)deliverMouseEvent:(NSEvent *)theEvent ofType:(unsigned char)type {
@@ -265,23 +265,23 @@ void platformInvokeAfter(unsigned long id, long afterNanos) {
 	unsigned char type;
 	switch (theEvent.keyCode) {
 		case 57:	// Caps Lock
-			type = (theEvent.modifierFlags & NSAlphaShiftKeyMask) == 0 ? platformKeyUp : platformKeyDown;
+			type = (theEvent.modifierFlags & NSEventModifierFlagCapsLock) == 0 ? platformKeyUp : platformKeyDown;
 			break;
 		case 56:	// Left Shift
 		case 60:	// Right Shift
-			type = (theEvent.modifierFlags & NSShiftKeyMask) == 0 ? platformKeyUp : platformKeyDown;
+			type = (theEvent.modifierFlags & NSEventModifierFlagShift) == 0 ? platformKeyUp : platformKeyDown;
 			break;
 		case 59:	// Left Control
 		case 62:	// Right Control
-			type = (theEvent.modifierFlags & NSControlKeyMask) == 0 ? platformKeyUp : platformKeyDown;
+			type = (theEvent.modifierFlags & NSEventModifierFlagControl) == 0 ? platformKeyUp : platformKeyDown;
 			break;
 		case 58:	// Left Option
 		case 61:	// Right Option
-			type = (theEvent.modifierFlags & NSAlternateKeyMask) == 0 ? platformKeyUp : platformKeyDown;
+			type = (theEvent.modifierFlags & NSEventModifierFlagOption) == 0 ? platformKeyUp : platformKeyDown;
 			break;
 		case 54:	// Right Cmd
 		case 55:	// Left Cmd
-			type = (theEvent.modifierFlags & NSCommandKeyMask) == 0 ? platformKeyUp : platformKeyDown;
+			type = (theEvent.modifierFlags & NSEventModifierFlagCommand) == 0 ? platformKeyUp : platformKeyDown;
 			break;
 		default:
 			type = platformKeyDown;
