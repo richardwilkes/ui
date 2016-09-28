@@ -18,6 +18,9 @@
 @interface drawingView : NSView
 @end
 
+@interface drawingWindow : NSWindow
+@end
+
 @interface windowDelegate : NSObject<NSWindowDelegate>
 @end
 
@@ -36,7 +39,7 @@ void platformHideCursorUntilMouseMoves() {
 platformWindow platformNewWindow(platformRect bounds, int styleMask) {
 	// The styleMask bits match those that Mac OS uses
 	NSRect contentRect = NSMakeRect(0, 0, bounds.width, bounds.height);
-	NSWindow *window = [[NSWindow alloc] initWithContentRect:contentRect styleMask:styleMask backing:NSBackingStoreBuffered defer:YES];
+	NSWindow *window = [[drawingWindow alloc] initWithContentRect:contentRect styleMask:styleMask backing:NSBackingStoreBuffered defer:YES];
 	[window setFrameTopLeftPoint:NSMakePoint(bounds.x, [[NSScreen mainScreen] visibleFrame].size.height - bounds.y)];
 	[window disableCursorRects];
 	drawingView *rootView = [drawingView new];
@@ -147,6 +150,14 @@ void platformInvoke(unsigned long id) {
 void platformInvokeAfter(unsigned long id, long afterNanos) {
 	dispatch_after_f(dispatch_time(DISPATCH_TIME_NOW, afterNanos), dispatch_get_main_queue(), (void *)id, (dispatch_function_t)dispatchTask);
 }
+
+@implementation drawingWindow
+
+-(BOOL)canBecomeKeyWindow {
+	return YES;
+}
+
+@end
 
 @implementation drawingView
 
