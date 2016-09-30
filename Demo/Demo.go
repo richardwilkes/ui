@@ -19,18 +19,22 @@ import (
 	"github.com/richardwilkes/ui/event"
 	"github.com/richardwilkes/ui/font"
 	"github.com/richardwilkes/ui/keys"
+	"github.com/richardwilkes/ui/layout"
+	"github.com/richardwilkes/ui/layout/flex"
+	"github.com/richardwilkes/ui/layout/flow"
 	"github.com/richardwilkes/ui/menu/factory"
+	"github.com/richardwilkes/ui/widget"
 	"unicode"
 )
 
 var (
-	aboutWindow *ui.Window
+	aboutWindow ui.Window
 )
 
 func main() {
 	// event.TraceAllEvents = true
 	// event.TraceEventTypes = append(event.TraceEventTypes, event.MouseDownType, event.MouseDraggedType, event.MouseUpType)
-	ui.App.EventHandlers().Add(event.AppWillFinishStartupType, func(evt event.Event) {
+	widget.App.EventHandlers().Add(event.AppWillFinishStartupType, func(evt event.Event) {
 		createMenuBar()
 		w1 := createButtonsWindow("Demo #1")
 		w2 := createButtonsWindow("Demo #2")
@@ -40,17 +44,17 @@ func main() {
 		frame2.Y = frame1.Y
 		w2.SetFrame(frame2)
 	})
-	ui.StartUserInterface()
+	widget.StartUserInterface()
 }
 
 func createMenuBar() {
-	_, aboutItem, prefsItem := ui.AddAppMenu()
+	_, aboutItem, prefsItem := widget.AddAppMenu()
 	aboutItem.EventHandlers().Add(event.SelectionType, createAboutWindow)
 	prefsItem.EventHandlers().Add(event.SelectionType, createPreferencesWindow)
 	createFileMenu()
 	createEditMenu()
-	ui.AddWindowMenu()
-	ui.AddHelpMenu()
+	widget.AddWindowMenu()
+	widget.AddHelpMenu()
 }
 
 func createFileMenu() {
@@ -60,13 +64,13 @@ func createFileMenu() {
 	fileMenu.AddItem(factory.NewSeparator())
 
 	item := factory.NewItemWithKey("Close", keys.VK_W, func(evt event.Event) {
-		window := ui.KeyWindow()
+		window := widget.KeyWindow()
 		if window != nil && window.Closable() {
 			window.AttemptClose()
 		}
 	})
 	item.EventHandlers().Add(event.ValidateType, func(evt event.Event) {
-		window := ui.KeyWindow()
+		window := widget.KeyWindow()
 		if window == nil || !window.Closable() {
 			evt.(*event.Validate).MarkInvalid()
 		}
@@ -79,53 +83,53 @@ func createFileMenu() {
 func createEditMenu() {
 	editMenu := factory.NewMenu("Edit")
 
-	ui.AddCutItem(editMenu)
-	ui.AddCopyItem(editMenu)
-	ui.AddPasteItem(editMenu)
+	widget.AddCutItem(editMenu)
+	widget.AddCopyItem(editMenu)
+	widget.AddPasteItem(editMenu)
 	editMenu.AddItem(factory.NewSeparator())
-	ui.AddDeleteItem(editMenu)
-	ui.AddSelectAllItem(editMenu)
+	widget.AddDeleteItem(editMenu)
+	widget.AddSelectAllItem(editMenu)
 
 	factory.AppBar().AddMenu(editMenu)
 }
 
-func createButtonsWindow(title string) *ui.Window {
-	wnd := ui.NewWindow(geom.Point{}, ui.StdWindowMask)
+func createButtonsWindow(title string) ui.Window {
+	wnd := widget.NewWindow(geom.Point{}, widget.StdWindowMask)
 	wnd.SetTitle(title)
 
 	root := wnd.RootWidget()
 	root.SetBorder(border.NewEmpty(geom.Insets{Top: 10, Left: 10, Bottom: 10, Right: 10}))
-	ui.NewPrecision(root).SetVerticalSpacing(10)
+	flex.NewLayout(root).SetVerticalSpacing(10)
 
 	buttonsPanel := createButtonsPanel()
-	buttonsPanel.SetLayoutData(ui.NewPrecisionData().SetHorizontalGrab(true))
+	buttonsPanel.SetLayoutData(flex.NewData().SetHorizontalGrab(true))
 	root.AddChild(buttonsPanel)
 
 	addSeparator(root)
 
 	checkBoxPanel := createCheckBoxPanel()
-	checkBoxPanel.SetLayoutData(ui.NewPrecisionData().SetHorizontalGrab(true))
+	checkBoxPanel.SetLayoutData(flex.NewData().SetHorizontalGrab(true))
 	root.AddChild(checkBoxPanel)
 
 	addSeparator(root)
 
 	radioButtonsPanel := createRadioButtonsPanel()
-	radioButtonsPanel.SetLayoutData(ui.NewPrecisionData().SetHorizontalGrab(true))
+	radioButtonsPanel.SetLayoutData(flex.NewData().SetHorizontalGrab(true))
 	root.AddChild(radioButtonsPanel)
 
 	addSeparator(root)
 
 	popupMenusPanel := createPopupMenusPanel()
-	popupMenusPanel.SetLayoutData(ui.NewPrecisionData().SetHorizontalGrab(true))
+	popupMenusPanel.SetLayoutData(flex.NewData().SetHorizontalGrab(true))
 	root.AddChild(popupMenusPanel)
 
 	addSeparator(root)
 
-	wrapper := ui.NewBlock()
-	ui.NewPrecision(wrapper).SetColumns(2).SetEqualColumns(true).SetHorizontalSpacing(10)
-	wrapper.SetLayoutData(ui.NewPrecisionData().SetHorizontalGrab(true).SetHorizontalAlignment(draw.AlignFill))
+	wrapper := widget.NewBlock()
+	flex.NewLayout(wrapper).SetColumns(2).SetEqualColumns(true).SetHorizontalSpacing(10)
+	wrapper.SetLayoutData(flex.NewData().SetHorizontalGrab(true).SetHorizontalAlignment(draw.AlignFill))
 	textFieldsPanel := createTextFieldsPanel()
-	textFieldsPanel.SetLayoutData(ui.NewPrecisionData().SetHorizontalGrab(true).SetHorizontalAlignment(draw.AlignFill))
+	textFieldsPanel.SetLayoutData(flex.NewData().SetHorizontalGrab(true).SetHorizontalAlignment(draw.AlignFill))
 	wrapper.AddChild(textFieldsPanel)
 	wrapper.AddChild(createListPanel())
 	root.AddChild(wrapper)
@@ -134,12 +138,12 @@ func createButtonsWindow(title string) *ui.Window {
 
 	img, err := draw.AcquireImageFromURL("http://legends.trollworks.com/mountains.jpg")
 	if err == nil {
-		content := ui.NewImageLabel(img)
+		content := widget.NewImageLabel(img)
 		content.SetFocusable(true)
-		_, prefSize, _ := ui.Sizes(content, ui.NoHintSize)
+		_, prefSize, _ := ui.Sizes(content, layout.NoHintSize)
 		content.SetSize(prefSize)
-		scrollArea := ui.NewScrollArea(content, ui.ScrollContentUnmodified)
-		scrollArea.SetLayoutData(ui.NewPrecisionData().SetHorizontalAlignment(draw.AlignFill).SetVerticalAlignment(draw.AlignFill).SetHorizontalGrab(true).SetVerticalGrab(true))
+		scrollArea := widget.NewScrollArea(content, widget.ScrollContentUnmodified)
+		scrollArea.SetLayoutData(flex.NewData().SetHorizontalAlignment(draw.AlignFill).SetVerticalAlignment(draw.AlignFill).SetHorizontalGrab(true).SetVerticalGrab(true))
 		root.AddChild(scrollArea)
 	} else {
 		fmt.Println(err)
@@ -152,7 +156,7 @@ func createButtonsWindow(title string) *ui.Window {
 }
 
 func createListPanel() ui.Widget {
-	list := ui.NewList(&ui.TextCellFactory{})
+	list := widget.NewList(&widget.TextCellFactory{})
 	list.Append("One",
 		"Two",
 		"Three with some long text to make it interesting",
@@ -179,22 +183,22 @@ func createListPanel() ui.Widget {
 	list.EventHandlers().Add(event.ClickType, func(evt event.Event) {
 		fmt.Println("Double-clicked on list")
 	})
-	_, prefSize, _ := ui.Sizes(list, ui.NoHintSize)
+	_, prefSize, _ := ui.Sizes(list, layout.NoHintSize)
 	list.SetSize(prefSize)
-	scrollArea := ui.NewScrollArea(list, ui.ScrollContentFill)
-	scrollArea.SetLayoutData(ui.NewPrecisionData().SetHorizontalAlignment(draw.AlignFill).SetVerticalAlignment(draw.AlignFill).SetHorizontalGrab(true).SetVerticalGrab(true))
+	scrollArea := widget.NewScrollArea(list, widget.ScrollContentFill)
+	scrollArea.SetLayoutData(flex.NewData().SetHorizontalAlignment(draw.AlignFill).SetVerticalAlignment(draw.AlignFill).SetHorizontalGrab(true).SetVerticalGrab(true))
 	return scrollArea
 }
 
 func addSeparator(root ui.Widget) {
-	sep := ui.NewSeparator(true)
-	sep.SetLayoutData(ui.NewPrecisionData().SetHorizontalAlignment(draw.AlignFill))
+	sep := widget.NewSeparator(true)
+	sep.SetLayoutData(flex.NewData().SetHorizontalAlignment(draw.AlignFill))
 	root.AddChild(sep)
 }
 
 func createButtonsPanel() ui.Widget {
-	panel := ui.NewBlock()
-	ui.NewFlow(panel).SetHorizontalSpacing(5).SetVerticalSpacing(5).SetVerticallyCentered(true)
+	panel := widget.NewBlock()
+	flow.New(panel).SetHorizontalSpacing(5).SetVerticalSpacing(5).SetVerticallyCentered(true)
 
 	createButton("Press Me", panel)
 	createButton("Disabled", panel).SetEnabled(false)
@@ -218,50 +222,50 @@ func createButtonsPanel() ui.Widget {
 	return panel
 }
 
-func createButton(title string, panel ui.Widget) *ui.Button {
-	button := ui.NewButton(title)
+func createButton(title string, panel ui.Widget) *widget.Button {
+	button := widget.NewButton(title)
 	button.EventHandlers().Add(event.ClickType, func(evt event.Event) { fmt.Printf("The button '%s' was clicked.\n", title) })
-	ui.NewSimpleToolTip(button, fmt.Sprintf("This is the tooltip for the '%s' button.", title))
+	widget.NewSimpleToolTip(button, fmt.Sprintf("This is the tooltip for the '%s' button.", title))
 	panel.AddChild(button)
 	return button
 }
 
-func createImageButton(img *draw.Image, name string, panel ui.Widget) *ui.ImageButton {
+func createImageButton(img *draw.Image, name string, panel ui.Widget) *widget.ImageButton {
 	size := img.Size()
 	size.Width /= 2
 	size.Height /= 2
-	button := ui.NewImageButtonWithImageSize(img, size)
+	button := widget.NewImageButtonWithImageSize(img, size)
 	button.EventHandlers().Add(event.ClickType, func(evt event.Event) { fmt.Printf("The button '%s' was clicked.\n", name) })
-	ui.NewSimpleToolTip(button, name)
+	widget.NewSimpleToolTip(button, name)
 	panel.AddChild(button)
 	return button
 }
 
 func createCheckBoxPanel() ui.Widget {
-	panel := ui.NewBlock()
-	ui.NewPrecision(panel)
+	panel := widget.NewBlock()
+	flex.NewLayout(panel)
 	createCheckBox("Press Me", panel)
-	createCheckBox("Initially Mixed", panel).SetState(ui.Mixed)
+	createCheckBox("Initially Mixed", panel).SetState(widget.Mixed)
 	createCheckBox("Disabled", panel).SetEnabled(false)
 	checkbox := createCheckBox("Disabled w/Check", panel)
 	checkbox.SetEnabled(false)
-	checkbox.SetState(ui.Checked)
+	checkbox.SetState(widget.Checked)
 	return panel
 }
 
-func createCheckBox(title string, panel ui.Widget) *ui.CheckBox {
-	checkbox := ui.NewCheckBox(title)
+func createCheckBox(title string, panel ui.Widget) *widget.CheckBox {
+	checkbox := widget.NewCheckBox(title)
 	checkbox.EventHandlers().Add(event.ClickType, func(evt event.Event) { fmt.Printf("The checkbox '%s' was clicked.\n", title) })
-	ui.NewSimpleToolTip(checkbox, fmt.Sprintf("This is the tooltip for the '%s' checkbox.", title))
+	widget.NewSimpleToolTip(checkbox, fmt.Sprintf("This is the tooltip for the '%s' checkbox.", title))
 	panel.AddChild(checkbox)
 	return checkbox
 }
 
 func createRadioButtonsPanel() ui.Widget {
-	panel := ui.NewBlock()
-	ui.NewPrecision(panel)
+	panel := widget.NewBlock()
+	flex.NewLayout(panel)
 
-	group := ui.NewRadioButtonGroup()
+	group := widget.NewRadioButtonGroup()
 	first := createRadioButton("First", panel, group)
 	createRadioButton("Second", panel, group)
 	createRadioButton("Third (disabled)", panel, group).SetEnabled(false)
@@ -271,18 +275,18 @@ func createRadioButtonsPanel() ui.Widget {
 	return panel
 }
 
-func createRadioButton(title string, panel ui.Widget, group *ui.RadioButtonGroup) *ui.RadioButton {
-	rb := ui.NewRadioButton(title)
+func createRadioButton(title string, panel ui.Widget, group *widget.RadioButtonGroup) *widget.RadioButton {
+	rb := widget.NewRadioButton(title)
 	rb.EventHandlers().Add(event.ClickType, func(evt event.Event) { fmt.Printf("The radio button '%s' was clicked.\n", title) })
-	ui.NewSimpleToolTip(rb, fmt.Sprintf("This is the tooltip for the '%s' radio button.", title))
+	widget.NewSimpleToolTip(rb, fmt.Sprintf("This is the tooltip for the '%s' radio button.", title))
 	panel.AddChild(rb)
 	group.Add(rb)
 	return rb
 }
 
 func createPopupMenusPanel() ui.Widget {
-	panel := ui.NewBlock()
-	ui.NewPrecision(panel)
+	panel := widget.NewBlock()
+	flex.NewLayout(panel)
 
 	createPopupMenu(panel, 1, "One", "Two", "Three", "", "Four", "Five", "Six")
 	createPopupMenu(panel, 2, "Red", "Blue", "Green").SetEnabled(false)
@@ -290,9 +294,9 @@ func createPopupMenusPanel() ui.Widget {
 	return panel
 }
 
-func createPopupMenu(panel ui.Widget, selection int, titles ...string) *ui.PopupMenu {
-	p := ui.NewPopupMenu()
-	ui.NewSimpleToolTip(p, fmt.Sprintf("This is the tooltip for the PopupMenu with %d items.", len(titles)))
+func createPopupMenu(panel ui.Widget, selection int, titles ...string) *widget.PopupMenu {
+	p := widget.NewPopupMenu()
+	widget.NewSimpleToolTip(p, fmt.Sprintf("This is the tooltip for the PopupMenu with %d items.", len(titles)))
 	for _, title := range titles {
 		if title == "" {
 			p.AddSeparator()
@@ -307,8 +311,8 @@ func createPopupMenu(panel ui.Widget, selection int, titles ...string) *ui.Popup
 }
 
 func createTextFieldsPanel() ui.Widget {
-	panel := ui.NewBlock()
-	ui.NewPrecision(panel)
+	panel := widget.NewBlock()
+	flex.NewLayout(panel)
 
 	field := createTextField("First Text Field", panel)
 	createTextField("Second Text Field (disabled)", panel).SetEnabled(false)
@@ -328,27 +332,27 @@ func createTextFieldsPanel() ui.Widget {
 	return panel
 }
 
-func createTextField(text string, panel ui.Widget) *ui.TextField {
-	field := ui.NewTextField()
+func createTextField(text string, panel ui.Widget) *widget.TextField {
+	field := widget.NewTextField()
 	field.SetText(text)
-	field.SetLayoutData(ui.NewPrecisionData().SetHorizontalGrab(true).SetHorizontalAlignment(draw.AlignFill))
-	ui.NewSimpleToolTip(field, fmt.Sprintf("This is the tooltip for the '%s' text field.", text))
+	field.SetLayoutData(flex.NewData().SetHorizontalGrab(true).SetHorizontalAlignment(draw.AlignFill))
+	widget.NewSimpleToolTip(field, fmt.Sprintf("This is the tooltip for the '%s' text field.", text))
 	panel.AddChild(field)
 	return field
 }
 
 func createAboutWindow(evt event.Event) {
 	if aboutWindow == nil {
-		aboutWindow = ui.NewWindow(geom.Point{}, ui.TitledWindowMask|ui.ClosableWindowMask)
+		aboutWindow = widget.NewWindow(geom.Point{}, widget.TitledWindowMask|widget.ClosableWindowMask)
 		aboutWindow.EventHandlers().Add(event.ClosedType, func(evt event.Event) { aboutWindow = nil })
-		aboutWindow.SetTitle("About " + ui.AppName())
+		aboutWindow.SetTitle("About " + widget.AppName())
 		root := aboutWindow.RootWidget()
 		root.SetBorder(border.NewEmpty(geom.Insets{Top: 10, Left: 10, Bottom: 10, Right: 10}))
-		ui.NewPrecision(root)
-		title := ui.NewLabelWithFont(ui.AppName(), font.EmphasizedSystem)
-		title.SetLayoutData(ui.NewPrecisionData().SetHorizontalAlignment(draw.AlignMiddle))
+		flex.NewLayout(root)
+		title := widget.NewLabelWithFont(widget.AppName(), font.EmphasizedSystem)
+		title.SetLayoutData(flex.NewData().SetHorizontalAlignment(draw.AlignMiddle))
 		root.AddChild(title)
-		desc := ui.NewLabel("Simple app to demonstrate the\ncapabilities of the ui framework.")
+		desc := widget.NewLabel("Simple app to demonstrate the\ncapabilities of the ui framework.")
 		root.AddChild(desc)
 		aboutWindow.Pack()
 	}

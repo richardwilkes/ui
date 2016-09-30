@@ -15,6 +15,7 @@ import (
 	"github.com/richardwilkes/ui/color"
 	"github.com/richardwilkes/ui/draw"
 	"github.com/richardwilkes/ui/event"
+	"github.com/richardwilkes/ui/layout"
 )
 
 // A Widget is the basic user interface block that interacts with the user.
@@ -22,14 +23,14 @@ type Widget interface {
 	event.Target
 
 	// Sizer returns the Sizer for this widget, if any.
-	Sizer() Sizer
+	Sizer() layout.Sizer
 	// SetSizer sets the Sizer for this widget. May be nil.
-	SetSizer(sizer Sizer)
+	SetSizer(sizer layout.Sizer)
 
 	// Layout returns the Layout for this widget, if any.
-	Layout() Layout
+	Layout() layout.Layout
 	// SetLayout sets the Layout for this widget. May be nil.
-	SetLayout(layout Layout)
+	SetLayout(layout layout.Layout)
 	// NeedLayout returns true if this widget needs to have its children laid out.
 	NeedLayout() bool
 	// SetNeedLayout sets the whether this widget needs to have its children lait out.
@@ -98,7 +99,7 @@ type Widget interface {
 	// parent as a child. Call AddChild or AddChildAtIndex for that.
 	SetParent(parent Widget)
 	// Window returns the containing window, if any.
-	Window() *Window
+	Window() Window
 	// RootOfWindow returns true if this widget is the root widget of a window.
 	RootOfWindow() bool
 
@@ -133,4 +134,18 @@ type Widget interface {
 	Background() color.Color
 	// SetBackground sets the background color of this widget.
 	SetBackground(color color.Color)
+}
+
+// Sizes returns the minimum, preferred, and maximum sizes the 'widget' wishes to be. It does
+// this by asking the widget's Layout. If no Layout is present, then the widget's Sizer is asked.
+// If no Sizer is present, then it finally uses a default set of sizes that are used for all
+// components.
+func Sizes(widget Widget, hint geom.Size) (min, pref, max geom.Size) {
+	if l := widget.Layout(); l != nil {
+		return l.Sizes(hint)
+	}
+	if s := widget.Sizer(); s != nil {
+		return s.Sizes(hint)
+	}
+	return geom.Size{}, geom.Size{}, layout.DefaultMaxSize(geom.Size{})
 }
