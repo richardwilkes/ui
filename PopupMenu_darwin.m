@@ -11,6 +11,6 @@
 #include "_cgo_export.h"
 #include "PopupMenu_darwin.h"
 
-void platformPopupMenu(platformWindow window, platformMenu menu, double x, double y, platformItem itemAtLocation) {
+void platformPopupMenu(platformWindow window, void *menu, double x, double y, void *itemAtLocation) {
 	[((NSMenu *)menu) popUpMenuPositioningItem:itemAtLocation atLocation:NSMakePoint(x,y) inView:[((NSWindow *)window) contentView]];
 }

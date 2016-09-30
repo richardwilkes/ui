@@ -9,19 +9,16 @@
 
 package menu
 
-import (
-	"github.com/richardwilkes/ui/keys"
-)
-
-func (item *Item) platformSubMenu() PlatformMenu {
-	// RAW: Implement for Linux
-	return nil
-}
-
-func (item *Item) platformSetSubMenu(subMenu *Menu) {
-	// RAW: Implement for Linux
-}
-
-func (item *Item) platformSetKeyModifierMask(modifiers keys.Modifiers) {
-	// RAW: Implement for Linux
+// Bar represents a set of menus.
+type Bar interface {
+	// AddMenu appends a menu to the end of this bar.
+	AddMenu(menu Menu)
+	// InsertMenu inserts a menu at the specified menu index within this bar.
+	InsertMenu(index int, menu Menu)
+	// Remove the menu at the specified index from this bar.
+	Remove(index int)
+	// Count of menus in this bar.
+	Count() int
+	// Menu at the specified index, or nil.
+	Menu(index int) Menu
 }

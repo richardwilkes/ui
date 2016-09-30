@@ -7,21 +7,10 @@
 // This Source Code Form is "Incompatible With Secondary Licenses", as
 // defined by the Mozilla Public License, version 2.0.
 
-package menu
+#ifndef __RW_GOUI_MENU_TYPES__
+#define __RW_GOUI_MENU_TYPES__
 
-import (
-	"github.com/richardwilkes/ui/keys"
-)
+typedef void *Menu;
+typedef void *Item;
 
-func (item *Item) platformSubMenu() PlatformMenu {
-	// RAW: Implement for Linux
-	return nil
-}
-
-func (item *Item) platformSetSubMenu(subMenu *Menu) {
-	// RAW: Implement for Linux
-}
-
-func (item *Item) platformSetKeyModifierMask(modifiers keys.Modifiers) {
-	// RAW: Implement for Linux
-}
+#endif // __RW_GOUI_MENU_TYPES__

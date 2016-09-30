@@ -12,7 +12,9 @@ package ui
 import (
 	"github.com/richardwilkes/i18n"
 	"github.com/richardwilkes/ui/event"
+	"github.com/richardwilkes/ui/keys"
 	"github.com/richardwilkes/ui/menu"
+	"github.com/richardwilkes/ui/menu/factory"
 )
 
 // Deletable defines the methods required of objects that can respond to the Delete menu item.
@@ -24,11 +26,8 @@ type Deletable interface {
 }
 
 // AddDeleteItem adds the standard Delete menu item to the specified menu.
-func AddDeleteItem(m *menu.Menu) *menu.Item {
-	item := m.AddItem(i18n.Text("Delete"), "\x08")
-	item.SetKeyModifiers(0)
-	handlers := item.EventHandlers()
-	handlers.Add(event.SelectionType, func(evt event.Event) {
+func AddDeleteItem(m menu.Menu) menu.Item {
+	item := factory.NewItemWithKeyAndModifiers(i18n.Text("Delete"), keys.VK_Backspace, 0, func(evt event.Event) {
 		window := KeyWindow()
 		if window != nil {
 			focus := window.Focus()
@@ -37,7 +36,7 @@ func AddDeleteItem(m *menu.Menu) *menu.Item {
 			}
 		}
 	})
-	handlers.Add(event.ValidateType, func(evt event.Event) {
+	item.EventHandlers().Add(event.ValidateType, func(evt event.Event) {
 		valid := false
 		window := KeyWindow()
 		if window != nil {
@@ -50,5 +49,6 @@ func AddDeleteItem(m *menu.Menu) *menu.Item {
 			evt.(*event.Validate).MarkInvalid()
 		}
 	})
+	m.AddItem(item)
 	return item
 }

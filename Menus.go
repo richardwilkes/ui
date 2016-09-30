@@ -10,75 +10,86 @@
 package ui
 
 import (
+	"github.com/richardwilkes/i18n"
 	"github.com/richardwilkes/ui/event"
 	"github.com/richardwilkes/ui/keys"
 	"github.com/richardwilkes/ui/menu"
+	"github.com/richardwilkes/ui/menu/factory"
 )
 
 // AddAppMenu adds a standard 'application' menu to the menu bar.
-func AddAppMenu() (appMenu *menu.Menu, aboutItem *menu.Item, prefsItem *menu.Item) {
+func AddAppMenu() (appMenu menu.Menu, aboutItem menu.Item, prefsItem menu.Item) {
 	name := AppName()
-	appMenu = menu.Bar().AddMenu(name)
-	aboutItem = appMenu.AddItem("About "+name, "")
-	appMenu.AddSeparator()
-	prefsItem = appMenu.AddItem("Preferences…", ",")
-	appMenu.AddSeparator()
-	appMenu.AddMenu("Services").SetAsServicesMenu()
-	appMenu.AddSeparator()
-	item := appMenu.AddItem("Hide "+name, "h")
-	item.EventHandlers().Add(event.SelectionType, func(evt event.Event) { HideApp() })
-	item = appMenu.AddItem("Hide Others", "h")
-	item.SetKeyModifiers(keys.OptionModifier | keys.PlatformMenuModifier())
-	item.EventHandlers().Add(event.SelectionType, func(evt event.Event) { HideOtherApps() })
-	item = appMenu.AddItem("Show All", "")
-	item.EventHandlers().Add(event.SelectionType, func(evt event.Event) { ShowAllApps() })
-	appMenu.AddSeparator()
-	item = appMenu.AddItem("Quit "+name, "q")
-	item.EventHandlers().Add(event.SelectionType, func(evt event.Event) { AttemptQuit() })
+	appMenu = factory.NewMenu(name)
+
+	aboutItem = factory.NewItem(i18n.Text("About ")+name, nil)
+	appMenu.AddItem(aboutItem)
+	appMenu.AddItem(factory.NewSeparator())
+
+	prefsItem = factory.NewItemWithKey(i18n.Text("Preferences…"), keys.VK_Comma, nil)
+	appMenu.AddItem(prefsItem)
+	appMenu.AddItem(factory.NewSeparator())
+
+	if factory.AddServicesMenu(appMenu) {
+		appMenu.AddItem(factory.NewSeparator())
+	}
+
+	appMenu.AddItem(factory.NewItemWithKey(i18n.Text("Hide ")+name, keys.VK_H, func(evt event.Event) { HideApp() }))
+	appMenu.AddItem(factory.NewItemWithKeyAndModifiers(i18n.Text("Hide Others"), keys.VK_H, keys.OptionModifier|keys.PlatformMenuModifier(), func(evt event.Event) { HideOtherApps() }))
+	appMenu.AddItem(factory.NewItem(i18n.Text("Show All"), func(evt event.Event) { ShowAllApps() }))
+	appMenu.AddItem(factory.NewSeparator())
+
+	appMenu.AddItem(factory.NewItemWithKey(i18n.Text("Quit ")+name, keys.VK_Q, func(evt event.Event) { AttemptQuit() }))
+
+	factory.AppBar().AddMenu(appMenu)
+
 	return appMenu, aboutItem, prefsItem
 }
 
 // AddWindowMenu adds a standard 'Window' menu to the menu bar.
-func AddWindowMenu() *menu.Menu {
-	windowMenu := menu.Bar().AddMenu("Window")
-	item := windowMenu.AddItem("Minimize", "m")
-	handlers := item.EventHandlers()
-	handlers.Add(event.SelectionType, func(evt event.Event) {
+func AddWindowMenu() menu.Menu {
+	windowMenu := factory.NewMenu(i18n.Text("Window"))
+
+	item := factory.NewItemWithKey(i18n.Text("Minimize"), keys.VK_M, func(evt event.Event) {
 		window := KeyWindow()
 		if window != nil {
 			window.Minimize()
 		}
 	})
-	handlers.Add(event.ValidateType, func(evt event.Event) {
+	item.EventHandlers().Add(event.ValidateType, func(evt event.Event) {
 		w := KeyWindow()
 		if w == nil || !w.Minimizable() {
 			evt.(*event.Validate).MarkInvalid()
 		}
 	})
-	item = windowMenu.AddItem("Zoom", "\\")
-	handlers = item.EventHandlers()
-	handlers.Add(event.SelectionType, func(evt event.Event) {
+	windowMenu.AddItem(item)
+
+	item = factory.NewItemWithKey(i18n.Text("Zoom"), keys.VK_BackSlash, func(evt event.Event) {
 		window := KeyWindow()
 		if window != nil {
 			window.Zoom()
 		}
 	})
-	handlers.Add(event.ValidateType, func(evt event.Event) {
+	item.EventHandlers().Add(event.ValidateType, func(evt event.Event) {
 		w := KeyWindow()
 		if w == nil || !w.Resizable() {
 			evt.(*event.Validate).MarkInvalid()
 		}
 	})
-	windowMenu.SetAsWindowMenu()
-	windowMenu.AddSeparator()
-	item = windowMenu.AddItem("Bring All to Front", "")
-	item.EventHandlers().Add(event.SelectionType, func(evt event.Event) { AllWindowsToFront() })
+	windowMenu.AddItem(item)
+	windowMenu.AddItem(factory.NewSeparator())
+
+	windowMenu.AddItem(factory.NewItem(i18n.Text("Bring All to Front"), func(evt event.Event) { AllWindowsToFront() }))
+
+	factory.SetWindowMenu(windowMenu)
+	factory.AppBar().AddMenu(windowMenu)
 	return windowMenu
 }
 
 // AddHelpMenu adds a standard 'Help' menu to the menu bar.
-func AddHelpMenu() *menu.Menu {
-	helpMenu := menu.Bar().AddMenu("Help")
-	helpMenu.SetAsHelpMenu()
+func AddHelpMenu() menu.Menu {
+	helpMenu := factory.NewMenu(i18n.Text("Help"))
+	factory.SetHelpMenu(helpMenu)
+	factory.AppBar().AddMenu(helpMenu)
 	return helpMenu
 }

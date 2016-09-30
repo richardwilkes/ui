@@ -17,6 +17,7 @@ import (
 	"github.com/richardwilkes/ui/event"
 	"github.com/richardwilkes/ui/keys"
 	"github.com/richardwilkes/ui/menu"
+	"github.com/richardwilkes/ui/menu/factory"
 	"github.com/richardwilkes/ui/theme"
 )
 
@@ -147,7 +148,7 @@ func (pm *PopupMenu) keyDown(evt event.Event) {
 // Click performs any animation associated with a click and triggers the popup menu to appear.
 func (pm *PopupMenu) Click() {
 	hasItem := false
-	menu := menu.NewMenu("")
+	menu := factory.NewMenu("")
 	defer menu.Dispose()
 	for i := range pm.items {
 		if pm.addItemToMenu(menu, i) {
@@ -155,24 +156,27 @@ func (pm *PopupMenu) Click() {
 		}
 	}
 	if hasItem {
-		platformPopupMenu(pm.Window(), pm.ToWindow(pm.LocalInsetBounds().Point), menu, menu.Item(pm.selectedIndex))
+		if factory.UseNative {
+			platformPopupMenu(pm.Window(), pm.ToWindow(pm.LocalInsetBounds().Point), menu, menu.Item(pm.selectedIndex))
+		} else {
+			// RAW: Implement
+		}
 	}
 }
 
-func (pm *PopupMenu) addItemToMenu(m *menu.Menu, index int) bool {
+func (pm *PopupMenu) addItemToMenu(m menu.Menu, index int) bool {
 	one := pm.items[index]
 	switch one.(type) {
 	case *separationMarker:
-		m.AddSeparator()
+		m.AddItem(factory.NewSeparator())
 		return false
 	default:
-		item := m.AddItem(fmt.Sprintf("%v", one), "")
-		item.EventHandlers().Add(event.SelectionType, func(evt event.Event) {
+		m.AddItem(factory.NewItem(fmt.Sprintf("%v", one), func(evt event.Event) {
 			if index != pm.SelectedIndex() {
 				pm.SelectIndex(index)
 				event.Dispatch(event.NewSelection(pm))
 			}
-		})
+		}))
 		return true
 	}
 }

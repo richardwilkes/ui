@@ -12,7 +12,9 @@ package ui
 import (
 	"github.com/richardwilkes/i18n"
 	"github.com/richardwilkes/ui/event"
+	"github.com/richardwilkes/ui/keys"
 	"github.com/richardwilkes/ui/menu"
+	"github.com/richardwilkes/ui/menu/factory"
 )
 
 // Pastable defines the methods required of objects that can respond to the Paste menu item.
@@ -24,10 +26,8 @@ type Pastable interface {
 }
 
 // AddPasteItem adds the standard Paste menu item to the specified menu.
-func AddPasteItem(m *menu.Menu) *menu.Item {
-	item := m.AddItem(i18n.Text("Paste"), "v")
-	handlers := item.EventHandlers()
-	handlers.Add(event.SelectionType, func(evt event.Event) {
+func AddPasteItem(m menu.Menu) menu.Item {
+	item := factory.NewItemWithKey(i18n.Text("Paste"), keys.VK_V, func(evt event.Event) {
 		window := KeyWindow()
 		if window != nil {
 			focus := window.Focus()
@@ -36,7 +36,7 @@ func AddPasteItem(m *menu.Menu) *menu.Item {
 			}
 		}
 	})
-	handlers.Add(event.ValidateType, func(evt event.Event) {
+	item.EventHandlers().Add(event.ValidateType, func(evt event.Event) {
 		valid := false
 		window := KeyWindow()
 		if window != nil {
@@ -49,5 +49,6 @@ func AddPasteItem(m *menu.Menu) *menu.Item {
 			evt.(*event.Validate).MarkInvalid()
 		}
 	})
+	m.AddItem(item)
 	return item
 }

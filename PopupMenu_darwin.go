@@ -12,12 +12,16 @@ package ui
 import (
 	"github.com/richardwilkes/geom"
 	"github.com/richardwilkes/ui/menu"
+	"reflect"
+	"unsafe"
 )
 
 // #cgo darwin LDFLAGS: -framework Cocoa
 // #include "PopupMenu_darwin.h"
 import "C"
 
-func platformPopupMenu(window *Window, where geom.Point, menu *menu.Menu, item *menu.Item) {
-	C.platformPopupMenu(window.PlatformPtr(), menu.PlatformPtr(), C.double(where.X), C.double(where.Y), item.PlatformPtr())
+func platformPopupMenu(window *Window, where geom.Point, menu menu.Menu, item menu.Item) {
+	mPtr := (*[1]unsafe.Pointer)(unsafe.Pointer(reflect.ValueOf(menu).Elem().UnsafeAddr()))
+	iPtr := (*[1]unsafe.Pointer)(unsafe.Pointer(reflect.ValueOf(item).Elem().UnsafeAddr()))
+	C.platformPopupMenu(window.PlatformPtr(), mPtr[0], C.double(where.X), C.double(where.Y), iPtr[0])
 }

@@ -18,7 +18,8 @@ import (
 	"github.com/richardwilkes/ui/draw"
 	"github.com/richardwilkes/ui/event"
 	"github.com/richardwilkes/ui/font"
-	"github.com/richardwilkes/ui/menu"
+	"github.com/richardwilkes/ui/keys"
+	"github.com/richardwilkes/ui/menu/factory"
 	"unicode"
 )
 
@@ -46,35 +47,46 @@ func createMenuBar() {
 	_, aboutItem, prefsItem := ui.AddAppMenu()
 	aboutItem.EventHandlers().Add(event.SelectionType, createAboutWindow)
 	prefsItem.EventHandlers().Add(event.SelectionType, createPreferencesWindow)
+	createFileMenu()
+	createEditMenu()
+	ui.AddWindowMenu()
+	ui.AddHelpMenu()
+}
 
-	fileMenu := menu.Bar().AddMenu("File")
-	fileMenu.AddItem("Open", "o")
-	fileMenu.AddSeparator()
-	item := fileMenu.AddItem("Close", "w")
-	handlers := item.EventHandlers()
-	handlers.Add(event.SelectionType, func(evt event.Event) {
+func createFileMenu() {
+	fileMenu := factory.NewMenu("File")
+
+	fileMenu.AddItem(factory.NewItemWithKey("Open", keys.VK_O, nil))
+	fileMenu.AddItem(factory.NewSeparator())
+
+	item := factory.NewItemWithKey("Close", keys.VK_W, func(evt event.Event) {
 		window := ui.KeyWindow()
 		if window != nil && window.Closable() {
 			window.AttemptClose()
 		}
 	})
-	handlers.Add(event.ValidateType, func(evt event.Event) {
+	item.EventHandlers().Add(event.ValidateType, func(evt event.Event) {
 		window := ui.KeyWindow()
 		if window == nil || !window.Closable() {
 			evt.(*event.Validate).MarkInvalid()
 		}
 	})
+	fileMenu.AddItem(item)
 
-	m := menu.Bar().AddMenu("Edit")
-	ui.AddCutItem(m)
-	ui.AddCopyItem(m)
-	ui.AddPasteItem(m)
-	m.AddSeparator()
-	ui.AddDeleteItem(m)
-	ui.AddSelectAllItem(m)
+	factory.AppBar().AddMenu(fileMenu)
+}
 
-	ui.AddWindowMenu()
-	ui.AddHelpMenu()
+func createEditMenu() {
+	editMenu := factory.NewMenu("Edit")
+
+	ui.AddCutItem(editMenu)
+	ui.AddCopyItem(editMenu)
+	ui.AddPasteItem(editMenu)
+	editMenu.AddItem(factory.NewSeparator())
+	ui.AddDeleteItem(editMenu)
+	ui.AddSelectAllItem(editMenu)
+
+	factory.AppBar().AddMenu(editMenu)
 }
 
 func createButtonsWindow(title string) *ui.Window {

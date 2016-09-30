@@ -7,10 +7,12 @@
 // This Source Code Form is "Incompatible With Secondary Licenses", as
 // defined by the Mozilla Public License, version 2.0.
 
-#ifndef __RW_GOUI_MENU_TYPES__
-#define __RW_GOUI_MENU_TYPES__
+package platform
 
-typedef void *platformMenu;
-typedef void *platformItem;
+import (
+	// #include "Types.h"
+	"C"
+)
 
-#endif // __RW_GOUI_MENU_TYPES__
+type cMenu C.Menu
+type cItem C.Item

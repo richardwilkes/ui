@@ -10,12 +10,21 @@
 package menu
 
 import (
-	// #include "MenuTypes.h"
-	"C"
+	"github.com/richardwilkes/ui/event"
 )
 
-// PlatformMenu represents the underlying platform menu object.
-type PlatformMenu C.platformMenu
+var (
+	parentTarget event.Target
+)
 
-// PlatformItem represents the underlying platform menu item object.
-type PlatformItem C.platformItem
+// ParentTarget returns the value that will be returned on calls to an item's ParentTarget()
+// method.
+func ParentTarget() event.Target {
+	return parentTarget
+}
+
+// SetParentTarget sets the value that should be returned on calls to an item's ParentTarget()
+// method.
+func SetParentTarget(target event.Target) {
+	parentTarget = target
+}

@@ -11,8 +11,7 @@
 #define __RW_GOUI_POPUPMENU__
 
 #include "Types.h"
-#include "menu/MenuTypes.h"
 
-void platformPopupMenu(platformWindow window, platformMenu menu, double x, double y, platformItem itemAtLocation);
+void platformPopupMenu(platformWindow window, void *menu, double x, double y, void *itemAtLocation);
 
 #endif // __RW_GOUI_POPUPMENU__

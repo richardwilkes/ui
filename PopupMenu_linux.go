@@ -14,6 +14,6 @@ import (
 	"github.com/richardwilkes/ui/menu"
 )
 
-func platformPopupMenu(window *Window, where geom.Point, menu *menu.Menu, item *menu.Item) {
+func platformPopupMenu(window *Window, where geom.Point, menu menu.Menu, item menu.Item) {
 	// RAW: Implement for Linux
 }
