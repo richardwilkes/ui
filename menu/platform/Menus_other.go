@@ -11,6 +11,11 @@
 
 package platform
 
+import (
+	"github.com/richardwilkes/ui/keys"
+	"github.com/richardwilkes/ui/menu"
+)
+
 func platformBar() cMenu {
 	return nil
 }
