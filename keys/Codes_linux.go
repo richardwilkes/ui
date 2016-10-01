@@ -45,7 +45,7 @@ func init() {
 	InsertMapping(C.XK_Escape, &Mapping{KeyCode: VK_Escape, KeyChar: '\x1b', Name: EscapeName})
 	InsertMapping(C.XK_Page_Up, &Mapping{KeyCode: VK_PageUp, Name: PageUpName})
 	InsertMapping(C.XK_Page_Down, &Mapping{KeyCode: VK_PageDown, Name: PageDownName})
-	InsertMapping(' ', &Mapping{KeyCode: Space, KeyChar: ' ', Name: SpaceName})
+	InsertMapping(' ', &Mapping{KeyCode: VK_Space, KeyChar: ' ', Name: SpaceName})
 	insertASCIIKeyCodeMapping('\'', VK_Quote)
 	insertASCIIKeyCodeMapping(',', VK_Comma)
 	insertASCIIKeyCodeMapping('-', VK_Minus)
@@ -141,6 +141,10 @@ func init() {
 	insertKeyCodeMapping(&Mapping{KeyCode: VK_F17, Name: F17Name}) // Not on a PC keyboard?
 	insertKeyCodeMapping(&Mapping{KeyCode: VK_F18, Name: F18Name}) // Not on a PC keyboard?
 	insertKeyCodeMapping(&Mapping{KeyCode: VK_F19, Name: F19Name}) // Not on a PC keyboard?
+}
+
+func insertASCIIKeyCodeMapping(ch int, keyCode int) {
+	InsertMapping(ch, &Mapping{KeyCode: keyCode, KeyChar: rune(keyCode), Dynamic: true, Name: string(rune(keyCode))})
 }
 
 func insertASCIILetterCodeMapping(keyCode int) {
