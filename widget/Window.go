@@ -13,7 +13,6 @@ import (
 	"fmt"
 	"github.com/richardwilkes/geom"
 	"github.com/richardwilkes/ui"
-	"github.com/richardwilkes/ui/app"
 	"github.com/richardwilkes/ui/color"
 	"github.com/richardwilkes/ui/cursor"
 	"github.com/richardwilkes/ui/draw"
@@ -144,7 +143,7 @@ func (window *Wnd) EventHandlers() *event.Handlers {
 
 // ParentTarget implements the event.Target interface.
 func (window *Wnd) ParentTarget() event.Target {
-	return &app.App
+	return event.GlobalTarget()
 }
 
 // Title returns the title of this window.
