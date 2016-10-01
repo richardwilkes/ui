@@ -49,7 +49,7 @@ func (item *platformItem) EventHandlers() *event.Handlers {
 
 // ParentTarget returns the parent target of this item, or nil.
 func (item *platformItem) ParentTarget() event.Target {
-	return menu.ParentTarget()
+	return event.GlobalTarget()
 }
 
 // Title returns this item's title.

@@ -7,13 +7,12 @@
 // This Source Code Form is "Incompatible With Secondary Licenses", as
 // defined by the Mozilla Public License, version 2.0.
 
-package widget
+package app
 
 import (
 	"fmt"
 	"github.com/richardwilkes/ui/event"
 	"github.com/richardwilkes/ui/id"
-	"github.com/richardwilkes/ui/menu"
 	"runtime"
 )
 
@@ -29,6 +28,10 @@ var (
 	// along the line.
 	App Application
 )
+
+func init() {
+	event.SetGlobalTarget(&App)
+}
 
 func (app *Application) String() string {
 	return fmt.Sprintf("Application #%d", app.ID())
@@ -56,7 +59,6 @@ func (app *Application) ParentTarget() event.Target {
 // thread. Does not return.
 func StartUserInterface() {
 	runtime.LockOSThread()
-	menu.SetParentTarget(&App)
 	platformStartUserInterface()
 }
 

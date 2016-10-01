@@ -11,16 +11,16 @@ package appmenu
 
 import (
 	"github.com/richardwilkes/i18n"
+	"github.com/richardwilkes/ui/app"
 	"github.com/richardwilkes/ui/event"
 	"github.com/richardwilkes/ui/keys"
 	"github.com/richardwilkes/ui/menu"
 	"github.com/richardwilkes/ui/menu/factory"
-	"github.com/richardwilkes/ui/widget"
 )
 
 // AddToAppBar adds a standard 'application' menu to the menu bar.
 func AddToAppBar() (appMenu menu.Menu, aboutItem menu.Item, prefsItem menu.Item) {
-	name := widget.AppName()
+	name := app.AppName()
 	appMenu = factory.NewMenu(name)
 
 	aboutItem = factory.NewItem(i18n.Text("About ")+name, nil)
@@ -35,12 +35,12 @@ func AddToAppBar() (appMenu menu.Menu, aboutItem menu.Item, prefsItem menu.Item)
 		appMenu.AddItem(factory.NewSeparator())
 	}
 
-	appMenu.AddItem(factory.NewItemWithKey(i18n.Text("Hide ")+name, keys.VK_H, func(evt event.Event) { widget.HideApp() }))
-	appMenu.AddItem(factory.NewItemWithKeyAndModifiers(i18n.Text("Hide Others"), keys.VK_H, keys.OptionModifier|keys.PlatformMenuModifier(), func(evt event.Event) { widget.HideOtherApps() }))
-	appMenu.AddItem(factory.NewItem(i18n.Text("Show All"), func(evt event.Event) { widget.ShowAllApps() }))
+	appMenu.AddItem(factory.NewItemWithKey(i18n.Text("Hide ")+name, keys.VK_H, func(evt event.Event) { app.HideApp() }))
+	appMenu.AddItem(factory.NewItemWithKeyAndModifiers(i18n.Text("Hide Others"), keys.VK_H, keys.OptionModifier|keys.PlatformMenuModifier(), func(evt event.Event) { app.HideOtherApps() }))
+	appMenu.AddItem(factory.NewItem(i18n.Text("Show All"), func(evt event.Event) { app.ShowAllApps() }))
 	appMenu.AddItem(factory.NewSeparator())
 
-	appMenu.AddItem(factory.NewItemWithKey(i18n.Text("Quit ")+name, keys.VK_Q, func(evt event.Event) { widget.AttemptQuit() }))
+	appMenu.AddItem(factory.NewItemWithKey(i18n.Text("Quit ")+name, keys.VK_Q, func(evt event.Event) { app.AttemptQuit() }))
 
 	factory.AppBar().AddMenu(appMenu)
 

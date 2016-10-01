@@ -14,6 +14,7 @@ import (
 	"github.com/richardwilkes/geom"
 	"github.com/richardwilkes/ui"
 	"github.com/richardwilkes/ui/Demo/images"
+	"github.com/richardwilkes/ui/app"
 	"github.com/richardwilkes/ui/border"
 	"github.com/richardwilkes/ui/draw"
 	"github.com/richardwilkes/ui/event"
@@ -49,7 +50,7 @@ var (
 func main() {
 	// event.TraceAllEvents = true
 	// event.TraceEventTypes = append(event.TraceEventTypes, event.MouseDownType, event.MouseDraggedType, event.MouseUpType)
-	widget.App.EventHandlers().Add(event.AppWillFinishStartupType, func(evt event.Event) {
+	app.App.EventHandlers().Add(event.AppWillFinishStartupType, func(evt event.Event) {
 		createMenuBar()
 		w1 := createButtonsWindow("Demo #1")
 		w2 := createButtonsWindow("Demo #2")
@@ -59,7 +60,7 @@ func main() {
 		frame2.Y = frame1.Y
 		w2.SetFrame(frame2)
 	})
-	widget.StartUserInterface()
+	app.StartUserInterface()
 }
 
 func createMenuBar() {
@@ -360,11 +361,11 @@ func createAboutWindow(evt event.Event) {
 	if aboutWindow == nil {
 		aboutWindow = widget.NewWindow(geom.Point{}, widget.TitledWindowMask|widget.ClosableWindowMask)
 		aboutWindow.EventHandlers().Add(event.ClosedType, func(evt event.Event) { aboutWindow = nil })
-		aboutWindow.SetTitle("About " + widget.AppName())
+		aboutWindow.SetTitle("About " + app.AppName())
 		root := aboutWindow.RootWidget()
 		root.SetBorder(border.NewEmpty(geom.Insets{Top: 10, Left: 10, Bottom: 10, Right: 10}))
 		flex.NewLayout(root)
-		title := label.NewWithFont(widget.AppName(), font.EmphasizedSystem)
+		title := label.NewWithFont(app.AppName(), font.EmphasizedSystem)
 		title.SetLayoutData(flex.NewData().SetHorizontalAlignment(draw.AlignMiddle))
 		root.AddChild(title)
 		desc := label.New("Simple app to demonstrate the\ncapabilities of the ui framework.")

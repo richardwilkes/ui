@@ -7,42 +7,33 @@
 // This Source Code Form is "Incompatible With Secondary Licenses", as
 // defined by the Mozilla Public License, version 2.0.
 
-package widget
-
-// #cgo darwin LDFLAGS: -framework Cocoa
-// #include "App_darwin.h"
-import "C"
+package app
 
 func platformStartUserInterface() {
-	C.platformStartUserInterface()
+	// RAW: Implement for Windows
 }
 
 func platformAppName() string {
-	return C.GoString(C.platformAppName())
+	// RAW: Implement platformAppName for Windows
+	return "<unknown>"
 }
 
 func platformHideApp() {
-	C.platformHideApp()
+	// RAW: Implement for Windows
 }
 
 func platformHideOtherApps() {
-	C.platformHideOtherApps()
+	// RAW: Implement for Windows
 }
 
 func platformShowAllApps() {
-	C.platformShowAllApps()
+	// RAW: Implement for Windows
 }
 
 func platformAttemptQuit() {
-	C.platformAttemptQuit()
+	// RAW: Implement for Windows
 }
 
 func platformAppMayQuitNow(quit bool) {
-	var mayQuit C.int
-	if quit {
-		mayQuit = 1
-	} else {
-		mayQuit = 0
-	}
-	C.platformAppMayQuitNow(mayQuit)
+	// RAW: Implement for Windows
 }
