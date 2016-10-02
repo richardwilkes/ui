@@ -43,14 +43,6 @@ void platformShowAllApps() {
     [NSApp unhideAllApplications:NSApp];
 }
 
-void platformAttemptQuit() {
-    [NSApp terminate:nil];
-}
-
-void platformAppMayQuitNow(int quit) {
-    [NSApp replyToApplicationShouldTerminate:quit];
-}
-
 @implementation appDelegate
 
 - (void)applicationWillFinishLaunching:(NSNotification *)aNotification {
@@ -63,15 +55,15 @@ void platformAppMayQuitNow(int quit) {
 
 - (NSApplicationTerminateReply)applicationShouldTerminate:(NSApplication *)sender {
 	// The Mac response codes map to the same values we use
-    return appShouldQuit();
+    return callbackAppShouldQuit();
 }
 
 - (BOOL)applicationShouldTerminateAfterLastWindowClosed:(NSApplication *)theApplication {
-    return appShouldQuitAfterLastWindowClosed();
+    return callbackAppShouldQuitAfterLastWindowClosed();
 }
 
 - (void)applicationWillTerminate:(NSNotification *)aNotification {
-    return appWillQuit();
+    return callbackAppWillQuit();
 }
 
 - (void)applicationWillBecomeActive:(NSNotification *)aNotification {

@@ -9,9 +9,13 @@
 
 package app
 
-// #cgo darwin LDFLAGS: -framework Cocoa
-// #include "App_darwin.h"
-import "C"
+import (
+	"github.com/richardwilkes/ui/app/quit"
+	"github.com/richardwilkes/ui/event"
+	// #cgo darwin LDFLAGS: -framework Cocoa
+	// #include "App_darwin.h"
+	"C"
+)
 
 func platformStartUserInterface() {
 	C.platformStartUserInterface()
@@ -33,16 +37,17 @@ func platformShowAllApps() {
 	C.platformShowAllApps()
 }
 
-func platformAttemptQuit() {
-	C.platformAttemptQuit()
+//export callbackAppShouldQuit
+func callbackAppShouldQuit() int {
+	return int(quit.AppShouldQuit())
 }
 
-func platformAppMayQuitNow(quit bool) {
-	var mayQuit C.int
-	if quit {
-		mayQuit = 1
-	} else {
-		mayQuit = 0
-	}
-	C.platformAppMayQuitNow(mayQuit)
+//export callbackAppShouldQuitAfterLastWindowClosed
+func callbackAppShouldQuitAfterLastWindowClosed() bool {
+	return quit.AppShouldQuitAfterLastWindowClosed()
+}
+
+//export callbackAppWillQuit
+func callbackAppWillQuit() {
+	event.Dispatch(event.NewAppWillQuit(&App))
 }

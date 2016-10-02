@@ -14,16 +14,6 @@ import (
 	"github.com/richardwilkes/ui/event"
 )
 
-// Possible termination responses
-const (
-	QuitCancel QuitResponse = iota
-	QuitNow
-	QuitLater // Must make a call to MayQuitNow() at some point in the future.
-)
-
-// QuitResponse is used to respond to requests for app termination.
-type QuitResponse int
-
 //export appWillFinishStartup
 func appWillFinishStartup() {
 	event.Dispatch(event.NewAppWillFinishStartup(&App))
@@ -32,31 +22,6 @@ func appWillFinishStartup() {
 //export appDidFinishStartup
 func appDidFinishStartup() {
 	event.Dispatch(event.NewAppDidFinishStartup(&App))
-}
-
-//export appShouldQuit
-func appShouldQuit() QuitResponse {
-	e := event.NewAppQuitRequested(&App)
-	event.Dispatch(e)
-	if e.Cancelled() {
-		return QuitCancel
-	}
-	if e.Delayed() {
-		return QuitLater
-	}
-	return QuitNow
-}
-
-//export appShouldQuitAfterLastWindowClosed
-func appShouldQuitAfterLastWindowClosed() bool {
-	e := event.NewAppLastWindowClosed(&App)
-	event.Dispatch(e)
-	return e.Quit()
-}
-
-//export appWillQuit
-func appWillQuit() {
-	event.Dispatch(event.NewAppWillQuit(&App))
 }
 
 //export appWillBecomeActive

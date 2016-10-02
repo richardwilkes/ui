@@ -15,5 +15,7 @@ const char *platformAppName();
 void platformHideApp();
 void platformHideOtherApps();
 void platformShowAllApps();
+void platformAttemptQuit();
+void platformAppMayQuitNow(int quit);
 
 #endif // __RW_GOUI_APP__

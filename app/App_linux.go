@@ -12,6 +12,8 @@ package app
 import (
 	"fmt"
 	"github.com/richardwilkes/geom"
+	"github.com/richardwilkes/ui/internal/iapp"
+	"github.com/richardwilkes/ui/internal/iwindow"
 	"github.com/richardwilkes/ui/keys"
 	"math"
 	"syscall"
@@ -28,10 +30,6 @@ import (
 import "C"
 
 var (
-	running         bool
-	quitting        bool
-	awaitingQuit    bool
-	xWindowCount    int
 	xDisplay        *C.Display
 	wmProtocolsAtom C.Atom
 	wmDeleteAtom    C.Atom
@@ -58,13 +56,13 @@ func platformStartUserInterface() {
 	wmProtocolsAtom = C.XInternAtom(xDisplay, C.CString("WM_PROTOCOLS"), C.False)
 	wmDeleteAtom = C.XInternAtom(xDisplay, C.CString("WM_DELETE_WINDOW"), C.False)
 	goTaskAtom = C.XInternAtom(xDisplay, C.CString("GoTask"), C.False)
-	running = true
+	iapp.Running = true
 	appWillFinishStartup()
 	appDidFinishStartup()
-	if xWindowCount == 0 && appShouldQuitAfterLastWindowClosed() {
-		platformAttemptQuit()
+	if iwindow.Count == 0 && quit.AppShouldQuitAfterLastWindowClosed() {
+		quit.AttemptQuit()
 	}
-	for running {
+	for iapp.Running {
 		var event C.XEvent
 		C.XNextEvent(xDisplay, &event)
 		processOneEvent(&event)
@@ -154,10 +152,8 @@ func processOneEvent(evt *C.XEvent) {
 		}
 	case C.DestroyNotify:
 		windowDidClose(window)
-		if xWindowCount == 0 {
-			if quitting {
-				finishQuit()
-			}
+		if iwindow.Count == 0 {
+			finishQuit()
 			if appShouldQuitAfterLastWindowClosed() {
 				platformAttemptQuit()
 			}
@@ -231,44 +227,6 @@ func platformHideOtherApps() {
 
 func platformShowAllApps() {
 	// RAW: Implement for Linux
-}
-
-func platformAttemptQuit() {
-	switch appShouldQuit() {
-	case QuitCancel:
-	case QuitLater:
-		awaitingQuit = true
-	default:
-		initiateQuit()
-	}
-}
-
-func platformAppMayQuitNow(quit bool) {
-	if awaitingQuit {
-		awaitingQuit = false
-		if quit {
-			initiateQuit()
-		}
-	}
-}
-
-func initiateQuit() {
-	appWillQuit()
-	quitting = true
-	if xWindowCount > 0 {
-		for _, w := range Windows() {
-			w.Close()
-		}
-	} else {
-		finishQuit()
-	}
-}
-
-func finishQuit() {
-	running = false
-	C.XCloseDisplay(xDisplay)
-	xDisplay = nil
-	syscall.Exit(0)
 }
 
 func isScrollWheelButton(button C.uint) bool {

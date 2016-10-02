@@ -81,14 +81,3 @@ func HideOtherApps() {
 func ShowAllApps() {
 	platformShowAllApps()
 }
-
-// AttemptQuit initiates the termination sequence.
-func AttemptQuit() {
-	platformAttemptQuit()
-}
-
-// MayQuitNow resumes the termination sequence that was delayed by calling Delay() on the
-// AppTerminationRequested event.
-func MayQuitNow(quit bool) {
-	platformAppMayQuitNow(quit)
-}

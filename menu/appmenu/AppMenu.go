@@ -12,6 +12,7 @@ package appmenu
 import (
 	"github.com/richardwilkes/i18n"
 	"github.com/richardwilkes/ui/app"
+	"github.com/richardwilkes/ui/app/quit"
 	"github.com/richardwilkes/ui/event"
 	"github.com/richardwilkes/ui/keys"
 	"github.com/richardwilkes/ui/menu"
@@ -40,7 +41,7 @@ func AddToAppBar() (appMenu menu.Menu, aboutItem menu.Item, prefsItem menu.Item)
 	appMenu.AddItem(factory.NewItem(i18n.Text("Show All"), func(evt event.Event) { app.ShowAllApps() }))
 	appMenu.AddItem(factory.NewSeparator())
 
-	appMenu.AddItem(factory.NewItemWithKey(i18n.Text("Quit ")+name, keys.VK_Q, func(evt event.Event) { app.AttemptQuit() }))
+	appMenu.AddItem(factory.NewItemWithKey(i18n.Text("Quit ")+name, keys.VK_Q, func(evt event.Event) { quit.AttemptQuit() }))
 
 	factory.AppBar().AddMenu(appMenu)
 

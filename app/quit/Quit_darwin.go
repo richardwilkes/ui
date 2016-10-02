@@ -7,13 +7,22 @@
 // This Source Code Form is "Incompatible With Secondary Licenses", as
 // defined by the Mozilla Public License, version 2.0.
 
-#ifndef __RW_GOUI_APP__
-#define __RW_GOUI_APP__
+package quit
 
-void platformStartUserInterface();
-const char *platformAppName();
-void platformHideApp();
-void platformHideOtherApps();
-void platformShowAllApps();
+// #cgo darwin LDFLAGS: -framework Cocoa
+// #include "Quit_darwin.h"
+import "C"
 
-#endif // __RW_GOUI_APP__
+func platformAttemptQuit() {
+	C.platformAttemptQuit()
+}
+
+func platformAppMayQuitNow(quit bool) {
+	var mayQuit C.int
+	if quit {
+		mayQuit = 1
+	} else {
+		mayQuit = 0
+	}
+	C.platformAppMayQuitNow(mayQuit)
+}

@@ -7,13 +7,14 @@
 // This Source Code Form is "Incompatible With Secondary Licenses", as
 // defined by the Mozilla Public License, version 2.0.
 
-#ifndef __RW_GOUI_APP__
-#define __RW_GOUI_APP__
+#include <Cocoa/Cocoa.h>
+#include "_cgo_export.h"
+#include "Quit_darwin.h"
 
-void platformStartUserInterface();
-const char *platformAppName();
-void platformHideApp();
-void platformHideOtherApps();
-void platformShowAllApps();
+void platformAttemptQuit() {
+    [NSApp terminate:nil];
+}
 
-#endif // __RW_GOUI_APP__
+void platformAppMayQuitNow(int quit) {
+    [NSApp replyToApplicationShouldTerminate:quit];
+}

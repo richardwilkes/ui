@@ -7,13 +7,8 @@
 // This Source Code Form is "Incompatible With Secondary Licenses", as
 // defined by the Mozilla Public License, version 2.0.
 
-#ifndef __RW_GOUI_APP__
-#define __RW_GOUI_APP__
+package iapp
 
-void platformStartUserInterface();
-const char *platformAppName();
-void platformHideApp();
-void platformHideOtherApps();
-void platformShowAllApps();
-
-#endif // __RW_GOUI_APP__
+var (
+	Running bool
+)

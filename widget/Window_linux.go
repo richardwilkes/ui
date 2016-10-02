@@ -12,6 +12,7 @@ package widget
 import (
 	"github.com/richardwilkes/geom"
 	"github.com/richardwilkes/ui/cursor"
+	"github.com/richardwilkes/ui/internal/iwindow"
 	"time"
 	"unsafe"
 	// #cgo linux LDFLAGS: -lX11 -lcairo
@@ -65,13 +66,13 @@ func platformNewWindow(bounds geom.Rect, styleMask WindowStyleMask) (window plat
 	lastKnownWindowBounds[toPlatformWindow(win)] = bounds
 	C.XSelectInput(xDisplay, win, C.KeyPressMask|C.KeyReleaseMask|C.ButtonPressMask|C.ButtonReleaseMask|C.EnterWindowMask|C.LeaveWindowMask|C.ExposureMask|C.PointerMotionMask|C.ExposureMask|C.VisibilityChangeMask|C.StructureNotifyMask|C.FocusChangeMask)
 	C.XSetWMProtocols(xDisplay, win, &wmDeleteAtom, C.True)
-	xWindowCount++
+	iwindow.Count++
 	return toPlatformWindow(win), platformSurface(C.cairo_xlib_surface_create(xDisplay, C.Drawable(uintptr(win)), C.XDefaultVisual(xDisplay, screen), C.int(bounds.Width), C.int(bounds.Height)))
 }
 
 func (window *Wnd) platformClose() {
 	delete(lastKnownWindowBounds, window.window)
-	xWindowCount--
+	iwindow.Count--
 	C.cairo_surface_destroy(window.surface)
 	C.XDestroyWindow(xDisplay, toXWindow(window.window))
 }
