@@ -11,9 +11,10 @@ package popupmenu
 
 import (
 	"github.com/richardwilkes/geom"
+	"github.com/richardwilkes/ui"
 	"github.com/richardwilkes/ui/menu"
 )
 
-func platformPopupMenu(window *Window, where geom.Point, menu menu.Menu, item menu.Item) {
+func platformPopupMenu(window ui.Window, where geom.Point, menu menu.Menu, item menu.Item) {
 	// RAW: Implement for Windows
 }
