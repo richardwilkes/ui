@@ -20,9 +20,9 @@ type AppWillActivate struct {
 	finished bool
 }
 
-// NewAppWillActivate creates a new AppWillActivate event. 'target' is the app.
-func NewAppWillActivate(target Target) *AppWillActivate {
-	return &AppWillActivate{target: target}
+// SendAppWillActivate sends a new AppWillActivate event.
+func SendAppWillActivate() {
+	Dispatch(&AppWillActivate{target: GlobalTarget()})
 }
 
 // Type returns the event type ID.

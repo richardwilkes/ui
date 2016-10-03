@@ -20,9 +20,9 @@ type AppWillDeactivate struct {
 	finished bool
 }
 
-// NewAppWillDeactivate creates a new AppWillDeactivate event. 'target' is the app.
-func NewAppWillDeactivate(target Target) *AppWillDeactivate {
-	return &AppWillDeactivate{target: target}
+// SendAppWillDeactivate sends a new AppWillDeactivate event.
+func SendAppWillDeactivate() {
+	Dispatch(&AppWillDeactivate{target: GlobalTarget()})
 }
 
 // Type returns the event type ID.

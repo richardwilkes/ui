@@ -20,9 +20,9 @@ type AppDidFinishStartup struct {
 	finished bool
 }
 
-// NewAppDidFinishStartup creates a new AppDidFinishStartup event. 'target' is the app.
-func NewAppDidFinishStartup(target Target) *AppDidFinishStartup {
-	return &AppDidFinishStartup{target: target}
+// SendAppDidFinishStartup sends a new AppDidFinishStartup event.
+func SendAppDidFinishStartup() {
+	Dispatch(&AppDidFinishStartup{target: GlobalTarget()})
 }
 
 // Type returns the event type ID.

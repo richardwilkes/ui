@@ -11,6 +11,7 @@ package app
 
 import (
 	"github.com/richardwilkes/ui/app/quit"
+	"github.com/richardwilkes/ui/event"
 	// #cgo darwin LDFLAGS: -framework Cocoa
 	// #include "App_darwin.h"
 	"C"
@@ -49,4 +50,34 @@ func callbackAppShouldQuitAfterLastWindowClosed() bool {
 //export callbackAppWillQuit
 func callbackAppWillQuit() {
 	quit.AppWillQuit()
+}
+
+//export callbackAppWillFinishStartup
+func callbackAppWillFinishStartup() {
+	event.SendAppWillFinishStartup()
+}
+
+//export callbackAppDidFinishStartup
+func callbackAppDidFinishStartup() {
+	event.SendAppDidFinishStartup()
+}
+
+//export callbackAppWillBecomeActive
+func callbackAppWillBecomeActive() {
+	event.SendAppWillActivate()
+}
+
+//export callbackAppDidBecomeActive
+func callbackAppDidBecomeActive() {
+	event.SendAppDidActivate()
+}
+
+//export callbackAppWillResignActive
+func callbackAppWillResignActive() {
+	event.SendAppWillDeactivate()
+}
+
+//export callbackAppDidResignActive
+func callbackAppDidResignActive() {
+	event.SendAppDidDeactivate()
 }

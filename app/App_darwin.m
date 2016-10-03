@@ -46,11 +46,11 @@ void platformShowAllApps() {
 @implementation appDelegate
 
 - (void)applicationWillFinishLaunching:(NSNotification *)aNotification {
-    appWillFinishStartup();
+	callbackAppWillFinishStartup();
 }
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
-    appDidFinishStartup();
+	callbackAppDidFinishStartup();
 }
 
 - (NSApplicationTerminateReply)applicationShouldTerminate:(NSApplication *)sender {
@@ -67,19 +67,19 @@ void platformShowAllApps() {
 }
 
 - (void)applicationWillBecomeActive:(NSNotification *)aNotification {
-    return appWillBecomeActive();
+    return callbackAppWillBecomeActive();
 }
 
 - (void)applicationDidBecomeActive:(NSNotification *)aNotification {
-    return appDidBecomeActive();
+    return callbackAppDidBecomeActive();
 }
 
 - (void)applicationWillResignActive:(NSNotification *)aNotification {
-    return appWillResignActive();
+    return callbackAppWillResignActive();
 }
 
 - (void)applicationDidResignActive:(NSNotification *)aNotification {
-    return appDidResignActive();
+    return callbackAppDidResignActive();
 }
 
 @end
