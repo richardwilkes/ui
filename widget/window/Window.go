@@ -7,7 +7,7 @@
 // This Source Code Form is "Incompatible With Secondary Licenses", as
 // defined by the Mozilla Public License, version 2.0.
 
-package widget
+package window
 
 import (
 	"fmt"
@@ -20,6 +20,7 @@ import (
 	"github.com/richardwilkes/ui/id"
 	"github.com/richardwilkes/ui/keys"
 	"github.com/richardwilkes/ui/layout"
+	"github.com/richardwilkes/ui/widget"
 	"sync"
 	"time"
 	"unsafe"
@@ -85,10 +86,9 @@ func NewWindowWithContentSize(where geom.Point, contentSize geom.Size, styleMask
 	win, surface := platformNewWindow(bounds, styleMask)
 	window := &Wnd{window: win, surface: surface, style: styleMask}
 	windowMap[window.window] = window
-	root := NewBlock()
+	root := widget.NewBlock()
 	root.SetBackground(color.Background)
-	root.window = window
-	root.bounds = window.ContentLocalFrame()
+	root.SetWindow(window)
 	window.root = root
 	handlers := window.EventHandlers()
 	handlers.Add(event.FocusGainedType, func(evt event.Event) { window.repaintFocus() })
@@ -202,6 +202,10 @@ func (window *Wnd) Pack() {
 // RootWidget returns the root widget of the window.
 func (window *Wnd) RootWidget() ui.Widget {
 	return window.root
+}
+
+func (window *Wnd) Focused() bool {
+	return window == KeyWindow()
 }
 
 // Focus returns the widget with the keyboard focus in this window.

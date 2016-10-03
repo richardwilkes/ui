@@ -40,6 +40,7 @@ import (
 	"github.com/richardwilkes/ui/widget/scrollarea"
 	"github.com/richardwilkes/ui/widget/separator"
 	"github.com/richardwilkes/ui/widget/textfield"
+	"github.com/richardwilkes/ui/widget/window"
 	"unicode"
 )
 
@@ -80,14 +81,14 @@ func createFileMenu() {
 	fileMenu.AddItem(factory.NewSeparator())
 
 	item := factory.NewItemWithKey("Close", keys.VK_W, func(evt event.Event) {
-		window := widget.KeyWindow()
-		if window != nil && window.Closable() {
-			window.AttemptClose()
+		wnd := window.KeyWindow()
+		if wnd != nil && wnd.Closable() {
+			wnd.AttemptClose()
 		}
 	})
 	item.EventHandlers().Add(event.ValidateType, func(evt event.Event) {
-		window := widget.KeyWindow()
-		if window == nil || !window.Closable() {
+		wnd := window.KeyWindow()
+		if wnd == nil || !wnd.Closable() {
 			evt.(*event.Validate).MarkInvalid()
 		}
 	})
@@ -110,7 +111,7 @@ func createEditMenu() {
 }
 
 func createButtonsWindow(title string) ui.Window {
-	wnd := widget.NewWindow(geom.Point{}, widget.StdWindowMask)
+	wnd := window.NewWindow(geom.Point{}, window.StdWindowMask)
 	wnd.SetTitle(title)
 
 	root := wnd.RootWidget()
@@ -359,7 +360,7 @@ func createTextField(text string, panel ui.Widget) *textfield.TextField {
 
 func createAboutWindow(evt event.Event) {
 	if aboutWindow == nil {
-		aboutWindow = widget.NewWindow(geom.Point{}, widget.TitledWindowMask|widget.ClosableWindowMask)
+		aboutWindow = window.NewWindow(geom.Point{}, window.TitledWindowMask|window.ClosableWindowMask)
 		aboutWindow.EventHandlers().Add(event.ClosedType, func(evt event.Event) { aboutWindow = nil })
 		aboutWindow.SetTitle("About " + app.AppName())
 		root := aboutWindow.RootWidget()

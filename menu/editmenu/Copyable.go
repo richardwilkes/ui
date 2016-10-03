@@ -15,7 +15,7 @@ import (
 	"github.com/richardwilkes/ui/keys"
 	"github.com/richardwilkes/ui/menu"
 	"github.com/richardwilkes/ui/menu/factory"
-	"github.com/richardwilkes/ui/widget"
+	"github.com/richardwilkes/ui/widget/window"
 )
 
 // Copyable defines the methods required of objects that can respond to the Copy menu item.
@@ -29,9 +29,9 @@ type Copyable interface {
 // AddCopyItem adds the standard Copy menu item to the specified menu.
 func AddCopyItem(m menu.Menu) menu.Item {
 	item := factory.NewItemWithKey(i18n.Text("Copy"), keys.VK_C, func(evt event.Event) {
-		window := widget.KeyWindow()
-		if window != nil {
-			focus := window.Focus()
+		wnd := window.KeyWindow()
+		if wnd != nil {
+			focus := wnd.Focus()
 			if c, ok := focus.(Copyable); ok {
 				c.Copy()
 			}
@@ -39,9 +39,9 @@ func AddCopyItem(m menu.Menu) menu.Item {
 	})
 	item.EventHandlers().Add(event.ValidateType, func(evt event.Event) {
 		valid := false
-		window := widget.KeyWindow()
-		if window != nil {
-			focus := window.Focus()
+		wnd := window.KeyWindow()
+		if wnd != nil {
+			focus := wnd.Focus()
 			if c, ok := focus.(Copyable); ok {
 				valid = c.CanCopy()
 			}

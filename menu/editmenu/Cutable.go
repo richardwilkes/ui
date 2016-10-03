@@ -15,7 +15,7 @@ import (
 	"github.com/richardwilkes/ui/keys"
 	"github.com/richardwilkes/ui/menu"
 	"github.com/richardwilkes/ui/menu/factory"
-	"github.com/richardwilkes/ui/widget"
+	"github.com/richardwilkes/ui/widget/window"
 )
 
 // Cutable defines the methods required of objects that can respond to the Cut menu item.
@@ -29,9 +29,9 @@ type Cutable interface {
 // AddCutItem adds the standard Cut menu item to the specified menu.
 func AddCutItem(m menu.Menu) menu.Item {
 	item := factory.NewItemWithKey(i18n.Text("Cut"), keys.VK_X, func(evt event.Event) {
-		window := widget.KeyWindow()
-		if window != nil {
-			focus := window.Focus()
+		wnd := window.KeyWindow()
+		if wnd != nil {
+			focus := wnd.Focus()
 			if c, ok := focus.(Cutable); ok {
 				c.Cut()
 			}
@@ -39,9 +39,9 @@ func AddCutItem(m menu.Menu) menu.Item {
 	})
 	item.EventHandlers().Add(event.ValidateType, func(evt event.Event) {
 		valid := false
-		window := widget.KeyWindow()
-		if window != nil {
-			focus := window.Focus()
+		wnd := window.KeyWindow()
+		if wnd != nil {
+			focus := wnd.Focus()
 			if c, ok := focus.(Cutable); ok {
 				valid = c.CanCut()
 			}

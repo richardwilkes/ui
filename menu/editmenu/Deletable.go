@@ -15,7 +15,7 @@ import (
 	"github.com/richardwilkes/ui/keys"
 	"github.com/richardwilkes/ui/menu"
 	"github.com/richardwilkes/ui/menu/factory"
-	"github.com/richardwilkes/ui/widget"
+	"github.com/richardwilkes/ui/widget/window"
 )
 
 // Deletable defines the methods required of objects that can respond to the Delete menu item.
@@ -29,9 +29,9 @@ type Deletable interface {
 // AddDeleteItem adds the standard Delete menu item to the specified menu.
 func AddDeleteItem(m menu.Menu) menu.Item {
 	item := factory.NewItemWithKeyAndModifiers(i18n.Text("Delete"), keys.VK_Backspace, 0, func(evt event.Event) {
-		window := widget.KeyWindow()
-		if window != nil {
-			focus := window.Focus()
+		wnd := window.KeyWindow()
+		if wnd != nil {
+			focus := wnd.Focus()
 			if c, ok := focus.(Deletable); ok {
 				c.Delete()
 			}
@@ -39,9 +39,9 @@ func AddDeleteItem(m menu.Menu) menu.Item {
 	})
 	item.EventHandlers().Add(event.ValidateType, func(evt event.Event) {
 		valid := false
-		window := widget.KeyWindow()
-		if window != nil {
-			focus := window.Focus()
+		wnd := window.KeyWindow()
+		if wnd != nil {
+			focus := wnd.Focus()
 			if c, ok := focus.(Deletable); ok {
 				valid = c.CanDelete()
 			}

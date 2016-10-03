@@ -242,7 +242,7 @@ func (b *Block) SetGrabFocusWhenClickedOn(grabsFocus bool) {
 // Focused implements the Widget interface.
 func (b *Block) Focused() bool {
 	if window := b.Window(); window != nil {
-		return window == KeyWindow() && b.ID() == window.Focus().ID()
+		return window.Focused() && b.ID() == window.Focus().ID()
 	}
 	return false
 }
@@ -331,6 +331,11 @@ func (b *Block) Window() ui.Window {
 		return b.parent.Window()
 	}
 	return nil
+}
+
+func (b *Block) SetWindow(wnd ui.Window) {
+	b.window = wnd
+	b.bounds = wnd.ContentLocalFrame()
 }
 
 // RootOfWindow implements the Widget interface.

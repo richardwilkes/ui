@@ -20,6 +20,7 @@ import (
 	"github.com/richardwilkes/ui/keys"
 	"github.com/richardwilkes/ui/layout"
 	"github.com/richardwilkes/ui/widget"
+	"github.com/richardwilkes/ui/widget/window"
 	"github.com/richardwilkes/xmath"
 	"math"
 	"strings"
@@ -268,7 +269,7 @@ func (field *TextField) mouseDragged(evt event.Event) {
 }
 
 func (field *TextField) keyDown(evt event.Event) {
-	widget.HideCursorUntilMouseMoves()
+	window.HideCursorUntilMouseMoves()
 	e := evt.(*event.KeyDown)
 	code := e.Code()
 	switch code {

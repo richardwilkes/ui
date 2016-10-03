@@ -15,7 +15,7 @@ import (
 	"github.com/richardwilkes/ui/keys"
 	"github.com/richardwilkes/ui/menu"
 	"github.com/richardwilkes/ui/menu/factory"
-	"github.com/richardwilkes/ui/widget"
+	"github.com/richardwilkes/ui/widget/window"
 )
 
 // SelectAll defines the methods required of objects that can respond to the SelectAll menu item.
@@ -29,9 +29,9 @@ type SelectAll interface {
 // AddSelectAllItem adds the standard Select All menu item to the specified menu.
 func AddSelectAllItem(m menu.Menu) menu.Item {
 	item := factory.NewItemWithKey(i18n.Text("Select All"), keys.VK_A, func(evt event.Event) {
-		window := widget.KeyWindow()
-		if window != nil {
-			focus := window.Focus()
+		wnd := window.KeyWindow()
+		if wnd != nil {
+			focus := wnd.Focus()
 			if sa, ok := focus.(SelectAll); ok {
 				sa.SelectAll()
 			}
@@ -39,9 +39,9 @@ func AddSelectAllItem(m menu.Menu) menu.Item {
 	})
 	item.EventHandlers().Add(event.ValidateType, func(evt event.Event) {
 		valid := false
-		window := widget.KeyWindow()
-		if window != nil {
-			focus := window.Focus()
+		wnd := window.KeyWindow()
+		if wnd != nil {
+			focus := wnd.Focus()
 			if sa, ok := focus.(SelectAll); ok {
 				valid = sa.CanSelectAll()
 			}

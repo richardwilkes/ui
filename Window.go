@@ -51,6 +51,8 @@ type Window interface {
 	FocusNext()
 	// FocusPrevious moves the keyboard focus to the previous focusable widget.
 	FocusPrevious()
+	// Focused returns true when this window has the keyboard focus.
+	Focused() bool
 	// ToFront attempts to bring the window to the foreground and give it the keyboard focus.
 	ToFront()
 	// Repaint marks this window for painting at the next update.

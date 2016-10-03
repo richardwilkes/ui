@@ -21,6 +21,7 @@ import (
 	"github.com/richardwilkes/ui/layout/flex"
 	"github.com/richardwilkes/ui/widget"
 	"github.com/richardwilkes/ui/widget/separator"
+	"github.com/richardwilkes/ui/widget/window"
 )
 
 type Menu struct {
@@ -90,7 +91,7 @@ func (menu *Menu) open(evt event.Event) {
 	_, pref, _ := menu.Layout().Sizes(layout.NoHintSize)
 	menu.SetBounds(geom.Rect{Size: pref})
 	menu.Layout().Layout()
-	wnd := widget.NewWindowWithContentSize(where, pref, widget.BorderlessWindowMask)
+	wnd := window.NewWindowWithContentSize(where, pref, window.BorderlessWindowMask)
 	wnd.RootWidget().AddChild(menu)
 	wnd.EventHandlers().Add(event.FocusLostType, menu.close)
 	wnd.ToFront()

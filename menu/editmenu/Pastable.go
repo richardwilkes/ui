@@ -15,7 +15,7 @@ import (
 	"github.com/richardwilkes/ui/keys"
 	"github.com/richardwilkes/ui/menu"
 	"github.com/richardwilkes/ui/menu/factory"
-	"github.com/richardwilkes/ui/widget"
+	"github.com/richardwilkes/ui/widget/window"
 )
 
 // Pastable defines the methods required of objects that can respond to the Paste menu item.
@@ -29,9 +29,9 @@ type Pastable interface {
 // AddPasteItem adds the standard Paste menu item to the specified menu.
 func AddPasteItem(m menu.Menu) menu.Item {
 	item := factory.NewItemWithKey(i18n.Text("Paste"), keys.VK_V, func(evt event.Event) {
-		window := widget.KeyWindow()
-		if window != nil {
-			focus := window.Focus()
+		wnd := window.KeyWindow()
+		if wnd != nil {
+			focus := wnd.Focus()
 			if p, ok := focus.(Pastable); ok {
 				p.Paste()
 			}
@@ -39,9 +39,9 @@ func AddPasteItem(m menu.Menu) menu.Item {
 	})
 	item.EventHandlers().Add(event.ValidateType, func(evt event.Event) {
 		valid := false
-		window := widget.KeyWindow()
-		if window != nil {
-			focus := window.Focus()
+		wnd := window.KeyWindow()
+		if wnd != nil {
+			focus := wnd.Focus()
 			if p, ok := focus.(Pastable); ok {
 				valid = p.CanPaste()
 			}

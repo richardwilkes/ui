@@ -15,7 +15,7 @@ import (
 	"github.com/richardwilkes/ui/keys"
 	"github.com/richardwilkes/ui/menu"
 	"github.com/richardwilkes/ui/menu/factory"
-	"github.com/richardwilkes/ui/widget"
+	"github.com/richardwilkes/ui/widget/window"
 )
 
 // AddToAppBar adds a standard 'Window' menu to the menu bar.
@@ -23,13 +23,13 @@ func AddToAppBar() menu.Menu {
 	windowMenu := factory.NewMenu(i18n.Text("Window"))
 
 	item := factory.NewItemWithKey(i18n.Text("Minimize"), keys.VK_M, func(evt event.Event) {
-		window := widget.KeyWindow()
-		if window != nil {
-			window.Minimize()
+		wnd := window.KeyWindow()
+		if wnd != nil {
+			wnd.Minimize()
 		}
 	})
 	item.EventHandlers().Add(event.ValidateType, func(evt event.Event) {
-		w := widget.KeyWindow()
+		w := window.KeyWindow()
 		if w == nil || !w.Minimizable() {
 			evt.(*event.Validate).MarkInvalid()
 		}
@@ -37,13 +37,13 @@ func AddToAppBar() menu.Menu {
 	windowMenu.AddItem(item)
 
 	item = factory.NewItemWithKey(i18n.Text("Zoom"), keys.VK_BackSlash, func(evt event.Event) {
-		window := widget.KeyWindow()
-		if window != nil {
-			window.Zoom()
+		wnd := window.KeyWindow()
+		if wnd != nil {
+			wnd.Zoom()
 		}
 	})
 	item.EventHandlers().Add(event.ValidateType, func(evt event.Event) {
-		w := widget.KeyWindow()
+		w := window.KeyWindow()
 		if w == nil || !w.Resizable() {
 			evt.(*event.Validate).MarkInvalid()
 		}
@@ -51,7 +51,7 @@ func AddToAppBar() menu.Menu {
 	windowMenu.AddItem(item)
 	windowMenu.AddItem(factory.NewSeparator())
 
-	windowMenu.AddItem(factory.NewItem(i18n.Text("Bring All to Front"), func(evt event.Event) { widget.AllWindowsToFront() }))
+	windowMenu.AddItem(factory.NewItem(i18n.Text("Bring All to Front"), func(evt event.Event) { window.AllWindowsToFront() }))
 
 	factory.SetWindowMenu(windowMenu)
 	factory.AppBar().AddMenu(windowMenu)
