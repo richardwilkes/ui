@@ -57,6 +57,10 @@ func AllWindowsToFront() {
 	platformBringAllWindowsToFront()
 }
 
+func WindowCount() int {
+	return len(windowMap)
+}
+
 // Windows returns a slice containing the current set of open windows.
 func Windows() []ui.Window {
 	list := make([]ui.Window, 0, len(windowMap))

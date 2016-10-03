@@ -19,8 +19,8 @@ import (
 	"github.com/richardwilkes/ui/event"
 	"github.com/richardwilkes/ui/layout"
 	"github.com/richardwilkes/ui/layout/flex"
+	"github.com/richardwilkes/ui/menu"
 	"github.com/richardwilkes/ui/widget"
-	"github.com/richardwilkes/ui/widget/separator"
 	"github.com/richardwilkes/ui/widget/window"
 )
 
@@ -32,36 +32,86 @@ type Menu struct {
 }
 
 func NewMenu(title string) *Menu {
-	menu := &Menu{item: NewMenuItem(title, 0, nil)}
-	menu.item.menu = menu
-	menu.Describer = func() string {
-		return fmt.Sprintf("Menu #%d (%s)", menu.ID(), menu.Title())
+	mnu := &Menu{item: NewMenuItem(title, 0, nil)}
+	mnu.item.menu = mnu
+	mnu.Describer = func() string {
+		return fmt.Sprintf("Menu #%d (%s)", mnu.ID(), mnu.Title())
 	}
-	menu.SetBorder(border.NewLine(color.Gray, geom.Insets{Top: 1, Left: 1, Bottom: 1, Right: 1}))
-	menu.item.EventHandlers().Add(event.SelectionType, menu.open)
-	flex.NewLayout(menu).SetEqualColumns(true)
-	return menu
+	mnu.SetBorder(border.NewLine(color.Gray, geom.Insets{Top: 1, Left: 1, Bottom: 1, Right: 1}))
+	mnu.item.EventHandlers().Add(event.SelectionType, mnu.open)
+	flex.NewLayout(mnu).SetEqualColumns(true)
+	return mnu
 }
 
-func (menu *Menu) Title() string {
-	return menu.item.Title
+// Title returns the title of this menu.
+func (mnu *Menu) Title() string {
+	return mnu.item.Title()
 }
 
-func (menu *Menu) AddItem(item *MenuItem) {
-	menu.AddChild(item)
-	item.EventHandlers().Add(event.ClosingType, menu.close)
-	item.SetLayoutData(flex.NewData().SetHorizontalGrab(true).SetHorizontalAlignment(draw.AlignFill))
+// AddItem appends an item to the end of this menu.
+func (mnu *Menu) AddItem(item menu.Item) {
+	switch actual := item.(type) {
+	case *MenuItem:
+		mnu.AddChild(actual)
+		actual.EventHandlers().Add(event.ClosingType, mnu.close)
+		actual.SetLayoutData(flex.NewData().SetHorizontalGrab(true).SetHorizontalAlignment(draw.AlignFill))
+	case *Separator:
+		mnu.AddChild(actual)
+		actual.SetLayoutData(flex.NewData().SetHorizontalGrab(true).SetHorizontalAlignment(draw.AlignFill))
+	}
 }
 
-func (menu *Menu) AddSeparator() {
-	sep := separator.New(true)
-	menu.AddChild(sep)
-	sep.SetLayoutData(flex.NewData().SetHorizontalGrab(true).SetHorizontalAlignment(draw.AlignFill))
+// AddMenu appends an item with a sub-menu to the end of this menu.
+func (mnu *Menu) AddMenu(subMenu menu.Menu) {
+	if actual, ok := subMenu.(*Menu); ok {
+		mnu.AddItem(actual.item)
+	}
 }
 
-func (menu *Menu) adjustItems(evt event.Event) {
+// InsertItem inserts an item at the specified item index within this menu.
+func (mnu *Menu) InsertItem(index int, item menu.Item) {
+	switch actual := item.(type) {
+	case *MenuItem:
+		mnu.AddChildAtIndex(actual, index)
+		actual.EventHandlers().Add(event.ClosingType, mnu.close)
+		actual.SetLayoutData(flex.NewData().SetHorizontalGrab(true).SetHorizontalAlignment(draw.AlignFill))
+	case *Separator:
+		mnu.AddChildAtIndex(actual, index)
+		actual.SetLayoutData(flex.NewData().SetHorizontalGrab(true).SetHorizontalAlignment(draw.AlignFill))
+	}
+}
+
+// InsertMenu inserts an item with a sub-menu at the specified item index within this menu.
+func (mnu *Menu) InsertMenu(index int, subMenu menu.Menu) {
+	if actual, ok := subMenu.(*Menu); ok {
+		mnu.InsertItem(index, actual.item)
+	}
+}
+
+// Remove the item at the specified index from this menu.
+func (mnu *Menu) Remove(index int) {
+	mnu.RemoveChildAtIndex(index)
+}
+
+// Count of items in this menu.
+func (mnu *Menu) Count() int {
+	return len(mnu.Children())
+}
+
+// Item at the specified index, or nil.
+func (mnu *Menu) Item(index int) menu.Item {
+	switch actual := mnu.Children()[index].(type) {
+	case *MenuItem:
+		return actual
+	case *Separator:
+		return actual
+	}
+	panic("Invalid child")
+}
+
+func (mnu *Menu) adjustItems(evt event.Event) {
 	var largest float64
-	for _, child := range menu.Children() {
+	for _, child := range mnu.Children() {
 		switch item := child.(type) {
 		case *MenuItem:
 			pos := item.calculateAcceleratorPosition()
@@ -70,7 +120,7 @@ func (menu *Menu) adjustItems(evt event.Event) {
 			}
 		}
 	}
-	for _, child := range menu.Children() {
+	for _, child := range mnu.Children() {
 		switch item := child.(type) {
 		case *MenuItem:
 			item.pos = largest
@@ -78,34 +128,45 @@ func (menu *Menu) adjustItems(evt event.Event) {
 	}
 }
 
-func (menu *Menu) open(evt event.Event) {
-	bounds := menu.item.Bounds()
-	where := menu.item.ToWindow(bounds.Point)
-	where.Add(menu.item.Window().ContentFrame().Point)
-	if menu.attachToBottom {
+func (mnu *Menu) open(evt event.Event) {
+	bounds := mnu.item.Bounds()
+	where := mnu.item.ToWindow(bounds.Point)
+	where.Add(mnu.item.Window().ContentFrame().Point)
+	if mnu.attachToBottom {
 		where.Y += bounds.Height
 	} else {
 		where.X += bounds.Width
 	}
-	menu.adjustItems(nil)
-	_, pref, _ := menu.Layout().Sizes(layout.NoHintSize)
-	menu.SetBounds(geom.Rect{Size: pref})
-	menu.Layout().Layout()
+	mnu.adjustItems(nil)
+	_, pref, _ := mnu.Layout().Sizes(layout.NoHintSize)
+	mnu.SetBounds(geom.Rect{Size: pref})
+	mnu.Layout().Layout()
 	wnd := window.NewWindowWithContentSize(where, pref, window.BorderlessWindowMask)
-	wnd.RootWidget().AddChild(menu)
-	wnd.EventHandlers().Add(event.FocusLostType, menu.close)
+	wnd.RootWidget().AddChild(mnu)
+	wnd.EventHandlers().Add(event.FocusLostType, mnu.close)
 	wnd.ToFront()
-	menu.wnd = wnd
-	menu.item.menuOpen = true
-	menu.item.Repaint()
+	mnu.wnd = wnd
+	mnu.item.menuOpen = true
+	mnu.item.Repaint()
 }
 
-func (menu *Menu) close(evt event.Event) {
-	if menu.wnd != nil {
-		wnd := menu.wnd
-		menu.wnd = nil
+func (mnu *Menu) close(evt event.Event) {
+	if mnu.wnd != nil {
+		wnd := mnu.wnd
+		mnu.wnd = nil
 		wnd.Close()
-		menu.item.menuOpen = false
-		menu.item.Repaint()
+		mnu.item.menuOpen = false
+		mnu.item.Repaint()
+	}
+}
+
+// Dispose releases any operating system resources associated with this menu. It will also
+// call Dispose() on all menu items it contains.
+func (mnu *Menu) Dispose() {
+	for _, child := range mnu.Children() {
+		switch item := child.(type) {
+		case menu.Item:
+			item.Dispose()
+		}
 	}
 }

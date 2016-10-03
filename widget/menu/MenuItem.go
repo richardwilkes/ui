@@ -15,6 +15,7 @@ import (
 	"github.com/richardwilkes/ui/color"
 	"github.com/richardwilkes/ui/event"
 	"github.com/richardwilkes/ui/keys"
+	"github.com/richardwilkes/ui/menu"
 	"github.com/richardwilkes/ui/widget"
 	"unicode/utf8"
 )
@@ -22,10 +23,10 @@ import (
 type MenuItem struct {
 	widget.Block
 	Theme        *Theme
-	Title        string
-	KeyCode      int
-	KeyModifiers keys.Modifiers
+	keyCode      int
+	keyModifiers keys.Modifiers
 	menu         *Menu
+	title        string
 	pos          float64
 	highlighted  bool
 	menuOpen     bool
@@ -38,10 +39,10 @@ func NewMenuItem(title string, keyCode int, handler event.Handler) *MenuItem {
 func NewMenuItemWithModifiers(title string, keyCode int, modifiers keys.Modifiers, handler event.Handler) *MenuItem {
 	item := &MenuItem{}
 	item.Theme = StdTheme
-	item.Title = title
-	item.KeyCode = keyCode
-	item.KeyModifiers = modifiers
-	item.Describer = func() string { return fmt.Sprintf("MenuItem #%d (%s)", item.ID(), item.Title) }
+	item.title = title
+	item.keyCode = keyCode
+	item.keyModifiers = modifiers
+	item.Describer = func() string { return fmt.Sprintf("MenuItem #%d (%s)", item.ID(), item.title) }
 	item.SetSizer(item)
 	handlers := item.EventHandlers()
 	handlers.Add(event.PaintType, item.paint)
@@ -58,21 +59,37 @@ func NewMenuItemWithModifiers(title string, keyCode int, modifiers keys.Modifier
 	return item
 }
 
+// Title returns this item's title.
+func (item *MenuItem) Title() string {
+	return item.title
+}
+
+// KeyCode returns the key code that can be used to trigger this item. A value of 0 indicates no
+// key is attached.
+func (item *MenuItem) KeyCode() int {
+	return item.keyCode
+}
+
+// KeyModifiers returns the key modifiers that are required to trigger this item.
+func (item *MenuItem) KeyModifiers() keys.Modifiers {
+	return item.keyModifiers
+}
+
 // Sizes implements Sizer
 func (item *MenuItem) Sizes(hint geom.Size) (min, pref, max geom.Size) {
-	pref = item.Theme.TitleFont.Measure(item.Title)
+	pref = item.Theme.TitleFont.Measure(item.title)
 	pref.Width += item.Theme.HMargin*2 + item.Theme.KeySpacing
 	pref.Height += item.Theme.VMargin * 2
 	pref.GrowToInteger()
-	if item.KeyCode != 0 {
-		mapping := keys.MappingForKeyCode(item.KeyCode)
+	if item.keyCode != 0 {
+		mapping := keys.MappingForKeyCode(item.keyCode)
 		if mapping != nil {
 			keySize := item.Theme.KeyFont.Measure(mapping.Name)
 			pref.Width += keySize.Width
 			if pref.Height < keySize.Height {
 				pref.Height = keySize.Height
 			}
-			mods := item.KeyModifiers
+			mods := item.keyModifiers
 			if mods == 0 {
 				mods = keys.PlatformMenuModifier()
 			}
@@ -91,8 +108,8 @@ func (item *MenuItem) Sizes(hint geom.Size) (min, pref, max geom.Size) {
 
 func (item *MenuItem) calculateAcceleratorPosition() float64 {
 	pos := item.Theme.HMargin
-	if item.KeyCode != 0 {
-		mapping := keys.MappingForKeyCode(item.KeyCode)
+	if item.keyCode != 0 {
+		mapping := keys.MappingForKeyCode(item.keyCode)
 		if mapping != nil {
 			pos += item.Theme.KeyFont.Measure(mapping.Name).Width
 		}
@@ -105,11 +122,11 @@ func (item *MenuItem) paint(evt event.Event) {
 	gc := evt.(*event.Paint).GC()
 	gc.SetColor(item.currentBackground())
 	gc.FillRect(bounds)
-	size := item.Theme.TitleFont.Measure(item.Title)
+	size := item.Theme.TitleFont.Measure(item.title)
 	gc.SetColor(item.textColor())
-	gc.DrawString(bounds.X+item.Theme.HMargin, bounds.Y+(bounds.Height-size.Height)/2, item.Title, item.Theme.TitleFont)
-	if item.KeyCode != 0 && item.pos > 0 {
-		mapping := keys.MappingForKeyCode(item.KeyCode)
+	gc.DrawString(bounds.X+item.Theme.HMargin, bounds.Y+(bounds.Height-size.Height)/2, item.title, item.Theme.TitleFont)
+	if item.keyCode != 0 && item.pos > 0 {
+		mapping := keys.MappingForKeyCode(item.keyCode)
 		if mapping != nil {
 			size = item.Theme.KeyFont.Measure(mapping.Name)
 			x := bounds.X + bounds.Width - item.pos
@@ -128,7 +145,7 @@ func (item *MenuItem) paint(evt event.Event) {
 				y = modY
 			}
 			gc.DrawString(x, y, mapping.Name, item.Theme.KeyFont)
-			modText := item.KeyModifiers.String()
+			modText := item.keyModifiers.String()
 			size = item.Theme.KeyFont.Measure(modText)
 			gc.DrawString(x-size.Width, modY, modText, item.Theme.KeyFont)
 		}
@@ -208,7 +225,12 @@ func (item *MenuItem) keyDown(evt event.Event) {
 	}
 }
 
-// SubMenu of this menu item or nil.
-func (item *MenuItem) SubMenu() *Menu {
+// SubMenu returns a sub-menu attached to this item or nil.
+func (item *MenuItem) SubMenu() menu.Menu {
 	return item.menu
+}
+
+// Dispose releases any operating system resources associated with this item.
+func (item *MenuItem) Dispose() {
+	// Does nothing
 }

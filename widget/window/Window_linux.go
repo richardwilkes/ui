@@ -12,7 +12,6 @@ package window
 import (
 	"github.com/richardwilkes/geom"
 	"github.com/richardwilkes/ui/cursor"
-	"github.com/richardwilkes/ui/internal/iwindow"
 	"time"
 	"unsafe"
 	// #cgo linux LDFLAGS: -lX11 -lcairo
@@ -20,14 +19,12 @@ import (
 	// #include <stdio.h>
 	// #include <string.h>
 	// #include <X11/Xlib.h>
+	// #include <X11/keysym.h>
+	// #include <X11/Xutil.h>
 	// #include <cairo/cairo.h>
 	// #include <cairo/cairo-xlib.h>
 	// #include "Types.h"
 	"C"
-)
-
-var (
-	lastKnownWindowBounds = make(map[platformWindow]geom.Rect)
 )
 
 func toXWindow(window platformWindow) C.Window {
@@ -45,7 +42,7 @@ func toPlatformWindow(window C.Window) platformWindow {
 func platformGetKeyWindow() platformWindow {
 	var focus C.Window
 	var revert C.int
-	C.XGetInputFocus(xDisplay, &focus, &revert)
+	C.XGetInputFocus(display, &focus, &revert)
 	return toPlatformWindow(focus)
 }
 
@@ -58,28 +55,26 @@ func platformHideCursorUntilMouseMoves() {
 }
 
 func platformNewWindow(bounds geom.Rect, styleMask WindowStyleMask) (window platformWindow, surface platformSurface) {
-	screen := C.XDefaultScreen(xDisplay)
+	screen := C.XDefaultScreen(display)
 	var windowAttributes C.XSetWindowAttributes
 	windowAttributes.background_pixmap = C.None
 	windowAttributes.backing_store = C.WhenMapped
-	win := C.XCreateWindow(xDisplay, C.XRootWindow(xDisplay, screen), C.int(bounds.X), C.int(bounds.Y), C.uint(bounds.Width), C.uint(bounds.Height), 0, C.CopyFromParent, C.InputOutput, nil, C.CWBackPixmap|C.CWBackingStore, &windowAttributes)
+	win := C.XCreateWindow(display, C.XRootWindow(display, screen), C.int(bounds.X), C.int(bounds.Y), C.uint(bounds.Width), C.uint(bounds.Height), 0, C.CopyFromParent, C.InputOutput, nil, C.CWBackPixmap|C.CWBackingStore, &windowAttributes)
 	lastKnownWindowBounds[toPlatformWindow(win)] = bounds
-	C.XSelectInput(xDisplay, win, C.KeyPressMask|C.KeyReleaseMask|C.ButtonPressMask|C.ButtonReleaseMask|C.EnterWindowMask|C.LeaveWindowMask|C.ExposureMask|C.PointerMotionMask|C.ExposureMask|C.VisibilityChangeMask|C.StructureNotifyMask|C.FocusChangeMask)
-	C.XSetWMProtocols(xDisplay, win, &wmDeleteAtom, C.True)
-	iwindow.Count++
-	return toPlatformWindow(win), platformSurface(C.cairo_xlib_surface_create(xDisplay, C.Drawable(uintptr(win)), C.XDefaultVisual(xDisplay, screen), C.int(bounds.Width), C.int(bounds.Height)))
+	C.XSelectInput(display, win, C.KeyPressMask|C.KeyReleaseMask|C.ButtonPressMask|C.ButtonReleaseMask|C.EnterWindowMask|C.LeaveWindowMask|C.ExposureMask|C.PointerMotionMask|C.ExposureMask|C.VisibilityChangeMask|C.StructureNotifyMask|C.FocusChangeMask)
+	C.XSetWMProtocols(display, win, &wmDeleteAtom, C.True)
+	return toPlatformWindow(win), platformSurface(C.cairo_xlib_surface_create(display, C.Drawable(uintptr(win)), C.XDefaultVisual(display, screen), C.int(bounds.Width), C.int(bounds.Height)))
 }
 
 func (window *Wnd) platformClose() {
 	delete(lastKnownWindowBounds, window.window)
-	iwindow.Count--
 	C.cairo_surface_destroy(window.surface)
-	C.XDestroyWindow(xDisplay, toXWindow(window.window))
+	C.XDestroyWindow(display, toXWindow(window.window))
 }
 
 func (window *Wnd) platformTitle() string {
 	var result *C.char
-	C.XFetchName(xDisplay, toXWindow(window.window), &result)
+	C.XFetchName(display, toXWindow(window.window), &result)
 	if result == nil {
 		return ""
 	}
@@ -89,7 +84,7 @@ func (window *Wnd) platformTitle() string {
 
 func (window *Wnd) platformSetTitle(title string) {
 	cTitle := C.CString(title)
-	C.XStoreName(xDisplay, toXWindow(window.window), cTitle)
+	C.XStoreName(display, toXWindow(window.window), cTitle)
 	C.free(unsafe.Pointer(cTitle))
 }
 
@@ -102,14 +97,14 @@ func (window *Wnd) platformFrame() geom.Rect {
 	var root C.Window
 	var x, y C.int
 	var width, height, border, depth C.uint
-	C.XGetGeometry(xDisplay, toXDrawable(window.window), &root, &x, &y, &width, &height, &border, &depth)
+	C.XGetGeometry(display, toXDrawable(window.window), &root, &x, &y, &width, &height, &border, &depth)
 	return geom.Rect{Point: geom.Point{X: float64(x), Y: float64(y)}, Size: geom.Size{Width: float64(width), Height: float64(height)}}
 }
 
 func (window *Wnd) platformSetFrame(bounds geom.Rect) {
 	lastKnownWindowBounds[window.window] = bounds
 	win := toXWindow(window.window)
-	C.XMoveResizeWindow(xDisplay, win, C.int(bounds.X), C.int(bounds.Y), C.uint(bounds.Width), C.uint(bounds.Height))
+	C.XMoveResizeWindow(display, win, C.int(bounds.X), C.int(bounds.Y), C.uint(bounds.Width), C.uint(bounds.Height))
 }
 
 func (window *Wnd) platformContentFrame() geom.Rect {
@@ -120,24 +115,24 @@ func (window *Wnd) platformContentFrame() geom.Rect {
 func (window *Wnd) platformToFront() {
 	win := toXWindow(window.window)
 	if window.wasMapped {
-		C.XRaiseWindow(xDisplay, win)
+		C.XRaiseWindow(display, win)
 	} else {
 		window.wasMapped = true
 		bounds, ok := lastKnownWindowBounds[window.window]
-		C.XMapWindow(xDisplay, win)
+		C.XMapWindow(display, win)
 		if ok {
-			C.XMoveWindow(xDisplay, win, C.int(bounds.X), C.int(bounds.Y))
+			C.XMoveWindow(display, win, C.int(bounds.X), C.int(bounds.Y))
 		}
 	}
 }
 
 func (window *Wnd) platformRepaint(bounds geom.Rect) {
 	event := C.XExposeEvent{_type: C.Expose, window: toXWindow(window.window), x: C.int(bounds.X), y: C.int(bounds.Y), width: C.int(bounds.Width), height: C.int(bounds.Height)}
-	C.XSendEvent(xDisplay, toXWindow(window.window), 0, C.ExposureMask, (*C.XEvent)(unsafe.Pointer(&event)))
+	C.XSendEvent(display, toXWindow(window.window), 0, C.ExposureMask, (*C.XEvent)(unsafe.Pointer(&event)))
 }
 
 func (window *Wnd) platformFlushPainting() {
-	C.XFlush(xDisplay)
+	C.XFlush(display)
 }
 
 func (window *Wnd) platformScalingFactor() float64 {
@@ -146,7 +141,7 @@ func (window *Wnd) platformScalingFactor() float64 {
 }
 
 func (window *Wnd) platformMinimize() {
-	C.XIconifyWindow(xDisplay, toXWindow(window.window), C.XDefaultScreen(xDisplay))
+	C.XIconifyWindow(display, toXWindow(window.window), C.XDefaultScreen(display))
 }
 
 func (window *Wnd) platformZoom() {
@@ -166,8 +161,8 @@ func (window *Wnd) platformInvoke(id uint64) {
 		event := C.XClientMessageEvent{_type: C.ClientMessage, message_type: goTaskAtom, format: 32}
 		data := (*uint64)(unsafe.Pointer(&event.data))
 		*data = id
-		C.XSendEvent(xDisplay, toXWindow(window.window), 0, C.NoEventMask, (*C.XEvent)(unsafe.Pointer(&event)))
-		C.XFlush(xDisplay)
+		C.XSendEvent(display, toXWindow(window.window), 0, C.NoEventMask, (*C.XEvent)(unsafe.Pointer(&event)))
+		C.XFlush(display)
 	}
 }
 

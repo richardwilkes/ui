@@ -19,9 +19,9 @@ type AppWillQuit struct {
 	finished bool
 }
 
-// NewAppWillQuit creates a new AppWillQuit event. 'target' is the app.
-func NewAppWillQuit(target Target) *AppWillQuit {
-	return &AppWillQuit{target: target}
+// SendAppWillQuit sends a new AppWillQuit event.
+func SendAppWillQuit() {
+	Dispatch(&AppWillQuit{target: GlobalTarget()})
 }
 
 // Type returns the event type ID.

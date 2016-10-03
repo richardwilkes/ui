@@ -10,65 +10,19 @@
 package quit
 
 import (
-	"fmt"
-	"github.com/richardwilkes/geom"
-	"github.com/richardwilkes/ui/internal/iapp"
-	"github.com/richardwilkes/ui/internal/iwindow"
-	"github.com/richardwilkes/ui/keys"
-	"math"
-	"syscall"
-	"time"
-	"unsafe"
-	// #cgo linux LDFLAGS: -lX11 -lcairo
-	// #include <X11/Xlib.h>
-	// #include <X11/keysym.h>
-	// #include <X11/Xutil.h>
-	// #include <cairo/cairo.h>
-	// #include <cairo/cairo-xlib.h>
-	"C"
-)
-
-var (
-	quitting     bool
-	awaitingQuit bool
+	"github.com/richardwilkes/ui/widget/window"
 )
 
 func platformAttemptQuit() {
-	switch appShouldQuit() {
+	switch AppShouldQuit() {
 	case Cancel:
 	case Later:
-		awaitingQuit = true
+		window.DeferQuit()
 	default:
-		initiateQuit()
+		window.StartQuit()
 	}
 }
 
 func platformAppMayQuitNow(quit bool) {
-	if awaitingQuit {
-		awaitingQuit = false
-		if quit {
-			initiateQuit()
-		}
-	}
-}
-
-func initiateQuit() {
-	appWillQuit()
-	quitting = true
-	if window.Count > 0 {
-		for _, w := range Windows() {
-			w.Close()
-		}
-	} else {
-		finishQuit()
-	}
-}
-
-func finishQuit() {
-	if quitting {
-		iapp.Running = false
-		C.XCloseDisplay(xDisplay)
-		xDisplay = nil
-		syscall.Exit(0)
-	}
+	window.ResumeQuit(quit)
 }

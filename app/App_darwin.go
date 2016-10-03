@@ -49,7 +49,7 @@ func callbackAppShouldQuitAfterLastWindowClosed() bool {
 
 //export callbackAppWillQuit
 func callbackAppWillQuit() {
-	quit.AppWillQuit()
+	event.SendAppWillQuit()
 }
 
 //export callbackAppWillFinishStartup

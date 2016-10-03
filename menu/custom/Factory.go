@@ -13,39 +13,42 @@ import (
 	"github.com/richardwilkes/ui/event"
 	"github.com/richardwilkes/ui/keys"
 	"github.com/richardwilkes/ui/menu"
+	cm "github.com/richardwilkes/ui/widget/menu"
+)
+
+var (
+	bar *cm.MenuBar
 )
 
 // AppBar returns the application menu bar.
 func AppBar() menu.Bar {
-	return nil
+	if bar == nil {
+		bar = cm.NewMenuBar()
+	}
+	return bar
 }
 
 // NewMenu creates a new menu.
 func NewMenu(title string) menu.Menu {
-	// RAW: Implement me
-	return nil
+	return cm.NewMenu(title)
 }
 
 // NewItem creates a new item with no key accelerator.
 func NewItem(title string, handler event.Handler) menu.Item {
-	// RAW: Implement me
-	return nil
+	return cm.NewMenuItem(title, 0, handler)
 }
 
 // NewItemWithKey creates a new item with a key accelerator using the platform-default modifiers.
 func NewItemWithKey(title string, keyCode int, handler event.Handler) menu.Item {
-	// RAW: Implement me
-	return nil
+	return cm.NewMenuItem(title, keyCode, handler)
 }
 
 // NewItemWithKeyAndModifiers creates a new item.
 func NewItemWithKeyAndModifiers(title string, keyCode int, modifiers keys.Modifiers, handler event.Handler) menu.Item {
-	// RAW: Implement me
-	return nil
+	return cm.NewMenuItemWithModifiers(title, keyCode, modifiers, handler)
 }
 
 // NewSeparator creates a new separator item.
 func NewSeparator() menu.Item {
-	// RAW: Implement me
-	return nil
+	return cm.NewSeparator()
 }

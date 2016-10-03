@@ -15,6 +15,7 @@ import (
 	"github.com/richardwilkes/ui/border"
 	"github.com/richardwilkes/ui/color"
 	"github.com/richardwilkes/ui/layout/flex"
+	"github.com/richardwilkes/ui/menu"
 	"github.com/richardwilkes/ui/widget"
 )
 
@@ -30,11 +31,45 @@ func NewMenuBar() *MenuBar {
 	return bar
 }
 
-func (bar *MenuBar) AddMenu(menu *Menu) {
-	bar.AddChild(menu.item)
-	menu.attachToBottom = true
-	switch layout := bar.Layout().(type) {
-	case *flex.Flex:
-		layout.SetColumns(len(bar.Children()))
+// AddMenu appends a menu to the end of this bar.
+func (bar *MenuBar) AddMenu(subMenu menu.Menu) {
+	if actual, ok := subMenu.(*Menu); ok {
+		bar.AddChild(actual.item)
+		actual.attachToBottom = true
+		switch layout := bar.Layout().(type) {
+		case *flex.Flex:
+			layout.SetColumns(len(bar.Children()))
+		}
 	}
+}
+
+// InsertMenu inserts a menu at the specified menu index within this bar.
+func (bar *MenuBar) InsertMenu(index int, subMenu menu.Menu) {
+	if actual, ok := subMenu.(*Menu); ok {
+		bar.AddChildAtIndex(actual.item, index)
+		actual.attachToBottom = true
+		switch layout := bar.Layout().(type) {
+		case *flex.Flex:
+			layout.SetColumns(len(bar.Children()))
+		}
+	}
+}
+
+// Remove the menu at the specified index from this bar.
+func (bar *MenuBar) Remove(index int) {
+	bar.RemoveChildAtIndex(index)
+}
+
+// Count of menus in this bar.
+func (bar *MenuBar) Count() int {
+	return len(bar.Children())
+}
+
+// Menu at the specified index, or nil.
+func (bar *MenuBar) Menu(index int) menu.Menu {
+	switch item := bar.Children()[index].(type) {
+	case *MenuItem:
+		return item.SubMenu()
+	}
+	panic("Invalid child")
 }
