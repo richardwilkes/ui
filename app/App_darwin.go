@@ -11,7 +11,6 @@ package app
 
 import (
 	"github.com/richardwilkes/ui/app/quit"
-	"github.com/richardwilkes/ui/event"
 	// #cgo darwin LDFLAGS: -framework Cocoa
 	// #include "App_darwin.h"
 	"C"
