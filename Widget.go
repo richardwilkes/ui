@@ -83,7 +83,8 @@ type Widget interface {
 	// have had.
 	AddChild(child Widget)
 	// AddChildAtIndex adds 'child' as a child of this widget at the 'index', removing it from any
-	// previous parent it may have had.
+	// previous parent it may have had. Passing in a negative value for the index will add it to
+	// the end.
 	AddChildAtIndex(child Widget, index int)
 	// RemoveChild removes 'child' from this widget. If 'child' is not a direct descendent of this
 	// widget, nothing happens.

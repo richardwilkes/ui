@@ -273,10 +273,7 @@ func (b *Block) AddChild(child ui.Widget) {
 // AddChildAtIndex implements the Widget interface.
 func (b *Block) AddChildAtIndex(child ui.Widget, index int) {
 	child.RemoveFromParent()
-	if index < 0 {
-		index = 0
-	}
-	if index >= len(b.children) {
+	if index < 0 || index >= len(b.children) {
 		b.children = append(b.children, child)
 	} else {
 		b.children = append(b.children, nil)
