@@ -46,10 +46,7 @@ func (menu *platformMenu) platformItem(index int) cItem {
 	return nil
 }
 
-func (menu *platformMenu) platformAddItem(item cItem) {
-}
-
-func (menu *platformMenu) platformInsertItem(index int, item cItem) {
+func (menu *platformMenu) platformInsertItem(item cItem, index int) {
 }
 
 func (menu *platformMenu) platformRemove(index int) {
