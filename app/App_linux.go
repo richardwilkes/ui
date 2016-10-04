@@ -12,6 +12,7 @@ package app
 import (
 	"github.com/richardwilkes/ui/app/quit"
 	"github.com/richardwilkes/ui/event"
+	"github.com/richardwilkes/ui/menu/custom"
 	"github.com/richardwilkes/ui/widget/window"
 )
 
@@ -25,6 +26,7 @@ import "C"
 
 func platformStartUserInterface() {
 	window.InitializeDisplay()
+	custom.Install()
 	event.SendAppWillFinishStartup()
 	event.SendAppDidFinishStartup()
 	if window.WindowCount() == 0 && quit.AppShouldQuitAfterLastWindowClosed() {

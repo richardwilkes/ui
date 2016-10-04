@@ -142,3 +142,9 @@ func (mnu *Menu) Dispose() {
 		}
 	}
 }
+
+// Popup displays the menu within the window. An attempt will be made to position the 'item'
+// at 'where' within the window.
+func (mnu *Menu) Popup(window ui.Window, where geom.Point, item menu.Item) {
+	// RAW: Implement!
+}

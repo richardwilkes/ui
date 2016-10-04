@@ -31,3 +31,14 @@ type Item interface {
 	// Dispose releases any operating system resources associated with this item.
 	Dispose()
 }
+
+var (
+	// NewItem creates a new item with no key accelerator.
+	NewItem func(title string, handler event.Handler) Item
+	// NewItemWithKey creates a new item with a key accelerator using the platform-default modifiers.
+	NewItemWithKey func(title string, keyCode int, handler event.Handler) Item
+	// NewItemWithKeyAndModifiers creates a new item.
+	NewItemWithKeyAndModifiers func(title string, keyCode int, modifiers keys.Modifiers, handler event.Handler) Item
+	// NewSeparator creates a new separator item.
+	NewSeparator func() Item
+)

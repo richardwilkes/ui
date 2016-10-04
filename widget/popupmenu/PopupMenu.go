@@ -18,7 +18,6 @@ import (
 	"github.com/richardwilkes/ui/keys"
 	"github.com/richardwilkes/ui/layout"
 	"github.com/richardwilkes/ui/menu"
-	"github.com/richardwilkes/ui/menu/factory"
 	"github.com/richardwilkes/ui/widget"
 	"github.com/richardwilkes/ui/widget/button"
 )
@@ -150,30 +149,26 @@ func (pm *PopupMenu) keyDown(evt event.Event) {
 // Click performs any animation associated with a click and triggers the popup menu to appear.
 func (pm *PopupMenu) Click() {
 	hasItem := false
-	menu := factory.NewMenu("")
-	defer menu.Dispose()
+	mnu := menu.NewMenu("")
+	defer mnu.Dispose()
 	for i := range pm.items {
-		if pm.addItemToMenu(menu, i) {
+		if pm.addItemToMenu(mnu, i) {
 			hasItem = true
 		}
 	}
 	if hasItem {
-		if factory.UseNative {
-			platformPopupMenu(pm.Window(), pm.ToWindow(pm.LocalInsetBounds().Point), menu, menu.Item(pm.selectedIndex))
-		} else {
-			// RAW: Implement
-		}
+		mnu.Popup(pm.Window(), pm.ToWindow(pm.LocalInsetBounds().Point), mnu.Item(pm.selectedIndex))
 	}
 }
 
-func (pm *PopupMenu) addItemToMenu(m menu.Menu, index int) bool {
+func (pm *PopupMenu) addItemToMenu(mnu menu.Menu, index int) bool {
 	one := pm.items[index]
 	switch one.(type) {
 	case *separationMarker:
-		m.InsertItem(factory.NewSeparator(), -1)
+		mnu.InsertItem(menu.NewSeparator(), -1)
 		return false
 	default:
-		m.InsertItem(factory.NewItem(fmt.Sprintf("%v", one), func(evt event.Event) {
+		mnu.InsertItem(menu.NewItem(fmt.Sprintf("%v", one), func(evt event.Event) {
 			if index != pm.SelectedIndex() {
 				pm.SelectIndex(index)
 				event.Dispatch(event.NewSelection(pm))

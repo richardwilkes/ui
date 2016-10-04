@@ -93,6 +93,10 @@ void platformRemove(Menu menu, int index) {
 	[((NSMenu *)menu) removeItemAtIndex:index];
 }
 
+void platformPopup(void *window, Menu menu, double x, double y, Item itemAtLocation) {
+	[((NSMenu *)menu) popUpMenuPositioningItem:itemAtLocation atLocation:NSMakePoint(x,y) inView:[((NSWindow *)window) contentView]];
+}
+
 void platformSetServicesMenu(Menu menu) {
 	[NSApp setServicesMenu:menu];
 }

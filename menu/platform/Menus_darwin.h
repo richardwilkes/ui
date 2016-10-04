@@ -25,6 +25,7 @@ int platformItemCount(Menu menu);
 Item platformItem(Menu menu, int index);
 void platformInsertItem(Menu menu, Item item, int index);
 void platformRemove(Menu menu, int index);
+void platformPopup(void *window, Menu menu, double x, double y, Item itemAtLocation);
 void platformSetServicesMenu(Menu menu);
 void platformSetWindowMenu(Menu menu);
 void platformSetHelpMenu(Menu menu);

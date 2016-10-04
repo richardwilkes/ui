@@ -9,7 +9,12 @@
 
 package app
 
+import (
+	"github.com/richardwilkes/ui/menu/custom"
+)
+
 func platformStartUserInterface() {
+	custom.Install()
 	// RAW: Implement for Windows
 }
 

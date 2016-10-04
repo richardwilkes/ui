@@ -7,22 +7,21 @@
 // This Source Code Form is "Incompatible With Secondary Licenses", as
 // defined by the Mozilla Public License, version 2.0.
 
-package windowmenu
+package specialmenus
 
 import (
 	"github.com/richardwilkes/i18n"
 	"github.com/richardwilkes/ui/event"
 	"github.com/richardwilkes/ui/keys"
 	"github.com/richardwilkes/ui/menu"
-	"github.com/richardwilkes/ui/menu/factory"
 	"github.com/richardwilkes/ui/widget/window"
 )
 
-// Install adds a standard 'Window' menu to the menu bar.
-func Install(index int) menu.Menu {
-	windowMenu := factory.NewMenu(i18n.Text("Window"))
+// InstallWindowMenu adds a standard 'Window' menu to the menu bar.
+func InstallWindowMenu(index int) {
+	windowMenu := menu.NewMenu(i18n.Text("Window"))
 
-	item := factory.NewItemWithKey(i18n.Text("Minimize"), keys.VK_M, func(evt event.Event) {
+	item := menu.NewItemWithKey(i18n.Text("Minimize"), keys.VK_M, func(evt event.Event) {
 		wnd := window.KeyWindow()
 		if wnd != nil {
 			wnd.Minimize()
@@ -36,7 +35,7 @@ func Install(index int) menu.Menu {
 	})
 	windowMenu.InsertItem(item, -1)
 
-	item = factory.NewItemWithKey(i18n.Text("Zoom"), keys.VK_BackSlash, func(evt event.Event) {
+	item = menu.NewItemWithKey(i18n.Text("Zoom"), keys.VK_BackSlash, func(evt event.Event) {
 		wnd := window.KeyWindow()
 		if wnd != nil {
 			wnd.Zoom()
@@ -49,11 +48,10 @@ func Install(index int) menu.Menu {
 		}
 	})
 	windowMenu.InsertItem(item, -1)
-	windowMenu.InsertItem(factory.NewSeparator(), -1)
+	windowMenu.InsertItem(menu.NewSeparator(), -1)
 
-	windowMenu.InsertItem(factory.NewItem(i18n.Text("Bring All to Front"), func(evt event.Event) { window.AllWindowsToFront() }), -1)
+	windowMenu.InsertItem(menu.NewItem(i18n.Text("Bring All to Front"), func(evt event.Event) { window.AllWindowsToFront() }), -1)
 
-	factory.SetWindowMenu(windowMenu)
-	factory.AppBar().InsertMenu(windowMenu, index)
-	return windowMenu
+	menu.AppBar().InsertMenu(windowMenu, index)
+	menu.SetupSpecialMenu(menu.WindowMenu, windowMenu)
 }

@@ -12,12 +12,14 @@ package app
 import (
 	"github.com/richardwilkes/ui/app/quit"
 	"github.com/richardwilkes/ui/event"
+	"github.com/richardwilkes/ui/menu/platform"
 	// #cgo darwin LDFLAGS: -framework Cocoa
 	// #include "App_darwin.h"
 	"C"
 )
 
 func platformStartUserInterface() {
+	platform.Install()
 	C.platformStartUserInterface()
 }
 

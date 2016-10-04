@@ -7,14 +7,13 @@
 // This Source Code Form is "Incompatible With Secondary Licenses", as
 // defined by the Mozilla Public License, version 2.0.
 
-package editmenu
+package edit
 
 import (
 	"github.com/richardwilkes/i18n"
 	"github.com/richardwilkes/ui/event"
 	"github.com/richardwilkes/ui/keys"
 	"github.com/richardwilkes/ui/menu"
-	"github.com/richardwilkes/ui/menu/factory"
 	"github.com/richardwilkes/ui/widget/window"
 )
 
@@ -28,7 +27,7 @@ type Copyable interface {
 
 // InsertCopyItem adds the standard Copy menu item to the specified menu.
 func InsertCopyItem(m menu.Menu, index int) menu.Item {
-	item := factory.NewItemWithKey(i18n.Text("Copy"), keys.VK_C, func(evt event.Event) {
+	item := menu.NewItemWithKey(i18n.Text("Copy"), keys.VK_C, func(evt event.Event) {
 		wnd := window.KeyWindow()
 		if wnd != nil {
 			focus := wnd.Focus()

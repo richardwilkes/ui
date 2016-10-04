@@ -12,6 +12,8 @@
 package platform
 
 import (
+	"github.com/richardwilkes/geom"
+	"github.com/richardwilkes/ui"
 	"github.com/richardwilkes/ui/keys"
 	"github.com/richardwilkes/ui/menu"
 )
@@ -50,6 +52,9 @@ func (menu *platformMenu) platformInsertItem(item cItem, index int) {
 }
 
 func (menu *platformMenu) platformRemove(index int) {
+}
+
+func (menu *platformMenu) platformPopup(window ui.Window, where geom.Point, item cItem) {
 }
 
 func (item *platformItem) platformDispose() {

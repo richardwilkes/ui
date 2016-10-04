@@ -7,33 +7,32 @@
 // This Source Code Form is "Incompatible With Secondary Licenses", as
 // defined by the Mozilla Public License, version 2.0.
 
-package editmenu
+package edit
 
 import (
 	"github.com/richardwilkes/i18n"
 	"github.com/richardwilkes/ui/event"
 	"github.com/richardwilkes/ui/keys"
 	"github.com/richardwilkes/ui/menu"
-	"github.com/richardwilkes/ui/menu/factory"
 	"github.com/richardwilkes/ui/widget/window"
 )
 
-// SelectAll defines the methods required of objects that can respond to the SelectAll menu item.
-type SelectAll interface {
-	// CanSelectAll returns true if SelectAll() can be called successfully.
-	CanSelectAll() bool
-	// SelectAll expands the selection to encompass the entire available range.
-	SelectAll()
+// Deletable defines the methods required of objects that can respond to the Delete menu item.
+type Deletable interface {
+	// CanDelete returns true if Delete() can be called successfully.
+	CanDelete() bool
+	// Delete the data from the object and copy it to the clipboard.
+	Delete()
 }
 
-// InsertSelectAllItem adds the standard Select All menu item to the specified menu.
-func InsertSelectAllItem(m menu.Menu, index int) menu.Item {
-	item := factory.NewItemWithKey(i18n.Text("Select All"), keys.VK_A, func(evt event.Event) {
+// InsertDeleteItem adds the standard Delete menu item to the specified menu.
+func InsertDeleteItem(m menu.Menu, index int) menu.Item {
+	item := menu.NewItemWithKeyAndModifiers(i18n.Text("Delete"), keys.VK_Backspace, 0, func(evt event.Event) {
 		wnd := window.KeyWindow()
 		if wnd != nil {
 			focus := wnd.Focus()
-			if sa, ok := focus.(SelectAll); ok {
-				sa.SelectAll()
+			if c, ok := focus.(Deletable); ok {
+				c.Delete()
 			}
 		}
 	})
@@ -42,8 +41,8 @@ func InsertSelectAllItem(m menu.Menu, index int) menu.Item {
 		wnd := window.KeyWindow()
 		if wnd != nil {
 			focus := wnd.Focus()
-			if sa, ok := focus.(SelectAll); ok {
-				valid = sa.CanSelectAll()
+			if c, ok := focus.(Deletable); ok {
+				valid = c.CanDelete()
 			}
 		}
 		if !valid {

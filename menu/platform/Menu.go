@@ -10,6 +10,8 @@
 package platform
 
 import (
+	"github.com/richardwilkes/geom"
+	"github.com/richardwilkes/ui"
 	"github.com/richardwilkes/ui/menu"
 )
 
@@ -25,12 +27,12 @@ var (
 
 // AppBar returns the application menu bar.
 func AppBar() menu.Bar {
-	if menu, ok := menuMap[platformBar()]; ok {
-		return menu
+	if mnu, ok := menuMap[platformBar()]; ok {
+		return mnu
 	}
-	menu := NewMenu("")
-	platformSetBar(menu.(*platformMenu).menu)
-	return menu.(*platformMenu)
+	mnu := NewMenu("")
+	platformSetBar(mnu.(*platformMenu).menu)
+	return mnu.(*platformMenu)
 }
 
 // NewMenu creates a new menu.
@@ -42,42 +44,42 @@ func NewMenu(title string) menu.Menu {
 
 // InsertItem inserts an item at the specified item index within this menu. Pass in a negative
 // index to append to the end.
-func (menu *platformMenu) InsertItem(item menu.Item, index int) {
-	max := menu.Count()
+func (mnu *platformMenu) InsertItem(item menu.Item, index int) {
+	max := mnu.Count()
 	if index < 0 || index > max {
 		index = max
 	}
-	menu.platformInsertItem(item.(*platformItem).item, index)
+	mnu.platformInsertItem(item.(*platformItem).item, index)
 }
 
 // InsertMenu inserts an item with a sub-menu at the specified item index within this menu. Pass
 // in a negative index to append to the end.
-func (menu *platformMenu) InsertMenu(subMenu menu.Menu, index int) {
+func (mnu *platformMenu) InsertMenu(subMenu menu.Menu, index int) {
 	item := NewItem(subMenu.Title(), nil)
 	item.(*platformItem).platformSetSubMenu(subMenu.(*platformMenu).menu)
-	menu.InsertItem(item, index)
+	mnu.InsertItem(item, index)
 }
 
 // Remove the item at the specified index from this menu. This does not dispose of the menu item.
-func (menu *platformMenu) Remove(index int) {
-	if index >= 0 && index < menu.Count() {
-		menu.platformRemove(index)
+func (mnu *platformMenu) Remove(index int) {
+	if index >= 0 && index < mnu.Count() {
+		mnu.platformRemove(index)
 	}
 }
 
 // Title returns the title of this menu.
-func (menu *platformMenu) Title() string {
-	return menu.title
+func (mnu *platformMenu) Title() string {
+	return mnu.title
 }
 
 // Count of items in this menu.
-func (menu *platformMenu) Count() int {
-	return menu.platformItemCount()
+func (mnu *platformMenu) Count() int {
+	return mnu.platformItemCount()
 }
 
 // Item at the specified index, or nil.
-func (menu *platformMenu) Item(index int) menu.Item {
-	if item, ok := itemMap[menu.platformItem(index)]; ok {
+func (mnu *platformMenu) Item(index int) menu.Item {
+	if item, ok := itemMap[mnu.platformItem(index)]; ok {
 		return item
 	}
 	return nil
@@ -85,19 +87,25 @@ func (menu *platformMenu) Item(index int) menu.Item {
 
 // Dispose releases any operating system resources associated with this menu. It will also
 // call Dispose() on all menu items it contains.
-func (menu *platformMenu) Dispose() {
-	if _, ok := menuMap[menu.menu]; ok {
-		count := menu.Count()
+func (mnu *platformMenu) Dispose() {
+	if _, ok := menuMap[mnu.menu]; ok {
+		count := mnu.Count()
 		for i := 0; i < count; i++ {
-			menu.Item(i).Dispose()
+			mnu.Item(i).Dispose()
 		}
-		delete(menuMap, menu.menu)
-		menu.platformDispose()
+		delete(menuMap, mnu.menu)
+		mnu.platformDispose()
 	}
 }
 
 // Menu at the specified index, or nil.
-func (menu *platformMenu) Menu(index int) menu.Menu {
-	item := menu.Item(index)
+func (mnu *platformMenu) Menu(index int) menu.Menu {
+	item := mnu.Item(index)
 	return item.SubMenu()
+}
+
+// Popup displays the menu within the window. An attempt will be made to position the 'item'
+// at 'where' within the window.
+func (mnu *platformMenu) Popup(window ui.Window, where geom.Point, item menu.Item) {
+	mnu.platformPopup(window, where, item.(*platformItem).item)
 }

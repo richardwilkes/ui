@@ -7,14 +7,16 @@
 // This Source Code Form is "Incompatible With Secondary Licenses", as
 // defined by the Mozilla Public License, version 2.0.
 
-package popupmenu
+package specialmenus
 
 import (
-	"github.com/richardwilkes/geom"
-	"github.com/richardwilkes/ui"
+	"github.com/richardwilkes/i18n"
 	"github.com/richardwilkes/ui/menu"
 )
 
-func platformPopupMenu(window ui.Window, where geom.Point, menu menu.Menu, item menu.Item) {
-	// RAW: Implement for Windows
+// InstallHelpMenu adds a standard 'Help' menu to the menu bar.
+func InstallHelpMenu(index int) {
+	helpMenu := menu.NewMenu(i18n.Text("Help"))
+	menu.AppBar().InsertMenu(helpMenu, index)
+	menu.SetupSpecialMenu(menu.HelpMenu, helpMenu)
 }

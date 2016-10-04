@@ -23,11 +23,9 @@ import (
 	"github.com/richardwilkes/ui/layout"
 	"github.com/richardwilkes/ui/layout/flex"
 	"github.com/richardwilkes/ui/layout/flow"
-	"github.com/richardwilkes/ui/menu/appmenu"
-	"github.com/richardwilkes/ui/menu/editmenu"
-	"github.com/richardwilkes/ui/menu/factory"
-	"github.com/richardwilkes/ui/menu/helpmenu"
-	"github.com/richardwilkes/ui/menu/windowmenu"
+	"github.com/richardwilkes/ui/menu"
+	"github.com/richardwilkes/ui/menu/edit"
+	"github.com/richardwilkes/ui/menu/specialmenus"
 	"github.com/richardwilkes/ui/widget"
 	"github.com/richardwilkes/ui/widget/button"
 	"github.com/richardwilkes/ui/widget/checkbox"
@@ -65,22 +63,22 @@ func main() {
 }
 
 func createMenuBar() {
-	_, aboutItem, prefsItem := appmenu.Install()
+	_, aboutItem, prefsItem := specialmenus.InstallAppMenu()
 	aboutItem.EventHandlers().Add(event.SelectionType, createAboutWindow)
 	prefsItem.EventHandlers().Add(event.SelectionType, createPreferencesWindow)
 	createFileMenu()
 	createEditMenu()
-	windowmenu.Install(-1)
-	helpmenu.Install(-1)
+	specialmenus.InstallWindowMenu(-1)
+	specialmenus.InstallHelpMenu(-1)
 }
 
 func createFileMenu() {
-	fileMenu := factory.NewMenu("File")
+	fileMenu := menu.NewMenu("File")
 
-	fileMenu.InsertItem(factory.NewItemWithKey("Open", keys.VK_O, nil), -1)
-	fileMenu.InsertItem(factory.NewSeparator(), -1)
+	fileMenu.InsertItem(menu.NewItemWithKey("Open", keys.VK_O, nil), -1)
+	fileMenu.InsertItem(menu.NewSeparator(), -1)
 
-	item := factory.NewItemWithKey("Close", keys.VK_W, func(evt event.Event) {
+	item := menu.NewItemWithKey("Close", keys.VK_W, func(evt event.Event) {
 		wnd := window.KeyWindow()
 		if wnd != nil && wnd.Closable() {
 			wnd.AttemptClose()
@@ -94,20 +92,20 @@ func createFileMenu() {
 	})
 	fileMenu.InsertItem(item, -1)
 
-	factory.AppBar().InsertMenu(fileMenu, -1)
+	menu.AppBar().InsertMenu(fileMenu, -1)
 }
 
 func createEditMenu() {
-	editMenu := factory.NewMenu("Edit")
+	editMenu := menu.NewMenu("Edit")
 
-	editmenu.InsertCutItem(editMenu, -1)
-	editmenu.InsertCopyItem(editMenu, -1)
-	editmenu.InsertPasteItem(editMenu, -1)
-	editMenu.InsertItem(factory.NewSeparator(), -1)
-	editmenu.InsertDeleteItem(editMenu, -1)
-	editmenu.InsertSelectAllItem(editMenu, -1)
+	edit.InsertCutItem(editMenu, -1)
+	edit.InsertCopyItem(editMenu, -1)
+	edit.InsertPasteItem(editMenu, -1)
+	editMenu.InsertItem(menu.NewSeparator(), -1)
+	edit.InsertDeleteItem(editMenu, -1)
+	edit.InsertSelectAllItem(editMenu, -1)
 
-	factory.AppBar().InsertMenu(editMenu, -1)
+	menu.AppBar().InsertMenu(editMenu, -1)
 }
 
 func createButtonsWindow(title string) ui.Window {

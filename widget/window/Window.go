@@ -19,6 +19,7 @@ import (
 	"github.com/richardwilkes/ui/id"
 	"github.com/richardwilkes/ui/keys"
 	"github.com/richardwilkes/ui/layout"
+	//"github.com/richardwilkes/ui/menu/factory"
 	"sync"
 	"time"
 	"unsafe"
@@ -89,6 +90,9 @@ func NewWindowWithContentSize(where geom.Point, contentSize geom.Size, styleMask
 	window := &Wnd{window: win, surface: surface, style: styleMask}
 	windowMap[window.window] = window
 	window.root = newRootView(window)
+	//	if styleMask != BorderlessWindowMask && factory.UseNative {
+	//
+	//	}
 	handlers := window.EventHandlers()
 	handlers.Add(event.FocusGainedType, func(evt event.Event) { window.repaintFocus() })
 	handlers.Add(event.FocusLostType, func(evt event.Event) { window.repaintFocus() })

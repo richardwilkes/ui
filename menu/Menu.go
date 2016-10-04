@@ -9,6 +9,11 @@
 
 package menu
 
+import (
+	"github.com/richardwilkes/geom"
+	"github.com/richardwilkes/ui"
+)
+
 // Menu represents a set of menu items.
 type Menu interface {
 	// InsertItem inserts an item at the specified item index within this menu. Pass in a negative
@@ -25,7 +30,15 @@ type Menu interface {
 	Count() int
 	// Item at the specified index, or nil.
 	Item(index int) Item
+	// Popup displays the menu within the window. An attempt will be made to position the 'item'
+	// at 'where' within the window.
+	Popup(window ui.Window, where geom.Point, item Item)
 	// Dispose releases any operating system resources associated with this menu. It will also
 	// call Dispose() on all menu items it contains.
 	Dispose()
 }
+
+var (
+	// NewMenu creates a new menu.
+	NewMenu func(title string) Menu
+)

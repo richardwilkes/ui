@@ -7,33 +7,32 @@
 // This Source Code Form is "Incompatible With Secondary Licenses", as
 // defined by the Mozilla Public License, version 2.0.
 
-package editmenu
+package edit
 
 import (
 	"github.com/richardwilkes/i18n"
 	"github.com/richardwilkes/ui/event"
 	"github.com/richardwilkes/ui/keys"
 	"github.com/richardwilkes/ui/menu"
-	"github.com/richardwilkes/ui/menu/factory"
 	"github.com/richardwilkes/ui/widget/window"
 )
 
-// Pastable defines the methods required of objects that can respond to the Paste menu item.
-type Pastable interface {
-	// CanPaste returns true if Paste() can be called successfully.
-	CanPaste() bool
-	// Paste the data from the clipboard into the object.
-	Paste()
+// Cutable defines the methods required of objects that can respond to the Cut menu item.
+type Cutable interface {
+	// CanCut returns true if Cut() can be called successfully.
+	CanCut() bool
+	// Cut the data from the object and copy it to the clipboard.
+	Cut()
 }
 
-// InsertPasteItem adds the standard Paste menu item to the specified menu.
-func InsertPasteItem(m menu.Menu, index int) menu.Item {
-	item := factory.NewItemWithKey(i18n.Text("Paste"), keys.VK_V, func(evt event.Event) {
+// InsertCutItem adds the standard Cut menu item to the specified menu.
+func InsertCutItem(m menu.Menu, index int) menu.Item {
+	item := menu.NewItemWithKey(i18n.Text("Cut"), keys.VK_X, func(evt event.Event) {
 		wnd := window.KeyWindow()
 		if wnd != nil {
 			focus := wnd.Focus()
-			if p, ok := focus.(Pastable); ok {
-				p.Paste()
+			if c, ok := focus.(Cutable); ok {
+				c.Cut()
 			}
 		}
 	})
@@ -42,8 +41,8 @@ func InsertPasteItem(m menu.Menu, index int) menu.Item {
 		wnd := window.KeyWindow()
 		if wnd != nil {
 			focus := wnd.Focus()
-			if p, ok := focus.(Pastable); ok {
-				valid = p.CanPaste()
+			if c, ok := focus.(Cutable); ok {
+				valid = c.CanCut()
 			}
 		}
 		if !valid {
