@@ -26,8 +26,8 @@ type Pastable interface {
 	Paste()
 }
 
-// AddPasteItem adds the standard Paste menu item to the specified menu.
-func AddPasteItem(m menu.Menu) menu.Item {
+// InsertPasteItem adds the standard Paste menu item to the specified menu.
+func InsertPasteItem(m menu.Menu, index int) menu.Item {
 	item := factory.NewItemWithKey(i18n.Text("Paste"), keys.VK_V, func(evt event.Event) {
 		wnd := window.KeyWindow()
 		if wnd != nil {
@@ -50,6 +50,6 @@ func AddPasteItem(m menu.Menu) menu.Item {
 			evt.(*event.Validate).MarkInvalid()
 		}
 	})
-	m.AddItem(item)
+	m.InsertItem(item, index)
 	return item
 }

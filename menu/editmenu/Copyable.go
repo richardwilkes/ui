@@ -26,8 +26,8 @@ type Copyable interface {
 	Copy()
 }
 
-// AddCopyItem adds the standard Copy menu item to the specified menu.
-func AddCopyItem(m menu.Menu) menu.Item {
+// InsertCopyItem adds the standard Copy menu item to the specified menu.
+func InsertCopyItem(m menu.Menu, index int) menu.Item {
 	item := factory.NewItemWithKey(i18n.Text("Copy"), keys.VK_C, func(evt event.Event) {
 		wnd := window.KeyWindow()
 		if wnd != nil {
@@ -50,6 +50,6 @@ func AddCopyItem(m menu.Menu) menu.Item {
 			evt.(*event.Validate).MarkInvalid()
 		}
 	})
-	m.AddItem(item)
+	m.InsertItem(item, index)
 	return item
 }

@@ -18,36 +18,22 @@ type platformMenu struct {
 	title string
 }
 
-// AddItem appends an item to the end of this menu.
-func (menu *platformMenu) AddItem(item menu.Item) {
-	menu.platformAddItem(item.(*platformItem).item)
-}
-
-// AddMenu appends an item with a sub-menu to the end of this menu.
-func (menu *platformMenu) AddMenu(subMenu menu.Menu) {
-	item := NewItem(subMenu.Title(), nil)
-	item.(*platformItem).platformSetSubMenu(subMenu.(*platformMenu).menu)
-	menu.AddItem(item)
-}
-
-// InsertItem inserts an item at the specified item index within this menu.
-func (menu *platformMenu) InsertItem(index int, item menu.Item) {
-	if index < 0 {
-		index = 0
-	} else {
-		max := menu.Count()
-		if index > max {
-			index = max
-		}
+// InsertItem inserts an item at the specified item index within this menu. Pass in a negative
+// index to append to the end.
+func (menu *platformMenu) InsertItem(item menu.Item, index int) {
+	max := menu.Count()
+	if index < 0 || index > max {
+		index = max
 	}
-	menu.platformInsertItem(index, item.(*platformItem).item)
+	menu.platformInsertItem(item.(*platformItem).item, index)
 }
 
-// InsertMenu inserts an item with a sub-menu at the specified item index within this menu.
-func (menu *platformMenu) InsertMenu(index int, subMenu menu.Menu) {
+// InsertMenu inserts an item with a sub-menu at the specified item index within this menu. Pass
+// in a negative index to append to the end.
+func (menu *platformMenu) InsertMenu(subMenu menu.Menu, index int) {
 	item := NewItem(subMenu.Title(), nil)
 	item.(*platformItem).platformSetSubMenu(subMenu.(*platformMenu).menu)
-	menu.InsertItem(index, item)
+	menu.InsertItem(item, index)
 }
 
 // Remove the item at the specified index from this menu. This does not dispose of the menu item.

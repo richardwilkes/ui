@@ -11,10 +11,9 @@ package menu
 
 // Bar represents a set of menus.
 type Bar interface {
-	// AddMenu appends a menu to the end of this bar.
-	AddMenu(menu Menu)
-	// InsertMenu inserts a menu at the specified menu index within this bar.
-	InsertMenu(index int, menu Menu)
+	// InsertMenu inserts a menu at the specified item index within this bar. Pass in a negative
+	// index to append to the end.
+	InsertMenu(menu Menu, index int)
 	// Remove the menu at the specified index from this bar.
 	Remove(index int)
 	// Count of menus in this bar.

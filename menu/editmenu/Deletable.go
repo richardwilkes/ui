@@ -26,8 +26,8 @@ type Deletable interface {
 	Delete()
 }
 
-// AddDeleteItem adds the standard Delete menu item to the specified menu.
-func AddDeleteItem(m menu.Menu) menu.Item {
+// InsertDeleteItem adds the standard Delete menu item to the specified menu.
+func InsertDeleteItem(m menu.Menu, index int) menu.Item {
 	item := factory.NewItemWithKeyAndModifiers(i18n.Text("Delete"), keys.VK_Backspace, 0, func(evt event.Event) {
 		wnd := window.KeyWindow()
 		if wnd != nil {
@@ -50,6 +50,6 @@ func AddDeleteItem(m menu.Menu) menu.Item {
 			evt.(*event.Validate).MarkInvalid()
 		}
 	})
-	m.AddItem(item)
+	m.InsertItem(item, index)
 	return item
 }

@@ -81,7 +81,7 @@ func NewSeparator() menu.Item {
 func AddServicesMenu(menu menu.Menu) bool {
 	if UseNative && runtime.GOOS == "darwin" {
 		servicesMenu := NewMenu(i18n.Text("Services"))
-		menu.AddMenu(servicesMenu)
+		menu.InsertMenu(servicesMenu, -1)
 		platform.SetServicesMenu(servicesMenu)
 		return true
 	}

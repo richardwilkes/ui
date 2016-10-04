@@ -48,43 +48,21 @@ func (mnu *Menu) Title() string {
 	return mnu.item.Title()
 }
 
-// AddItem appends an item to the end of this menu.
-func (mnu *Menu) AddItem(item menu.Item) {
-	switch actual := item.(type) {
-	case *MenuItem:
-		mnu.AddChild(actual)
-		actual.EventHandlers().Add(event.ClosingType, mnu.close)
-		actual.SetLayoutData(flex.NewData().SetHorizontalGrab(true).SetHorizontalAlignment(draw.AlignFill))
-	case *Separator:
-		mnu.AddChild(actual)
-		actual.SetLayoutData(flex.NewData().SetHorizontalGrab(true).SetHorizontalAlignment(draw.AlignFill))
-	}
-}
-
-// AddMenu appends an item with a sub-menu to the end of this menu.
-func (mnu *Menu) AddMenu(subMenu menu.Menu) {
-	if actual, ok := subMenu.(*Menu); ok {
-		mnu.AddItem(actual.item)
-	}
-}
-
-// InsertItem inserts an item at the specified item index within this menu.
-func (mnu *Menu) InsertItem(index int, item menu.Item) {
-	switch actual := item.(type) {
-	case *MenuItem:
+// InsertItem inserts an item at the specified item index within this menu. Pass in a negative
+// index to append to the end.
+func (mnu *Menu) InsertItem(item menu.Item, index int) {
+	if actual, ok := item.(ui.Widget); ok {
 		mnu.AddChildAtIndex(actual, index)
 		actual.EventHandlers().Add(event.ClosingType, mnu.close)
 		actual.SetLayoutData(flex.NewData().SetHorizontalGrab(true).SetHorizontalAlignment(draw.AlignFill))
-	case *Separator:
-		mnu.AddChildAtIndex(actual, index)
-		actual.SetLayoutData(flex.NewData().SetHorizontalGrab(true).SetHorizontalAlignment(draw.AlignFill))
 	}
 }
 
-// InsertMenu inserts an item with a sub-menu at the specified item index within this menu.
-func (mnu *Menu) InsertMenu(index int, subMenu menu.Menu) {
+// InsertMenu inserts an item with a sub-menu at the specified item index within this menu. Pass
+// in a negative index to append to the end.
+func (mnu *Menu) InsertMenu(subMenu menu.Menu, index int) {
 	if actual, ok := subMenu.(*Menu); ok {
-		mnu.InsertItem(index, actual.item)
+		mnu.InsertItem(actual.item, index)
 	}
 }
 
@@ -100,13 +78,7 @@ func (mnu *Menu) Count() int {
 
 // Item at the specified index, or nil.
 func (mnu *Menu) Item(index int) menu.Item {
-	switch actual := mnu.Children()[index].(type) {
-	case *MenuItem:
-		return actual
-	case *Separator:
-		return actual
-	}
-	panic("Invalid child")
+	return mnu.Children()[index].(menu.Item)
 }
 
 func (mnu *Menu) adjustItems(evt event.Event) {
@@ -142,7 +114,7 @@ func (mnu *Menu) open(evt event.Event) {
 	mnu.SetBounds(geom.Rect{Size: pref})
 	mnu.Layout().Layout()
 	wnd := window.NewWindowWithContentSize(where, pref, window.BorderlessWindowMask)
-	wnd.RootWidget().AddChild(mnu)
+	wnd.Content().AddChild(mnu)
 	wnd.EventHandlers().Add(event.FocusLostType, mnu.close)
 	wnd.ToFront()
 	mnu.wnd = wnd

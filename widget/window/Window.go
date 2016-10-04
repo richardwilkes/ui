@@ -13,14 +13,12 @@ import (
 	"fmt"
 	"github.com/richardwilkes/geom"
 	"github.com/richardwilkes/ui"
-	"github.com/richardwilkes/ui/color"
 	"github.com/richardwilkes/ui/cursor"
 	"github.com/richardwilkes/ui/draw"
 	"github.com/richardwilkes/ui/event"
 	"github.com/richardwilkes/ui/id"
 	"github.com/richardwilkes/ui/keys"
 	"github.com/richardwilkes/ui/layout"
-	"github.com/richardwilkes/ui/widget"
 	"sync"
 	"time"
 	"unsafe"
@@ -32,7 +30,7 @@ type Wnd struct {
 	window          platformWindow
 	surface         platformSurface // Currently only used by Linux
 	eventHandlers   *event.Handlers
-	root            ui.Widget
+	root            *RootView
 	focus           ui.Widget
 	lastMouseWidget ui.Widget
 	lastToolTip     string
@@ -90,10 +88,7 @@ func NewWindowWithContentSize(where geom.Point, contentSize geom.Size, styleMask
 	win, surface := platformNewWindow(bounds, styleMask)
 	window := &Wnd{window: win, surface: surface, style: styleMask}
 	windowMap[window.window] = window
-	root := widget.NewBlock()
-	root.SetBackground(color.Background)
-	root.SetWindow(window)
-	window.root = root
+	window.root = newRootView(window)
 	handlers := window.EventHandlers()
 	handlers.Add(event.FocusGainedType, func(evt event.Event) { window.repaintFocus() })
 	handlers.Add(event.FocusLostType, func(evt event.Event) { window.repaintFocus() })
@@ -171,12 +166,12 @@ func (window *Wnd) SetFrame(bounds geom.Rect) {
 	window.platformSetFrame(bounds)
 }
 
-// ContentFrame returns the boundaries of the root content widget of this window.
+// ContentFrame returns the boundaries of the root widget of this window.
 func (window *Wnd) ContentFrame() geom.Rect {
 	return window.platformContentFrame()
 }
 
-// SetContentFrame sets the boundaries of the root content widget of this window.
+// SetContentFrame sets the boundaries of the root widget of this window.
 func (window *Wnd) SetContentFrame(bounds geom.Rect) {
 	frame := window.Frame()
 	cFrame := window.ContentFrame()
@@ -187,7 +182,7 @@ func (window *Wnd) SetContentFrame(bounds geom.Rect) {
 	window.SetFrame(bounds)
 }
 
-// ContentLocalFrame returns the local boundaries of the content widget of this window.
+// ContentLocalFrame returns the local boundaries of the root widget of this window.
 func (window *Wnd) ContentLocalFrame() geom.Rect {
 	bounds := window.ContentFrame()
 	bounds.X = 0
@@ -203,9 +198,11 @@ func (window *Wnd) Pack() {
 	window.SetContentFrame(bounds)
 }
 
-// RootWidget returns the root widget of the window.
-func (window *Wnd) RootWidget() ui.Widget {
-	return window.root
+// Content returns the content widget of the window. This is not the root widget of the window,
+// which contains both the content widget and the menu bar, for platforms that hold the menu bar
+// within the window.
+func (window *Wnd) Content() ui.Widget {
+	return window.root.Content()
 }
 
 func (window *Wnd) Focused() bool {
@@ -237,9 +234,9 @@ func (window *Wnd) SetFocus(target ui.Widget) {
 func (window *Wnd) FocusNext() {
 	current := window.focus
 	if current == nil {
-		current = window.root
+		current = window.root.Content()
 	}
-	i, focusables := collectFocusables(window.root, current, make([]ui.Widget, 0))
+	i, focusables := collectFocusables(window.root.Content(), current, make([]ui.Widget, 0))
 	size := len(focusables)
 	if size > 0 {
 		i++
@@ -255,9 +252,9 @@ func (window *Wnd) FocusNext() {
 func (window *Wnd) FocusPrevious() {
 	current := window.focus
 	if current == nil {
-		current = window.root
+		current = window.root.Content()
 	}
-	i, focusables := collectFocusables(window.root, current, make([]ui.Widget, 0))
+	i, focusables := collectFocusables(window.root.Content(), current, make([]ui.Widget, 0))
 	size := len(focusables)
 	if size > 0 {
 		i--

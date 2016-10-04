@@ -26,8 +26,8 @@ type Cutable interface {
 	Cut()
 }
 
-// AddCutItem adds the standard Cut menu item to the specified menu.
-func AddCutItem(m menu.Menu) menu.Item {
+// InsertCutItem adds the standard Cut menu item to the specified menu.
+func InsertCutItem(m menu.Menu, index int) menu.Item {
 	item := factory.NewItemWithKey(i18n.Text("Cut"), keys.VK_X, func(evt event.Event) {
 		wnd := window.KeyWindow()
 		if wnd != nil {
@@ -50,6 +50,6 @@ func AddCutItem(m menu.Menu) menu.Item {
 			evt.(*event.Validate).MarkInvalid()
 		}
 	})
-	m.AddItem(item)
+	m.InsertItem(item, index)
 	return item
 }

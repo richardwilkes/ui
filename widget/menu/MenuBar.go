@@ -31,20 +31,9 @@ func NewMenuBar() *MenuBar {
 	return bar
 }
 
-// AddMenu appends a menu to the end of this bar.
-func (bar *MenuBar) AddMenu(subMenu menu.Menu) {
-	if actual, ok := subMenu.(*Menu); ok {
-		bar.AddChild(actual.item)
-		actual.attachToBottom = true
-		switch layout := bar.Layout().(type) {
-		case *flex.Flex:
-			layout.SetColumns(len(bar.Children()))
-		}
-	}
-}
-
-// InsertMenu inserts a menu at the specified menu index within this bar.
-func (bar *MenuBar) InsertMenu(index int, subMenu menu.Menu) {
+// InsertMenu inserts a menu at the specified item index within this bar. Pass in a negative
+// index to append to the end.
+func (bar *MenuBar) InsertMenu(subMenu menu.Menu, index int) {
 	if actual, ok := subMenu.(*Menu); ok {
 		bar.AddChildAtIndex(actual.item, index)
 		actual.attachToBottom = true

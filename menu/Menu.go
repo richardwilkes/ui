@@ -11,14 +11,12 @@ package menu
 
 // Menu represents a set of menu items.
 type Menu interface {
-	// AddItem appends an item to the end of this menu.
-	AddItem(item Item)
-	// AddMenu appends an item with a sub-menu to the end of this menu.
-	AddMenu(menu Menu)
-	// InsertItem inserts an item at the specified item index within this menu.
-	InsertItem(index int, item Item)
-	// InsertMenu inserts an item with a sub-menu at the specified item index within this menu.
-	InsertMenu(index int, menu Menu)
+	// InsertItem inserts an item at the specified item index within this menu. Pass in a negative
+	// index to append to the end.
+	InsertItem(item Item, index int)
+	// InsertMenu inserts an item with a sub-menu at the specified item index within this menu. Pass
+	// in a negative index to append to the end.
+	InsertMenu(menu Menu, index int)
 	// Remove the item at the specified index from this menu.
 	Remove(index int)
 	// Title returns the title of this menu.

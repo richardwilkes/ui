@@ -170,15 +170,15 @@ func (pm *PopupMenu) addItemToMenu(m menu.Menu, index int) bool {
 	one := pm.items[index]
 	switch one.(type) {
 	case *separationMarker:
-		m.AddItem(factory.NewSeparator())
+		m.InsertItem(factory.NewSeparator(), -1)
 		return false
 	default:
-		m.AddItem(factory.NewItem(fmt.Sprintf("%v", one), func(evt event.Event) {
+		m.InsertItem(factory.NewItem(fmt.Sprintf("%v", one), func(evt event.Event) {
 			if index != pm.SelectedIndex() {
 				pm.SelectIndex(index)
 				event.Dispatch(event.NewSelection(pm))
 			}
-		}))
+		}), -1)
 		return true
 	}
 }

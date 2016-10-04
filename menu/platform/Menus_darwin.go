@@ -66,11 +66,7 @@ func (menu *platformMenu) platformItem(index int) cItem {
 	return cItem(C.platformItem(menu.menu, C.int(index)))
 }
 
-func (menu *platformMenu) platformAddItem(item cItem) {
-	C.platformAddItem(menu.menu, item)
-}
-
-func (menu *platformMenu) platformInsertItem(index int, item cItem) {
+func (menu *platformMenu) platformInsertItem(item cItem, index int) {
 	C.platformInsertItem(menu.menu, item, C.int(index))
 }
 

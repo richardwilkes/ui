@@ -33,16 +33,18 @@ type Window interface {
 	Frame() geom.Rect
 	// SetFrame sets the boundaries of the frame of this window.
 	SetFrame(bounds geom.Rect)
-	// ContentFrame returns the boundaries of the root content widget of this window.
+	// ContentFrame returns the boundaries of the root widget of this window.
 	ContentFrame() geom.Rect
-	// SetContentFrame sets the boundaries of the root content widget of this window.
+	// SetContentFrame sets the boundaries of the root widget of this window.
 	SetContentFrame(bounds geom.Rect)
-	// ContentLocalFrame returns the local boundaries of the content widget of this window.
+	// ContentLocalFrame returns the local boundaries of the root widget of this window.
 	ContentLocalFrame() geom.Rect
 	// Pack sets the window's content size to match the preferred size of the root widget.
 	Pack()
-	// RootWidget returns the root widget of the window.
-	RootWidget() Widget
+	// Content returns the content widget of the window. This is not the root widget of the window,
+	// which contains both the content widget and the menu bar, for platforms that hold the menu bar
+	// within the window.
+	Content() Widget
 	// Focus returns the widget with the keyboard focus in this window.
 	Focus() Widget
 	// SetFocus sets the keyboard focus to the specified target.

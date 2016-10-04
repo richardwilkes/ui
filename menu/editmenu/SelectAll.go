@@ -26,8 +26,8 @@ type SelectAll interface {
 	SelectAll()
 }
 
-// AddSelectAllItem adds the standard Select All menu item to the specified menu.
-func AddSelectAllItem(m menu.Menu) menu.Item {
+// InsertSelectAllItem adds the standard Select All menu item to the specified menu.
+func InsertSelectAllItem(m menu.Menu, index int) menu.Item {
 	item := factory.NewItemWithKey(i18n.Text("Select All"), keys.VK_A, func(evt event.Event) {
 		wnd := window.KeyWindow()
 		if wnd != nil {
@@ -50,6 +50,6 @@ func AddSelectAllItem(m menu.Menu) menu.Item {
 			evt.(*event.Validate).MarkInvalid()
 		}
 	})
-	m.AddItem(item)
+	m.InsertItem(item, index)
 	return item
 }

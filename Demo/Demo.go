@@ -65,20 +65,20 @@ func main() {
 }
 
 func createMenuBar() {
-	_, aboutItem, prefsItem := appmenu.AddToAppBar()
+	_, aboutItem, prefsItem := appmenu.Install()
 	aboutItem.EventHandlers().Add(event.SelectionType, createAboutWindow)
 	prefsItem.EventHandlers().Add(event.SelectionType, createPreferencesWindow)
 	createFileMenu()
 	createEditMenu()
-	windowmenu.AddToAppBar()
-	helpmenu.AddToAppBar()
+	windowmenu.Install(-1)
+	helpmenu.Install(-1)
 }
 
 func createFileMenu() {
 	fileMenu := factory.NewMenu("File")
 
-	fileMenu.AddItem(factory.NewItemWithKey("Open", keys.VK_O, nil))
-	fileMenu.AddItem(factory.NewSeparator())
+	fileMenu.InsertItem(factory.NewItemWithKey("Open", keys.VK_O, nil), -1)
+	fileMenu.InsertItem(factory.NewSeparator(), -1)
 
 	item := factory.NewItemWithKey("Close", keys.VK_W, func(evt event.Event) {
 		wnd := window.KeyWindow()
@@ -92,55 +92,55 @@ func createFileMenu() {
 			evt.(*event.Validate).MarkInvalid()
 		}
 	})
-	fileMenu.AddItem(item)
+	fileMenu.InsertItem(item, -1)
 
-	factory.AppBar().AddMenu(fileMenu)
+	factory.AppBar().InsertMenu(fileMenu, -1)
 }
 
 func createEditMenu() {
 	editMenu := factory.NewMenu("Edit")
 
-	editmenu.AddCutItem(editMenu)
-	editmenu.AddCopyItem(editMenu)
-	editmenu.AddPasteItem(editMenu)
-	editMenu.AddItem(factory.NewSeparator())
-	editmenu.AddDeleteItem(editMenu)
-	editmenu.AddSelectAllItem(editMenu)
+	editmenu.InsertCutItem(editMenu, -1)
+	editmenu.InsertCopyItem(editMenu, -1)
+	editmenu.InsertPasteItem(editMenu, -1)
+	editMenu.InsertItem(factory.NewSeparator(), -1)
+	editmenu.InsertDeleteItem(editMenu, -1)
+	editmenu.InsertSelectAllItem(editMenu, -1)
 
-	factory.AppBar().AddMenu(editMenu)
+	factory.AppBar().InsertMenu(editMenu, -1)
 }
 
 func createButtonsWindow(title string) ui.Window {
 	wnd := window.NewWindow(geom.Point{}, window.StdWindowMask)
 	wnd.SetTitle(title)
 
-	root := wnd.RootWidget()
-	root.SetBorder(border.NewEmpty(geom.Insets{Top: 10, Left: 10, Bottom: 10, Right: 10}))
-	flex.NewLayout(root).SetVerticalSpacing(10)
+	content := wnd.Content()
+	content.SetBorder(border.NewEmpty(geom.Insets{Top: 10, Left: 10, Bottom: 10, Right: 10}))
+	flex.NewLayout(content).SetVerticalSpacing(10)
 
 	buttonsPanel := createButtonsPanel()
 	buttonsPanel.SetLayoutData(flex.NewData().SetHorizontalGrab(true))
-	root.AddChild(buttonsPanel)
+	content.AddChild(buttonsPanel)
 
-	addSeparator(root)
+	addSeparator(content)
 
 	checkBoxPanel := createCheckBoxPanel()
 	checkBoxPanel.SetLayoutData(flex.NewData().SetHorizontalGrab(true))
-	root.AddChild(checkBoxPanel)
+	content.AddChild(checkBoxPanel)
 
-	addSeparator(root)
+	addSeparator(content)
 
 	radioButtonsPanel := createRadioButtonsPanel()
 	radioButtonsPanel.SetLayoutData(flex.NewData().SetHorizontalGrab(true))
-	root.AddChild(radioButtonsPanel)
+	content.AddChild(radioButtonsPanel)
 
-	addSeparator(root)
+	addSeparator(content)
 
 	popupMenusPanel := createPopupMenusPanel()
 	popupMenusPanel.SetLayoutData(flex.NewData().SetHorizontalGrab(true))
-	root.AddChild(popupMenusPanel)
+	content.AddChild(popupMenusPanel)
 
-	addSeparator(root)
+	addSeparator(content)
 
 	wrapper := widget.NewBlock()
 	flex.NewLayout(wrapper).SetColumns(2).SetEqualColumns(true).SetHorizontalSpacing(10)
@@ -149,19 +149,19 @@ func createButtonsWindow(title string) ui.Window {
 	textFieldsPanel.SetLayoutData(flex.NewData().SetHorizontalGrab(true).SetHorizontalAlignment(draw.AlignFill))
 	wrapper.AddChild(textFieldsPanel)
 	wrapper.AddChild(createListPanel())
-	root.AddChild(wrapper)
+	content.AddChild(wrapper)
 
-	addSeparator(root)
+	addSeparator(content)
 
 	img, err := draw.AcquireImageFromURL("http://legends.trollworks.com/mountains.jpg")
 	if err == nil {
-		content := imagelabel.New(img)
-		content.SetFocusable(true)
-		_, prefSize, _ := ui.Sizes(content, layout.NoHintSize)
-		content.SetSize(prefSize)
-		scrollArea := scrollarea.New(content, scrollarea.Unmodified)
+		imgPanel := imagelabel.New(img)
+		imgPanel.SetFocusable(true)
+		_, prefSize, _ := ui.Sizes(imgPanel, layout.NoHintSize)
+		imgPanel.SetSize(prefSize)
+		scrollArea := scrollarea.New(imgPanel, scrollarea.Unmodified)
 		scrollArea.SetLayoutData(flex.NewData().SetHorizontalAlignment(draw.AlignFill).SetVerticalAlignment(draw.AlignFill).SetHorizontalGrab(true).SetVerticalGrab(true))
-		root.AddChild(scrollArea)
+		content.AddChild(scrollArea)
 	} else {
 		fmt.Println(err)
 	}
@@ -207,10 +207,10 @@ func createListPanel() ui.Widget {
 	return scrollArea
 }
 
-func addSeparator(root ui.Widget) {
+func addSeparator(parent ui.Widget) {
 	sep := separator.New(true)
 	sep.SetLayoutData(flex.NewData().SetHorizontalAlignment(draw.AlignFill))
-	root.AddChild(sep)
+	parent.AddChild(sep)
 }
 
 func createButtonsPanel() ui.Widget {
@@ -363,14 +363,14 @@ func createAboutWindow(evt event.Event) {
 		aboutWindow = window.NewWindow(geom.Point{}, window.TitledWindowMask|window.ClosableWindowMask)
 		aboutWindow.EventHandlers().Add(event.ClosedType, func(evt event.Event) { aboutWindow = nil })
 		aboutWindow.SetTitle("About " + app.AppName())
-		root := aboutWindow.RootWidget()
-		root.SetBorder(border.NewEmpty(geom.Insets{Top: 10, Left: 10, Bottom: 10, Right: 10}))
-		flex.NewLayout(root)
+		content := aboutWindow.Content()
+		content.SetBorder(border.NewEmpty(geom.Insets{Top: 10, Left: 10, Bottom: 10, Right: 10}))
+		flex.NewLayout(content)
 		title := label.NewWithFont(app.AppName(), font.EmphasizedSystem)
 		title.SetLayoutData(flex.NewData().SetHorizontalAlignment(draw.AlignMiddle))
-		root.AddChild(title)
+		content.AddChild(title)
 		desc := label.New("Simple app to demonstrate the\ncapabilities of the ui framework.")
-		root.AddChild(desc)
+		content.AddChild(desc)
 		aboutWindow.Pack()
 	}
 	aboutWindow.ToFront()

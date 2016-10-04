@@ -18,8 +18,8 @@ import (
 	"github.com/richardwilkes/ui/widget/window"
 )
 
-// AddToAppBar adds a standard 'Window' menu to the menu bar.
-func AddToAppBar() menu.Menu {
+// Install adds a standard 'Window' menu to the menu bar.
+func Install(index int) menu.Menu {
 	windowMenu := factory.NewMenu(i18n.Text("Window"))
 
 	item := factory.NewItemWithKey(i18n.Text("Minimize"), keys.VK_M, func(evt event.Event) {
@@ -34,7 +34,7 @@ func AddToAppBar() menu.Menu {
 			evt.(*event.Validate).MarkInvalid()
 		}
 	})
-	windowMenu.AddItem(item)
+	windowMenu.InsertItem(item, -1)
 
 	item = factory.NewItemWithKey(i18n.Text("Zoom"), keys.VK_BackSlash, func(evt event.Event) {
 		wnd := window.KeyWindow()
@@ -48,12 +48,12 @@ func AddToAppBar() menu.Menu {
 			evt.(*event.Validate).MarkInvalid()
 		}
 	})
-	windowMenu.AddItem(item)
-	windowMenu.AddItem(factory.NewSeparator())
+	windowMenu.InsertItem(item, -1)
+	windowMenu.InsertItem(factory.NewSeparator(), -1)
 
-	windowMenu.AddItem(factory.NewItem(i18n.Text("Bring All to Front"), func(evt event.Event) { window.AllWindowsToFront() }))
+	windowMenu.InsertItem(factory.NewItem(i18n.Text("Bring All to Front"), func(evt event.Event) { window.AllWindowsToFront() }), -1)
 
 	factory.SetWindowMenu(windowMenu)
-	factory.AppBar().AddMenu(windowMenu)
+	factory.AppBar().InsertMenu(windowMenu, index)
 	return windowMenu
 }

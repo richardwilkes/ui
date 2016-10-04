@@ -85,10 +85,6 @@ Item platformItem(Menu menu, int index) {
     return [((NSMenu *)menu) itemAtIndex:index];
 }
 
-void platformAddItem(Menu menu, Item item) {
-	[((NSMenu *)menu) addItem:item];
-}
-
 void platformInsertItem(Menu menu, Item item, int index) {
 	[((NSMenu *)menu) insertItem:item atIndex:index];
 }

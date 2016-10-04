@@ -19,31 +19,31 @@ import (
 	"github.com/richardwilkes/ui/menu/factory"
 )
 
-// AddToAppBar adds a standard 'application' menu to the menu bar.
-func AddToAppBar() (appMenu menu.Menu, aboutItem menu.Item, prefsItem menu.Item) {
+// Install adds a standard 'application' menu to the menu bar.
+func Install() (appMenu menu.Menu, aboutItem menu.Item, prefsItem menu.Item) {
 	name := app.AppName()
 	appMenu = factory.NewMenu(name)
 
 	aboutItem = factory.NewItem(i18n.Text("About ")+name, nil)
-	appMenu.AddItem(aboutItem)
-	appMenu.AddItem(factory.NewSeparator())
+	appMenu.InsertItem(aboutItem, -1)
+	appMenu.InsertItem(factory.NewSeparator(), -1)
 
 	prefsItem = factory.NewItemWithKey(i18n.Text("Preferences…"), keys.VK_Comma, nil)
-	appMenu.AddItem(prefsItem)
-	appMenu.AddItem(factory.NewSeparator())
+	appMenu.InsertItem(prefsItem, -1)
+	appMenu.InsertItem(factory.NewSeparator(), -1)
 
 	if factory.AddServicesMenu(appMenu) {
-		appMenu.AddItem(factory.NewSeparator())
+		appMenu.InsertItem(factory.NewSeparator(), -1)
 	}
 
-	appMenu.AddItem(factory.NewItemWithKey(i18n.Text("Hide ")+name, keys.VK_H, func(evt event.Event) { app.HideApp() }))
-	appMenu.AddItem(factory.NewItemWithKeyAndModifiers(i18n.Text("Hide Others"), keys.VK_H, keys.OptionModifier|keys.PlatformMenuModifier(), func(evt event.Event) { app.HideOtherApps() }))
-	appMenu.AddItem(factory.NewItem(i18n.Text("Show All"), func(evt event.Event) { app.ShowAllApps() }))
-	appMenu.AddItem(factory.NewSeparator())
+	appMenu.InsertItem(factory.NewItemWithKey(i18n.Text("Hide ")+name, keys.VK_H, func(evt event.Event) { app.HideApp() }), -1)
+	appMenu.InsertItem(factory.NewItemWithKeyAndModifiers(i18n.Text("Hide Others"), keys.VK_H, keys.OptionModifier|keys.PlatformMenuModifier(), func(evt event.Event) { app.HideOtherApps() }), -1)
+	appMenu.InsertItem(factory.NewItem(i18n.Text("Show All"), func(evt event.Event) { app.ShowAllApps() }), -1)
+	appMenu.InsertItem(factory.NewSeparator(), -1)
 
-	appMenu.AddItem(factory.NewItemWithKey(i18n.Text("Quit ")+name, keys.VK_Q, func(evt event.Event) { quit.AttemptQuit() }))
+	appMenu.InsertItem(factory.NewItemWithKey(i18n.Text("Quit ")+name, keys.VK_Q, func(evt event.Event) { quit.AttemptQuit() }), -1)
 
-	factory.AppBar().AddMenu(appMenu)
+	factory.AppBar().InsertMenu(appMenu, 0)
 
 	return appMenu, aboutItem, prefsItem
 }

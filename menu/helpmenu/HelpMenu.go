@@ -15,10 +15,10 @@ import (
 	"github.com/richardwilkes/ui/menu/factory"
 )
 
-// AddToAppBar adds a standard 'Help' menu to the menu bar.
-func AddToAppBar() menu.Menu {
+// Install adds a standard 'Help' menu to the menu bar.
+func Install(index int) menu.Menu {
 	helpMenu := factory.NewMenu(i18n.Text("Help"))
 	factory.SetHelpMenu(helpMenu)
-	factory.AppBar().AddMenu(helpMenu)
+	factory.AppBar().InsertMenu(helpMenu, index)
 	return helpMenu
 }

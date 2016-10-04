@@ -23,7 +23,6 @@ Menu platformSubMenu(Item item);
 void platformSetSubMenu(Item item, Menu subMenu);
 int platformItemCount(Menu menu);
 Item platformItem(Menu menu, int index);
-void platformAddItem(Menu menu, Item item);
 void platformInsertItem(Menu menu, Item item, int index);
 void platformRemove(Menu menu, int index);
 void platformSetServicesMenu(Menu menu);
