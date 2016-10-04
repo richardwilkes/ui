@@ -11,8 +11,8 @@ package platform
 
 import (
 	"github.com/richardwilkes/geom"
-	"github.com/richardwilkes/ui"
 	"github.com/richardwilkes/ui/menu"
+	"github.com/richardwilkes/ui/widget/window"
 )
 
 type platformMenu struct {
@@ -25,18 +25,8 @@ var (
 	itemMap = make(map[cItem]*platformItem)
 )
 
-// AppBar returns the application menu bar.
-func AppBar() menu.Bar {
-	if mnu, ok := menuMap[platformBar()]; ok {
-		return mnu
-	}
-	mnu := NewMenu("")
-	platformSetBar(mnu.(*platformMenu).menu)
-	return mnu.(*platformMenu)
-}
-
 // NewMenu creates a new menu.
-func NewMenu(title string) menu.Menu {
+func NewMenu(title string) *platformMenu {
 	menu := &platformMenu{title: title, menu: platformNewMenu(title)}
 	menuMap[menu.menu] = menu
 	return menu
@@ -106,6 +96,9 @@ func (mnu *platformMenu) Menu(index int) menu.Menu {
 
 // Popup displays the menu within the window. An attempt will be made to position the 'item'
 // at 'where' within the window.
-func (mnu *platformMenu) Popup(window ui.Window, where geom.Point, item menu.Item) {
-	mnu.platformPopup(window, where, item.(*platformItem).item)
+func (mnu *platformMenu) Popup(windowID int64, where geom.Point, item menu.Item) {
+	wnd := window.ByID(windowID)
+	if wnd != nil {
+		mnu.platformPopup(wnd, where, item.(*platformItem).item)
+	}
 }

@@ -9,6 +9,14 @@
 
 package menu
 
+const (
+	ServicesMenu SpecialMenuType = iota
+	WindowMenu
+	HelpMenu
+)
+
+type SpecialMenuType int
+
 // Bar represents a set of menus.
 type Bar interface {
 	// InsertMenu inserts a menu at the specified item index within this bar. Pass in a negative
@@ -20,22 +28,17 @@ type Bar interface {
 	Count() int
 	// Menu at the specified index, or nil.
 	Menu(index int) Menu
-}
-
-type SpecialMenuType int
-
-const (
-	ServicesMenu SpecialMenuType = iota
-	WindowMenu
-	HelpMenu
-)
-
-var (
-	// AppBar returns the application menu bar.
-	AppBar func() Bar
 	// SpecialMenu returns the specified special menu, or nil if it has not been setup.
-	SpecialMenu func(which SpecialMenuType) Menu
+	SpecialMenu(which SpecialMenuType) Menu
 	// SetupSpecialMenu sets up the specified special menu, which must have already been installed
 	// into the menu bar.
-	SetupSpecialMenu func(which SpecialMenuType, menu Menu)
+	SetupSpecialMenu(which SpecialMenuType, menu Menu)
+}
+
+var (
+	// AppBar returns the menu bar for the given window id. On some platforms, the menu bar is a
+	// global entity and the same value will be returned for all window ids.
+	AppBar func(id int64) Bar
+	// Global returns true if the menu bar is global.
+	Global func() bool
 )

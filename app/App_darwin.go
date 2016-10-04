@@ -19,7 +19,6 @@ import (
 )
 
 func platformStartUserInterface() {
-	platform.Install()
 	C.platformStartUserInterface()
 }
 
@@ -56,6 +55,7 @@ func callbackAppWillQuit() {
 
 //export callbackAppWillFinishStartup
 func callbackAppWillFinishStartup() {
+	platform.Install()
 	event.SendAppWillFinishStartup()
 }
 

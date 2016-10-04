@@ -17,23 +17,33 @@ import (
 	"github.com/richardwilkes/ui/layout/flex"
 	"github.com/richardwilkes/ui/menu"
 	"github.com/richardwilkes/ui/widget"
+	"github.com/richardwilkes/ui/widget/window"
 )
 
 type MenuBar struct {
 	widget.Block
+	special map[menu.SpecialMenuType]menu.Menu
 }
 
 var (
-	bar *MenuBar
+	lookingUpBar bool
 )
 
-// AppBar returns the application menu bar.
-func AppBar() *MenuBar {
+// AppBar returns the menu bar for the given window.
+func AppBar(id int64) menu.Bar {
+	if lookingUpBar {
+		return nil
+	}
+	wnd := window.ByID(id)
+	lookingUpBar = true
+	bar := wnd.MenuBar()
+	lookingUpBar = false
 	if bar == nil {
-		bar := &MenuBar{}
-		bar.Describer = func() string { return fmt.Sprintf("MenuBar #%d", bar.ID()) }
-		bar.SetBorder(border.NewLine(color.Background.AdjustBrightness(-0.25), geom.Insets{Top: 0, Left: 0, Bottom: 1, Right: 0}))
-		flex.NewLayout(bar)
+		mb := &MenuBar{special: make(map[menu.SpecialMenuType]menu.Menu)}
+		mb.Describer = func() string { return fmt.Sprintf("MenuBar #%d", mb.ID()) }
+		mb.SetBorder(border.NewLine(color.Background.AdjustBrightness(-0.25), geom.Insets{Top: 0, Left: 0, Bottom: 1, Right: 0}))
+		flex.NewLayout(mb)
+		bar = mb
 	}
 	return bar
 }
@@ -68,4 +78,15 @@ func (bar *MenuBar) Menu(index int) menu.Menu {
 		return item.SubMenu()
 	}
 	panic("Invalid child")
+}
+
+// SpecialMenu returns the specified special menu, or nil if it has not been setup.
+func (bar *MenuBar) SpecialMenu(which menu.SpecialMenuType) menu.Menu {
+	return bar.special[which]
+}
+
+// SetupSpecialMenu sets up the specified special menu, which must have already been installed
+// into the menu bar.
+func (bar *MenuBar) SetupSpecialMenu(which menu.SpecialMenuType, mnu menu.Menu) {
+	bar.special[which] = mnu
 }

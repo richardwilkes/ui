@@ -49,8 +49,18 @@ var (
 func main() {
 	// event.TraceAllEvents = true
 	// event.TraceEventTypes = append(event.TraceEventTypes, event.MouseDownType, event.MouseDraggedType, event.MouseUpType)
-	app.App.EventHandlers().Add(event.AppWillFinishStartupType, func(evt event.Event) {
-		createMenuBar()
+	handlers := app.App.EventHandlers()
+	handlers.Add(event.AppPopulateMenuBarType, func(evt event.Event) {
+		bar := menu.AppBar(evt.(*event.AppPopulateMenuBar).ID())
+		_, aboutItem, prefsItem := specialmenus.InstallAppMenu(bar)
+		aboutItem.EventHandlers().Add(event.SelectionType, createAboutWindow)
+		prefsItem.EventHandlers().Add(event.SelectionType, createPreferencesWindow)
+		bar.InsertMenu(newFileMenu(), -1)
+		bar.InsertMenu(newEditMenu(), -1)
+		specialmenus.InstallWindowMenu(bar, -1)
+		specialmenus.InstallHelpMenu(bar, -1)
+	})
+	handlers.Add(event.AppWillFinishStartupType, func(evt event.Event) {
 		w1 := createButtonsWindow("Demo #1")
 		w2 := createButtonsWindow("Demo #2")
 		frame1 := w1.Frame()
@@ -62,17 +72,7 @@ func main() {
 	app.StartUserInterface()
 }
 
-func createMenuBar() {
-	_, aboutItem, prefsItem := specialmenus.InstallAppMenu()
-	aboutItem.EventHandlers().Add(event.SelectionType, createAboutWindow)
-	prefsItem.EventHandlers().Add(event.SelectionType, createPreferencesWindow)
-	createFileMenu()
-	createEditMenu()
-	specialmenus.InstallWindowMenu(-1)
-	specialmenus.InstallHelpMenu(-1)
-}
-
-func createFileMenu() {
+func newFileMenu() menu.Menu {
 	fileMenu := menu.NewMenu("File")
 
 	fileMenu.InsertItem(menu.NewItemWithKey("Open", keys.VK_O, nil), -1)
@@ -91,11 +91,10 @@ func createFileMenu() {
 		}
 	})
 	fileMenu.InsertItem(item, -1)
-
-	menu.AppBar().InsertMenu(fileMenu, -1)
+	return fileMenu
 }
 
-func createEditMenu() {
+func newEditMenu() menu.Menu {
 	editMenu := menu.NewMenu("Edit")
 
 	edit.InsertCutItem(editMenu, -1)
@@ -105,7 +104,7 @@ func createEditMenu() {
 	edit.InsertDeleteItem(editMenu, -1)
 	edit.InsertSelectAllItem(editMenu, -1)
 
-	menu.AppBar().InsertMenu(editMenu, -1)
+	return editMenu
 }
 
 func createButtonsWindow(title string) ui.Window {

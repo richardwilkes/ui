@@ -157,7 +157,7 @@ func (pm *PopupMenu) Click() {
 		}
 	}
 	if hasItem {
-		mnu.Popup(pm.Window(), pm.ToWindow(pm.LocalInsetBounds().Point), mnu.Item(pm.selectedIndex))
+		mnu.Popup(pm.Window().ID(), pm.ToWindow(pm.LocalInsetBounds().Point), mnu.Item(pm.selectedIndex))
 	}
 }
 

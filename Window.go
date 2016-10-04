@@ -12,6 +12,7 @@ package ui
 import (
 	"github.com/richardwilkes/geom"
 	"github.com/richardwilkes/ui/event"
+	"github.com/richardwilkes/ui/menu"
 	"time"
 	"unsafe"
 )
@@ -41,6 +42,9 @@ type Window interface {
 	ContentLocalFrame() geom.Rect
 	// Pack sets the window's content size to match the preferred size of the root widget.
 	Pack()
+	// MenuBar returns the menu bar for the window. On some platforms, the menu bar is a global
+	// entity and the same value will be returned for all windows.
+	MenuBar() menu.Bar
 	// Content returns the content widget of the window. This is not the root widget of the window,
 	// which contains both the content widget and the menu bar, for platforms that hold the menu bar
 	// within the window.

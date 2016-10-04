@@ -21,9 +21,11 @@ type AppLastWindowClosed struct {
 	finished   bool
 }
 
-// NewAppLastWindowClosed creates a new AppLastWindowClosed event. 'target' is the app.
-func NewAppLastWindowClosed(target Target) *AppLastWindowClosed {
-	return &AppLastWindowClosed{target: target}
+// SendAppLastWindowClosed sends a new AppLastWindowClosed event.
+func SendAppLastWindowClosed() *AppLastWindowClosed {
+	evt := &AppLastWindowClosed{target: GlobalTarget()}
+	Dispatch(evt)
+	return evt
 }
 
 // Type returns the event type ID.

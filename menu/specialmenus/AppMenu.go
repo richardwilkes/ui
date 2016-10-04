@@ -20,7 +20,7 @@ import (
 )
 
 // InstallAppMenu adds a standard 'application' menu to the menu bar.
-func InstallAppMenu() (appMenu menu.Menu, aboutItem menu.Item, prefsItem menu.Item) {
+func InstallAppMenu(bar menu.Bar) (appMenu menu.Menu, aboutItem menu.Item, prefsItem menu.Item) {
 	name := app.AppName()
 	appMenu = menu.NewMenu(name)
 
@@ -35,7 +35,7 @@ func InstallAppMenu() (appMenu menu.Menu, aboutItem menu.Item, prefsItem menu.It
 	if runtime.GOOS == "darwin" {
 		servicesMenu := menu.NewMenu(i18n.Text("Services"))
 		appMenu.InsertMenu(servicesMenu, -1)
-		menu.SetupSpecialMenu(menu.ServicesMenu, servicesMenu)
+		bar.SetupSpecialMenu(menu.ServicesMenu, servicesMenu)
 		appMenu.InsertItem(menu.NewSeparator(), -1)
 	}
 
@@ -46,7 +46,7 @@ func InstallAppMenu() (appMenu menu.Menu, aboutItem menu.Item, prefsItem menu.It
 
 	appMenu.InsertItem(menu.NewItemWithKey(i18n.Text("Quit ")+name, keys.VK_Q, func(evt event.Event) { quit.AttemptQuit() }), -1)
 
-	menu.AppBar().InsertMenu(appMenu, 0)
+	bar.InsertMenu(appMenu, 0)
 
 	return appMenu, aboutItem, prefsItem
 }

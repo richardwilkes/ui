@@ -37,7 +37,5 @@ func AppShouldQuit() Response {
 }
 
 func AppShouldQuitAfterLastWindowClosed() bool {
-	e := event.NewAppLastWindowClosed(event.GlobalTarget())
-	event.Dispatch(e)
-	return e.Quit()
+	return event.SendAppLastWindowClosed().Quit()
 }

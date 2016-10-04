@@ -20,6 +20,7 @@ const (
 	AppQuitRequestedType
 	AppWillQuitType
 	AppLastWindowClosedType
+	AppPopulateMenuBarType
 	PaintType
 	MouseDownType
 	MouseDraggedType

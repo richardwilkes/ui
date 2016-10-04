@@ -19,7 +19,7 @@ import (
 	"github.com/richardwilkes/ui/id"
 	"github.com/richardwilkes/ui/keys"
 	"github.com/richardwilkes/ui/layout"
-	//"github.com/richardwilkes/ui/menu/factory"
+	"github.com/richardwilkes/ui/menu"
 	"sync"
 	"time"
 	"unsafe"
@@ -45,6 +45,7 @@ type Wnd struct {
 
 var (
 	windowMap        = make(map[platformWindow]*Wnd)
+	windowIDMap      = make(map[int64]*Wnd)
 	diacritic        int
 	nextInvocationID uint64 = 1
 	dispatchMapLock  sync.Mutex
@@ -58,6 +59,10 @@ func AllWindowsToFront() {
 
 func WindowCount() int {
 	return len(windowMap)
+}
+
+func ByID(id int64) ui.Window {
+	return windowIDMap[id]
 }
 
 // Windows returns a slice containing the current set of open windows.
@@ -89,10 +94,15 @@ func NewWindowWithContentSize(where geom.Point, contentSize geom.Size, styleMask
 	win, surface := platformNewWindow(bounds, styleMask)
 	window := &Wnd{window: win, surface: surface, style: styleMask}
 	windowMap[window.window] = window
+	windowIDMap[window.ID()] = window
 	window.root = newRootView(window)
-	//	if styleMask != BorderlessWindowMask && factory.UseNative {
-	//
-	//	}
+	if styleMask != BorderlessWindowMask && !menu.Global() {
+		bar := menu.AppBar(window.ID())
+		if bar != nil {
+			window.root.SetMenuBar(bar)
+			event.SendAppPopulateMenuBar(window.ID())
+		}
+	}
 	handlers := window.EventHandlers()
 	handlers.Add(event.FocusGainedType, func(evt event.Event) { window.repaintFocus() })
 	handlers.Add(event.FocusLostType, func(evt event.Event) { window.repaintFocus() })
@@ -200,6 +210,15 @@ func (window *Wnd) Pack() {
 	bounds := window.ContentFrame()
 	bounds.Size = pref
 	window.SetContentFrame(bounds)
+}
+
+// MenuBar returns the menu bar for the window. On some platforms, the menu bar is a global
+// entity and the same value will be returned for all windows.
+func (window *Wnd) MenuBar() menu.Bar {
+	if menu.Global() {
+		return menu.AppBar(0)
+	}
+	return window.root.MenuBar()
 }
 
 // Content returns the content widget of the window. This is not the root widget of the window,

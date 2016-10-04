@@ -101,7 +101,11 @@ func (mnu *Menu) adjustItems(evt event.Event) {
 }
 
 func (mnu *Menu) open(evt event.Event) {
-	bounds := mnu.item.Bounds()
+	mnu.adjustItems(nil)
+	_, pref, _ := mnu.Layout().Sizes(layout.NoHintSize)
+	mnu.SetBounds(geom.Rect{Size: pref})
+	mnu.Layout().Layout()
+	bounds := mnu.item.LocalBounds()
 	where := mnu.item.ToWindow(bounds.Point)
 	where.Add(mnu.item.Window().ContentFrame().Point)
 	if mnu.attachToBottom {
@@ -109,10 +113,6 @@ func (mnu *Menu) open(evt event.Event) {
 	} else {
 		where.X += bounds.Width
 	}
-	mnu.adjustItems(nil)
-	_, pref, _ := mnu.Layout().Sizes(layout.NoHintSize)
-	mnu.SetBounds(geom.Rect{Size: pref})
-	mnu.Layout().Layout()
 	wnd := window.NewWindowWithContentSize(where, pref, window.BorderlessWindowMask)
 	wnd.Content().AddChild(mnu)
 	wnd.EventHandlers().Add(event.FocusLostType, mnu.close)
@@ -145,6 +145,9 @@ func (mnu *Menu) Dispose() {
 
 // Popup displays the menu within the window. An attempt will be made to position the 'item'
 // at 'where' within the window.
-func (mnu *Menu) Popup(window ui.Window, where geom.Point, item menu.Item) {
-	// RAW: Implement!
+func (mnu *Menu) Popup(windowID int64, where geom.Point, item menu.Item) {
+	wnd := window.ByID(windowID)
+	if wnd != nil {
+		// RAW: Implement!
+	}
 }

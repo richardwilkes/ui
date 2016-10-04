@@ -63,6 +63,7 @@ func windowShouldClose(cWindow platformWindow) bool {
 func windowDidClose(cWindow platformWindow) {
 	if window, ok := windowMap[cWindow]; ok {
 		event.Dispatch(event.NewClosed(window))
+		delete(windowIDMap, window.ID())
 	}
 	delete(windowMap, cWindow)
 }

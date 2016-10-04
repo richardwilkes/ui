@@ -18,7 +18,7 @@ import (
 )
 
 // InstallWindowMenu adds a standard 'Window' menu to the menu bar.
-func InstallWindowMenu(index int) {
+func InstallWindowMenu(bar menu.Bar, index int) {
 	windowMenu := menu.NewMenu(i18n.Text("Window"))
 
 	item := menu.NewItemWithKey(i18n.Text("Minimize"), keys.VK_M, func(evt event.Event) {
@@ -52,6 +52,6 @@ func InstallWindowMenu(index int) {
 
 	windowMenu.InsertItem(menu.NewItem(i18n.Text("Bring All to Front"), func(evt event.Event) { window.AllWindowsToFront() }), -1)
 
-	menu.AppBar().InsertMenu(windowMenu, index)
-	menu.SetupSpecialMenu(menu.WindowMenu, windowMenu)
+	bar.InsertMenu(windowMenu, index)
+	bar.SetupSpecialMenu(menu.WindowMenu, windowMenu)
 }

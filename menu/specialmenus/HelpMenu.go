@@ -15,8 +15,8 @@ import (
 )
 
 // InstallHelpMenu adds a standard 'Help' menu to the menu bar.
-func InstallHelpMenu(index int) {
+func InstallHelpMenu(bar menu.Bar, index int) {
 	helpMenu := menu.NewMenu(i18n.Text("Help"))
-	menu.AppBar().InsertMenu(helpMenu, index)
-	menu.SetupSpecialMenu(menu.HelpMenu, helpMenu)
+	bar.InsertMenu(helpMenu, index)
+	bar.SetupSpecialMenu(menu.HelpMenu, helpMenu)
 }

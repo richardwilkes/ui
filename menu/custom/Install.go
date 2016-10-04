@@ -15,15 +15,9 @@ import (
 	"github.com/richardwilkes/ui/menu"
 )
 
-var (
-	windowMenu menu.Menu
-	helpMenu   menu.Menu
-)
-
 func Install() {
-	menu.AppBar = func() menu.Bar { return AppBar() }
-	menu.SpecialMenu = SpecialMenu
-	menu.SetupSpecialMenu = SetupSpecialMenu
+	menu.AppBar = func(id int64) menu.Bar { return AppBar(id) }
+	menu.Global = func() bool { return false }
 	menu.NewMenu = func(title string) menu.Menu { return NewMenu(title) }
 	menu.NewItem = func(title string, handler event.Handler) menu.Item { return NewItem(title, handler) }
 	menu.NewItemWithKey = func(title string, keyCode int, handler event.Handler) menu.Item {
@@ -33,24 +27,4 @@ func Install() {
 		return NewItemWithKeyAndModifiers(title, keyCode, modifiers, handler)
 	}
 	menu.NewSeparator = func() menu.Item { return NewSeparator() }
-}
-
-func SpecialMenu(which menu.SpecialMenuType) menu.Menu {
-	switch which {
-	case menu.WindowMenu:
-		return windowMenu
-	case menu.HelpMenu:
-		return helpMenu
-	default:
-		return nil
-	}
-}
-
-func SetupSpecialMenu(which menu.SpecialMenuType, mnu menu.Menu) {
-	switch which {
-	case menu.WindowMenu:
-		windowMenu = mnu
-	case menu.HelpMenu:
-		helpMenu = mnu
-	}
 }
