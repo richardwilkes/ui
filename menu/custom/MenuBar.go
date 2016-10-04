@@ -7,7 +7,7 @@
 // This Source Code Form is "Incompatible With Secondary Licenses", as
 // defined by the Mozilla Public License, version 2.0.
 
-package menu
+package custom
 
 import (
 	"fmt"
@@ -23,11 +23,18 @@ type MenuBar struct {
 	widget.Block
 }
 
-func NewMenuBar() *MenuBar {
-	bar := &MenuBar{}
-	bar.Describer = func() string { return fmt.Sprintf("MenuBar #%d", bar.ID()) }
-	bar.SetBorder(border.NewLine(color.Background.AdjustBrightness(-0.25), geom.Insets{Top: 0, Left: 0, Bottom: 1, Right: 0}))
-	flex.NewLayout(bar)
+var (
+	bar *MenuBar
+)
+
+// AppBar returns the application menu bar.
+func AppBar() *MenuBar {
+	if bar == nil {
+		bar := &MenuBar{}
+		bar.Describer = func() string { return fmt.Sprintf("MenuBar #%d", bar.ID()) }
+		bar.SetBorder(border.NewLine(color.Background.AdjustBrightness(-0.25), geom.Insets{Top: 0, Left: 0, Bottom: 1, Right: 0}))
+		flex.NewLayout(bar)
+	}
 	return bar
 }
 

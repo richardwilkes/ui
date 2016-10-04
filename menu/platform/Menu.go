@@ -18,6 +18,28 @@ type platformMenu struct {
 	title string
 }
 
+var (
+	menuMap = make(map[cMenu]*platformMenu)
+	itemMap = make(map[cItem]*platformItem)
+)
+
+// AppBar returns the application menu bar.
+func AppBar() menu.Bar {
+	if menu, ok := menuMap[platformBar()]; ok {
+		return menu
+	}
+	menu := NewMenu("")
+	platformSetBar(menu.(*platformMenu).menu)
+	return menu.(*platformMenu)
+}
+
+// NewMenu creates a new menu.
+func NewMenu(title string) menu.Menu {
+	menu := &platformMenu{title: title, menu: platformNewMenu(title)}
+	menuMap[menu.menu] = menu
+	return menu
+}
+
 // InsertItem inserts an item at the specified item index within this menu. Pass in a negative
 // index to append to the end.
 func (menu *platformMenu) InsertItem(item menu.Item, index int) {

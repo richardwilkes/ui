@@ -7,7 +7,7 @@
 // This Source Code Form is "Incompatible With Secondary Licenses", as
 // defined by the Mozilla Public License, version 2.0.
 
-package menu
+package custom
 
 import (
 	"fmt"
@@ -32,7 +32,7 @@ type Menu struct {
 }
 
 func NewMenu(title string) *Menu {
-	mnu := &Menu{item: NewMenuItem(title, 0, nil)}
+	mnu := &Menu{item: NewItem(title, nil)}
 	mnu.item.menu = mnu
 	mnu.Describer = func() string {
 		return fmt.Sprintf("Menu #%d (%s)", mnu.ID(), mnu.Title())

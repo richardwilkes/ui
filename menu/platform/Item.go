@@ -27,6 +27,33 @@ type platformItem struct {
 	enabled       bool
 }
 
+// NewSeparator creates a new separator item.
+func NewSeparator() menu.Item {
+	item := &platformItem{item: platformNewSeparator()}
+	itemMap[item.item] = item
+	return item
+}
+
+// NewItem creates a new item with no key accelerator.
+func NewItem(title string, handler event.Handler) menu.Item {
+	return NewItemWithKey(title, 0, handler)
+}
+
+// NewItemWithKey creates a new item with a key accelerator using the platform-default modifiers.
+func NewItemWithKey(title string, keyCode int, handler event.Handler) menu.Item {
+	return NewItemWithKeyAndModifiers(title, keyCode, keys.PlatformMenuModifier(), handler)
+}
+
+// NewItemWithKeyAndModifiers creates a new item.
+func NewItemWithKeyAndModifiers(title string, keyCode int, modifiers keys.Modifiers, handler event.Handler) menu.Item {
+	item := &platformItem{item: platformNewItem(title, keyCode, modifiers), title: title, keyCode: keyCode, keyModifiers: modifiers, enabled: true}
+	if handler != nil {
+		item.EventHandlers().Add(event.SelectionType, handler)
+	}
+	itemMap[item.item] = item
+	return item
+}
+
 func (item *platformItem) String() string {
 	return fmt.Sprintf("menu.Item #%d (%s)", item.ID(), item.Title())
 }

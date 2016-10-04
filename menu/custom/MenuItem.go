@@ -7,7 +7,7 @@
 // This Source Code Form is "Incompatible With Secondary Licenses", as
 // defined by the Mozilla Public License, version 2.0.
 
-package menu
+package custom
 
 import (
 	"fmt"
@@ -32,11 +32,18 @@ type MenuItem struct {
 	menuOpen     bool
 }
 
-func NewMenuItem(title string, keyCode int, handler event.Handler) *MenuItem {
-	return NewMenuItemWithModifiers(title, keyCode, keys.PlatformMenuModifier(), handler)
+// NewItem creates a new item with no key accelerator.
+func NewItem(title string, handler event.Handler) *MenuItem {
+	return NewItemWithKey(title, 0, handler)
 }
 
-func NewMenuItemWithModifiers(title string, keyCode int, modifiers keys.Modifiers, handler event.Handler) *MenuItem {
+// NewItemWithKey creates a new item with a key accelerator using the platform-default modifiers.
+func NewItemWithKey(title string, keyCode int, handler event.Handler) *MenuItem {
+	return NewItemWithKeyAndModifiers(title, keyCode, keys.PlatformMenuModifier(), handler)
+}
+
+// NewItemWithKeyAndModifiers creates a new item.
+func NewItemWithKeyAndModifiers(title string, keyCode int, modifiers keys.Modifiers, handler event.Handler) *MenuItem {
 	item := &MenuItem{}
 	item.Theme = StdTheme
 	item.title = title
