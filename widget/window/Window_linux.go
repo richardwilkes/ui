@@ -105,11 +105,7 @@ func (window *Wnd) platformFrame() geom.Rect {
 	if bounds, ok := lastKnownWindowBounds[window.window]; ok {
 		return bounds
 	}
-	var root C.Window
-	var x, y C.int
-	var width, height, border, depth C.uint
-	C.XGetGeometry(display, toXDrawable(window.window), &root, &x, &y, &width, &height, &border, &depth)
-	return geom.Rect{Point: geom.Point{X: float64(x), Y: float64(y)}, Size: geom.Size{Width: float64(width), Height: float64(height)}}
+	return geom.Rect{}
 }
 
 func (window *Wnd) platformSetFrame(bounds geom.Rect) {
