@@ -81,145 +81,169 @@ func RunEventLoop() {
 	for running {
 		var event C.XEvent
 		C.XNextEvent(display, &event)
-		processOneEvent(&event)
-	}
-}
-
-func processOneEvent(evt *C.XEvent) {
-	anyEvent := (*C.XAnyEvent)(unsafe.Pointer(evt))
-	wnd := platformWindow(uintptr(anyEvent.window))
-	switch anyEvent._type {
-	case C.KeyPress:
-		processKeyEvent(evt, wnd, platformKeyDown)
-	case C.KeyRelease:
-		processKeyEvent(evt, wnd, platformKeyUp)
-	case C.ButtonPress:
-		buttonEvent := (*C.XButtonEvent)(unsafe.Pointer(evt))
-		if isScrollWheelButton(buttonEvent.button) {
-			var dx, dy float64
-			switch buttonEvent.button {
-			case 4: // Up
-				dy = -1
-			case 5: // Down
-				dy = 1
-			case 6: // Left
-				dx = -1
-			case 7: // Right
-				dx = 1
-			}
-			handleWindowMouseWheelEvent(wnd, platformMouseWheel, convertKeyMask(buttonEvent.state), float64(buttonEvent.x), float64(buttonEvent.y), dx, dy)
-		} else {
-			lastMouseDownButton = getButton(buttonEvent.button)
-			lastMouseDownWindow = wnd
-			x := float64(buttonEvent.x)
-			y := float64(buttonEvent.y)
-			now := time.Now()
-			if lastClickButton == lastMouseDownButton && now.Sub(lastClick) <= DoubleClickTime && math.Abs(lastClickSpot.X-x) <= DoubleClickDistance && math.Abs(lastClickSpot.Y-y) <= DoubleClickDistance {
-				clickCount++
-			} else {
-				clickCount = 1
-			}
-			lastClick = now
-			lastClickButton = lastMouseDownButton
-			lastClickSpot.X = x
-			lastClickSpot.Y = y
-			handleWindowMouseEvent(wnd, platformMouseDown, convertKeyMask(buttonEvent.state), lastMouseDownButton, clickCount, x, y)
-		}
-	case C.ButtonRelease:
-		buttonEvent := (*C.XButtonEvent)(unsafe.Pointer(evt))
-		if !isScrollWheelButton(buttonEvent.button) {
-			lastMouseDownButton = -1
-			handleWindowMouseEvent(wnd, platformMouseUp, convertKeyMask(buttonEvent.state), getButton(buttonEvent.button), clickCount, float64(buttonEvent.x), float64(buttonEvent.y))
-		}
-	case C.MotionNotify:
-		motionEvent := (*C.XMotionEvent)(unsafe.Pointer(evt))
-		if lastMouseDownButton != -1 {
-			if wnd != lastMouseDownWindow {
-				// RAW: Translate coordinates appropriately
-				fmt.Println("need translation for mouse drag")
-			}
-			handleWindowMouseEvent(lastMouseDownWindow, platformMouseDragged, convertKeyMask(motionEvent.state), lastMouseDownButton, 0, float64(motionEvent.x), float64(motionEvent.y))
-		} else {
-			handleWindowMouseEvent(wnd, platformMouseMoved, convertKeyMask(motionEvent.state), 0, 0, float64(motionEvent.x), float64(motionEvent.y))
-		}
-	case C.EnterNotify:
-		crossingEvent := (*C.XCrossingEvent)(unsafe.Pointer(evt))
-		handleWindowMouseEvent(wnd, platformMouseEntered, convertKeyMask(crossingEvent.state), 0, 0, float64(crossingEvent.x), float64(crossingEvent.y))
-	case C.LeaveNotify:
-		crossingEvent := (*C.XCrossingEvent)(unsafe.Pointer(evt))
-		handleWindowMouseEvent(wnd, platformMouseExited, convertKeyMask(crossingEvent.state), 0, 0, float64(crossingEvent.x), float64(crossingEvent.y))
-	case C.FocusIn:
-		event.SendAppWillActivate()
-		event.SendAppDidActivate()
-		windowGainedKey(wnd)
-	case C.FocusOut:
-		windowLostKey(wnd)
-		event.SendAppWillDeactivate()
-		event.SendAppDidDeactivate()
-	case C.Expose:
-		if win, ok := windowMap[wnd]; ok {
-			exposeEvent := (*C.XExposeEvent)(unsafe.Pointer(evt))
-			gc := C.cairo_create(win.surface)
-			C.cairo_set_line_width(gc, 1)
-			C.cairo_rectangle(gc, C.double(exposeEvent.x), C.double(exposeEvent.y), C.double(exposeEvent.width), C.double(exposeEvent.height))
-			C.cairo_clip(gc)
-			drawWindow(wnd, gc, platformRect{x: C.double(exposeEvent.x), y: C.double(exposeEvent.y), width: C.double(exposeEvent.width), height: C.double(exposeEvent.height)}, false)
-			C.cairo_destroy(gc)
-		}
-	case C.DestroyNotify:
-		windowDidClose(wnd)
-	case C.ConfigureNotify:
-		var other C.XEvent
-		for C.XCheckTypedWindowEvent(display, anyEvent.window, C.ConfigureNotify, &other) != 0 {
-			// Collect up the last resize event for this window that is already in the queue and use that one instead
-			evt = &other
-		}
-		if win, ok := windowMap[wnd]; ok {
-			win.ignoreRepaint = true
-			configEvent := (*C.XConfigureEvent)(unsafe.Pointer(evt))
-			lastKnownWindowBounds[wnd] = geom.Rect{Point: geom.Point{X: float64(configEvent.x), Y: float64(configEvent.y)}, Size: geom.Size{Width: float64(configEvent.width), Height: float64(configEvent.height)}}
-			windowResized(wnd)
-			win.root.ValidateLayout()
-			win.ignoreRepaint = false
-			size := win.ContentFrame().Size
-			C.cairo_xlib_surface_set_size(win.surface, C.int(size.Width), C.int(size.Height))
-		}
-	case C.ClientMessage:
-		clientEvent := (*C.XClientMessageEvent)(unsafe.Pointer(evt))
-		switch clientEvent.message_type {
-		case wmProtocolsAtom:
-			if clientEvent.format == 32 {
-				data := (*C.Atom)(unsafe.Pointer(&clientEvent.data))
-				if *data == wmDeleteAtom {
-					if windowShouldClose(wnd) {
-						if win, ok := windowMap[wnd]; ok {
-							win.Close()
-							windowDidClose(wnd)
-						}
-					}
-				}
-			}
-		case goTaskAtom:
-			data := (*uint64)(unsafe.Pointer(&clientEvent.data))
-			dispatchTask(*data)
+		anyEvent := (*C.XAnyEvent)(unsafe.Pointer(&event))
+		wnd := platformWindow(uintptr(anyEvent.window))
+		switch anyEvent._type {
+		case C.KeyPress:
+			processKeyEvent(&event, wnd, platformKeyDown)
+		case C.KeyRelease:
+			processKeyEvent(&event, wnd, platformKeyUp)
+		case C.ButtonPress:
+			processButtonPressEvent(&event, wnd)
+		case C.ButtonRelease:
+			processButtonReleaseEvent(&event, wnd)
+		case C.MotionNotify:
+			processMotionEvent(&event, wnd)
+		case C.EnterNotify:
+			processCrossingEvent(&event, wnd, platformMouseEntered)
+		case C.LeaveNotify:
+			processCrossingEvent(&event, wnd, platformMouseExited)
+		case C.FocusIn:
+			processFocusInEvent(wnd)
+		case C.FocusOut:
+			processFocusOutEvent(wnd)
+		case C.Expose:
+			processExposeEvent(&event, wnd)
+		case C.DestroyNotify:
+			windowDidClose(wnd)
+		case C.ConfigureNotify:
+			processConfigureEvent(&event, wnd)
+		case C.ClientMessage:
+			processClientEvent(&event, wnd)
 		}
 	}
 }
 
-func processKeyEvent(evt *C.XEvent, window platformWindow, eventType platformEventType) {
+func processKeyEvent(evt *C.XEvent, wnd platformWindow, eventType platformEventType) {
 	keyEvent := (*C.XKeyEvent)(unsafe.Pointer(evt))
 	var buffer [5]C.char
 	var keySym C.KeySym
 	buffer[C.XLookupString(keyEvent, &buffer[0], C.int(len(buffer)-1), &keySym, nil)] = 0
-	handleWindowKeyEvent(window, eventType, convertKeyMask(keyEvent.state), int(keySym), &buffer[0], false)
+	handleWindowKeyEvent(wnd, eventType, convertKeyMask(keyEvent.state), int(keySym), &buffer[0], false)
 }
 
-func paintWindow(pWindow platformWindow, gc *C.cairo_t, x, y, width, height C.double, future bool) {
-	C.cairo_save(gc)
-	C.cairo_rectangle(gc, x, y, width, height)
-	C.cairo_clip(gc)
-	drawWindow(pWindow, gc, platformRect{x: C.double(x), y: C.double(y), width: C.double(width), height: C.double(height)}, false)
-	C.cairo_restore(gc)
+func processButtonPressEvent(evt *C.XEvent, wnd platformWindow) {
+	buttonEvent := (*C.XButtonEvent)(unsafe.Pointer(evt))
+	if isScrollWheelButton(buttonEvent.button) {
+		var dx, dy float64
+		switch buttonEvent.button {
+		case 4: // Up
+			dy = -1
+		case 5: // Down
+			dy = 1
+		case 6: // Left
+			dx = -1
+		case 7: // Right
+			dx = 1
+		}
+		handleWindowMouseWheelEvent(wnd, platformMouseWheel, convertKeyMask(buttonEvent.state), float64(buttonEvent.x), float64(buttonEvent.y), dx, dy)
+	} else {
+		lastMouseDownButton = getButton(buttonEvent.button)
+		lastMouseDownWindow = wnd
+		x := float64(buttonEvent.x)
+		y := float64(buttonEvent.y)
+		now := time.Now()
+		if lastClickButton == lastMouseDownButton && now.Sub(lastClick) <= DoubleClickTime && math.Abs(lastClickSpot.X-x) <= DoubleClickDistance && math.Abs(lastClickSpot.Y-y) <= DoubleClickDistance {
+			clickCount++
+		} else {
+			clickCount = 1
+		}
+		lastClick = now
+		lastClickButton = lastMouseDownButton
+		lastClickSpot.X = x
+		lastClickSpot.Y = y
+		handleWindowMouseEvent(wnd, platformMouseDown, convertKeyMask(buttonEvent.state), lastMouseDownButton, clickCount, x, y)
+	}
+}
+
+func processButtonReleaseEvent(evt *C.XEvent, wnd platformWindow) {
+	buttonEvent := (*C.XButtonEvent)(unsafe.Pointer(evt))
+	if !isScrollWheelButton(buttonEvent.button) {
+		lastMouseDownButton = -1
+		handleWindowMouseEvent(wnd, platformMouseUp, convertKeyMask(buttonEvent.state), getButton(buttonEvent.button), clickCount, float64(buttonEvent.x), float64(buttonEvent.y))
+	}
+}
+
+func processMotionEvent(evt *C.XEvent, wnd platformWindow) {
+	motionEvent := (*C.XMotionEvent)(unsafe.Pointer(evt))
+	if lastMouseDownButton != -1 {
+		if wnd != lastMouseDownWindow {
+			// RAW: Translate coordinates appropriately
+			fmt.Println("need translation for mouse drag")
+		}
+		handleWindowMouseEvent(lastMouseDownWindow, platformMouseDragged, convertKeyMask(motionEvent.state), lastMouseDownButton, 0, float64(motionEvent.x), float64(motionEvent.y))
+	} else {
+		handleWindowMouseEvent(wnd, platformMouseMoved, convertKeyMask(motionEvent.state), 0, 0, float64(motionEvent.x), float64(motionEvent.y))
+	}
+}
+
+func processCrossingEvent(evt *C.XEvent, wnd platformWindow, eventType platformEventType) {
+	crossingEvent := (*C.XCrossingEvent)(unsafe.Pointer(evt))
+	handleWindowMouseEvent(wnd, eventType, convertKeyMask(crossingEvent.state), 0, 0, float64(crossingEvent.x), float64(crossingEvent.y))
+}
+
+func processFocusInEvent(wnd platformWindow) {
+	event.SendAppWillActivate()
+	event.SendAppDidActivate()
+	windowGainedKey(wnd)
+}
+
+func processFocusOutEvent(wnd platformWindow) {
+	windowLostKey(wnd)
+	event.SendAppWillDeactivate()
+	event.SendAppDidDeactivate()
+}
+
+func processExposeEvent(evt *C.XEvent, wnd platformWindow) {
+	if win, ok := windowMap[wnd]; ok {
+		exposeEvent := (*C.XExposeEvent)(unsafe.Pointer(evt))
+		gc := C.cairo_create(win.surface)
+		C.cairo_set_line_width(gc, 1)
+		C.cairo_rectangle(gc, C.double(exposeEvent.x), C.double(exposeEvent.y), C.double(exposeEvent.width), C.double(exposeEvent.height))
+		C.cairo_clip(gc)
+		drawWindow(wnd, gc, platformRect{x: C.double(exposeEvent.x), y: C.double(exposeEvent.y), width: C.double(exposeEvent.width), height: C.double(exposeEvent.height)}, false)
+		C.cairo_destroy(gc)
+	}
+}
+
+func processConfigureEvent(evt *C.XEvent, wnd platformWindow) {
+	var other C.XEvent
+	anyEvent := (*C.XAnyEvent)(unsafe.Pointer(evt))
+	for C.XCheckTypedWindowEvent(display, anyEvent.window, C.ConfigureNotify, &other) != 0 {
+		// Collect up the last resize event for this window that is already in the queue and use that one instead
+		evt = &other
+	}
+	if win, ok := windowMap[wnd]; ok {
+		win.ignoreRepaint = true
+		configEvent := (*C.XConfigureEvent)(unsafe.Pointer(evt))
+		lastKnownWindowBounds[wnd] = geom.Rect{Point: geom.Point{X: float64(configEvent.x), Y: float64(configEvent.y)}, Size: geom.Size{Width: float64(configEvent.width), Height: float64(configEvent.height)}}
+		windowResized(wnd)
+		win.root.ValidateLayout()
+		win.ignoreRepaint = false
+		size := win.ContentFrame().Size
+		C.cairo_xlib_surface_set_size(win.surface, C.int(size.Width), C.int(size.Height))
+	}
+}
+
+func processClientEvent(evt *C.XEvent, wnd platformWindow) {
+	clientEvent := (*C.XClientMessageEvent)(unsafe.Pointer(evt))
+	switch clientEvent.message_type {
+	case wmProtocolsAtom:
+		if clientEvent.format == 32 {
+			data := (*C.Atom)(unsafe.Pointer(&clientEvent.data))
+			if *data == wmDeleteAtom {
+				if windowShouldClose(wnd) {
+					if win, ok := windowMap[wnd]; ok {
+						win.Close()
+						windowDidClose(wnd)
+					}
+				}
+			}
+		}
+	case goTaskAtom:
+		data := (*uint64)(unsafe.Pointer(&clientEvent.data))
+		dispatchTask(*data)
+	}
 }
 
 func isScrollWheelButton(button C.uint) bool {
