@@ -140,6 +140,7 @@ func (list *List) rowAt(y float64) (index int, top float64) {
 }
 
 func (list *List) mouseDown(evt event.Event) {
+	list.Window().SetFocus(list)
 	list.savedSelection = list.Selection.Clone()
 	e := evt.(*event.MouseDown)
 	if index, _ := list.rowAt(list.FromWindow(e.Where()).Y); index >= 0 {
@@ -287,6 +288,14 @@ func (list *List) keyDown(evt event.Event) {
 			event.Dispatch(event.NewSelection(list))
 		}
 	}
+}
+
+func (list *List) CanSelectAll() bool {
+	return list.Selection.Count() < len(list.rows)
+}
+
+func (list *List) SelectAll() {
+	list.SelectRange(0, len(list.rows)-1, false)
 }
 
 // SelectRange selects items from 'start' to 'end', inclusive. If 'append' is true, then any

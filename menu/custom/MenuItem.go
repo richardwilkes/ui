@@ -208,8 +208,8 @@ func (item *MenuItem) mouseUp(evt event.Event) {
 	bounds := item.LocalInsetBounds()
 	mouseUp := evt.(*event.MouseUp)
 	if bounds.Contains(item.FromWindow(mouseUp.Where())) {
-		event.Dispatch(event.NewClosing(item))
 		event.Dispatch(event.NewSelection(item))
+		event.Dispatch(event.NewClosing(item))
 	}
 }
 

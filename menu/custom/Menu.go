@@ -113,9 +113,11 @@ func (mnu *Menu) open(evt event.Event) {
 	} else {
 		where.X += bounds.Width
 	}
+	focus := window.KeyWindow()
 	wnd := window.NewWindowWithContentSize(where, pref, window.BorderlessWindowMask)
 	wnd.Content().AddChild(mnu)
 	wnd.EventHandlers().Add(event.FocusLostType, mnu.close)
+	wnd.SetOwner(focus)
 	wnd.ToFront()
 	mnu.wnd = wnd
 	mnu.item.menuOpen = true

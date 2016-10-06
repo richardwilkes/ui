@@ -31,6 +31,7 @@ type Wnd struct {
 	window          platformWindow
 	surface         platformSurface // Currently only used by Linux
 	eventHandlers   *event.Handlers
+	owner           ui.Window
 	root            *RootView
 	focus           ui.Widget
 	lastMouseWidget ui.Widget
@@ -78,6 +79,9 @@ func Windows() []ui.Window {
 // application's windows has the keyboard focus.
 func KeyWindow() ui.Window {
 	if window, ok := windowMap[platformGetKeyWindow()]; ok {
+		if window.owner != nil {
+			return window.owner
+		}
 		return window
 	}
 	return nil
@@ -120,6 +124,14 @@ func (window *Wnd) ID() int64 {
 		window.id = id.NextID()
 	}
 	return window.id
+}
+
+func (window *Wnd) Owner() ui.Window {
+	return window.owner
+}
+
+func (window *Wnd) SetOwner(owner ui.Window) {
+	window.owner = owner
 }
 
 func (window *Wnd) repaintFocus() {
