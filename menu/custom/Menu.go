@@ -96,6 +96,7 @@ func (mnu *Menu) adjustItems(evt event.Event) {
 		switch item := child.(type) {
 		case *MenuItem:
 			item.pos = largest
+			item.highlighted = false
 		}
 	}
 }
@@ -120,8 +121,7 @@ func (mnu *Menu) open(evt event.Event) {
 	wnd.SetOwner(focus)
 	wnd.ToFront()
 	mnu.wnd = wnd
-	mnu.item.menuOpen = true
-	mnu.item.Repaint()
+	mnu.item.setMenuOpen(true)
 }
 
 func (mnu *Menu) close(evt event.Event) {
@@ -129,8 +129,7 @@ func (mnu *Menu) close(evt event.Event) {
 		wnd := mnu.wnd
 		mnu.wnd = nil
 		wnd.Close()
-		mnu.item.menuOpen = false
-		mnu.item.Repaint()
+		mnu.item.setMenuOpen(false)
 	}
 }
 

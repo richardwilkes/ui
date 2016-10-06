@@ -187,6 +187,14 @@ func (item *MenuItem) mouseDown(evt event.Event) {
 	item.Repaint()
 }
 
+func (item *MenuItem) setMenuOpen(menuOpen bool) {
+	if item.menuOpen != menuOpen {
+		item.menuOpen = menuOpen
+		item.highlighted = false
+		item.Repaint()
+	}
+}
+
 func (item *MenuItem) mouseOver(where geom.Point) {
 	if item.Enabled() {
 		bounds := item.LocalInsetBounds()
