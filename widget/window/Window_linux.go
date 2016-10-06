@@ -12,6 +12,7 @@ package window
 import (
 	"github.com/richardwilkes/geom"
 	"github.com/richardwilkes/ui/cursor"
+	"os"
 	"time"
 	"unsafe"
 	// #cgo linux LDFLAGS: -lX11 -lcairo
@@ -21,6 +22,7 @@ import (
 	// #include <X11/Xlib.h>
 	// #include <X11/keysym.h>
 	// #include <X11/Xutil.h>
+	// #include <X11/Xatom.h>
 	// #include <cairo/cairo.h>
 	// #include <cairo/cairo-xlib.h>
 	// #include "Types.h"
@@ -63,6 +65,15 @@ func platformNewWindow(bounds geom.Rect, styleMask WindowStyleMask) (window plat
 	lastKnownWindowBounds[toPlatformWindow(win)] = bounds
 	C.XSelectInput(display, win, C.KeyPressMask|C.KeyReleaseMask|C.ButtonPressMask|C.ButtonReleaseMask|C.EnterWindowMask|C.LeaveWindowMask|C.ExposureMask|C.PointerMotionMask|C.ExposureMask|C.VisibilityChangeMask|C.StructureNotifyMask|C.FocusChangeMask)
 	C.XSetWMProtocols(display, win, &wmDeleteAtom, C.True)
+	pid := os.Getpid()
+	C.XChangeProperty(display, win, wmPidAtom, C.XA_CARDINAL, 32, C.PropModeReplace, (*C.uchar)(unsafe.Pointer(&pid)), 1)
+	var winType C.Atom
+	if styleMask == BorderlessWindowMask {
+		winType = wmWindowTypeDropDownMenuAtom
+	} else {
+		winType = wmWindowTypeNormalAtom
+	}
+	C.XChangeProperty(display, win, wmWindowTypeAtom, C.XA_ATOM, 32, C.PropModeReplace, (*C.uchar)(unsafe.Pointer(&winType)), 1)
 	return toPlatformWindow(win), platformSurface(C.cairo_xlib_surface_create(display, C.Drawable(uintptr(win)), C.XDefaultVisual(display, screen), C.int(bounds.Width), C.int(bounds.Height)))
 }
 

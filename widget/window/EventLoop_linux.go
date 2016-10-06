@@ -25,6 +25,7 @@ import (
 	// #include <X11/Xlib.h>
 	// #include <X11/keysym.h>
 	// #include <X11/Xutil.h>
+	// #include <X11/Xatom.h>
 	// #include <cairo/cairo.h>
 	// #include <cairo/cairo-xlib.h>
 	// #include "Types.h"
@@ -41,20 +42,24 @@ var (
 )
 
 var (
-	running               bool
-	quitting              bool
-	awaitingQuit          bool
-	display               *C.Display
-	wmProtocolsAtom       C.Atom
-	wmDeleteAtom          C.Atom
-	goTaskAtom            C.Atom
-	clickCount            int
-	lastClick             time.Time
-	lastClickSpot         geom.Point
-	lastClickButton       int = -1
-	lastMouseDownWindow   platformWindow
-	lastMouseDownButton   int = -1
-	lastKnownWindowBounds     = make(map[platformWindow]geom.Rect)
+	running                      bool
+	quitting                     bool
+	awaitingQuit                 bool
+	display                      *C.Display
+	wmProtocolsAtom              C.Atom
+	wmDeleteAtom                 C.Atom
+	wmWindowTypeAtom             C.Atom
+	wmWindowTypeNormalAtom       C.Atom
+	wmWindowTypeDropDownMenuAtom C.Atom
+	wmPidAtom                    C.Atom
+	goTaskAtom                   C.Atom
+	clickCount                   int
+	lastClick                    time.Time
+	lastClickSpot                geom.Point
+	lastClickButton              int = -1
+	lastMouseDownWindow          platformWindow
+	lastMouseDownButton          int = -1
+	lastKnownWindowBounds            = make(map[platformWindow]geom.Rect)
 )
 
 func InitializeDisplay() {
@@ -64,6 +69,10 @@ func InitializeDisplay() {
 	}
 	wmProtocolsAtom = C.XInternAtom(display, C.CString("WM_PROTOCOLS"), C.False)
 	wmDeleteAtom = C.XInternAtom(display, C.CString("WM_DELETE_WINDOW"), C.False)
+	wmWindowTypeAtom = C.XInternAtom(display, C.CString("_NET_WM_WINDOW_TYPE"), C.False)
+	wmWindowTypeNormalAtom = C.XInternAtom(display, C.CString("_NET_WM_WINDOW_TYPE_NORMAL"), C.False)
+	wmWindowTypeDropDownMenuAtom = C.XInternAtom(display, C.CString("_NET_WM_WINDOW_TYPE_DROPDOWN_MENU"), C.False)
+	wmPidAtom = C.XInternAtom(display, C.CString("_NET_WM_PID"), C.False)
 	goTaskAtom = C.XInternAtom(display, C.CString("GoTask"), C.False)
 	running = true
 }
