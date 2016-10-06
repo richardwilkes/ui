@@ -26,6 +26,11 @@ import "C"
 
 func platformStartUserInterface() {
 	window.InitializeDisplay()
+	window.LastWindowClosed = func() {
+		if quit.AppShouldQuitAfterLastWindowClosed() {
+			quit.AttemptQuit()
+		}
+	}
 	custom.Install()
 	event.SendAppWillFinishStartup()
 	event.SendAppDidFinishStartup()

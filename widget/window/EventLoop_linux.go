@@ -87,12 +87,12 @@ func RunEventLoop() {
 
 func processOneEvent(evt *C.XEvent) {
 	anyEvent := (*C.XAnyEvent)(unsafe.Pointer(evt))
-	window := platformWindow(uintptr(anyEvent.window))
+	wnd := platformWindow(uintptr(anyEvent.window))
 	switch anyEvent._type {
 	case C.KeyPress:
-		processKeyEvent(evt, window, platformKeyDown)
+		processKeyEvent(evt, wnd, platformKeyDown)
 	case C.KeyRelease:
-		processKeyEvent(evt, window, platformKeyUp)
+		processKeyEvent(evt, wnd, platformKeyUp)
 	case C.ButtonPress:
 		buttonEvent := (*C.XButtonEvent)(unsafe.Pointer(evt))
 		if isScrollWheelButton(buttonEvent.button) {
@@ -107,10 +107,10 @@ func processOneEvent(evt *C.XEvent) {
 			case 7: // Right
 				dx = 1
 			}
-			handleWindowMouseWheelEvent(window, platformMouseWheel, convertKeyMask(buttonEvent.state), float64(buttonEvent.x), float64(buttonEvent.y), dx, dy)
+			handleWindowMouseWheelEvent(wnd, platformMouseWheel, convertKeyMask(buttonEvent.state), float64(buttonEvent.x), float64(buttonEvent.y), dx, dy)
 		} else {
 			lastMouseDownButton = getButton(buttonEvent.button)
-			lastMouseDownWindow = window
+			lastMouseDownWindow = wnd
 			x := float64(buttonEvent.x)
 			y := float64(buttonEvent.y)
 			now := time.Now()
@@ -123,68 +123,62 @@ func processOneEvent(evt *C.XEvent) {
 			lastClickButton = lastMouseDownButton
 			lastClickSpot.X = x
 			lastClickSpot.Y = y
-			handleWindowMouseEvent(window, platformMouseDown, convertKeyMask(buttonEvent.state), lastMouseDownButton, clickCount, x, y)
+			handleWindowMouseEvent(wnd, platformMouseDown, convertKeyMask(buttonEvent.state), lastMouseDownButton, clickCount, x, y)
 		}
 	case C.ButtonRelease:
 		buttonEvent := (*C.XButtonEvent)(unsafe.Pointer(evt))
 		if !isScrollWheelButton(buttonEvent.button) {
 			lastMouseDownButton = -1
-			handleWindowMouseEvent(window, platformMouseUp, convertKeyMask(buttonEvent.state), getButton(buttonEvent.button), clickCount, float64(buttonEvent.x), float64(buttonEvent.y))
+			handleWindowMouseEvent(wnd, platformMouseUp, convertKeyMask(buttonEvent.state), getButton(buttonEvent.button), clickCount, float64(buttonEvent.x), float64(buttonEvent.y))
 		}
 	case C.MotionNotify:
 		motionEvent := (*C.XMotionEvent)(unsafe.Pointer(evt))
 		if lastMouseDownButton != -1 {
-			if window != lastMouseDownWindow {
+			if wnd != lastMouseDownWindow {
 				// RAW: Translate coordinates appropriately
 				fmt.Println("need translation for mouse drag")
 			}
 			handleWindowMouseEvent(lastMouseDownWindow, platformMouseDragged, convertKeyMask(motionEvent.state), lastMouseDownButton, 0, float64(motionEvent.x), float64(motionEvent.y))
 		} else {
-			handleWindowMouseEvent(window, platformMouseMoved, convertKeyMask(motionEvent.state), 0, 0, float64(motionEvent.x), float64(motionEvent.y))
+			handleWindowMouseEvent(wnd, platformMouseMoved, convertKeyMask(motionEvent.state), 0, 0, float64(motionEvent.x), float64(motionEvent.y))
 		}
 	case C.EnterNotify:
 		crossingEvent := (*C.XCrossingEvent)(unsafe.Pointer(evt))
-		handleWindowMouseEvent(window, platformMouseEntered, convertKeyMask(crossingEvent.state), 0, 0, float64(crossingEvent.x), float64(crossingEvent.y))
+		handleWindowMouseEvent(wnd, platformMouseEntered, convertKeyMask(crossingEvent.state), 0, 0, float64(crossingEvent.x), float64(crossingEvent.y))
 	case C.LeaveNotify:
 		crossingEvent := (*C.XCrossingEvent)(unsafe.Pointer(evt))
-		handleWindowMouseEvent(window, platformMouseExited, convertKeyMask(crossingEvent.state), 0, 0, float64(crossingEvent.x), float64(crossingEvent.y))
+		handleWindowMouseEvent(wnd, platformMouseExited, convertKeyMask(crossingEvent.state), 0, 0, float64(crossingEvent.x), float64(crossingEvent.y))
 	case C.FocusIn:
 		event.SendAppWillActivate()
 		event.SendAppDidActivate()
-		windowGainedKey(window)
+		windowGainedKey(wnd)
 	case C.FocusOut:
-		windowLostKey(window)
+		windowLostKey(wnd)
 		event.SendAppWillDeactivate()
 		event.SendAppDidDeactivate()
 	case C.Expose:
-		if win, ok := windowMap[window]; ok {
+		if win, ok := windowMap[wnd]; ok {
 			exposeEvent := (*C.XExposeEvent)(unsafe.Pointer(evt))
 			gc := C.cairo_create(win.surface)
 			C.cairo_set_line_width(gc, 1)
 			C.cairo_rectangle(gc, C.double(exposeEvent.x), C.double(exposeEvent.y), C.double(exposeEvent.width), C.double(exposeEvent.height))
 			C.cairo_clip(gc)
-			drawWindow(window, gc, platformRect{x: C.double(exposeEvent.x), y: C.double(exposeEvent.y), width: C.double(exposeEvent.width), height: C.double(exposeEvent.height)}, false)
+			drawWindow(wnd, gc, platformRect{x: C.double(exposeEvent.x), y: C.double(exposeEvent.y), width: C.double(exposeEvent.width), height: C.double(exposeEvent.height)}, false)
 			C.cairo_destroy(gc)
 		}
 	case C.DestroyNotify:
-		windowDidClose(window)
-		if WindowCount() == 0 {
-			//			finishQuit()
-			//			if appShouldQuitAfterLastWindowClosed() {
-			//				platformAttemptQuit()
-			//			}
-		}
+		windowDidClose(wnd)
 	case C.ConfigureNotify:
 		var other C.XEvent
 		for C.XCheckTypedWindowEvent(display, anyEvent.window, C.ConfigureNotify, &other) != 0 {
 			// Collect up the last resize event for this window that is already in the queue and use that one instead
 			evt = &other
 		}
-		if win, ok := windowMap[window]; ok {
+		if win, ok := windowMap[wnd]; ok {
 			win.ignoreRepaint = true
 			configEvent := (*C.XConfigureEvent)(unsafe.Pointer(evt))
-			lastKnownWindowBounds[window] = geom.Rect{Point: geom.Point{X: float64(configEvent.x), Y: float64(configEvent.y)}, Size: geom.Size{Width: float64(configEvent.width), Height: float64(configEvent.height)}}
-			windowResized(window)
+			lastKnownWindowBounds[wnd] = geom.Rect{Point: geom.Point{X: float64(configEvent.x), Y: float64(configEvent.y)}, Size: geom.Size{Width: float64(configEvent.width), Height: float64(configEvent.height)}}
+			windowResized(wnd)
 			win.root.ValidateLayout()
 			win.ignoreRepaint = false
 			size := win.ContentFrame().Size
@@ -197,10 +191,10 @@ func processOneEvent(evt *C.XEvent) {
 			if clientEvent.format == 32 {
 				data := (*C.Atom)(unsafe.Pointer(&clientEvent.data))
 				if *data == wmDeleteAtom {
-					if windowShouldClose(window) {
-						if win, ok := windowMap[window]; ok {
+					if windowShouldClose(wnd) {
+						if win, ok := windowMap[wnd]; ok {
 							win.Close()
-							windowDidClose(window)
+							windowDidClose(wnd)
 						}
 					}
 				}

@@ -21,6 +21,10 @@ import (
 	"C"
 )
 
+var (
+	LastWindowClosed func()
+)
+
 //export drawWindow
 func drawWindow(cWindow platformWindow, gc *C.cairo_t, bounds platformRect, inLiveResize bool) {
 	if window, ok := windowMap[cWindow]; ok {
@@ -66,6 +70,9 @@ func windowDidClose(cWindow platformWindow) {
 		delete(windowIDMap, window.ID())
 	}
 	delete(windowMap, cWindow)
+	if WindowCount() == 0 && LastWindowClosed != nil {
+		LastWindowClosed()
+	}
 }
 
 //export handleWindowMouseEvent
