@@ -291,9 +291,8 @@ func StartQuit() {
 		for _, w := range Windows() {
 			w.Close()
 		}
-	} else {
-		finishQuit()
 	}
+	finishQuit()
 }
 
 func ResumeQuit(quit bool) {
