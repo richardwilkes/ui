@@ -274,15 +274,8 @@ func (field *TextField) keyDown(evt event.Event) {
 	code := e.Code()
 	switch code {
 	case keys.VK_Backspace:
-		if field.HasSelectionRange() {
-			field.Delete()
-		} else if field.selectionStart > 0 {
-			field.runes = append(field.runes[:field.selectionStart-1], field.runes[field.selectionStart:]...)
-			field.SetSelectionTo(field.selectionStart - 1)
-			field.notifyOfModification()
-		}
+		field.Delete()
 		evt.Finish()
-		field.Repaint()
 	case keys.VK_Delete, keys.VK_NumPadDelete:
 		if field.HasSelectionRange() {
 			field.Delete()
@@ -637,15 +630,21 @@ func (field *TextField) Cut() {
 
 // CanDelete returns true if the field has a selection that can be deleted.
 func (field *TextField) CanDelete() bool {
-	return field.HasSelectionRange()
+	return field.HasSelectionRange() || field.selectionStart > 0
 }
 
 // Delete removes the currently selected text, if any.
 func (field *TextField) Delete() {
-	if field.HasSelectionRange() {
-		field.runes = append(field.runes[:field.selectionStart], field.runes[field.selectionEnd:]...)
-		field.SetSelectionTo(field.selectionStart)
+	if field.CanDelete() {
+		if field.HasSelectionRange() {
+			field.runes = append(field.runes[:field.selectionStart], field.runes[field.selectionEnd:]...)
+			field.SetSelectionTo(field.selectionStart)
+		} else {
+			field.runes = append(field.runes[:field.selectionStart-1], field.runes[field.selectionStart:]...)
+			field.SetSelectionTo(field.selectionStart - 1)
+		}
 		field.notifyOfModification()
+		field.Repaint()
 	}
 }
 
@@ -678,7 +677,7 @@ func (field *TextField) Paste() {
 		field.runes = append(field.runes[:field.selectionStart], append(runes, field.runes[field.selectionStart:]...)...)
 		field.SetSelectionTo(field.selectionStart + len(runes))
 		field.notifyOfModification()
-	} else {
+	} else if field.HasSelectionRange() {
 		field.Delete()
 	}
 }

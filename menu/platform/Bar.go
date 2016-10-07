@@ -10,6 +10,7 @@
 package platform
 
 import (
+	"github.com/richardwilkes/ui/event"
 	"github.com/richardwilkes/ui/menu"
 )
 
@@ -70,4 +71,9 @@ func (bar *Bar) SetupSpecialMenu(which menu.SpecialMenuType, mnu menu.Menu) {
 	case menu.HelpMenu:
 		SetHelpMenu(mnu)
 	}
+}
+
+// ProcessKeyDown is called to process KeyDown events prior to anything else receiving them.
+func (bar *Bar) ProcessKeyDown(evt *event.KeyDown) {
+	// Unused. The native implementation already gets the keys before we do.
 }

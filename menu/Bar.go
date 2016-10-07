@@ -9,6 +9,10 @@
 
 package menu
 
+import (
+	"github.com/richardwilkes/ui/event"
+)
+
 const (
 	ServicesMenu SpecialMenuType = iota
 	WindowMenu
@@ -33,6 +37,8 @@ type Bar interface {
 	// SetupSpecialMenu sets up the specified special menu, which must have already been installed
 	// into the menu bar.
 	SetupSpecialMenu(which SpecialMenuType, menu Menu)
+	// ProcessKeyDown is called to process KeyDown events prior to anything else receiving them.
+	ProcessKeyDown(evt *event.KeyDown)
 }
 
 var (

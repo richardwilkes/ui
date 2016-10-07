@@ -14,6 +14,7 @@ import (
 	"github.com/richardwilkes/geom"
 	"github.com/richardwilkes/ui/border"
 	"github.com/richardwilkes/ui/color"
+	"github.com/richardwilkes/ui/event"
 	"github.com/richardwilkes/ui/layout/flex"
 	"github.com/richardwilkes/ui/menu"
 	"github.com/richardwilkes/ui/widget"
@@ -89,4 +90,16 @@ func (bar *MenuBar) SpecialMenu(which menu.SpecialMenuType) menu.Menu {
 // into the menu bar.
 func (bar *MenuBar) SetupSpecialMenu(which menu.SpecialMenuType, mnu menu.Menu) {
 	bar.special[which] = mnu
+}
+
+// ProcessKeyDown is called to process KeyDown events prior to anything else receiving them.
+func (bar *MenuBar) ProcessKeyDown(evt *event.KeyDown) {
+	for _, child := range bar.Children() {
+		switch item := child.(type) {
+		case *MenuItem:
+			if item.processKeyDown(evt) {
+				break
+			}
+		}
+	}
 }

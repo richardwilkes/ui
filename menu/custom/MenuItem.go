@@ -240,6 +240,12 @@ func (item *MenuItem) keyDown(evt event.Event) {
 	}
 }
 
+func (item *MenuItem) validate() {
+	evt := event.NewValidate(item)
+	event.Dispatch(evt)
+	item.SetEnabled(evt.Valid())
+}
+
 // SubMenu returns a sub-menu attached to this item or nil.
 func (item *MenuItem) SubMenu() menu.Menu {
 	return item.menu
@@ -248,4 +254,18 @@ func (item *MenuItem) SubMenu() menu.Menu {
 // Dispose releases any operating system resources associated with this item.
 func (item *MenuItem) Dispose() {
 	// Does nothing
+}
+
+func (item *MenuItem) processKeyDown(evt *event.KeyDown) bool {
+	if item.KeyCode() == evt.Code() && item.KeyModifiers() == evt.Modifiers() {
+		item.validate()
+		if item.Enabled() {
+			event.Dispatch(event.NewSelection(item))
+			evt.Finish()
+		}
+		return true
+	} else if item.menu != nil {
+		return item.menu.processKeyDown(evt)
+	}
+	return false
 }

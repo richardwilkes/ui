@@ -97,6 +97,7 @@ func (mnu *Menu) adjustItems(evt event.Event) {
 		case *MenuItem:
 			item.pos = largest
 			item.highlighted = false
+			item.validate()
 		}
 	}
 }
@@ -151,4 +152,16 @@ func (mnu *Menu) Popup(windowID int64, where geom.Point, item menu.Item) {
 	if wnd != nil {
 		// RAW: Implement!
 	}
+}
+
+func (mnu *Menu) processKeyDown(evt *event.KeyDown) bool {
+	for _, child := range mnu.Children() {
+		switch item := child.(type) {
+		case *MenuItem:
+			if item.processKeyDown(evt) {
+				return true
+			}
+		}
+	}
+	return false
 }

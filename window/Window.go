@@ -662,12 +662,18 @@ func (window *Wnd) keyEvent(eventType platformEventType, keyModifiers keys.Modif
 			ch = 0
 		}
 		e := event.NewKeyDown(window.Focus(), keyCode, ch, repeat, keyModifiers)
-		event.Dispatch(e)
-		if !e.Discarded() && keyCode == keys.VK_Tab && (keyModifiers&(keys.AllModifiers & ^keys.ShiftModifier)) == 0 {
-			if keyModifiers.ShiftDown() {
-				window.FocusPrevious()
-			} else {
-				window.FocusNext()
+		bar := window.MenuBar()
+		if bar != nil {
+			bar.ProcessKeyDown(e)
+		}
+		if !e.Discarded() && !e.Finished() {
+			event.Dispatch(e)
+			if !e.Discarded() && keyCode == keys.VK_Tab && (keyModifiers&(keys.AllModifiers & ^keys.ShiftModifier)) == 0 {
+				if keyModifiers.ShiftDown() {
+					window.FocusPrevious()
+				} else {
+					window.FocusNext()
+				}
 			}
 		}
 	case platformKeyUp:
