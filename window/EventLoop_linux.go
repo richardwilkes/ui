@@ -197,11 +197,18 @@ func processFocusOutEvent(wnd platformWindow) {
 func processExposeEvent(evt *C.XEvent, wnd platformWindow) {
 	if win, ok := windowMap[wnd]; ok {
 		exposeEvent := (*C.XExposeEvent)(unsafe.Pointer(evt))
+		bounds := geom.Rect{Point: geom.Point{X: float64(exposeEvent.x), Y: float64(exposeEvent.y)}, Size: geom.Size{Width: float64(exposeEvent.width), Height: float64(exposeEvent.height)}}
+		var other C.XEvent
+		for C.XCheckTypedWindowEvent(display, exposeEvent.window, C.Expose, &other) != 0 {
+			// Collect up any other expose events for this window that are already in the queue and union their exposed area into the area we need to redraw
+			exposeEvent = (*C.XExposeEvent)(unsafe.Pointer(&other))
+			bounds.Union(geom.Rect{Point: geom.Point{X: float64(exposeEvent.x), Y: float64(exposeEvent.y)}, Size: geom.Size{Width: float64(exposeEvent.width), Height: float64(exposeEvent.height)}})
+		}
 		gc := C.cairo_create(win.surface)
 		C.cairo_set_line_width(gc, 1)
-		C.cairo_rectangle(gc, C.double(exposeEvent.x), C.double(exposeEvent.y), C.double(exposeEvent.width), C.double(exposeEvent.height))
+		C.cairo_rectangle(gc, C.double(bounds.X), C.double(bounds.Y), C.double(bounds.Width), C.double(bounds.Height))
 		C.cairo_clip(gc)
-		drawWindow(wnd, gc, platformRect{x: C.double(exposeEvent.x), y: C.double(exposeEvent.y), width: C.double(exposeEvent.width), height: C.double(exposeEvent.height)}, false)
+		drawWindow(wnd, gc, platformRect{x: C.double(bounds.X), y: C.double(bounds.Y), width: C.double(bounds.Width), height: C.double(bounds.Height)}, false)
 		C.cairo_destroy(gc)
 	}
 }
