@@ -38,7 +38,7 @@ import (
 	"github.com/richardwilkes/ui/widget/scrollarea"
 	"github.com/richardwilkes/ui/widget/separator"
 	"github.com/richardwilkes/ui/widget/textfield"
-	"github.com/richardwilkes/ui/widget/window"
+	"github.com/richardwilkes/ui/window"
 	"unicode"
 )
 

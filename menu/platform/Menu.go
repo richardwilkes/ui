@@ -12,7 +12,7 @@ package platform
 import (
 	"github.com/richardwilkes/geom"
 	"github.com/richardwilkes/ui/menu"
-	"github.com/richardwilkes/ui/widget/window"
+	"github.com/richardwilkes/ui/window"
 )
 
 type platformMenu struct {

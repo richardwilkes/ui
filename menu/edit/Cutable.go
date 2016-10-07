@@ -14,7 +14,7 @@ import (
 	"github.com/richardwilkes/ui/event"
 	"github.com/richardwilkes/ui/keys"
 	"github.com/richardwilkes/ui/menu"
-	"github.com/richardwilkes/ui/widget/window"
+	"github.com/richardwilkes/ui/window"
 )
 
 // Cutable defines the methods required of objects that can respond to the Cut menu item.

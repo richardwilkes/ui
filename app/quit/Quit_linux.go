@@ -10,7 +10,7 @@
 package quit
 
 import (
-	"github.com/richardwilkes/ui/widget/window"
+	"github.com/richardwilkes/ui/window"
 )
 
 func platformAttemptQuit() {

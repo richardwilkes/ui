@@ -14,7 +14,7 @@ import (
 	"github.com/richardwilkes/ui/event"
 	"github.com/richardwilkes/ui/keys"
 	"github.com/richardwilkes/ui/menu"
-	"github.com/richardwilkes/ui/widget/window"
+	"github.com/richardwilkes/ui/window"
 )
 
 // InstallWindowMenu adds a standard 'Window' menu to the menu bar.

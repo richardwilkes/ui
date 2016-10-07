@@ -13,7 +13,7 @@ import (
 	"github.com/richardwilkes/ui/app/quit"
 	"github.com/richardwilkes/ui/event"
 	"github.com/richardwilkes/ui/menu/custom"
-	"github.com/richardwilkes/ui/widget/window"
+	"github.com/richardwilkes/ui/window"
 )
 
 // #cgo linux LDFLAGS: -lX11 -lcairo

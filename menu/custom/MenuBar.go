@@ -17,7 +17,7 @@ import (
 	"github.com/richardwilkes/ui/layout/flex"
 	"github.com/richardwilkes/ui/menu"
 	"github.com/richardwilkes/ui/widget"
-	"github.com/richardwilkes/ui/widget/window"
+	"github.com/richardwilkes/ui/window"
 )
 
 type MenuBar struct {
