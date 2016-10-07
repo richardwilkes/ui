@@ -150,7 +150,7 @@ func createButtonsWindow(title string) ui.Window {
 
 	addSeparator(content)
 
-	img, err := draw.AcquireImageFromURL("http://legends.trollworks.com/mountains.jpg")
+	img, err := draw.AcquireImageFromFile(images.FS, "/mountains.jpg")
 	if err == nil {
 		imgPanel := imagelabel.New(img)
 		imgPanel.SetFocusable(true)

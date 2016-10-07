@@ -8,5 +8,5 @@ go get -u github.com/omeid/go-resources/cmd/resources
 Once you have it installed, you create **images.go** with:
 
 ```
-resources -declare=true -output="images.go" -package="images" *.png
+resources -declare=true -output="images.go" -package="images" *.png *.jpg
 ```
