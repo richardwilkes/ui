@@ -103,26 +103,15 @@ func (mnu *Menu) adjustItems(evt event.Event) {
 }
 
 func (mnu *Menu) open(evt event.Event) {
-	mnu.adjustItems(nil)
-	_, pref, _ := mnu.Layout().Sizes(layout.NoHintSize)
-	mnu.SetBounds(geom.Rect{Size: pref})
-	mnu.Layout().Layout()
 	bounds := mnu.item.LocalBounds()
 	where := mnu.item.ToWindow(bounds.Point)
-	where.Add(mnu.item.Window().ContentFrame().Point)
+	size := mnu.preparePopup(mnu.item.Window(), &where, 0)
 	if mnu.attachToBottom {
 		where.Y += bounds.Height
 	} else {
 		where.X += bounds.Width
 	}
-	focus := window.KeyWindow()
-	wnd := window.NewWindowWithContentSize(where, pref, window.BorderlessWindowMask)
-	wnd.Content().AddChild(mnu)
-	wnd.EventHandlers().Add(event.FocusLostType, mnu.close)
-	wnd.SetOwner(focus)
-	wnd.ToFront()
-	mnu.wnd = wnd
-	mnu.item.setMenuOpen(true)
+	mnu.showPopup(where, size)
 }
 
 func (mnu *Menu) close(evt event.Event) {
@@ -147,11 +136,38 @@ func (mnu *Menu) Dispose() {
 
 // Popup displays the menu within the window. An attempt will be made to position the 'item'
 // at 'where' within the window.
-func (mnu *Menu) Popup(windowID int64, where geom.Point, item menu.Item) {
+func (mnu *Menu) Popup(windowID int64, where geom.Point, width float64, item menu.Item) {
 	wnd := window.ByID(windowID)
 	if wnd != nil {
-		// RAW: Implement!
+		size := mnu.preparePopup(wnd, &where, width)
+		if item != nil {
+			where.Add(geom.Point{X: 0, Y: -item.(*MenuItem).Location().Y})
+		}
+		mnu.showPopup(where, size)
 	}
+}
+
+func (mnu *Menu) preparePopup(wnd ui.Window, where *geom.Point, width float64) geom.Size {
+	mnu.adjustItems(nil)
+	_, pref, _ := mnu.Layout().Sizes(layout.NoHintSize)
+	if pref.Width < width {
+		pref.Width = width
+	}
+	mnu.SetBounds(geom.Rect{Size: pref})
+	mnu.Layout().Layout()
+	where.Add(wnd.ContentFrame().Point)
+	return pref
+}
+
+func (mnu *Menu) showPopup(where geom.Point, size geom.Size) {
+	focus := window.KeyWindow()
+	wnd := window.NewWindowWithContentSize(where, size, window.BorderlessWindowMask)
+	wnd.Content().AddChild(mnu)
+	wnd.EventHandlers().Add(event.FocusLostType, mnu.close)
+	wnd.SetOwner(focus)
+	wnd.ToFront()
+	mnu.wnd = wnd
+	mnu.item.setMenuOpen(true)
 }
 
 func (mnu *Menu) processKeyDown(evt *event.KeyDown) bool {
