@@ -11,6 +11,7 @@ package window
 
 import (
 	"github.com/richardwilkes/geom"
+	"github.com/richardwilkes/ui"
 	"github.com/richardwilkes/ui/cursor"
 	"os"
 	"time"
@@ -67,13 +68,28 @@ func platformNewWindow(bounds geom.Rect, styleMask WindowStyleMask) (window plat
 	C.XSetWMProtocols(display, win, &wmDeleteAtom, C.True)
 	pid := os.Getpid()
 	C.XChangeProperty(display, win, wmPidAtom, C.XA_CARDINAL, 32, C.PropModeReplace, (*C.uchar)(unsafe.Pointer(&pid)), 1)
-	var winType C.Atom
-	if styleMask == BorderlessWindowMask {
-		winType = wmWindowTypeDropDownMenuAtom
-	} else {
-		winType = wmWindowTypeNormalAtom
-	}
+	winType := wmWindowTypeNormalAtom
 	C.XChangeProperty(display, win, wmWindowTypeAtom, C.XA_ATOM, 32, C.PropModeReplace, (*C.uchar)(unsafe.Pointer(&winType)), 1)
+	return toPlatformWindow(win), platformSurface(C.cairo_xlib_surface_create(display, C.Drawable(uintptr(win)), C.XDefaultVisual(display, screen), C.int(bounds.Width), C.int(bounds.Height)))
+}
+
+func platformNewMenuWindow(parent ui.Window, bounds geom.Rect) (window platformWindow, surface platformSurface) {
+	screen := C.XDefaultScreen(display)
+	var windowAttributes C.XSetWindowAttributes
+	windowAttributes.background_pixmap = C.None
+	windowAttributes.backing_store = C.WhenMapped
+	windowAttributes.override_redirect = C.True
+	win := C.XCreateWindow(display, C.XRootWindow(display, screen), C.int(bounds.X), C.int(bounds.Y), C.uint(bounds.Width), C.uint(bounds.Height), 0, C.CopyFromParent, C.InputOutput, nil, C.CWBackPixmap|C.CWBackingStore|C.CWOverrideRedirect, &windowAttributes)
+	lastKnownWindowBounds[toPlatformWindow(win)] = bounds
+	C.XSelectInput(display, win, C.KeyPressMask|C.KeyReleaseMask|C.ButtonPressMask|C.ButtonReleaseMask|C.EnterWindowMask|C.LeaveWindowMask|C.ExposureMask|C.PointerMotionMask|C.ExposureMask|C.VisibilityChangeMask|C.StructureNotifyMask|C.FocusChangeMask)
+	C.XSetWMProtocols(display, win, &wmDeleteAtom, C.True)
+	pid := os.Getpid()
+	C.XChangeProperty(display, win, wmPidAtom, C.XA_CARDINAL, 32, C.PropModeReplace, (*C.uchar)(unsafe.Pointer(&pid)), 1)
+	winType := wmWindowTypeDropDownMenuAtom
+	C.XChangeProperty(display, win, wmWindowTypeAtom, C.XA_ATOM, 32, C.PropModeReplace, (*C.uchar)(unsafe.Pointer(&winType)), 1)
+	winState := wmWindowStateSkipTaskBarAtom
+	C.XChangeProperty(display, win, wmWindowStateAtom, C.XA_ATOM, 32, C.PropModeReplace, (*C.uchar)(unsafe.Pointer(&winState)), 1)
+	C.XSetTransientForHint(display, win, toXWindow(platformWindow(parent.PlatformPtr())))
 	return toPlatformWindow(win), platformSurface(C.cairo_xlib_surface_create(display, C.Drawable(uintptr(win)), C.XDefaultVisual(display, screen), C.int(bounds.Width), C.int(bounds.Height)))
 }
 
@@ -81,6 +97,7 @@ func (window *Wnd) platformClose() {
 	delete(lastKnownWindowBounds, window.window)
 	C.cairo_surface_destroy(window.surface)
 	C.XDestroyWindow(display, toXWindow(window.window))
+	windowDidClose(window.window)
 }
 
 func (window *Wnd) platformTitle() string {
@@ -127,9 +144,18 @@ func (window *Wnd) platformToFront() {
 		window.wasMapped = true
 		bounds, ok := lastKnownWindowBounds[window.window]
 		C.XMapWindow(display, win)
+
+		var other C.XEvent
+		for C.XCheckTypedWindowEvent(display, win, C.MapNotify, &other) == 0 {
+			// Wait for window to be mapped
+		}
+
 		if ok {
 			C.XMoveWindow(display, win, C.int(bounds.X), C.int(bounds.Y))
 		}
+
+		// This is here so that menu windows behave properly
+		C.XSetInputFocus(display, win, C.RevertToNone, C.CurrentTime)
 	}
 }
 

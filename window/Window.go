@@ -96,6 +96,18 @@ func NewWindow(where geom.Point, styleMask WindowStyleMask) *Wnd {
 func NewWindowWithContentSize(where geom.Point, contentSize geom.Size, styleMask WindowStyleMask) *Wnd {
 	bounds := geom.Rect{Point: where, Size: contentSize}
 	win, surface := platformNewWindow(bounds, styleMask)
+	return newWindow(win, styleMask, surface)
+}
+
+func NewMenuWindow(parent ui.Window, where geom.Point, contentSize geom.Size) *Wnd {
+	bounds := geom.Rect{Point: where, Size: contentSize}
+	win, surface := platformNewMenuWindow(parent, bounds)
+	wnd := newWindow(win, BorderlessWindowMask, surface)
+	wnd.owner = parent
+	return wnd
+}
+
+func newWindow(win platformWindow, styleMask WindowStyleMask, surface platformSurface) *Wnd {
 	window := &Wnd{window: win, surface: surface, style: styleMask}
 	windowMap[window.window] = window
 	windowIDMap[window.ID()] = window
@@ -128,10 +140,6 @@ func (window *Wnd) ID() int64 {
 
 func (window *Wnd) Owner() ui.Window {
 	return window.owner
-}
-
-func (window *Wnd) SetOwner(owner ui.Window) {
-	window.owner = owner
 }
 
 func (window *Wnd) repaintFocus() {

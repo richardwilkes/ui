@@ -52,6 +52,8 @@ var (
 	wmWindowTypeNormalAtom       C.Atom
 	wmWindowTypeDropDownMenuAtom C.Atom
 	wmPidAtom                    C.Atom
+	wmWindowStateAtom            C.Atom
+	wmWindowStateSkipTaskBarAtom C.Atom
 	goTaskAtom                   C.Atom
 	clickCount                   int
 	lastClick                    time.Time
@@ -73,6 +75,8 @@ func InitializeDisplay() {
 	wmWindowTypeNormalAtom = C.XInternAtom(display, C.CString("_NET_WM_WINDOW_TYPE_NORMAL"), C.False)
 	wmWindowTypeDropDownMenuAtom = C.XInternAtom(display, C.CString("_NET_WM_WINDOW_TYPE_DROPDOWN_MENU"), C.False)
 	wmPidAtom = C.XInternAtom(display, C.CString("_NET_WM_PID"), C.False)
+	wmWindowStateAtom = C.XInternAtom(display, C.CString("_NET_WM_STATE"), C.False)
+	wmWindowStateSkipTaskBarAtom = C.XInternAtom(display, C.CString("_NET_WM_STATE_SKIP_TASKBAR"), C.False)
 	goTaskAtom = C.XInternAtom(display, C.CString("GoTask"), C.False)
 	running = true
 }
@@ -242,7 +246,6 @@ func processClientEvent(evt *C.XEvent, wnd platformWindow) {
 				if windowShouldClose(wnd) {
 					if win, ok := windowMap[wnd]; ok {
 						win.Close()
-						windowDidClose(wnd)
 					}
 				}
 			}

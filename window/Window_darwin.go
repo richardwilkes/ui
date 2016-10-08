@@ -37,6 +37,10 @@ func platformNewWindow(bounds geom.Rect, styleMask WindowStyleMask) (window plat
 	return platformWindow(C.platformNewWindow(toCRect(bounds), C.int(styleMask))), nil
 }
 
+func platformNewMenuWindow(parent ui.Window, bounds geom.Rect) (window platformWindow, surface platformSurface) {
+	return platformNewWindow(bounds, BorderlessWindowMask)
+}
+
 func (window *Wnd) platformClose() {
 	C.platformCloseWindow(window.window)
 }

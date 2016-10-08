@@ -161,10 +161,9 @@ func (mnu *Menu) preparePopup(wnd ui.Window, where *geom.Point, width float64) g
 
 func (mnu *Menu) showPopup(where geom.Point, size geom.Size) {
 	focus := window.KeyWindow()
-	wnd := window.NewWindowWithContentSize(where, size, window.BorderlessWindowMask)
+	wnd := window.NewMenuWindow(focus, where, size)
 	wnd.Content().AddChild(mnu)
 	wnd.EventHandlers().Add(event.FocusLostType, mnu.close)
-	wnd.SetOwner(focus)
 	wnd.ToFront()
 	mnu.wnd = wnd
 	mnu.item.setMenuOpen(true)

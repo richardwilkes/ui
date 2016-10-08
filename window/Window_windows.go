@@ -32,8 +32,14 @@ func platformNewWindow(bounds geom.Rect, styleMask WindowStyleMask) (window plat
 	return nil, nil
 }
 
+func platformNewMenuWindow(parent ui.Window, bounds geom.Rect) (window platformWindow, surface platformSurface) {
+	// RAW: Implement for Windows
+	return nil, nil
+}
+
 func (window *Wnd) platformClose() {
 	// RAW: Implement for Windows
+	windowDidClose(window.window)
 }
 
 func (window *Wnd) platformTitle() string {

@@ -162,7 +162,7 @@ func (item *MenuItem) paint(evt event.Event) {
 func (item *MenuItem) currentBackground() color.Color {
 	switch {
 	case !item.Enabled():
-		return item.Theme.Background.AdjustBrightness(item.Theme.DisabledAdjustment)
+		return item.Theme.Background
 	case item.highlighted || item.menuOpen:
 		return item.Theme.HighlightedBackground
 	case item.Focused():
