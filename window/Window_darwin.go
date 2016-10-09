@@ -11,6 +11,7 @@ package window
 
 import (
 	"github.com/richardwilkes/geom"
+	"github.com/richardwilkes/ui"
 	"github.com/richardwilkes/ui/cursor"
 	"time"
 	"unsafe"
