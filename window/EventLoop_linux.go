@@ -128,6 +128,10 @@ func processKeyEvent(evt *C.XEvent, wnd platformWindow, eventType platformEventT
 }
 
 func processButtonPressEvent(evt *C.XEvent, wnd platformWindow) {
+	keyWindow := platformGetKeyWindow()
+	if keyWindow != wnd {
+		processFocusOutEvent(keyWindow)
+	}
 	buttonEvent := (*C.XButtonEvent)(unsafe.Pointer(evt))
 	if isScrollWheelButton(buttonEvent.button) {
 		var dx, dy float64

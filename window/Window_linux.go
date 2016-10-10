@@ -61,10 +61,7 @@ func platformNewWindow(bounds geom.Rect, styleMask WindowStyleMask) (window plat
 	screen := C.XDefaultScreen(display)
 	attr, mask := prepareCommonWindowAttributes()
 	win := C.XCreateWindow(display, C.XRootWindow(display, screen), C.int(bounds.X), C.int(bounds.Y), C.uint(bounds.Width), C.uint(bounds.Height), 0, C.CopyFromParent, C.InputOutput, nil, mask, attr)
-	C.XSelectInput(display, win, C.KeyPressMask|C.KeyReleaseMask|C.ButtonPressMask|C.ButtonReleaseMask|C.EnterWindowMask|C.LeaveWindowMask|C.ExposureMask|C.PointerMotionMask|C.ExposureMask|C.VisibilityChangeMask|C.StructureNotifyMask|C.FocusChangeMask)
-	C.XSetWMProtocols(display, win, &wmDeleteAtom, C.True)
-	pid := os.Getpid()
-	C.XChangeProperty(display, win, wmPidAtom, C.XA_CARDINAL, 32, C.PropModeReplace, (*C.uchar)(unsafe.Pointer(&pid)), 1)
+	applyCommonWindowSetup(win)
 	winType := wmWindowTypeNormalAtom
 	C.XChangeProperty(display, win, wmWindowTypeAtom, C.XA_ATOM, 32, C.PropModeReplace, (*C.uchar)(unsafe.Pointer(&winType)), 1)
 	setWindowHints(win, bounds)
@@ -76,10 +73,7 @@ func platformNewMenuWindow(parent ui.Window, bounds geom.Rect) (window platformW
 	attr, mask := prepareCommonWindowAttributes()
 	attr.override_redirect = C.True
 	win := C.XCreateWindow(display, C.XRootWindow(display, screen), C.int(bounds.X), C.int(bounds.Y), C.uint(bounds.Width), C.uint(bounds.Height), 0, C.CopyFromParent, C.InputOutput, nil, mask|C.CWOverrideRedirect, attr)
-	C.XSelectInput(display, win, C.KeyPressMask|C.KeyReleaseMask|C.ButtonPressMask|C.ButtonReleaseMask|C.EnterWindowMask|C.LeaveWindowMask|C.ExposureMask|C.PointerMotionMask|C.ExposureMask|C.VisibilityChangeMask|C.StructureNotifyMask|C.FocusChangeMask)
-	C.XSetWMProtocols(display, win, &wmDeleteAtom, C.True)
-	pid := os.Getpid()
-	C.XChangeProperty(display, win, wmPidAtom, C.XA_CARDINAL, 32, C.PropModeReplace, (*C.uchar)(unsafe.Pointer(&pid)), 1)
+	applyCommonWindowSetup(win)
 	winType := wmWindowTypeDropDownMenuAtom
 	C.XChangeProperty(display, win, wmWindowTypeAtom, C.XA_ATOM, 32, C.PropModeReplace, (*C.uchar)(unsafe.Pointer(&winType)), 1)
 	winState := wmWindowStateSkipTaskBarAtom
@@ -91,6 +85,13 @@ func platformNewMenuWindow(parent ui.Window, bounds geom.Rect) (window platformW
 
 func prepareCommonWindowAttributes() (attr *C.XSetWindowAttributes, mask C.ulong) {
 	return &C.XSetWindowAttributes{background_pixmap: C.None, backing_store: C.WhenMapped}, C.CWBackPixmap | C.CWBackingStore
+}
+
+func applyCommonWindowSetup(win C.Window) {
+	C.XSelectInput(display, win, C.KeyPressMask|C.KeyReleaseMask|C.ButtonPressMask|C.ButtonReleaseMask|C.EnterWindowMask|C.LeaveWindowMask|C.ExposureMask|C.PointerMotionMask|C.ExposureMask|C.VisibilityChangeMask|C.StructureNotifyMask|C.FocusChangeMask)
+	C.XSetWMProtocols(display, win, &wmDeleteAtom, C.True)
+	pid := os.Getpid()
+	C.XChangeProperty(display, win, wmPidAtom, C.XA_CARDINAL, 32, C.PropModeReplace, (*C.uchar)(unsafe.Pointer(&pid)), 1)
 }
 
 func setWindowHints(win C.Window, bounds geom.Rect) {
