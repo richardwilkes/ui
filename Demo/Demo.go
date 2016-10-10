@@ -61,13 +61,9 @@ func main() {
 		specialmenus.InstallHelpMenu(bar, -1)
 	})
 	handlers.Add(event.AppWillFinishStartupType, func(evt event.Event) {
-		w1 := createButtonsWindow("Demo #1")
-		w2 := createButtonsWindow("Demo #2")
+		w1 := createButtonsWindow("Demo #1", geom.Point{})
 		frame1 := w1.Frame()
-		frame2 := w2.Frame()
-		frame2.X = frame1.X + frame1.Width + 5
-		frame2.Y = frame1.Y
-		w2.SetFrame(frame2)
+		createButtonsWindow("Demo #2", geom.Point{X: frame1.X + frame1.Width + 5, Y: frame1.Y})
 	})
 	app.StartUserInterface()
 }
@@ -107,8 +103,8 @@ func newEditMenu() menu.Menu {
 	return editMenu
 }
 
-func createButtonsWindow(title string) ui.Window {
-	wnd := window.NewWindow(geom.Point{}, window.StdWindowMask)
+func createButtonsWindow(title string, where geom.Point) ui.Window {
+	wnd := window.NewWindow(where, window.StdWindowMask)
 	wnd.SetTitle(title)
 
 	content := wnd.Content()

@@ -54,6 +54,7 @@ var (
 	wmPidAtom                    C.Atom
 	wmWindowStateAtom            C.Atom
 	wmWindowStateSkipTaskBarAtom C.Atom
+	wmWindowFrameExtentsAtom     C.Atom
 	goTaskAtom                   C.Atom
 	clickCount                   int
 	lastClick                    time.Time
@@ -61,7 +62,6 @@ var (
 	lastClickButton              int = -1
 	lastMouseDownWindow          platformWindow
 	lastMouseDownButton          int = -1
-	lastKnownWindowBounds            = make(map[platformWindow]geom.Rect)
 )
 
 func InitializeDisplay() {
@@ -77,6 +77,7 @@ func InitializeDisplay() {
 	wmPidAtom = C.XInternAtom(display, C.CString("_NET_WM_PID"), C.False)
 	wmWindowStateAtom = C.XInternAtom(display, C.CString("_NET_WM_STATE"), C.False)
 	wmWindowStateSkipTaskBarAtom = C.XInternAtom(display, C.CString("_NET_WM_STATE_SKIP_TASKBAR"), C.False)
+	wmWindowFrameExtentsAtom = C.XInternAtom(display, C.CString("_NET_FRAME_EXTENTS"), C.False)
 	goTaskAtom = C.XInternAtom(display, C.CString("GoTask"), C.False)
 	running = true
 }
@@ -208,12 +209,7 @@ func processExposeEvent(evt *C.XEvent, wnd platformWindow) {
 			exposeEvent = (*C.XExposeEvent)(unsafe.Pointer(&other))
 			bounds.Union(geom.Rect{Point: geom.Point{X: float64(exposeEvent.x), Y: float64(exposeEvent.y)}, Size: geom.Size{Width: float64(exposeEvent.width), Height: float64(exposeEvent.height)}})
 		}
-		gc := C.cairo_create(win.surface)
-		C.cairo_set_line_width(gc, 1)
-		C.cairo_rectangle(gc, C.double(bounds.X), C.double(bounds.Y), C.double(bounds.Width), C.double(bounds.Height))
-		C.cairo_clip(gc)
-		drawWindow(wnd, gc, platformRect{x: C.double(bounds.X), y: C.double(bounds.Y), width: C.double(bounds.Width), height: C.double(bounds.Height)}, false)
-		C.cairo_destroy(gc)
+		win.draw(bounds)
 	}
 }
 
@@ -226,13 +222,12 @@ func processConfigureEvent(evt *C.XEvent, wnd platformWindow) {
 	}
 	if win, ok := windowMap[wnd]; ok {
 		win.ignoreRepaint = true
-		configEvent := (*C.XConfigureEvent)(unsafe.Pointer(evt))
-		lastKnownWindowBounds[wnd] = geom.Rect{Point: geom.Point{X: float64(configEvent.x), Y: float64(configEvent.y)}, Size: geom.Size{Width: float64(configEvent.width), Height: float64(configEvent.height)}}
 		windowResized(wnd)
 		win.root.ValidateLayout()
 		win.ignoreRepaint = false
 		size := win.ContentFrame().Size
 		C.cairo_xlib_surface_set_size(win.surface, C.int(size.Width), C.int(size.Height))
+		win.Repaint()
 	}
 }
 

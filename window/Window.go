@@ -27,21 +27,22 @@ import (
 
 // Wnd represents a window on the display.
 type Wnd struct {
-	id              int64
-	window          platformWindow
-	surface         platformSurface // Currently only used by Linux
-	eventHandlers   *event.Handlers
-	owner           ui.Window
-	root            *RootView
-	focus           ui.Widget
-	lastMouseWidget ui.Widget
-	lastToolTip     string
-	lastCursor      *cursor.Cursor
-	style           WindowStyleMask
-	inMouseDown     bool
-	inLiveResize    bool
-	ignoreRepaint   bool // Currently only used by Linux
-	wasMapped       bool // Currently only used by Linux
+	id                     int64
+	window                 platformWindow
+	surface                platformSurface // Currently only used by Linux
+	eventHandlers          *event.Handlers
+	owner                  ui.Window
+	root                   *RootView
+	focus                  ui.Widget
+	lastMouseWidget        ui.Widget
+	lastToolTip            string
+	lastCursor             *cursor.Cursor
+	style                  WindowStyleMask
+	initialLocationRequest geom.Point
+	inMouseDown            bool
+	inLiveResize           bool
+	ignoreRepaint          bool // Currently only used by Linux
+	wasMapped              bool // Currently only used by Linux
 }
 
 var (
@@ -96,21 +97,22 @@ func NewWindow(where geom.Point, styleMask WindowStyleMask) *Wnd {
 func NewWindowWithContentSize(where geom.Point, contentSize geom.Size, styleMask WindowStyleMask) *Wnd {
 	bounds := geom.Rect{Point: where, Size: contentSize}
 	win, surface := platformNewWindow(bounds, styleMask)
-	return newWindow(win, styleMask, surface)
+	return newWindow(win, styleMask, surface, where)
 }
 
 func NewMenuWindow(parent ui.Window, where geom.Point, contentSize geom.Size) *Wnd {
 	bounds := geom.Rect{Point: where, Size: contentSize}
 	win, surface := platformNewMenuWindow(parent, bounds)
-	wnd := newWindow(win, BorderlessWindowMask, surface)
+	wnd := newWindow(win, BorderlessWindowMask, surface, where)
 	wnd.owner = parent
 	return wnd
 }
 
-func newWindow(win platformWindow, styleMask WindowStyleMask, surface platformSurface) *Wnd {
+func newWindow(win platformWindow, styleMask WindowStyleMask, surface platformSurface, where geom.Point) *Wnd {
 	window := &Wnd{window: win, surface: surface, style: styleMask}
 	windowMap[window.window] = window
 	windowIDMap[window.ID()] = window
+	window.initialLocationRequest = where
 	window.root = newRootView(window)
 	if styleMask != BorderlessWindowMask && !menu.Global() {
 		bar := menu.AppBar(window.ID())
