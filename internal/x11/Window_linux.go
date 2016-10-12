@@ -157,3 +157,7 @@ func (wnd Window) InvokeTask(id uint64) {
 	C.XSendEvent(display, C.Window(wnd), 0, C.NoEventMask, (*C.XEvent)(unsafe.Pointer(&event)))
 	Flush()
 }
+
+func (wnd Window) SetCursor(cursor Cursor) {
+	C.XDefineCursor(display, C.Window(wnd), C.Cursor(cursor))
+}

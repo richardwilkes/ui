@@ -11,7 +11,7 @@ package x11
 
 import (
 	"github.com/richardwilkes/geom"
-	"github.com/richardwilkes/ui/event"
+	"github.com/richardwilkes/ui/event/button"
 	"github.com/richardwilkes/ui/keys"
 	// #cgo linux LDFLAGS: -lX11
 	// #include <X11/Xlib.h>
@@ -42,11 +42,11 @@ func (evt *ButtonEvent) Modifiers() keys.Modifiers {
 func (evt *ButtonEvent) Button() int {
 	switch evt.button {
 	case 1:
-		return event.LeftButton
+		return button.Left
 	case 2:
-		return event.MiddleButton
+		return button.Middle
 	case 3:
-		return event.RightButton
+		return button.Right
 	default:
 		return -1
 	}

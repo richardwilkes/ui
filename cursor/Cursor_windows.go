@@ -11,6 +11,7 @@ package cursor
 
 import (
 	"fmt"
+	"github.com/richardwilkes/geom"
 	"github.com/richardwilkes/ui/draw"
 	"unsafe"
 )
@@ -59,7 +60,7 @@ func platformSystemCursor(id int) unsafe.Pointer {
 	}
 }
 
-func platformNewCursor(imgData *draw.ImageData, hotX, hotY float64) unsafe.Pointer {
+func platformNewCursor(imgData *draw.ImageData, hotSpot geom.Point) unsafe.Pointer {
 	// RAW: Implement for Windows
 	return nil
 }

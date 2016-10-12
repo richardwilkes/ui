@@ -150,7 +150,7 @@ func (window *Wnd) platformSetToolTip(tip string) {
 }
 
 func (window *Wnd) platformSetCursor(c *cursor.Cursor) {
-	// RAW: Implement for Linux
+	window.toXWindow().SetCursor(x11.Cursor(uintptr(c.PlatformPtr())))
 }
 
 func (window *Wnd) platformInvoke(id uint64) {

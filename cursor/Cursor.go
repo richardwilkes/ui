@@ -10,8 +10,8 @@
 package cursor
 
 import (
-	"github.com/richardwilkes/ui/draw"
 	"github.com/richardwilkes/geom"
+	"github.com/richardwilkes/ui/draw"
 	"unsafe"
 )
 
@@ -67,7 +67,7 @@ type Cursor struct {
 
 // NewCursor creates a new cursor from an image.
 func NewCursor(imgData *draw.ImageData, hotSpot geom.Point) *Cursor {
-	return &Cursor{id: custom, cursor: platformNewCursor(imgData, hotSpot.X, hotSpot.Y)}
+	return &Cursor{id: custom, cursor: platformNewCursor(imgData, hotSpot)}
 }
 
 // PlatformPtr returns a pointer to the underlying platform-specific data.

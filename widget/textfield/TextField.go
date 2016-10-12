@@ -17,6 +17,7 @@ import (
 	"github.com/richardwilkes/ui/cursor"
 	"github.com/richardwilkes/ui/draw"
 	"github.com/richardwilkes/ui/event"
+	"github.com/richardwilkes/ui/event/button"
 	"github.com/richardwilkes/ui/keys"
 	"github.com/richardwilkes/ui/layout"
 	"github.com/richardwilkes/ui/widget"
@@ -194,7 +195,7 @@ func (field *TextField) focusLost(evt event.Event) {
 func (field *TextField) mouseDown(evt event.Event) {
 	field.Window().SetFocus(field)
 	e := evt.(*event.MouseDown)
-	if e.Button() == event.LeftButton {
+	if e.Button() == button.Left {
 		field.extendByWord = false
 		switch e.Clicks() {
 		case 2:
@@ -221,7 +222,7 @@ func (field *TextField) mouseDown(evt event.Event) {
 			}
 			field.setSelection(start, end, field.selectionAnchor)
 		}
-	} else if e.Button() == event.RightButton {
+	} else if e.Button() == button.Right {
 		fmt.Println("right click")
 	}
 }

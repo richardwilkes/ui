@@ -66,7 +66,7 @@ func platformSystemCursor(id int) unsafe.Pointer {
 	}
 }
 
-func platformNewCursor(imgData *draw.ImageData, hotX, hotY float64) unsafe.Pointer {
+func platformNewCursor(imgData *draw.ImageData, hotSpot geom.Point) unsafe.Pointer {
 	colorspace := C.CGColorSpaceCreateWithName(C.kCGColorSpaceGenericRGB)
 	defer C.CGColorSpaceRelease(colorspace)
 
@@ -86,7 +86,7 @@ func platformNewCursor(imgData *draw.ImageData, hotX, hotY float64) unsafe.Point
 	defer C.CGDataProviderRelease(provider)
 	image := C.CGImageCreate(C.size_t(imgData.Width), C.size_t(imgData.Height), 8, 32, C.size_t(imgData.Width*4), colorspace, C.kCGBitmapByteOrder32Host|C.kCGImageAlphaPremultipliedFirst, provider, nil, false, C.kCGRenderingIntentDefault)
 
-	return C.platformNewCursor(unsafe.Pointer(image), C.float(hotX), C.float(hotY))
+	return C.platformNewCursor(unsafe.Pointer(image), C.float(hotSpot.X), C.float(hotSpot.Y))
 }
 
 func platformDisposeCursor(cursor *Cursor) {

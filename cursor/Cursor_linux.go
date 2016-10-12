@@ -11,59 +11,62 @@ package cursor
 
 import (
 	"fmt"
+	"github.com/richardwilkes/geom"
 	"github.com/richardwilkes/ui/draw"
+	"github.com/richardwilkes/ui/internal/x11"
 	"unsafe"
 )
 
 func platformSystemCursor(id int) unsafe.Pointer {
-	// RAW: Implement for Linux
+	var cursorID x11.SystemCursorID
 	switch id {
 	case arrow:
-		return nil
+		cursorID = x11.ArrowID
 	case text:
-		return nil
+		cursorID = x11.TextID
 	case verticalText:
-		return nil
+		cursorID = x11.VerticalTextID
 	case crossHair:
-		return nil
+		cursorID = x11.CrossHairID
 	case closedHand:
-		return nil
+		cursorID = x11.ClosedHandID
 	case openHand:
-		return nil
+		cursorID = x11.OpenHandID
 	case pointingHand:
-		return nil
+		cursorID = x11.PointingHandID
 	case resizeLeft:
-		return nil
+		cursorID = x11.ResizeLeftID
 	case resizeRight:
-		return nil
+		cursorID = x11.ResizeRightID
 	case resizeLeftRight:
-		return nil
+		cursorID = x11.ResizeLeftRightID
 	case resizeUp:
-		return nil
+		cursorID = x11.ResizeUpID
 	case resizeDown:
-		return nil
+		cursorID = x11.ResizeDownID
 	case resizeUpDown:
-		return nil
+		cursorID = x11.ResizeUpDownID
 	case disappearingItem:
-		return nil
+		cursorID = x11.DisappearingItemID
 	case notAllowed:
-		return nil
+		cursorID = x11.NotAllowedID
 	case dragLink:
-		return nil
+		cursorID = x11.DragLinkID
 	case dragCopy:
-		return nil
+		cursorID = x11.DragCopyID
 	case contextMenu:
-		return nil
+		cursorID = x11.ContextMenuID
 	default:
 		panic(fmt.Sprintf("Invalid system cursor ID (%d)", id))
 	}
+	return unsafe.Pointer(uintptr(x11.SystemCursor(cursorID)))
 }
 
-func platformNewCursor(imgData *draw.ImageData, hotX, hotY float64) unsafe.Pointer {
-	// RAW: Implement for Linux
-	return nil
+func platformNewCursor(imgData *draw.ImageData, hotSpot geom.Point) unsafe.Pointer {
+	return unsafe.Pointer(uintptr(x11.NewCursor(imgData, hotSpot)))
 }
 
 func platformDisposeCursor(cursor *Cursor) {
-	// RAW: Implement for Linux
+	x11.Cursor(uintptr(cursor.cursor)).Dispose()
+	cursor.cursor = nil
 }
