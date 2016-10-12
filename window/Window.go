@@ -504,11 +504,12 @@ func (window *Wnd) mouseEvent(eventType platformEventType, keyModifiers keys.Mod
 	}
 }
 
-func (window *Wnd) mouseWheelEvent(eventType platformEventType, keyModifiers keys.Modifiers, x, y, dx, dy float64) {
+func (window *Wnd) mouseWheelEvent(keyModifiers keys.Modifiers, x, y, dx, dy float64) {
 	where := geom.Point{X: x, Y: y}
 	widget := window.root.WidgetAt(where)
 	if widget != nil {
 		event.Dispatch(event.NewMouseWheel(widget, geom.Point{X: dx, Y: dy}, where, keyModifiers))
+		var eventType platformEventType
 		if window.inMouseDown {
 			eventType = platformMouseDragged
 		} else {

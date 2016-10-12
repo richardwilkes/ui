@@ -188,3 +188,20 @@ func MappingForKeyCode(keyCode int) *Mapping {
 func IsControlAction(keyCode int) bool {
 	return keyCode == VK_Return || keyCode == VK_NumPadEnter || keyCode == VK_Space
 }
+
+func Transform(scanCode int, chars string) (code int, ch rune) {
+	extract := true
+	if mapping := MappingForScanCode(scanCode); mapping != nil {
+		code = mapping.KeyCode
+		if !mapping.Dynamic {
+			ch = mapping.KeyChar
+			extract = false
+		}
+	} else {
+		code = scanCode
+	}
+	if extract && chars != "" {
+		ch = (([]rune)(chars))[0]
+	}
+	return
+}

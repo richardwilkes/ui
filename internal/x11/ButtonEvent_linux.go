@@ -1,0 +1,72 @@
+// Copyright (c) 2016 by Richard A. Wilkes. All rights reserved.
+//
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, version 2.0. If a copy of the MPL was not distributed with
+// this file, You can obtain one at http://mozilla.org/MPL/2.0/.
+//
+// This Source Code Form is "Incompatible With Secondary Licenses", as
+// defined by the Mozilla Public License, version 2.0.
+
+package x11
+
+import (
+	"github.com/richardwilkes/geom"
+	"github.com/richardwilkes/ui/event"
+	"github.com/richardwilkes/ui/keys"
+	// #cgo linux LDFLAGS: -lX11
+	// #include <X11/Xlib.h>
+	"C"
+)
+
+const (
+	ButtonPressType   = EventType(C.ButtonPress)
+	ButtonReleaseType = EventType(C.ButtonRelease)
+)
+
+const ()
+
+type ButtonEvent C.XButtonEvent
+
+func (evt *ButtonEvent) Window() Window {
+	return Window(evt.window)
+}
+
+func (evt *ButtonEvent) Where() geom.Point {
+	return geom.Point{X: float64(evt.x), Y: float64(evt.y)}
+}
+
+func (evt *ButtonEvent) Modifiers() keys.Modifiers {
+	return Modifiers(evt.state)
+}
+
+func (evt *ButtonEvent) Button() int {
+	switch evt.button {
+	case 1:
+		return event.LeftButton
+	case 2:
+		return event.MiddleButton
+	case 3:
+		return event.RightButton
+	default:
+		return -1
+	}
+}
+
+func (evt *ButtonEvent) IsScrollWheel() bool {
+	return evt.button > 3 && evt.button < 8
+}
+
+func (evt *ButtonEvent) ScrollWheelDirection() geom.Point {
+	var result geom.Point
+	switch evt.button {
+	case 4: // Up
+		result.Y = -1
+	case 5: // Down
+		result.Y = 1
+	case 6: // Left
+		result.X = -1
+	case 7: // Right
+		result.X = 1
+	}
+	return result
+}

@@ -83,9 +83,9 @@ func handleWindowMouseEvent(cWindow platformWindow, eventType platformEventType,
 }
 
 //export handleWindowMouseWheelEvent
-func handleWindowMouseWheelEvent(cWindow platformWindow, eventType platformEventType, keyModifiers int, x, y, dx, dy float64) {
+func handleWindowMouseWheelEvent(cWindow platformWindow, keyModifiers int, x, y, dx, dy float64) {
 	if window, ok := windowMap[cWindow]; ok {
-		window.mouseWheelEvent(eventType, keys.Modifiers(keyModifiers), x, y, dx, dy)
+		window.mouseWheelEvent(keys.Modifiers(keyModifiers), x, y, dx, dy)
 	}
 }
 
@@ -99,19 +99,12 @@ func handleCursorUpdateEvent(cWindow platformWindow, keyModifiers int, x, y floa
 //export handleWindowKeyEvent
 func handleWindowKeyEvent(cWindow platformWindow, eventType platformEventType, keyModifiers, keyCode int, chars *C.char, repeat bool) {
 	if window, ok := windowMap[cWindow]; ok {
-		var keyChar rune
-		extractKeyChar := true
-		if mapping := keys.MappingForScanCode(keyCode); mapping != nil {
-			keyCode = mapping.KeyCode
-			if !mapping.Dynamic {
-				keyChar = mapping.KeyChar
-				extractKeyChar = false
-			}
+		var str string
+		if chars != nil {
+			str = C.GoString(chars)
 		}
-		if extractKeyChar && chars != nil && *chars != 0 {
-			keyChar = (([]rune)(C.GoString(chars)))[0]
-		}
-		window.keyEvent(eventType, keys.Modifiers(keyModifiers), keyCode, keyChar, repeat)
+		code, ch := keys.Transform(keyCode, str)
+		window.keyEvent(eventType, keys.Modifiers(keyModifiers), code, ch, repeat)
 	}
 }
 

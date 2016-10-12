@@ -13,23 +13,10 @@ import (
 	"fmt"
 	"github.com/richardwilkes/geom"
 	"github.com/richardwilkes/ui/event"
-	"github.com/richardwilkes/ui/keys"
+	"github.com/richardwilkes/ui/internal/x11"
 	"math"
 	"syscall"
 	"time"
-	"unsafe"
-	// #cgo linux LDFLAGS: -lX11 -lcairo
-	// #include <stdlib.h>
-	// #include <stdio.h>
-	// #include <string.h>
-	// #include <X11/Xlib.h>
-	// #include <X11/keysym.h>
-	// #include <X11/Xutil.h>
-	// #include <X11/Xatom.h>
-	// #include <cairo/cairo.h>
-	// #include <cairo/cairo-xlib.h>
-	// #include "Types.h"
-	"C"
 )
 
 var (
@@ -42,251 +29,204 @@ var (
 )
 
 var (
-	running                      bool
-	quitting                     bool
-	awaitingQuit                 bool
-	display                      *C.Display
-	wmProtocolsAtom              C.Atom
-	wmDeleteAtom                 C.Atom
-	wmWindowTypeAtom             C.Atom
-	wmWindowTypeNormalAtom       C.Atom
-	wmWindowTypeDropDownMenuAtom C.Atom
-	wmPidAtom                    C.Atom
-	wmWindowStateAtom            C.Atom
-	wmWindowStateSkipTaskBarAtom C.Atom
-	wmWindowFrameExtentsAtom     C.Atom
-	goTaskAtom                   C.Atom
-	clickCount                   int
-	lastClick                    time.Time
-	lastClickSpot                geom.Point
-	lastClickButton              int = -1
-	lastMouseDownWindow          platformWindow
-	lastMouseDownButton          int = -1
+	running             bool
+	quitting            bool
+	awaitingQuit        bool
+	clickCount          int
+	lastClick           time.Time
+	lastClickSpot       geom.Point
+	lastClickButton     int = -1
+	lastMouseDownWindow platformWindow
+	lastMouseDownButton int = -1
 )
 
 func InitializeDisplay() {
-	C.XInitThreads()
-	if display = C.XOpenDisplay(nil); display == nil {
-		panic("Failed to open the X11 display")
-	}
-	wmProtocolsAtom = C.XInternAtom(display, C.CString("WM_PROTOCOLS"), C.False)
-	wmDeleteAtom = C.XInternAtom(display, C.CString("WM_DELETE_WINDOW"), C.False)
-	wmWindowTypeAtom = C.XInternAtom(display, C.CString("_NET_WM_WINDOW_TYPE"), C.False)
-	wmWindowTypeNormalAtom = C.XInternAtom(display, C.CString("_NET_WM_WINDOW_TYPE_NORMAL"), C.False)
-	wmWindowTypeDropDownMenuAtom = C.XInternAtom(display, C.CString("_NET_WM_WINDOW_TYPE_DROPDOWN_MENU"), C.False)
-	wmPidAtom = C.XInternAtom(display, C.CString("_NET_WM_PID"), C.False)
-	wmWindowStateAtom = C.XInternAtom(display, C.CString("_NET_WM_STATE"), C.False)
-	wmWindowStateSkipTaskBarAtom = C.XInternAtom(display, C.CString("_NET_WM_STATE_SKIP_TASKBAR"), C.False)
-	wmWindowFrameExtentsAtom = C.XInternAtom(display, C.CString("_NET_FRAME_EXTENTS"), C.False)
-	goTaskAtom = C.XInternAtom(display, C.CString("GoTask"), C.False)
+	x11.OpenDisplay()
 	running = true
 }
 
 func RunEventLoop() {
 	for running {
-		var event C.XEvent
-		C.XNextEvent(display, &event)
-		anyEvent := (*C.XAnyEvent)(unsafe.Pointer(&event))
-		wnd := platformWindow(uintptr(anyEvent.window))
-		switch anyEvent._type {
-		case C.KeyPress:
-			processKeyEvent(&event, wnd, platformKeyDown)
-		case C.KeyRelease:
-			processKeyEvent(&event, wnd, platformKeyUp)
-		case C.ButtonPress:
-			processButtonPressEvent(&event, wnd)
-		case C.ButtonRelease:
-			processButtonReleaseEvent(&event, wnd)
-		case C.MotionNotify:
-			processMotionEvent(&event, wnd)
-		case C.EnterNotify:
-			processCrossingEvent(&event, wnd, platformMouseEntered)
-		case C.LeaveNotify:
-			processCrossingEvent(&event, wnd, platformMouseExited)
-		case C.FocusIn:
-			processFocusInEvent(wnd)
-		case C.FocusOut:
-			processFocusOutEvent(wnd)
-		case C.Expose:
-			processExposeEvent(&event, wnd)
-		case C.DestroyNotify:
-			windowDidClose(wnd)
-		case C.ConfigureNotify:
-			processConfigureEvent(&event, wnd)
-		case C.ClientMessage:
-			processClientEvent(&event, wnd)
+		event := x11.NextEvent()
+		switch event.Type() {
+		case x11.KeyPressType:
+			processKeyEvent(event.ToKeyEvent(), platformKeyDown)
+		case x11.KeyReleaseType:
+			processKeyEvent(event.ToKeyEvent(), platformKeyUp)
+		case x11.ButtonPressType:
+			processButtonPressEvent(event.ToButtonEvent())
+		case x11.ButtonReleaseType:
+			processButtonReleaseEvent(event.ToButtonEvent())
+		case x11.MotionNotifyType:
+			processMotionEvent(event.ToMotionEvent())
+		case x11.EnterNotifyType:
+			processCrossingEvent(event.ToCrossingEvent(), platformMouseEntered)
+		case x11.LeaveNotifyType:
+			processCrossingEvent(event.ToCrossingEvent(), platformMouseExited)
+		case x11.FocusInType:
+			processFocusInEvent(event.ToFocusChangeEvent())
+		case x11.FocusOutType:
+			processFocusOutEvent(event.ToFocusChangeEvent())
+		case x11.ExposeType:
+			processExposeEvent(event.ToExposeEvent())
+		case x11.DestroyWindowType:
+			processDestroyWindowEvent(event.ToDestroyWindowEvent())
+		case x11.ConfigureType:
+			processConfigureEvent(event.ToConfigureEvent())
+		case x11.ClientMessageType:
+			processClientEvent(event.ToClientMessageEvent())
 		}
 	}
 }
 
-func processKeyEvent(evt *C.XEvent, wnd platformWindow, eventType platformEventType) {
-	keyEvent := (*C.XKeyEvent)(unsafe.Pointer(evt))
-	var buffer [5]C.char
-	var keySym C.KeySym
-	buffer[C.XLookupString(keyEvent, &buffer[0], C.int(len(buffer)-1), &keySym, nil)] = 0
-	handleWindowKeyEvent(wnd, eventType, convertKeyMask(keyEvent.state), int(keySym), &buffer[0], false)
+func processKeyEvent(evt *x11.KeyEvent, eventType platformEventType) {
+	if window, ok := windowMap[platformWindow(uintptr(evt.Window()))]; ok {
+		code, ch := evt.CodeAndChar()
+		window.keyEvent(eventType, evt.Modifiers(), code, ch, false)
+	}
 }
 
-func processButtonPressEvent(evt *C.XEvent, wnd platformWindow) {
+func processButtonPressEvent(evt *x11.ButtonEvent) {
+	wnd := platformWindow(uintptr(evt.Window()))
 	keyWindow := platformGetKeyWindow()
 	if keyWindow != wnd {
-		processFocusOutEvent(keyWindow)
+		focusOut(keyWindow)
 	}
-	buttonEvent := (*C.XButtonEvent)(unsafe.Pointer(evt))
-	if isScrollWheelButton(buttonEvent.button) {
-		var dx, dy float64
-		switch buttonEvent.button {
-		case 4: // Up
-			dy = -1
-		case 5: // Down
-			dy = 1
-		case 6: // Left
-			dx = -1
-		case 7: // Right
-			dx = 1
-		}
-		handleWindowMouseWheelEvent(wnd, platformMouseWheel, convertKeyMask(buttonEvent.state), float64(buttonEvent.x), float64(buttonEvent.y), dx, dy)
-	} else {
-		lastMouseDownButton = getButton(buttonEvent.button)
-		lastMouseDownWindow = wnd
-		x := float64(buttonEvent.x)
-		y := float64(buttonEvent.y)
-		now := time.Now()
-		if lastClickButton == lastMouseDownButton && now.Sub(lastClick) <= DoubleClickTime && math.Abs(lastClickSpot.X-x) <= DoubleClickDistance && math.Abs(lastClickSpot.Y-y) <= DoubleClickDistance {
-			clickCount++
+	if window, ok := windowMap[platformWindow(uintptr(evt.Window()))]; ok {
+		where := evt.Where()
+		if evt.IsScrollWheel() {
+			dir := evt.ScrollWheelDirection()
+			window.mouseWheelEvent(evt.Modifiers(), where.X, where.Y, dir.X, dir.Y)
 		} else {
-			clickCount = 1
+			lastMouseDownButton = evt.Button()
+			lastMouseDownWindow = wnd
+			now := time.Now()
+			if lastClickButton == lastMouseDownButton && now.Sub(lastClick) <= DoubleClickTime && math.Abs(lastClickSpot.X-where.X) <= DoubleClickDistance && math.Abs(lastClickSpot.Y-where.Y) <= DoubleClickDistance {
+				clickCount++
+			} else {
+				clickCount = 1
+			}
+			lastClick = now
+			lastClickButton = lastMouseDownButton
+			lastClickSpot = where
+			window.mouseEvent(platformMouseDown, evt.Modifiers(), lastMouseDownButton, clickCount, where.X, where.Y)
 		}
-		lastClick = now
-		lastClickButton = lastMouseDownButton
-		lastClickSpot.X = x
-		lastClickSpot.Y = y
-		handleWindowMouseEvent(wnd, platformMouseDown, convertKeyMask(buttonEvent.state), lastMouseDownButton, clickCount, x, y)
 	}
 }
 
-func processButtonReleaseEvent(evt *C.XEvent, wnd platformWindow) {
-	buttonEvent := (*C.XButtonEvent)(unsafe.Pointer(evt))
-	if !isScrollWheelButton(buttonEvent.button) {
-		lastMouseDownButton = -1
-		handleWindowMouseEvent(wnd, platformMouseUp, convertKeyMask(buttonEvent.state), getButton(buttonEvent.button), clickCount, float64(buttonEvent.x), float64(buttonEvent.y))
+func processButtonReleaseEvent(evt *x11.ButtonEvent) {
+	if window, ok := windowMap[platformWindow(uintptr(evt.Window()))]; ok {
+		if !evt.IsScrollWheel() {
+			where := evt.Where()
+			lastMouseDownButton = -1
+			window.mouseEvent(platformMouseUp, evt.Modifiers(), evt.Button(), clickCount, where.X, where.Y)
+		}
 	}
 }
 
-func processMotionEvent(evt *C.XEvent, wnd platformWindow) {
-	motionEvent := (*C.XMotionEvent)(unsafe.Pointer(evt))
+func processMotionEvent(evt *x11.MotionEvent) {
+	var eventType platformEventType
+	var button int
+	var translate bool
+	target := platformWindow(uintptr(evt.Window()))
 	if lastMouseDownButton != -1 {
-		if wnd != lastMouseDownWindow {
+		translate = target != lastMouseDownWindow
+		eventType = platformMouseDragged
+		target = lastMouseDownWindow
+		button = lastMouseDownButton
+	} else {
+		eventType = platformMouseMoved
+	}
+	if window, ok := windowMap[target]; ok {
+		where := evt.Where()
+		if translate {
 			// RAW: Translate coordinates appropriately
 			fmt.Println("need translation for mouse drag")
 		}
-		handleWindowMouseEvent(lastMouseDownWindow, platformMouseDragged, convertKeyMask(motionEvent.state), lastMouseDownButton, 0, float64(motionEvent.x), float64(motionEvent.y))
-	} else {
-		handleWindowMouseEvent(wnd, platformMouseMoved, convertKeyMask(motionEvent.state), 0, 0, float64(motionEvent.x), float64(motionEvent.y))
+		window.mouseEvent(eventType, evt.Modifiers(), button, 0, where.X, where.Y)
 	}
 }
 
-func processCrossingEvent(evt *C.XEvent, wnd platformWindow, eventType platformEventType) {
-	crossingEvent := (*C.XCrossingEvent)(unsafe.Pointer(evt))
-	handleWindowMouseEvent(wnd, eventType, convertKeyMask(crossingEvent.state), 0, 0, float64(crossingEvent.x), float64(crossingEvent.y))
+func processCrossingEvent(evt *x11.CrossingEvent, eventType platformEventType) {
+	if window, ok := windowMap[platformWindow(uintptr(evt.Window()))]; ok {
+		where := evt.Where()
+		window.mouseEvent(eventType, evt.Modifiers(), 0, 0, where.X, where.Y)
+	}
 }
 
-func processFocusInEvent(wnd platformWindow) {
+func processFocusInEvent(evt *x11.FocusChangeEvent) {
 	event.SendAppWillActivate()
 	event.SendAppDidActivate()
-	windowGainedKey(wnd)
+	windowGainedKey(platformWindow(uintptr(evt.Window())))
 }
 
-func processFocusOutEvent(wnd platformWindow) {
+func processFocusOutEvent(evt *x11.FocusChangeEvent) {
+	focusOut(platformWindow(uintptr(evt.Window())))
+}
+
+func focusOut(wnd platformWindow) {
 	windowLostKey(wnd)
 	event.SendAppWillDeactivate()
 	event.SendAppDidDeactivate()
 }
 
-func processExposeEvent(evt *C.XEvent, wnd platformWindow) {
-	if win, ok := windowMap[wnd]; ok {
-		exposeEvent := (*C.XExposeEvent)(unsafe.Pointer(evt))
-		bounds := geom.Rect{Point: geom.Point{X: float64(exposeEvent.x), Y: float64(exposeEvent.y)}, Size: geom.Size{Width: float64(exposeEvent.width), Height: float64(exposeEvent.height)}}
-		var other C.XEvent
-		for C.XCheckTypedWindowEvent(display, exposeEvent.window, C.Expose, &other) != 0 {
-			// Collect up any other expose events for this window that are already in the queue and union their exposed area into the area we need to redraw
-			exposeEvent = (*C.XExposeEvent)(unsafe.Pointer(&other))
-			bounds.Union(geom.Rect{Point: geom.Point{X: float64(exposeEvent.x), Y: float64(exposeEvent.y)}, Size: geom.Size{Width: float64(exposeEvent.width), Height: float64(exposeEvent.height)}})
+func processExposeEvent(evt *x11.ExposeEvent) {
+	wnd := evt.Window()
+	if win, ok := windowMap[platformWindow(uintptr(wnd))]; ok {
+		bounds := evt.Bounds()
+		// Collect up any other expose events for this window that are already in the queue and union their exposed area into the area we need to redraw
+		for {
+			if other := x11.NextEventOfTypeForWindow(x11.ExposeType, wnd); other != nil {
+				bounds.Union(other.ToExposeEvent().Bounds())
+			} else {
+				break
+			}
 		}
 		win.draw(bounds)
 	}
 }
 
-func processConfigureEvent(evt *C.XEvent, wnd platformWindow) {
-	var other C.XEvent
-	anyEvent := (*C.XAnyEvent)(unsafe.Pointer(evt))
-	for C.XCheckTypedWindowEvent(display, anyEvent.window, C.ConfigureNotify, &other) != 0 {
+func processDestroyWindowEvent(evt *x11.DestroyWindowEvent) {
+	windowDidClose(platformWindow(uintptr(evt.Window())))
+}
+
+func processConfigureEvent(evt *x11.ConfigureEvent) {
+	wnd := evt.Window()
+	pwnd := platformWindow(uintptr(wnd))
+	if win, ok := windowMap[pwnd]; ok {
 		// Collect up the last resize event for this window that is already in the queue and use that one instead
-		evt = &other
-	}
-	if win, ok := windowMap[wnd]; ok {
+		for {
+			if other := x11.NextEventOfTypeForWindow(x11.ConfigureType, wnd); other != nil {
+				evt = other.ToConfigureEvent()
+			} else {
+				break
+			}
+		}
 		win.ignoreRepaint = true
-		windowResized(wnd)
+		windowResized(pwnd)
 		win.root.ValidateLayout()
 		win.ignoreRepaint = false
-		size := win.ContentFrame().Size
-		C.cairo_xlib_surface_set_size(win.surface, C.int(size.Width), C.int(size.Height))
+		(*x11.Surface)(win.surface).SetSize(win.ContentFrame().Size)
 		win.Repaint()
 	}
 }
 
-func processClientEvent(evt *C.XEvent, wnd platformWindow) {
-	clientEvent := (*C.XClientMessageEvent)(unsafe.Pointer(evt))
-	switch clientEvent.message_type {
-	case wmProtocolsAtom:
-		if clientEvent.format == 32 {
-			data := (*C.Atom)(unsafe.Pointer(&clientEvent.data))
-			if *data == wmDeleteAtom {
-				if windowShouldClose(wnd) {
-					if win, ok := windowMap[wnd]; ok {
-						win.Close()
-					}
+func processClientEvent(evt *x11.ClientMessageEvent) {
+	switch evt.SubType() {
+	case x11.ProtocolsSubType:
+		if evt.Format() == 32 && evt.Protocol() == x11.DeleteWindowProtocol {
+			wnd := platformWindow(uintptr(evt.Window()))
+			if windowShouldClose(wnd) {
+				if win, ok := windowMap[wnd]; ok {
+					win.Close()
 				}
 			}
 		}
-	case goTaskAtom:
-		data := (*uint64)(unsafe.Pointer(&clientEvent.data))
-		dispatchTask(*data)
+	case x11.TaskSubType:
+		if evt.Format() == 32 {
+			dispatchTask(evt.TaskID())
+		}
 	}
-}
-
-func isScrollWheelButton(button C.uint) bool {
-	return button > 3 && button < 8
-}
-
-func getButton(button C.uint) int {
-	if button == 2 {
-		return 2
-	}
-	if button == 3 {
-		return 1
-	}
-	return 0
-}
-
-func convertKeyMask(state C.uint) int {
-	var modifiers keys.Modifiers
-	if state&C.LockMask != 0 {
-		modifiers |= keys.CapsLockModifier
-	}
-	if state&C.ShiftMask != 0 {
-		modifiers |= keys.ShiftModifier
-	}
-	if state&C.ControlMask != 0 {
-		modifiers |= keys.ControlModifier
-	}
-	if state&C.Mod1Mask != 0 {
-		modifiers |= keys.OptionModifier
-	}
-	if state&C.Mod4Mask != 0 {
-		modifiers |= keys.CommandModifier
-	}
-	return int(modifiers)
 }
 
 func DeferQuit() {
@@ -316,8 +256,12 @@ func ResumeQuit(quit bool) {
 func finishQuit() {
 	if quitting {
 		running = false
-		C.XCloseDisplay(display)
-		display = nil
+		x11.CloseDisplay()
 		syscall.Exit(0)
 	}
+}
+
+func NewSystemCursor(shape int) uintptr {
+	return 0
+	//	return uintptr(C.XCreateFontCursor(display, C.uint(shape)))
 }

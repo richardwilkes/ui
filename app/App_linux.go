@@ -16,14 +16,6 @@ import (
 	"github.com/richardwilkes/ui/window"
 )
 
-// #cgo linux LDFLAGS: -lX11 -lcairo
-// #include <X11/Xlib.h>
-// #include <X11/keysym.h>
-// #include <X11/Xutil.h>
-// #include <cairo/cairo.h>
-// #include <cairo/cairo-xlib.h>
-import "C"
-
 func platformStartUserInterface() {
 	window.InitializeDisplay()
 	window.LastWindowClosed = func() {

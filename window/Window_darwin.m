@@ -253,7 +253,7 @@ void platformInvokeAfter(unsigned long id, long afterNanos) {
 
 -(void)scrollWheel:(NSEvent *)theEvent {
 	NSPoint where = [self convertPoint:theEvent.locationInWindow fromView:nil];
-	handleWindowMouseWheelEvent((platformWindow)[self window], platformMouseWheel, [self getModifiers:theEvent], where.x, where.y, theEvent.scrollingDeltaX, theEvent.scrollingDeltaY);
+	handleWindowMouseWheelEvent((platformWindow)[self window], [self getModifiers:theEvent], where.x, where.y, theEvent.scrollingDeltaX, theEvent.scrollingDeltaY);
 }
 
 -(BOOL)acceptsFirstResponder {
