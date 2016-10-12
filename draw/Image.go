@@ -48,13 +48,6 @@ type Image struct {
 	key        interface{}
 }
 
-// ImageData is the raw information that makes up an Image.
-type ImageData struct {
-	Width  int
-	Height int
-	Pixels []color.Color
-}
-
 var (
 	imageRegistryLock sync.Mutex
 	imageRegistry     = make(map[interface{}]*imgRef)
