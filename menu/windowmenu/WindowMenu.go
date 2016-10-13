@@ -7,7 +7,7 @@
 // This Source Code Form is "Incompatible With Secondary Licenses", as
 // defined by the Mozilla Public License, version 2.0.
 
-package specialmenus
+package windowmenu
 
 import (
 	"github.com/richardwilkes/i18n"
@@ -17,8 +17,8 @@ import (
 	"github.com/richardwilkes/ui/window"
 )
 
-// InstallWindowMenu adds a standard 'Window' menu to the menu bar.
-func InstallWindowMenu(bar menu.Bar, index int) {
+// Install adds a standard 'Window' menu to the end of the menu bar.
+func Install(bar menu.Bar) {
 	windowMenu := menu.NewMenu(i18n.Text("Window"))
 
 	item := menu.NewItemWithKey(i18n.Text("Minimize"), keys.VK_M, func(evt event.Event) {
@@ -33,7 +33,7 @@ func InstallWindowMenu(bar menu.Bar, index int) {
 			evt.(*event.Validate).MarkInvalid()
 		}
 	})
-	windowMenu.InsertItem(item, -1)
+	windowMenu.AppendItem(item)
 
 	item = menu.NewItemWithKey(i18n.Text("Zoom"), keys.VK_BackSlash, func(evt event.Event) {
 		wnd := window.KeyWindow()
@@ -47,11 +47,11 @@ func InstallWindowMenu(bar menu.Bar, index int) {
 			evt.(*event.Validate).MarkInvalid()
 		}
 	})
-	windowMenu.InsertItem(item, -1)
-	windowMenu.InsertItem(menu.NewSeparator(), -1)
+	windowMenu.AppendItem(item)
+	windowMenu.AppendItem(menu.NewSeparator())
 
-	windowMenu.InsertItem(menu.NewItem(i18n.Text("Bring All to Front"), func(evt event.Event) { window.AllWindowsToFront() }), -1)
+	windowMenu.AppendItem(menu.NewItem(i18n.Text("Bring All to Front"), func(evt event.Event) { window.AllWindowsToFront() }))
 
-	bar.InsertMenu(windowMenu, index)
+	bar.AppendMenu(windowMenu)
 	bar.SetupSpecialMenu(menu.WindowMenu, windowMenu)
 }

@@ -15,9 +15,13 @@ import (
 
 // Menu represents a set of menu items.
 type Menu interface {
+	// AppendItem appends an item at the end of this menu.
+	AppendItem(item Item)
 	// InsertItem inserts an item at the specified item index within this menu. Pass in a negative
 	// index to append to the end.
 	InsertItem(item Item, index int)
+	// AppendMenu appends an item with a sub-menu at the end of this menu.
+	AppendMenu(menu Menu)
 	// InsertMenu inserts an item with a sub-menu at the specified item index within this menu. Pass
 	// in a negative index to append to the end.
 	InsertMenu(menu Menu, index int)

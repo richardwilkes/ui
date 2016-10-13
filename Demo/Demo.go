@@ -24,8 +24,10 @@ import (
 	"github.com/richardwilkes/ui/layout/flex"
 	"github.com/richardwilkes/ui/layout/flow"
 	"github.com/richardwilkes/ui/menu"
-	"github.com/richardwilkes/ui/menu/edit"
-	"github.com/richardwilkes/ui/menu/specialmenus"
+	"github.com/richardwilkes/ui/menu/appmenu"
+	"github.com/richardwilkes/ui/menu/editmenu"
+	"github.com/richardwilkes/ui/menu/helpmenu"
+	"github.com/richardwilkes/ui/menu/windowmenu"
 	"github.com/richardwilkes/ui/widget"
 	"github.com/richardwilkes/ui/widget/button"
 	"github.com/richardwilkes/ui/widget/checkbox"
@@ -52,13 +54,13 @@ func main() {
 	handlers := app.App.EventHandlers()
 	handlers.Add(event.AppPopulateMenuBarType, func(evt event.Event) {
 		bar := menu.AppBar(evt.(*event.AppPopulateMenuBar).ID())
-		_, aboutItem, prefsItem := specialmenus.InstallAppMenu(bar)
+		_, aboutItem, prefsItem := appmenu.Install(bar)
 		aboutItem.EventHandlers().Add(event.SelectionType, createAboutWindow)
 		prefsItem.EventHandlers().Add(event.SelectionType, createPreferencesWindow)
-		bar.InsertMenu(newFileMenu(), -1)
-		bar.InsertMenu(newEditMenu(), -1)
-		specialmenus.InstallWindowMenu(bar, -1)
-		specialmenus.InstallHelpMenu(bar, -1)
+		bar.AppendMenu(newFileMenu())
+		editmenu.Install(bar)
+		windowmenu.Install(bar)
+		helpmenu.Install(bar)
 	})
 	handlers.Add(event.AppWillFinishStartupType, func(evt event.Event) {
 		w1 := createButtonsWindow("Demo #1", geom.Point{})
@@ -71,8 +73,8 @@ func main() {
 func newFileMenu() menu.Menu {
 	fileMenu := menu.NewMenu("File")
 
-	fileMenu.InsertItem(menu.NewItemWithKey("Open", keys.VK_O, nil), -1)
-	fileMenu.InsertItem(menu.NewSeparator(), -1)
+	fileMenu.AppendItem(menu.NewItemWithKey("Open", keys.VK_O, nil))
+	fileMenu.AppendItem(menu.NewSeparator())
 
 	item := menu.NewItemWithKey("Close", keys.VK_W, func(evt event.Event) {
 		wnd := window.KeyWindow()
@@ -86,21 +88,8 @@ func newFileMenu() menu.Menu {
 			evt.(*event.Validate).MarkInvalid()
 		}
 	})
-	fileMenu.InsertItem(item, -1)
+	fileMenu.AppendItem(item)
 	return fileMenu
-}
-
-func newEditMenu() menu.Menu {
-	editMenu := menu.NewMenu("Edit")
-
-	edit.InsertCutItem(editMenu, -1)
-	edit.InsertCopyItem(editMenu, -1)
-	edit.InsertPasteItem(editMenu, -1)
-	editMenu.InsertItem(menu.NewSeparator(), -1)
-	edit.InsertDeleteItem(editMenu, -1)
-	edit.InsertSelectAllItem(editMenu, -1)
-
-	return editMenu
 }
 
 func createButtonsWindow(title string, where geom.Point) ui.Window {

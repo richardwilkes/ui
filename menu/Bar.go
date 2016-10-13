@@ -23,6 +23,8 @@ type SpecialMenuType int
 
 // Bar represents a set of menus.
 type Bar interface {
+	// AppendMenu appends a menu at the end of this bar.
+	AppendMenu(menu Menu)
 	// InsertMenu inserts a menu at the specified item index within this bar. Pass in a negative
 	// index to append to the end.
 	InsertMenu(menu Menu, index int)

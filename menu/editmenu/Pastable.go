@@ -7,7 +7,7 @@
 // This Source Code Form is "Incompatible With Secondary Licenses", as
 // defined by the Mozilla Public License, version 2.0.
 
-package edit
+package editmenu
 
 import (
 	"github.com/richardwilkes/i18n"
@@ -25,30 +25,40 @@ type Pastable interface {
 	Paste()
 }
 
+// AppendPasteItem appendss the standard Paste menu item to the specified menu.
+func AppendPasteItem(m menu.Menu) {
+	InsertPasteItem(m, -1)
+}
+
 // InsertPasteItem adds the standard Paste menu item to the specified menu.
-func InsertPasteItem(m menu.Menu, index int) menu.Item {
-	item := menu.NewItemWithKey(i18n.Text("Paste"), keys.VK_V, func(evt event.Event) {
-		wnd := window.KeyWindow()
-		if wnd != nil {
-			focus := wnd.Focus()
-			if p, ok := focus.(Pastable); ok {
-				p.Paste()
-			}
-		}
-	})
-	item.EventHandlers().Add(event.ValidateType, func(evt event.Event) {
-		valid := false
-		wnd := window.KeyWindow()
-		if wnd != nil {
-			focus := wnd.Focus()
-			if p, ok := focus.(Pastable); ok {
-				valid = p.CanPaste()
-			}
-		}
-		if !valid {
-			evt.(*event.Validate).MarkInvalid()
-		}
-	})
+func InsertPasteItem(m menu.Menu, index int) {
+	item := menu.NewItemWithKey(i18n.Text("Paste"), keys.VK_V, Paste)
+	item.EventHandlers().Add(event.ValidateType, CanPaste)
 	m.InsertItem(item, index)
-	return item
+}
+
+// Paste the data from the clipboard into the current keyboard focus.
+func Paste(evt event.Event) {
+	wnd := window.KeyWindow()
+	if wnd != nil {
+		focus := wnd.Focus()
+		if p, ok := focus.(Pastable); ok {
+			p.Paste()
+		}
+	}
+}
+
+// CanPaste returns true if Paste() can be called successfully.
+func CanPaste(evt event.Event) {
+	valid := false
+	wnd := window.KeyWindow()
+	if wnd != nil {
+		focus := wnd.Focus()
+		if p, ok := focus.(Pastable); ok {
+			valid = p.CanPaste()
+		}
+	}
+	if !valid {
+		evt.(*event.Validate).MarkInvalid()
+	}
 }

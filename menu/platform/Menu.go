@@ -32,6 +32,11 @@ func NewMenu(title string) *platformMenu {
 	return menu
 }
 
+// AppendItem appends an item at the end of this menu.
+func (mnu *platformMenu) AppendItem(item menu.Item) {
+	mnu.InsertItem(item, -1)
+}
+
 // InsertItem inserts an item at the specified item index within this menu. Pass in a negative
 // index to append to the end.
 func (mnu *platformMenu) InsertItem(item menu.Item, index int) {
@@ -40,6 +45,11 @@ func (mnu *platformMenu) InsertItem(item menu.Item, index int) {
 		index = max
 	}
 	mnu.platformInsertItem(item.(*platformItem).item, index)
+}
+
+// AppendMenu appends an item with a sub-menu at the end of this menu.
+func (mnu *platformMenu) AppendMenu(subMenu menu.Menu) {
+	mnu.InsertMenu(subMenu, -1)
 }
 
 // InsertMenu inserts an item with a sub-menu at the specified item index within this menu. Pass

@@ -7,7 +7,7 @@
 // This Source Code Form is "Incompatible With Secondary Licenses", as
 // defined by the Mozilla Public License, version 2.0.
 
-package specialmenus
+package appmenu
 
 import (
 	"github.com/richardwilkes/i18n"
@@ -19,32 +19,32 @@ import (
 	"runtime"
 )
 
-// InstallAppMenu adds a standard 'application' menu to the menu bar.
-func InstallAppMenu(bar menu.Bar) (appMenu menu.Menu, aboutItem menu.Item, prefsItem menu.Item) {
+// Install adds a standard 'application' menu to the front of the menu bar.
+func Install(bar menu.Bar) (appMenu menu.Menu, aboutItem menu.Item, prefsItem menu.Item) {
 	name := app.AppName()
 	appMenu = menu.NewMenu(name)
 
 	aboutItem = menu.NewItem(i18n.Text("About ")+name, nil)
-	appMenu.InsertItem(aboutItem, -1)
-	appMenu.InsertItem(menu.NewSeparator(), -1)
+	appMenu.AppendItem(aboutItem)
 
+	appMenu.AppendItem(menu.NewSeparator())
 	prefsItem = menu.NewItemWithKey(i18n.Text("Preferences…"), keys.VK_Comma, nil)
-	appMenu.InsertItem(prefsItem, -1)
-	appMenu.InsertItem(menu.NewSeparator(), -1)
+	appMenu.AppendItem(prefsItem)
 
 	if runtime.GOOS == "darwin" {
+		appMenu.AppendItem(menu.NewSeparator())
 		servicesMenu := menu.NewMenu(i18n.Text("Services"))
-		appMenu.InsertMenu(servicesMenu, -1)
+		appMenu.AppendMenu(servicesMenu)
 		bar.SetupSpecialMenu(menu.ServicesMenu, servicesMenu)
-		appMenu.InsertItem(menu.NewSeparator(), -1)
 	}
 
-	appMenu.InsertItem(menu.NewItemWithKey(i18n.Text("Hide ")+name, keys.VK_H, func(evt event.Event) { app.HideApp() }), -1)
-	appMenu.InsertItem(menu.NewItemWithKeyAndModifiers(i18n.Text("Hide Others"), keys.VK_H, keys.OptionModifier|keys.PlatformMenuModifier(), func(evt event.Event) { app.HideOtherApps() }), -1)
-	appMenu.InsertItem(menu.NewItem(i18n.Text("Show All"), func(evt event.Event) { app.ShowAllApps() }), -1)
-	appMenu.InsertItem(menu.NewSeparator(), -1)
+	appMenu.AppendItem(menu.NewSeparator())
+	appMenu.AppendItem(menu.NewItemWithKey(i18n.Text("Hide ")+name, keys.VK_H, func(evt event.Event) { app.HideApp() }))
+	appMenu.AppendItem(menu.NewItemWithKeyAndModifiers(i18n.Text("Hide Others"), keys.VK_H, keys.OptionModifier|keys.PlatformMenuModifier(), func(evt event.Event) { app.HideOtherApps() }))
+	appMenu.AppendItem(menu.NewItem(i18n.Text("Show All"), func(evt event.Event) { app.ShowAllApps() }))
 
-	appMenu.InsertItem(menu.NewItemWithKey(i18n.Text("Quit ")+name, keys.VK_Q, func(evt event.Event) { quit.AttemptQuit() }), -1)
+	appMenu.AppendItem(menu.NewSeparator())
+	appMenu.AppendItem(menu.NewItemWithKey(i18n.Text("Quit ")+name, keys.VK_Q, func(evt event.Event) { quit.AttemptQuit() }))
 
 	bar.InsertMenu(appMenu, 0)
 

@@ -49,6 +49,11 @@ func AppBar(id int64) menu.Bar {
 	return bar
 }
 
+// AppendMenu appends a menu at the end of this bar.
+func (bar *MenuBar) AppendMenu(subMenu menu.Menu) {
+	bar.InsertMenu(subMenu, -1)
+}
+
 // InsertMenu inserts a menu at the specified item index within this bar. Pass in a negative
 // index to append to the end.
 func (bar *MenuBar) InsertMenu(subMenu menu.Menu, index int) {

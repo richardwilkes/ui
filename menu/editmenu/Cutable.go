@@ -7,7 +7,7 @@
 // This Source Code Form is "Incompatible With Secondary Licenses", as
 // defined by the Mozilla Public License, version 2.0.
 
-package edit
+package editmenu
 
 import (
 	"github.com/richardwilkes/i18n"
@@ -25,30 +25,40 @@ type Cutable interface {
 	Cut()
 }
 
+// AppendCutItem appends the standard Cut menu item to the specified menu.
+func AppendCutItem(m menu.Menu) {
+	InsertCutItem(m, -1)
+}
+
 // InsertCutItem adds the standard Cut menu item to the specified menu.
-func InsertCutItem(m menu.Menu, index int) menu.Item {
-	item := menu.NewItemWithKey(i18n.Text("Cut"), keys.VK_X, func(evt event.Event) {
-		wnd := window.KeyWindow()
-		if wnd != nil {
-			focus := wnd.Focus()
-			if c, ok := focus.(Cutable); ok {
-				c.Cut()
-			}
-		}
-	})
-	item.EventHandlers().Add(event.ValidateType, func(evt event.Event) {
-		valid := false
-		wnd := window.KeyWindow()
-		if wnd != nil {
-			focus := wnd.Focus()
-			if c, ok := focus.(Cutable); ok {
-				valid = c.CanCut()
-			}
-		}
-		if !valid {
-			evt.(*event.Validate).MarkInvalid()
-		}
-	})
+func InsertCutItem(m menu.Menu, index int) {
+	item := menu.NewItemWithKey(i18n.Text("Cut"), keys.VK_X, Cut)
+	item.EventHandlers().Add(event.ValidateType, CanCut)
 	m.InsertItem(item, index)
-	return item
+}
+
+// Cut the data from the current keyboard focus and copy it to the clipboard.
+func Cut(evt event.Event) {
+	wnd := window.KeyWindow()
+	if wnd != nil {
+		focus := wnd.Focus()
+		if c, ok := focus.(Cutable); ok {
+			c.Cut()
+		}
+	}
+}
+
+// CanCut returns true if Cut() can be called successfully.
+func CanCut(evt event.Event) {
+	valid := false
+	wnd := window.KeyWindow()
+	if wnd != nil {
+		focus := wnd.Focus()
+		if c, ok := focus.(Cutable); ok {
+			valid = c.CanCut()
+		}
+	}
+	if !valid {
+		evt.(*event.Validate).MarkInvalid()
+	}
 }

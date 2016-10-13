@@ -48,6 +48,11 @@ func (mnu *Menu) Title() string {
 	return mnu.item.Title()
 }
 
+// AppendItem appends an item at the end of this menu.
+func (mnu *Menu) AppendItem(item menu.Item) {
+	mnu.InsertItem(item, -1)
+}
+
 // InsertItem inserts an item at the specified item index within this menu. Pass in a negative
 // index to append to the end.
 func (mnu *Menu) InsertItem(item menu.Item, index int) {
@@ -56,6 +61,11 @@ func (mnu *Menu) InsertItem(item menu.Item, index int) {
 		actual.EventHandlers().Add(event.ClosingType, mnu.close)
 		actual.SetLayoutData(flex.NewData().SetHorizontalGrab(true).SetHorizontalAlignment(draw.AlignFill))
 	}
+}
+
+// AppendMenu appends an item with a sub-menu at the end of this menu.
+func (mnu *Menu) AppendMenu(subMenu menu.Menu) {
+	mnu.InsertMenu(subMenu, -1)
 }
 
 // InsertMenu inserts an item with a sub-menu at the specified item index within this menu. Pass

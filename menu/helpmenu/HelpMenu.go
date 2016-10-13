@@ -7,16 +7,16 @@
 // This Source Code Form is "Incompatible With Secondary Licenses", as
 // defined by the Mozilla Public License, version 2.0.
 
-package specialmenus
+package helpmenu
 
 import (
 	"github.com/richardwilkes/i18n"
 	"github.com/richardwilkes/ui/menu"
 )
 
-// InstallHelpMenu adds a standard 'Help' menu to the menu bar.
-func InstallHelpMenu(bar menu.Bar, index int) {
+// Install adds a standard 'Help' menu to the end of the menu bar.
+func Install(bar menu.Bar) {
 	helpMenu := menu.NewMenu(i18n.Text("Help"))
-	bar.InsertMenu(helpMenu, index)
+	bar.AppendMenu(helpMenu)
 	bar.SetupSpecialMenu(menu.HelpMenu, helpMenu)
 }
