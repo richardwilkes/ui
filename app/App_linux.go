@@ -14,6 +14,8 @@ import (
 	"github.com/richardwilkes/ui/event"
 	"github.com/richardwilkes/ui/menu/custom"
 	"github.com/richardwilkes/ui/window"
+	"os"
+	"path/filepath"
 )
 
 func platformStartUserInterface() {
@@ -33,8 +35,7 @@ func platformStartUserInterface() {
 }
 
 func platformAppName() string {
-	// RAW: Implement platformAppName for Linux
-	return "<unknown>"
+	return filepath.Base(os.Args[0])
 }
 
 func platformHideApp() {
