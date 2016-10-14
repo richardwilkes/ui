@@ -40,8 +40,10 @@ func Install(bar menu.Bar) (appMenu menu.Menu, aboutItem menu.Item, prefsItem me
 
 	appMenu.AppendItem(menu.NewSeparator())
 	appMenu.AppendItem(menu.NewItemWithKey(i18n.Text("Hide ")+name, keys.VK_H, func(evt event.Event) { app.HideApp() }))
-	appMenu.AppendItem(menu.NewItemWithKeyAndModifiers(i18n.Text("Hide Others"), keys.VK_H, keys.OptionModifier|keys.PlatformMenuModifier(), func(evt event.Event) { app.HideOtherApps() }))
-	appMenu.AppendItem(menu.NewItem(i18n.Text("Show All"), func(evt event.Event) { app.ShowAllApps() }))
+	if runtime.GOOS == "darwin" {
+		appMenu.AppendItem(menu.NewItemWithKeyAndModifiers(i18n.Text("Hide Others"), keys.VK_H, keys.OptionModifier|keys.PlatformMenuModifier(), func(evt event.Event) { app.HideOtherApps() }))
+		appMenu.AppendItem(menu.NewItem(i18n.Text("Show All"), func(evt event.Event) { app.ShowAllApps() }))
+	}
 
 	appMenu.AppendItem(menu.NewSeparator())
 	appMenu.AppendItem(menu.NewItemWithKey(i18n.Text("Quit ")+name, keys.VK_Q, func(evt event.Event) { quit.AttemptQuit() }))
