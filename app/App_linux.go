@@ -39,13 +39,15 @@ func platformAppName() string {
 }
 
 func platformHideApp() {
-	// RAW: Implement for Linux
+	for _, wnd := range window.Windows() {
+		wnd.Minimize()
+	}
 }
 
 func platformHideOtherApps() {
-	// RAW: Implement for Linux
+	panic("platformHideOtherApps() is not implemented")
 }
 
 func platformShowAllApps() {
-	// RAW: Implement for Linux
+	panic("platformShowAllApps() is not implemented")
 }
