@@ -11,6 +11,8 @@ package app
 
 import (
 	"github.com/richardwilkes/ui/menu/custom"
+	"os"
+	"path/filepath"
 )
 
 func platformStartUserInterface() {
@@ -19,26 +21,19 @@ func platformStartUserInterface() {
 }
 
 func platformAppName() string {
-	// RAW: Implement platformAppName for Windows
-	return "<unknown>"
+	return filepath.Base(os.Args[0])
 }
 
 func platformHideApp() {
-	// RAW: Implement for Windows
+	for _, wnd := range window.Windows() {
+		wnd.Minimize()
+	}
 }
 
 func platformHideOtherApps() {
-	// RAW: Implement for Windows
+	panic("platformHideOtherApps() is not implemented")
 }
 
 func platformShowAllApps() {
-	// RAW: Implement for Windows
-}
-
-func platformAttemptQuit() {
-	// RAW: Implement for Windows
-}
-
-func platformAppMayQuitNow(quit bool) {
-	// RAW: Implement for Windows
+	panic("platformShowAllApps() is not implemented")
 }
