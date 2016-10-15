@@ -15,53 +15,71 @@ import (
 	"github.com/richardwilkes/ui/color"
 	"github.com/richardwilkes/ui/draw"
 	"unsafe"
-	// #cgo darwin LDFLAGS: -framework Cocoa
-	// #include <stdlib.h>
-	// #include <CoreFoundation/CoreFoundation.h>
-	// #include <CoreGraphics/CoreGraphics.h>
-	// #include <ImageIO/ImageIO.h>
-	// #include "Cursor_darwin.h"
+	// #cgo CFLAGS: -x objective-c
+	// #cgo LDFLAGS: -framework Cocoa
+	// #include <Cocoa/Cocoa.h>
+	//
+	// void *ArrowCursor() { return [NSCursor arrowCursor]; }
+	// void *TextCursor() { return [NSCursor IBeamCursor]; }
+	// void *VerticalTextCursor() { return [NSCursor IBeamCursorForVerticalLayout]; }
+	// void *CrossHairCursor() { return [NSCursor crosshairCursor]; }
+	// void *ClosedHandCursor() { return [NSCursor closedHandCursor]; }
+	// void *OpenHandCursor() { return [NSCursor openHandCursor]; }
+	// void *PointingHandCursor() { return [NSCursor pointingHandCursor]; }
+	// void *ResizeLeftCursor() { return [NSCursor resizeLeftCursor]; }
+	// void *ResizeRightCursor() { return [NSCursor resizeRightCursor]; }
+	// void *ResizeLeftRightCursor() { return [NSCursor resizeLeftRightCursor]; }
+	// void *ResizeUpCursor() { return [NSCursor resizeUpCursor]; }
+	// void *ResizeDownCursor() { return [NSCursor resizeDownCursor]; }
+	// void *ResizeUpDownCursor() { return [NSCursor resizeUpDownCursor]; }
+	// void *DisappearingItemCursor() { return [NSCursor disappearingItemCursor]; }
+	// void *NotAllowedCursor() { return [NSCursor operationNotAllowedCursor]; }
+	// void *DragLinkCursor() { return [NSCursor dragLinkCursor]; }
+	// void *DragCopyCursor() { return [NSCursor dragCopyCursor]; }
+	// void *ContextMenuCursor() { return [NSCursor contextualMenuCursor]; }
+	// void *NewCursor(void *img, float hotX, float hotY) { return [[[NSCursor alloc] initWithImage:img hotSpot:NSMakePoint(hotX,hotY)] retain]; }
+	// void DisposeCursor(void *cursor) { [((NSCursor *)cursor) release]; }
 	"C"
 )
 
 func platformSystemCursor(id int) unsafe.Pointer {
 	switch id {
 	case arrow:
-		return C.platformArrow()
+		return C.ArrowCursor()
 	case text:
-		return C.platformText()
+		return C.TextCursor()
 	case verticalText:
-		return C.platformVerticalText()
+		return C.VerticalTextCursor()
 	case crossHair:
-		return C.platformCrossHair()
+		return C.CrossHairCursor()
 	case closedHand:
-		return C.platformClosedHand()
+		return C.ClosedHandCursor()
 	case openHand:
-		return C.platformOpenHand()
+		return C.OpenHandCursor()
 	case pointingHand:
-		return C.platformPointingHand()
+		return C.PointingHandCursor()
 	case resizeLeft:
-		return C.platformResizeLeft()
+		return C.ResizeLeftCursor()
 	case resizeRight:
-		return C.platformResizeRight()
+		return C.ResizeRightCursor()
 	case resizeLeftRight:
-		return C.platformResizeLeftRight()
+		return C.ResizeLeftRightCursor()
 	case resizeUp:
-		return C.platformResizeUp()
+		return C.ResizeUpCursor()
 	case resizeDown:
-		return C.platformResizeDown()
+		return C.ResizeDownCursor()
 	case resizeUpDown:
-		return C.platformResizeUpDown()
+		return C.ResizeUpDownCursor()
 	case disappearingItem:
-		return C.platformDisappearingItem()
+		return C.DisappearingItemCursor()
 	case notAllowed:
-		return C.platformNotAllowed()
+		return C.NotAllowedCursor()
 	case dragLink:
-		return C.platformDragLink()
+		return C.DragLinkCursor()
 	case dragCopy:
-		return C.platformDragCopy()
+		return C.DragCopyCursor()
 	case contextMenu:
-		return C.platformContextMenu()
+		return C.ContextMenuCursor()
 	default:
 		panic(fmt.Sprintf("Invalid system cursor ID (%d)", id))
 	}
@@ -87,9 +105,9 @@ func platformNewCursor(imgData *draw.ImageData, hotSpot geom.Point) unsafe.Point
 	defer C.CGDataProviderRelease(provider)
 	image := C.CGImageCreate(C.size_t(imgData.Width), C.size_t(imgData.Height), 8, 32, C.size_t(imgData.Width*4), colorspace, C.kCGBitmapByteOrder32Host|C.kCGImageAlphaPremultipliedFirst, provider, nil, false, C.kCGRenderingIntentDefault)
 
-	return C.platformNewCursor(unsafe.Pointer(image), C.float(hotSpot.X), C.float(hotSpot.Y))
+	return C.NewCursor(unsafe.Pointer(image), C.float(hotSpot.X), C.float(hotSpot.Y))
 }
 
 func platformDisposeCursor(cursor *Cursor) {
-	C.platformDisposeCursor(cursor.cursor)
+	C.DisposeCursor(cursor.cursor)
 }
