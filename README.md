@@ -16,8 +16,7 @@ go get -u github.com/richardwilkes/xmath
 ```
 
 This is very much a work in progress. My intent is to make this work for Mac, Linux & Windows.
-At the moment, the Mac implementation works well. I am in the midst of implementing the Linux
-version.
+At the moment, the Mac and Linux implementations are functional, if not complete.
 
 Widgets that have been implemented:
 
@@ -47,3 +46,5 @@ Top-level windows and dialogs:
 - [ ] Dialog
 - [ ] FileDialog
 - [x] Window
+
+To run the Demo, you'll need to [follow the directions in the images folder](https://github.com/richardwilkes/ui/blob/master/Demo/images/README.md) to build the image resources.
