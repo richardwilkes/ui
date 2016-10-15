@@ -9,12 +9,17 @@
 
 package quit
 
-// #cgo darwin LDFLAGS: -framework Cocoa
-// #include "Quit_darwin.h"
-import "C"
+import (
+	// #cgo CFLAGS: -x objective-c
+	// #cgo LDFLAGS: -framework Cocoa
+	// #include <Cocoa/Cocoa.h>
+	// void attemptQuit() { [NSApp terminate:nil]; }
+	// void appMayQuitNow(int quit) { [NSApp replyToApplicationShouldTerminate:quit]; }
+	"C"
+)
 
 func platformAttemptQuit() {
-	C.platformAttemptQuit()
+	C.attemptQuit()
 }
 
 func platformAppMayQuitNow(quit bool) {
@@ -24,5 +29,5 @@ func platformAppMayQuitNow(quit bool) {
 	} else {
 		mayQuit = 0
 	}
-	C.platformAppMayQuitNow(mayQuit)
+	C.appMayQuitNow(mayQuit)
 }
