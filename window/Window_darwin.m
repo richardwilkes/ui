@@ -180,7 +180,7 @@ void platformInvokeAfter(unsigned long id, long afterNanos) {
 	cairo_surface_t *surface = cairo_quartz_surface_create_for_cg_context([[NSGraphicsContext currentContext] CGContext], (unsigned int)rect.size.width, (unsigned int)rect.size.height);
 	cairo_t *gc = cairo_create(surface);
 	cairo_surface_destroy(surface); // surface won't actually be destroyed until the gc is destroyed
-	drawWindow(wnd, gc, bounds, [self inLiveResize]);
+	drawWindow(wnd, gc, bounds);
 	cairo_destroy(gc);
 }
 

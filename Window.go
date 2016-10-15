@@ -19,6 +19,8 @@ import (
 
 type Window interface {
 	event.Target
+	// MayClose returns true if the window is permitted to close.
+	MayClose() bool
 	// AttemptClose closes the window if a Closing event permits it.
 	AttemptClose()
 	// Close the window.
@@ -67,10 +69,6 @@ type Window interface {
 	RepaintBounds(bounds geom.Rect)
 	// FlushPainting causes any areas marked for repainting to be painted.
 	FlushPainting()
-	// InLiveResize returns true if the window is being actively resized by the user at this point
-	// in time. If it is, expensive painting operations should be deferred if possible to give a
-	// smooth resizing experience.
-	InLiveResize() bool
 	// ScalingFactor returns the current OS scaling factor being applied to this window.
 	ScalingFactor() float64
 	// Minimize performs the platform's minimize function on the window.

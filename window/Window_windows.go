@@ -39,7 +39,7 @@ func platformNewMenuWindow(parent ui.Window, bounds geom.Rect) (window platformW
 
 func (window *Wnd) platformClose() {
 	// RAW: Implement for Windows
-	windowDidClose(window.window)
+	window.Dispose()
 }
 
 func (window *Wnd) platformTitle() string {

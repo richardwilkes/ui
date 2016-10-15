@@ -13,6 +13,10 @@ import (
 	"github.com/richardwilkes/geom"
 	"github.com/richardwilkes/ui"
 	"github.com/richardwilkes/ui/cursor"
+	"github.com/richardwilkes/ui/draw"
+	"github.com/richardwilkes/ui/event"
+	"github.com/richardwilkes/ui/internal/task"
+	"github.com/richardwilkes/ui/keys"
 	"time"
 	"unsafe"
 	// #cgo darwin LDFLAGS: -framework Cocoa -framework Quartz
@@ -112,4 +116,85 @@ func (window *Wnd) platformInvoke(id uint64) {
 
 func (window *Wnd) platformInvokeAfter(id uint64, after time.Duration) {
 	C.platformInvokeAfter(C.ulong(id), C.long(after.Nanoseconds()))
+}
+
+//export drawWindow
+func drawWindow(cWindow platformWindow, gc *C.cairo_t, bounds platformRect) {
+	if window, ok := windowMap[cWindow]; ok {
+		window.paint(draw.NewGraphics(draw.CairoContext(unsafe.Pointer(gc))), toRect(C.platformRect(bounds)))
+	}
+}
+
+//export windowResized
+func windowResized(cWindow platformWindow) {
+	if window, ok := windowMap[cWindow]; ok {
+		window.root.SetSize(window.ContentFrame().Size)
+	}
+}
+
+//export windowGainedKey
+func windowGainedKey(cWindow platformWindow) {
+	if window, ok := windowMap[cWindow]; ok {
+		event.Dispatch(event.NewFocusGained(window))
+	}
+}
+
+//export windowLostKey
+func windowLostKey(cWindow platformWindow) {
+	if window, ok := windowMap[cWindow]; ok {
+		event.Dispatch(event.NewFocusLost(window))
+	}
+}
+
+//export windowShouldClose
+func windowShouldClose(cWindow platformWindow) bool {
+	if window, ok := windowMap[cWindow]; ok {
+		return window.MayClose()
+	}
+	return true
+}
+
+//export windowDidClose
+func windowDidClose(cWindow platformWindow) {
+	if window, ok := windowMap[cWindow]; ok {
+		window.Dispose()
+	}
+}
+
+//export handleWindowMouseEvent
+func handleWindowMouseEvent(cWindow platformWindow, eventType platformEventType, keyModifiers, button, clickCount int, x, y float64) {
+	if window, ok := windowMap[cWindow]; ok {
+		window.mouseEvent(eventType, keys.Modifiers(keyModifiers), button, clickCount, x, y)
+	}
+}
+
+//export handleWindowMouseWheelEvent
+func handleWindowMouseWheelEvent(cWindow platformWindow, keyModifiers int, x, y, dx, dy float64) {
+	if window, ok := windowMap[cWindow]; ok {
+		window.mouseWheelEvent(keys.Modifiers(keyModifiers), x, y, dx, dy)
+	}
+}
+
+//export handleCursorUpdateEvent
+func handleCursorUpdateEvent(cWindow platformWindow, keyModifiers int, x, y float64) {
+	if window, ok := windowMap[cWindow]; ok {
+		window.cursorUpdateEvent(keys.Modifiers(keyModifiers), x, y)
+	}
+}
+
+//export handleWindowKeyEvent
+func handleWindowKeyEvent(cWindow platformWindow, eventType platformEventType, keyModifiers, keyCode int, chars *C.char, repeat bool) {
+	if window, ok := windowMap[cWindow]; ok {
+		var str string
+		if chars != nil {
+			str = C.GoString(chars)
+		}
+		code, ch := keys.Transform(keyCode, str)
+		window.keyEvent(eventType, keys.Modifiers(keyModifiers), code, ch, repeat)
+	}
+}
+
+//export dispatchTask
+func dispatchTask(id uint64) {
+	task.Dispatch(id)
 }

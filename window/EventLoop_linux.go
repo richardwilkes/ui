@@ -157,7 +157,9 @@ func processCrossingEvent(evt *x11.CrossingEvent, eventType platformEventType) {
 func processFocusInEvent(evt *x11.FocusChangeEvent) {
 	event.SendAppWillActivate()
 	event.SendAppDidActivate()
-	windowGainedKey(platformWindow(uintptr(evt.Window())))
+	if window, ok := windowMap[platformWindow(uintptr(evt.Window()))]; ok {
+		event.Dispatch(event.NewFocusGained(window))
+	}
 }
 
 func processFocusOutEvent(evt *x11.FocusChangeEvent) {
@@ -165,7 +167,9 @@ func processFocusOutEvent(evt *x11.FocusChangeEvent) {
 }
 
 func focusOut(wnd platformWindow) {
-	windowLostKey(wnd)
+	if window, ok := windowMap[platformWindow(uintptr(evt.Window()))]; ok {
+		event.Dispatch(event.NewFocusLost(window))
+	}
 	event.SendAppWillDeactivate()
 	event.SendAppDidDeactivate()
 }
@@ -187,7 +191,9 @@ func processExposeEvent(evt *x11.ExposeEvent) {
 }
 
 func processDestroyWindowEvent(evt *x11.DestroyWindowEvent) {
-	windowDidClose(platformWindow(uintptr(evt.Window())))
+	if window, ok := windowMap[platformWindow(uintptr(evt.Window()))]; ok {
+		window.Dispose()
+	}
 }
 
 func processConfigureEvent(evt *x11.ConfigureEvent) {
@@ -203,10 +209,11 @@ func processConfigureEvent(evt *x11.ConfigureEvent) {
 			}
 		}
 		win.ignoreRepaint = true
-		windowResized(pwnd)
+		size := win.ContentFrame().Size
+		win.root.SetSize(size)
 		win.root.ValidateLayout()
 		win.ignoreRepaint = false
-		(*x11.Surface)(win.surface).SetSize(win.ContentFrame().Size)
+		(*x11.Surface)(win.surface).SetSize(size)
 		win.Repaint()
 	}
 }
@@ -216,15 +223,15 @@ func processClientEvent(evt *x11.ClientMessageEvent) {
 	case x11.ProtocolsSubType:
 		if evt.Format() == 32 && evt.Protocol() == x11.DeleteWindowProtocol {
 			wnd := platformWindow(uintptr(evt.Window()))
-			if windowShouldClose(wnd) {
-				if win, ok := windowMap[wnd]; ok {
+			if win, ok := windowMap[wnd]; ok {
+				if win.MayClose() {
 					win.Close()
 				}
 			}
 		}
 	case x11.TaskSubType:
 		if evt.Format() == 32 {
-			dispatchTask(evt.TaskID())
+			task.Dispatch(evt.TaskID())
 		}
 	}
 }

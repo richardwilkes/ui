@@ -17,10 +17,10 @@ import (
 	"github.com/richardwilkes/ui/draw"
 	"github.com/richardwilkes/ui/event"
 	"github.com/richardwilkes/ui/id"
+	"github.com/richardwilkes/ui/internal/task"
 	"github.com/richardwilkes/ui/keys"
 	"github.com/richardwilkes/ui/layout"
 	"github.com/richardwilkes/ui/menu"
-	"sync"
 	"time"
 	"unsafe"
 )
@@ -40,18 +40,15 @@ type Wnd struct {
 	style                  WindowStyleMask
 	initialLocationRequest geom.Point
 	inMouseDown            bool
-	inLiveResize           bool
 	ignoreRepaint          bool // Currently only used by Linux
 	wasMapped              bool // Currently only used by Linux
 }
 
 var (
+	LastWindowClosed func()
 	windowMap        = make(map[platformWindow]*Wnd)
 	windowIDMap      = make(map[int64]*Wnd)
 	diacritic        int
-	nextInvocationID uint64 = 1
-	dispatchMapLock  sync.Mutex
-	dispatchMap      = make(map[uint64]func())
 )
 
 // AllWindowsToFront attempts to bring all of the application's windows to the foreground.
@@ -150,9 +147,16 @@ func (window *Wnd) repaintFocus() {
 	}
 }
 
+// MayClose returns true if the window is permitted to close.
+func (window *Wnd) MayClose() bool {
+	evt := event.NewClosing(window)
+	event.Dispatch(evt)
+	return !evt.Aborted()
+}
+
 // AttemptClose closes the window if a Closing event permits it.
 func (window *Wnd) AttemptClose() {
-	if windowShouldClose(window.window) {
+	if window.MayClose() {
 		window.Close()
 	}
 }
@@ -160,6 +164,15 @@ func (window *Wnd) AttemptClose() {
 // Close the window.
 func (window *Wnd) Close() {
 	window.platformClose()
+}
+
+func (window *Wnd) Dispose() {
+	event.Dispatch(event.NewClosed(window))
+	delete(windowIDMap, window.ID())
+	delete(windowMap, window.window)
+	if WindowCount() == 0 && LastWindowClosed != nil {
+		LastWindowClosed()
+	}
 }
 
 // Valid returns true if the window is still valid (i.e. has not been closed).
@@ -356,13 +369,6 @@ func (window *Wnd) FlushPainting() {
 	window.platformFlushPainting()
 }
 
-// InLiveResize returns true if the window is being actively resized by the user at this point
-// in time. If it is, expensive painting operations should be deferred if possible to give a
-// smooth resizing experience.
-func (window *Wnd) InLiveResize() bool {
-	return window.inLiveResize
-}
-
 // ScalingFactor returns the current OS scaling factor being applied to this window.
 func (window *Wnd) ScalingFactor() float64 {
 	return window.platformScalingFactor()
@@ -434,11 +440,9 @@ func (window *Wnd) Resizable() bool {
 	return window.style&ResizableWindowMask != 0
 }
 
-func (window *Wnd) paint(gc *draw.Graphics, bounds geom.Rect, inLiveResize bool) {
+func (window *Wnd) paint(gc *draw.Graphics, bounds geom.Rect) {
 	window.root.ValidateLayout()
-	window.inLiveResize = inLiveResize
 	window.root.Paint(gc, bounds)
-	window.inLiveResize = false
 }
 
 func (window *Wnd) mouseEvent(eventType platformEventType, keyModifiers keys.Modifiers, button, clickCount int, x, y float64) {
@@ -696,31 +700,12 @@ func (window *Wnd) keyEvent(eventType platformEventType, keyModifiers keys.Modif
 
 // Invoke a task on the UI thread. The task is put into the system event queue and will be run at
 // the next opportunity.
-func (window *Wnd) Invoke(task func()) {
-	window.platformInvoke(recordTask(task))
+func (window *Wnd) Invoke(taskFunction func()) {
+	window.platformInvoke(task.Record(taskFunction))
 }
 
 // InvokeAfter schedules a task to be run on the UI thread after waiting for the specified
 // duration.
-func (window *Wnd) InvokeAfter(task func(), after time.Duration) {
-	window.platformInvokeAfter(recordTask(task), after)
-}
-
-func recordTask(task func()) uint64 {
-	dispatchMapLock.Lock()
-	defer dispatchMapLock.Unlock()
-	id := nextInvocationID
-	nextInvocationID++
-	dispatchMap[id] = task
-	return id
-}
-
-func removeTask(id uint64) func() {
-	dispatchMapLock.Lock()
-	defer dispatchMapLock.Unlock()
-	if f, ok := dispatchMap[id]; ok {
-		delete(dispatchMap, id)
-		return f
-	}
-	return nil
+func (window *Wnd) InvokeAfter(taskFunction func(), after time.Duration) {
+	window.platformInvokeAfter(task.Record(taskFunction), after)
 }

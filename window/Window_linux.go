@@ -47,7 +47,7 @@ func (window *Wnd) toXWindow() x11.Window {
 func (window *Wnd) platformClose() {
 	(*x11.Surface)(window.surface).Destroy()
 	window.toXWindow().Destroy()
-	windowDidClose(window.window)
+	window.Dispose()
 }
 
 func (window *Wnd) platformTitle() string {
