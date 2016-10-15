@@ -14,9 +14,6 @@ import (
 	"C"
 )
 
-// RAW: Look at all instances of insertASCIIKeyCodeMappings at substitute something appropriate
-// for linux.
-
 func init() {
 	InsertMapping(C.XK_Up, &Mapping{KeyCode: VK_Up, Name: UpName})
 	InsertMapping(C.XK_Left, &Mapping{KeyCode: VK_Left, Name: LeftName})
