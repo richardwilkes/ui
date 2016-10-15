@@ -64,7 +64,7 @@ func New() *TextField {
 	handlers.Add(event.MouseDownType, field.mouseDown)
 	handlers.Add(event.MouseDraggedType, field.mouseDragged)
 	handlers.Add(event.KeyDownType, field.keyDown)
-	handlers.Add(event.CursorType, field.setCursor)
+	handlers.Add(event.UpdateCursorType, field.setCursor)
 	return field
 }
 
@@ -700,5 +700,6 @@ func (field *TextField) setCursor(evt event.Event) {
 	} else {
 		c = cursor.Arrow
 	}
-	evt.(*event.Cursor).SetCursor(c)
+	field.Window().SetCursor(c)
+	evt.Finish()
 }

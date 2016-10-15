@@ -13,67 +13,58 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/richardwilkes/geom"
-	"github.com/richardwilkes/ui/cursor"
 )
 
-// Cursor is generated when a cursor is being requested for the widget.
-type Cursor struct {
+// UpdateCursor is generated when a cursor is being requested for the widget.
+type UpdateCursor struct {
 	target   Target
 	where    geom.Point
-	cursor   *cursor.Cursor
 	finished bool
 }
 
-// NewCursor creates a new Cursor event. 'target' is the widget the mouse is over. 'where' is the
-// location in the window where the mouse is.
-func NewCursor(target Target, where geom.Point) *Cursor {
-	return &Cursor{target: target, where: where, cursor: cursor.Arrow}
+// SendUpdateCursor sends a new UpdateCursor event. 'target' is the widget the mouse is over.
+// 'where' is the location in the window where the mouse is. Returns true if the event was handled.
+// If the event was not handled, the caller may want to explicitly set the cursor for the window.
+func SendUpdateCursor(target Target, where geom.Point) bool {
+	evt := &UpdateCursor{target: target, where: where}
+	Dispatch(evt)
+	return evt.Finished()
 }
 
 // Type returns the event type ID.
-func (e *Cursor) Type() Type {
-	return CursorType
+func (e *UpdateCursor) Type() Type {
+	return UpdateCursorType
 }
 
 // Target the original target of the event.
-func (e *Cursor) Target() Target {
+func (e *UpdateCursor) Target() Target {
 	return e.target
 }
 
 // Cascade returns true if this event should be passed to its target's parent if not marked done.
-func (e *Cursor) Cascade() bool {
+func (e *UpdateCursor) Cascade() bool {
 	return false
 }
 
 // Where returns the location in the window the mouse is.
-func (e *Cursor) Where() geom.Point {
+func (e *UpdateCursor) Where() geom.Point {
 	return e.where
 }
 
-// Cursor returns the cursor that was set for the widget.
-func (e *Cursor) Cursor() *cursor.Cursor {
-	return e.cursor
-}
-
-// SetCursor sets the cursor to use for the widget.
-func (e *Cursor) SetCursor(cursor *cursor.Cursor) {
-	e.cursor = cursor
-}
-
 // Finished returns true if this event has been handled and should no longer be processed.
-func (e *Cursor) Finished() bool {
+func (e *UpdateCursor) Finished() bool {
 	return e.finished
 }
 
 // Finish marks this event as handled and no longer eligible for processing.
-func (e *Cursor) Finish() {
+func (e *UpdateCursor) Finish() {
 	e.finished = true
 }
 
 // String implements the fmt.Stringer interface.
-func (e *Cursor) String() string {
+func (e *UpdateCursor) String() string {
 	var buffer bytes.Buffer
-	buffer.WriteString(fmt.Sprintf("Cursor[Where: [%v], Target: %v", e.where, e.target))
+	buffer.WriteString(fmt.Sprintf("UpdateCursor[Where: [%v], Target: %v", e.where, e.target))
 	if e.finished {
 		buffer.WriteString(", Finished")
 	}

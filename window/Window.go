@@ -408,15 +408,18 @@ func (window *Wnd) updateToolTip(widget ui.Widget, where geom.Point) {
 }
 
 func (window *Wnd) updateCursor(widget ui.Widget, where geom.Point) {
-	c := cursor.Arrow
 	if widget != nil {
-		e := event.NewCursor(widget, where)
-		event.Dispatch(e)
-		c = e.Cursor()
+		if !event.SendUpdateCursor(widget, where) {
+			window.SetCursor(cursor.Arrow)
+		}
 	}
-	if window.lastCursor != c {
-		window.platformSetCursor(c)
-		window.lastCursor = c
+}
+
+// SetCursor sets the window's current cursor.
+func (window *Wnd) SetCursor(cur *cursor.Cursor) {
+	if window.lastCursor != cur {
+		window.platformSetCursor(cur)
+		window.lastCursor = cur
 	}
 }
 

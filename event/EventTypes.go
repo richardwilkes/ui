@@ -36,7 +36,7 @@ const (
 	KeyDownType
 	KeyUpType
 	ToolTipType
-	CursorType
+	UpdateCursorType
 	ResizedType
 	ClosingType
 	ClosedType

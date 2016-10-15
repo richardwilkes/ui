@@ -11,6 +11,7 @@ package ui
 
 import (
 	"github.com/richardwilkes/geom"
+	"github.com/richardwilkes/ui/cursor"
 	"github.com/richardwilkes/ui/event"
 	"github.com/richardwilkes/ui/menu"
 	"time"
@@ -51,6 +52,8 @@ type Window interface {
 	// which contains both the content widget and the menu bar, for platforms that hold the menu bar
 	// within the window.
 	Content() Widget
+	// SetCursor sets the window's current cursor.
+	SetCursor(cur *cursor.Cursor)
 	// Focus returns the widget with the keyboard focus in this window.
 	Focus() Widget
 	// SetFocus sets the keyboard focus to the specified target.
