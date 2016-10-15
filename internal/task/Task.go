@@ -14,32 +14,31 @@ import (
 )
 
 var (
-	nextInvocationID uint64 = 1
-	dispatchMapLock  sync.Mutex
-	dispatchMap      = make(map[uint64]func())
+	nextID uint64 = 1
+	lock   sync.Mutex
+	tasks  = make(map[uint64]func())
 )
 
 func Record(task func()) uint64 {
-	dispatchMapLock.Lock()
-	defer dispatchMapLock.Unlock()
-	id := nextInvocationID
-	nextInvocationID++
-	dispatchMap[id] = task
+	if task == nil {
+		panic("nil task not permitted")
+	}
+	lock.Lock()
+	id := nextID
+	nextID++
+	tasks[id] = task
+	lock.Unlock()
 	return id
 }
 
 func Dispatch(id uint64) {
-	if f := remove(id); f != nil {
-		f()
+	lock.Lock()
+	task := tasks[id]
+	if task != nil {
+		delete(tasks, id)
 	}
-}
-
-func remove(id uint64) func() {
-	dispatchMapLock.Lock()
-	defer dispatchMapLock.Unlock()
-	if f, ok := dispatchMap[id]; ok {
-		delete(dispatchMap, id)
-		return f
+	lock.Unlock()
+	if task != nil {
+		task()
 	}
-	return nil
 }
