@@ -13,6 +13,7 @@ import (
 	"fmt"
 	"github.com/richardwilkes/geom"
 	"github.com/richardwilkes/ui/event"
+	"github.com/richardwilkes/ui/internal/task"
 	"github.com/richardwilkes/ui/internal/x11"
 	"math"
 	"syscall"
@@ -167,7 +168,7 @@ func processFocusOutEvent(evt *x11.FocusChangeEvent) {
 }
 
 func focusOut(wnd platformWindow) {
-	if window, ok := windowMap[platformWindow(uintptr(evt.Window()))]; ok {
+	if window, ok := windowMap[wnd]; ok {
 		event.Dispatch(event.NewFocusLost(window))
 	}
 	event.SendAppWillDeactivate()
@@ -266,9 +267,4 @@ func finishQuit() {
 		x11.CloseDisplay()
 		syscall.Exit(0)
 	}
-}
-
-func NewSystemCursor(shape int) uintptr {
-	return 0
-	//	return uintptr(C.XCreateFontCursor(display, C.uint(shape)))
 }

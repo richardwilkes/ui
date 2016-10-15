@@ -124,7 +124,7 @@ func (window *Wnd) draw(bounds geom.Rect) {
 	gc := draw.NewGraphics((*x11.Surface)(window.surface).NewCairoContext(bounds))
 	gc.Rect(bounds)
 	gc.Clip()
-	window.paint(gc, bounds, false)
+	window.paint(gc, bounds)
 	gc.Dispose()
 }
 
