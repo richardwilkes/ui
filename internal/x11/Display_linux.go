@@ -48,6 +48,10 @@ func CloseDisplay() {
 	display = nil
 }
 
+func Running() bool {
+	return display != nil
+}
+
 func NextEvent() *Event {
 	var event Event
 	C.XNextEvent(display, (*C.XEvent)(&event))

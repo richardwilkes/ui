@@ -30,7 +30,6 @@ var (
 )
 
 var (
-	running             bool
 	quitting            bool
 	awaitingQuit        bool
 	clickCount          int
@@ -41,13 +40,8 @@ var (
 	lastMouseDownButton int = -1
 )
 
-func InitializeDisplay() {
-	x11.OpenDisplay()
-	running = true
-}
-
 func RunEventLoop() {
-	for running {
+	for x11.Running() {
 		event := x11.NextEvent()
 		switch event.Type() {
 		case x11.KeyPressType:
@@ -263,7 +257,6 @@ func ResumeQuit(quit bool) {
 
 func finishQuit() {
 	if quitting {
-		running = false
 		x11.CloseDisplay()
 		syscall.Exit(0)
 	}

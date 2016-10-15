@@ -12,6 +12,7 @@ package app
 import (
 	"github.com/richardwilkes/ui/app/quit"
 	"github.com/richardwilkes/ui/event"
+	"github.com/richardwilkes/ui/internal/x11"
 	"github.com/richardwilkes/ui/menu/custom"
 	"github.com/richardwilkes/ui/window"
 	"os"
@@ -19,7 +20,7 @@ import (
 )
 
 func platformStartUserInterface() {
-	window.InitializeDisplay()
+	x11.OpenDisplay()
 	window.LastWindowClosed = func() {
 		if quit.AppShouldQuitAfterLastWindowClosed() {
 			quit.AttemptQuit()
