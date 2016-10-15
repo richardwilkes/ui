@@ -26,6 +26,14 @@ import (
 	"C"
 )
 
+func toRect(r C.platformRect) geom.Rect {
+	return geom.Rect{Point: geom.Point{X: float64(r.x), Y: float64(r.y)}, Size: geom.Size{Width: float64(r.width), Height: float64(r.height)}}
+}
+
+func toCRect(r geom.Rect) C.platformRect {
+	return C.platformRect{x: C.double(r.X), y: C.double(r.Y), width: C.double(r.Width), height: C.double(r.Height)}
+}
+
 func platformGetKeyWindow() platformWindow {
 	return platformWindow(C.platformGetKeyWindow())
 }
