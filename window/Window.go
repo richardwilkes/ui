@@ -48,6 +48,7 @@ var (
 	LastWindowClosed func()
 	windowMap        = make(map[platformWindow]*Wnd)
 	windowIDMap      = make(map[int64]*Wnd)
+	windowList       = make([]*Wnd, 0)
 	diacritic        int
 )
 
@@ -66,8 +67,8 @@ func ByID(id int64) ui.Window {
 
 // Windows returns a slice containing the current set of open windows.
 func Windows() []ui.Window {
-	list := make([]ui.Window, 0, len(windowMap))
-	for _, w := range windowMap {
+	list := make([]ui.Window, 0, len(windowList))
+	for _, w := range windowList {
 		list = append(list, w)
 	}
 	return list
@@ -94,7 +95,9 @@ func NewWindow(where geom.Point, styleMask WindowStyleMask) *Wnd {
 func NewWindowWithContentSize(where geom.Point, contentSize geom.Size, styleMask WindowStyleMask) *Wnd {
 	bounds := geom.Rect{Point: where, Size: contentSize}
 	win, surface := platformNewWindow(bounds, styleMask)
-	return newWindow(win, styleMask, surface, where)
+	wnd := newWindow(win, styleMask, surface, where)
+	windowList = append(windowList, wnd)
+	return wnd
 }
 
 func NewMenuWindow(parent ui.Window, where geom.Point, contentSize geom.Size) *Wnd {
@@ -170,6 +173,17 @@ func (window *Wnd) Dispose() {
 	event.Dispatch(event.NewClosed(window))
 	delete(windowIDMap, window.ID())
 	delete(windowMap, window.window)
+	if window.owner == nil {
+		for i, wnd := range windowList {
+			if wnd == window {
+				copy(windowList[i:], windowList[i+1:])
+				count := len(windowList) - 1
+				windowList[count] = nil
+				windowList = windowList[:count]
+				break
+			}
+		}
+	}
 	if WindowCount() == 0 && LastWindowClosed != nil {
 		LastWindowClosed()
 	}
@@ -345,6 +359,18 @@ func collectFocusables(current ui.Widget, target ui.Widget, focusables []ui.Widg
 // ToFront attempts to bring the window to the foreground and give it the keyboard focus.
 func (window *Wnd) ToFront() {
 	window.platformToFront()
+}
+
+func (window *Wnd) recordFocus() {
+	for i, wnd := range windowList {
+		if wnd == window {
+			if i != 0 {
+				copy(windowList[1:i+1], windowList[:i])
+				windowList[0] = wnd
+			}
+			break
+		}
+	}
 }
 
 // Repaint marks this window for painting at the next update.

@@ -23,7 +23,10 @@ func platformGetKeyWindow() platformWindow {
 }
 
 func platformBringAllWindowsToFront() {
-	// RAW: Implement for Linux
+	list := Windows()
+	for i := len(list) - 1; i >= 0; i-- {
+		list[i].ToFront()
+	}
 }
 
 func platformHideCursorUntilMouseMoves() {
