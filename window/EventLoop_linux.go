@@ -206,10 +206,8 @@ func processConfigureEvent(evt *x11.ConfigureEvent) {
 		win.ignoreRepaint = true
 		size := win.ContentFrame().Size
 		win.root.SetSize(size)
-		win.root.ValidateLayout()
 		win.ignoreRepaint = false
 		(*x11.Surface)(win.surface).SetSize(size)
-		win.Repaint()
 	}
 }
 
