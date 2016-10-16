@@ -7,7 +7,7 @@
 // This Source Code Form is "Incompatible With Secondary Licenses", as
 // defined by the Mozilla Public License, version 2.0.
 
-package platform
+package macmenus
 
 import (
 	"fmt"
@@ -16,16 +16,6 @@ import (
 	"github.com/richardwilkes/ui/keys"
 	"github.com/richardwilkes/ui/menu"
 )
-
-type platformItem struct {
-	item          cItem // Must be first element in struct!
-	id            int64
-	eventHandlers *event.Handlers
-	title         string
-	keyCode       int
-	keyModifiers  keys.Modifiers
-	enabled       bool
-}
 
 // NewSeparator creates a new separator item.
 func NewSeparator() menu.Item {

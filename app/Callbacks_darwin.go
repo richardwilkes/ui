@@ -13,7 +13,7 @@ import (
 	"C"
 	"github.com/richardwilkes/ui/app/quit"
 	"github.com/richardwilkes/ui/event"
-	"github.com/richardwilkes/ui/menu/platform"
+	"github.com/richardwilkes/ui/menu/macmenus"
 )
 
 //export callbackAppShouldQuit
@@ -33,7 +33,7 @@ func callbackAppWillQuit() {
 
 //export callbackAppWillFinishStartup
 func callbackAppWillFinishStartup() {
-	platform.Install()
+	macmenus.Install()
 	event.SendAppWillFinishStartup()
 }
 

@@ -7,22 +7,12 @@
 // This Source Code Form is "Incompatible With Secondary Licenses", as
 // defined by the Mozilla Public License, version 2.0.
 
-package platform
+package macmenus
 
 import (
 	"github.com/richardwilkes/geom"
 	"github.com/richardwilkes/ui/menu"
 	"github.com/richardwilkes/ui/window"
-)
-
-type platformMenu struct {
-	menu  cMenu // Must be first element in struct!
-	title string
-}
-
-var (
-	menuMap = make(map[cMenu]*platformMenu)
-	itemMap = make(map[cItem]*platformItem)
 )
 
 // NewMenu creates a new menu.
