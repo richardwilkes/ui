@@ -78,7 +78,7 @@ func (wnd Window) Title() string {
 	if result == nil {
 		return ""
 	}
-	defer C.XFree(result)
+	defer C.XFree(unsafe.Pointer(result))
 	return C.GoString(result)
 }
 
