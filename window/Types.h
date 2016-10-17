@@ -10,15 +10,6 @@
 #ifndef __RW_GOUI_TYPES__
 #define __RW_GOUI_TYPES__
 
-enum {
-	platformMouseDown = 0,
-	platformMouseDragged,
-	platformMouseUp,
-	platformMouseEntered,
-	platformMouseMoved,
-	platformMouseExited
-};
-
 typedef void *platformWindow;
 typedef void *platformSurface;
 

@@ -12,19 +12,6 @@ package window
 // #include "Types.h"
 import "C"
 
-// Define Go constants for the C constants. I do this solely because some of the automated tools I
-// use don't work well in the presence of the 'import "C"' directive, so I'm just trying to minimize
-// the files it appears in.
-
-const (
-	platformMouseDown    platformEventType = C.platformMouseDown
-	platformMouseDragged platformEventType = C.platformMouseDragged
-	platformMouseUp      platformEventType = C.platformMouseUp
-	platformMouseEntered platformEventType = C.platformMouseEntered
-	platformMouseMoved   platformEventType = C.platformMouseMoved
-	platformMouseExited  platformEventType = C.platformMouseExited
-)
-
 type platformEventType C.int
 type platformWindow C.platformWindow
 type platformSurface C.platformSurface

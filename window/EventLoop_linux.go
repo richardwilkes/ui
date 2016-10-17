@@ -55,9 +55,9 @@ func RunEventLoop() {
 		case x11.MotionNotifyType:
 			processMotionEvent(event.ToMotionEvent())
 		case x11.EnterNotifyType:
-			processCrossingEvent(event.ToCrossingEvent(), platformMouseEntered)
+			processMouseEnteredEvent(event.ToCrossingEvent())
 		case x11.LeaveNotifyType:
-			processCrossingEvent(event.ToCrossingEvent(), platformMouseExited)
+			processMouseExitedEvent(event.ToCrossingEvent())
 		case x11.FocusInType:
 			processFocusInEvent(event.ToFocusChangeEvent())
 		case x11.FocusOutType:
@@ -77,14 +77,14 @@ func RunEventLoop() {
 func processKeyDownEvent(evt *x11.KeyEvent) {
 	if window, ok := windowMap[platformWindow(uintptr(evt.Window()))]; ok {
 		code, ch := evt.CodeAndChar()
-		window.keyDown(code, ch, evt.Modifiers(), false)
+		window.processKeyDown(code, ch, evt.Modifiers(), false)
 	}
 }
 
 func processKeyUpEvent(evt *x11.KeyEvent) {
 	if window, ok := windowMap[platformWindow(uintptr(evt.Window()))]; ok {
 		code, _ := evt.CodeAndChar()
-		window.keyUp(code, evt.Modifiers())
+		window.processKeyUp(code, evt.Modifiers())
 	}
 }
 
@@ -98,7 +98,7 @@ func processButtonPressEvent(evt *x11.ButtonEvent) {
 		where := evt.Where()
 		if evt.IsScrollWheel() {
 			dir := evt.ScrollWheelDirection()
-			window.mouseWheelEvent(evt.Modifiers(), where.X, where.Y, dir.X, dir.Y)
+			window.processMouseWheel(where.X, where.Y, dir.X, dir.Y, evt.Modifiers())
 		} else {
 			lastMouseDownButton = evt.Button()
 			lastMouseDownWindow = wnd
@@ -111,7 +111,7 @@ func processButtonPressEvent(evt *x11.ButtonEvent) {
 			lastClick = now
 			lastClickButton = lastMouseDownButton
 			lastClickSpot = where
-			window.mouseEvent(platformMouseDown, evt.Modifiers(), lastMouseDownButton, clickCount, where.X, where.Y)
+			window.processMouseDown(where.X, where.Y, lastMouseDownButton, clickCount, evt.Modifiers())
 		}
 	}
 }
@@ -121,38 +121,41 @@ func processButtonReleaseEvent(evt *x11.ButtonEvent) {
 		if !evt.IsScrollWheel() {
 			where := evt.Where()
 			lastMouseDownButton = -1
-			window.mouseEvent(platformMouseUp, evt.Modifiers(), evt.Button(), clickCount, where.X, where.Y)
+			window.processMouseUp(where.X, where.Y, evt.Button(), evt.Modifiers())
 		}
+	}
+}
+
+func processMouseEnteredEvent(evt *x11.CrossingEvent) {
+	if window, ok := windowMap[platformWindow(uintptr(evt.Window()))]; ok {
+		where := evt.Where()
+		window.processMouseEntered(where.X, where.Y, evt.Modifiers())
 	}
 }
 
 func processMotionEvent(evt *x11.MotionEvent) {
-	var eventType platformEventType
-	var button int
-	var translate bool
 	target := platformWindow(uintptr(evt.Window()))
 	if lastMouseDownButton != -1 {
-		translate = target != lastMouseDownWindow
-		eventType = platformMouseDragged
-		target = lastMouseDownWindow
-		button = lastMouseDownButton
-	} else {
-		eventType = platformMouseMoved
-	}
-	if window, ok := windowMap[target]; ok {
-		where := evt.Where()
-		if translate {
-			// RAW: Translate coordinates appropriately
-			fmt.Println("need translation for mouse drag")
+		if window, ok := windowMap[lastMouseDownWindow]; ok {
+			where := evt.Where()
+			if target != lastMouseDownWindow {
+				// RAW: Translate coordinates appropriately
+				fmt.Println("need translation for mouse drag")
+			}
+			window.processMouseDragged(where.X, where.Y, lastMouseDownButton, evt.Modifiers())
 		}
-		window.mouseEvent(eventType, evt.Modifiers(), button, 0, where.X, where.Y)
+	} else {
+		if window, ok := windowMap[target]; ok {
+			where := evt.Where()
+			window.processMouseMoved(where.X, where.Y, evt.Modifiers())
+		}
 	}
 }
 
-func processCrossingEvent(evt *x11.CrossingEvent, eventType platformEventType) {
+func processMouseExitedEvent(evt *x11.CrossingEvent, eventType platformEventType) {
 	if window, ok := windowMap[platformWindow(uintptr(evt.Window()))]; ok {
 		where := evt.Where()
-		window.mouseEvent(eventType, evt.Modifiers(), 0, 0, where.X, where.Y)
+		window.processMouseExited(where.X, where.Y, evt.Modifiers())
 	}
 }
 

@@ -30,7 +30,7 @@ type MouseUp struct {
 // NewMouseUp creates a new MouseUp event. 'target' is the widget that was being clicked on.
 // 'where' is the location in the window where the mouse is. 'modifiers' are the keyboard
 // modifiers keys that were down. 'button' is the button number.
-func NewMouseUp(target Target, where geom.Point, modifiers keys.Modifiers, button int) *MouseUp {
+func NewMouseUp(target Target, where geom.Point, button int, modifiers keys.Modifiers) *MouseUp {
 	return &MouseUp{target: target, where: where, modifiers: modifiers, button: button}
 }
 

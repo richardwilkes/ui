@@ -180,61 +180,58 @@ void platformInvokeAfter(unsigned long id, long afterNanos) {
 	return (theEvent.modifierFlags & (NSEventModifierFlagCapsLock | NSEventModifierFlagShift | NSEventModifierFlagControl | NSEventModifierFlagOption | NSEventModifierFlagCommand)) >> 16;
 }
 
--(void)deliverMouseEvent:(NSEvent *)theEvent ofType:(unsigned char)type {
-	unsigned char clickCount = 0;
-	if (type != platformMouseEntered && type != platformMouseExited) {
-		clickCount = theEvent.clickCount;
-	}
-	NSPoint where = [self convertPoint:theEvent.locationInWindow fromView:nil];
-	handleWindowMouseEvent((platformWindow)[self window], type, [self getModifiers:theEvent], theEvent.buttonNumber, clickCount, where.x, where.y);
-}
-
 -(void)mouseDown:(NSEvent *)theEvent {
-	[self deliverMouseEvent:theEvent ofType:platformMouseDown];
+	NSPoint where = [self convertPoint:theEvent.locationInWindow fromView:nil];
+	handleMouseDownEvent((platformWindow)[self window], where.x, where.y, theEvent.buttonNumber, theEvent.clickCount, [self getModifiers:theEvent]);
 }
 
 -(void)rightMouseDown:(NSEvent *)theEvent {
-	[self deliverMouseEvent:theEvent ofType:platformMouseDown];
+	[self mouseDown:theEvent];
 }
 
 -(void)otherMouseDown:(NSEvent *)theEvent {
-	[self deliverMouseEvent:theEvent ofType:platformMouseDown];
+	[self mouseDown:theEvent];
 }
 
 -(void)mouseDragged:(NSEvent *)theEvent {
-	[self deliverMouseEvent:theEvent ofType:platformMouseDragged];
+	NSPoint where = [self convertPoint:theEvent.locationInWindow fromView:nil];
+	handleMouseDraggedEvent((platformWindow)[self window], where.x, where.y, theEvent.buttonNumber, [self getModifiers:theEvent]);
 }
 
 -(void)rightMouseDragged:(NSEvent *)theEvent {
-	[self deliverMouseEvent:theEvent ofType:platformMouseDragged];
+	[self mouseDragged:theEvent];
 }
 
 -(void)otherMouseDragged:(NSEvent *)theEvent {
-	[self deliverMouseEvent:theEvent ofType:platformMouseDragged];
+	[self mouseDragged:theEvent];
 }
 
 -(void)mouseUp:(NSEvent *)theEvent {
-	[self deliverMouseEvent:theEvent ofType:platformMouseUp];
+	NSPoint where = [self convertPoint:theEvent.locationInWindow fromView:nil];
+	handleMouseUpEvent((platformWindow)[self window], where.x, where.y, theEvent.buttonNumber, [self getModifiers:theEvent]);
 }
 
 -(void)rightMouseUp:(NSEvent *)theEvent {
-	[self deliverMouseEvent:theEvent ofType:platformMouseUp];
+	[self mouseUp:theEvent];
 }
 
 -(void)otherMouseUp:(NSEvent *)theEvent {
-	[self deliverMouseEvent:theEvent ofType:platformMouseUp];
-}
-
--(void)mouseMoved:(NSEvent *)theEvent {
-	[self deliverMouseEvent:theEvent ofType:platformMouseMoved];
+	[self mouseUp:theEvent];
 }
 
 -(void)mouseEntered:(NSEvent *)theEvent {
-	[self deliverMouseEvent:theEvent ofType:platformMouseEntered];
+	NSPoint where = [self convertPoint:theEvent.locationInWindow fromView:nil];
+	handleMouseEnteredEvent((platformWindow)[self window], where.x, where.y, [self getModifiers:theEvent]);
+}
+
+-(void)mouseMoved:(NSEvent *)theEvent {
+	NSPoint where = [self convertPoint:theEvent.locationInWindow fromView:nil];
+	handleMouseMovedEvent((platformWindow)[self window], where.x, where.y, [self getModifiers:theEvent]);
 }
 
 -(void)mouseExited:(NSEvent *)theEvent {
-	[self deliverMouseEvent:theEvent ofType:platformMouseExited];
+	NSPoint where = [self convertPoint:theEvent.locationInWindow fromView:nil];
+	handleMouseExitedEvent((platformWindow)[self window], where.x, where.y, [self getModifiers:theEvent]);
 }
 
 -(void)cursorUpdate:(NSEvent *)theEvent {

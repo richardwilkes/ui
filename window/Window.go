@@ -486,99 +486,102 @@ func (window *Wnd) paint(gc *draw.Graphics, bounds geom.Rect) {
 	window.root.Paint(gc, bounds)
 }
 
-func (window *Wnd) mouseEvent(eventType platformEventType, keyModifiers keys.Modifiers, button, clickCount int, x, y float64) {
-	discardMouseDown := false
-	where := geom.Point{X: x, Y: y}
-	var widget ui.Widget
+func (window *Wnd) widgetForMouse(where geom.Point) ui.Widget {
 	if window.inMouseDown {
-		widget = window.lastMouseWidget
-	} else {
-		widget = window.root.WidgetAt(where)
-		if widget == nil {
-			panic("widget is nil")
-		}
-		if eventType == platformMouseMoved && widget != window.lastMouseWidget {
-			if window.lastMouseWidget != nil {
-				event.Dispatch(event.NewMouseExited(window.lastMouseWidget, where, keyModifiers))
-			}
-			eventType = platformMouseEntered
-		}
+		return window.lastMouseWidget
 	}
-	switch eventType {
-	case platformMouseDown:
-		if widget.Enabled() {
-			if widget.Focusable() && widget.GrabFocusWhenClickedOn() {
-				window.SetFocus(widget)
-			}
-			e := event.NewMouseDown(widget, where, keyModifiers, button, clickCount)
-			event.Dispatch(e)
-			discardMouseDown = e.Discarded()
+	return window.root.WidgetAt(where)
+}
+
+func (window *Wnd) processMouseDown(x, y float64, button, clickCount int, keyModifiers keys.Modifiers) {
+	where := geom.Point{X: x, Y: y}
+	widget := window.root.WidgetAt(where)
+	if widget.Enabled() {
+		if widget.Focusable() && widget.GrabFocusWhenClickedOn() {
+			window.SetFocus(widget)
 		}
-	case platformMouseDragged:
-		if widget.Enabled() {
-			event.Dispatch(event.NewMouseDragged(widget, where, keyModifiers, button))
-		}
-	case platformMouseUp:
-		if widget.Enabled() {
-			event.Dispatch(event.NewMouseUp(widget, where, keyModifiers, button))
-		}
-		window.updateToolTipAndCursor(window.root.WidgetAt(where), where)
-	case platformMouseEntered:
-		event.Dispatch(event.NewMouseEntered(widget, where, keyModifiers))
-		window.updateToolTipAndCursor(widget, where)
-	case platformMouseMoved:
-		event.Dispatch(event.NewMouseMoved(widget, where, keyModifiers))
-		window.updateToolTipAndCursor(widget, where)
-	case platformMouseExited:
-		event.Dispatch(event.NewMouseExited(widget, where, keyModifiers))
-		c := cursor.Arrow
-		if window.lastCursor != c {
-			window.platformSetCursor(c)
-			window.lastCursor = c
-		}
-	default:
-		panic(fmt.Sprintf("Unknown event type: %d", eventType))
-	}
-	window.lastMouseWidget = widget
-	if eventType == platformMouseDown {
-		if !discardMouseDown {
+		e := event.NewMouseDown(widget, where, keyModifiers, button, clickCount)
+		event.Dispatch(e)
+		if !e.Discarded() {
 			window.inMouseDown = true
 		}
-	} else if window.inMouseDown && eventType == platformMouseUp {
+	}
+	window.lastMouseWidget = widget
+}
+
+func (window *Wnd) processMouseDragged(x, y float64, button int, keyModifiers keys.Modifiers) {
+	where := geom.Point{X: x, Y: y}
+	widget := window.widgetForMouse(where)
+	if widget.Enabled() {
+		event.Dispatch(event.NewMouseDragged(widget, where, button, keyModifiers))
+	}
+	window.lastMouseWidget = widget
+}
+
+func (window *Wnd) processMouseUp(x, y float64, button int, keyModifiers keys.Modifiers) {
+	where := geom.Point{X: x, Y: y}
+	widget := window.widgetForMouse(where)
+	if widget.Enabled() {
+		event.Dispatch(event.NewMouseUp(widget, where, button, keyModifiers))
+	}
+	window.updateToolTipAndCursor(window.root.WidgetAt(where), where)
+	window.lastMouseWidget = widget
+	if window.inMouseDown {
 		window.inMouseDown = false
 	}
 }
 
-func (window *Wnd) mouseWheelEvent(keyModifiers keys.Modifiers, x, y, dx, dy float64) {
+func (window *Wnd) processMouseEntered(x, y float64, keyModifiers keys.Modifiers) {
+	where := geom.Point{X: x, Y: y}
+	widget := window.widgetForMouse(where)
+	event.Dispatch(event.NewMouseEntered(widget, where, keyModifiers))
+	window.updateToolTipAndCursor(widget, where)
+	window.lastMouseWidget = widget
+}
+
+func (window *Wnd) processMouseMoved(x, y float64, keyModifiers keys.Modifiers) {
+	var evt event.Event
+	where := geom.Point{X: x, Y: y}
+	widget := window.widgetForMouse(where)
+	if !window.inMouseDown && widget != window.lastMouseWidget {
+		if window.lastMouseWidget != nil {
+			event.Dispatch(event.NewMouseExited(window.lastMouseWidget, where, keyModifiers))
+		}
+		evt = event.NewMouseEntered(widget, where, keyModifiers)
+	} else {
+		evt = event.NewMouseMoved(widget, where, keyModifiers)
+	}
+	event.Dispatch(evt)
+	window.updateToolTipAndCursor(widget, where)
+	window.lastMouseWidget = widget
+}
+
+func (window *Wnd) processMouseExited(x, y float64, keyModifiers keys.Modifiers) {
+	where := geom.Point{X: x, Y: y}
+	widget := window.widgetForMouse(where)
+	event.Dispatch(event.NewMouseExited(widget, where, keyModifiers))
+	c := cursor.Arrow
+	if window.lastCursor != c {
+		window.platformSetCursor(c)
+		window.lastCursor = c
+	}
+	window.lastMouseWidget = widget
+}
+
+func (window *Wnd) processMouseWheel(x, y, dx, dy float64, keyModifiers keys.Modifiers) {
 	where := geom.Point{X: x, Y: y}
 	widget := window.root.WidgetAt(where)
 	if widget != nil {
 		event.Dispatch(event.NewMouseWheel(widget, geom.Point{X: dx, Y: dy}, where, keyModifiers))
-		var eventType platformEventType
 		if window.inMouseDown {
-			eventType = platformMouseDragged
+			window.processMouseDragged(x, y, 0, keyModifiers)
 		} else {
-			eventType = platformMouseMoved
+			window.processMouseMoved(x, y, keyModifiers)
 		}
-		window.mouseEvent(eventType, keyModifiers, 0, 0, x, y)
 	}
 }
 
-func (window *Wnd) cursorUpdateEvent(keyModifiers keys.Modifiers, x, y float64) {
-	where := geom.Point{X: x, Y: y}
-	var widget ui.Widget
-	if window.inMouseDown {
-		widget = window.lastMouseWidget
-	} else {
-		widget = window.root.WidgetAt(where)
-		if widget == nil {
-			panic("widget is nil")
-		}
-	}
-	window.updateToolTipAndCursor(widget, where)
-}
-
-func (window *Wnd) keyDown(keyCode int, ch rune, keyModifiers keys.Modifiers, repeat bool) {
+func (window *Wnd) processKeyDown(keyCode int, ch rune, keyModifiers keys.Modifiers, repeat bool) {
 	ch = processDiacritics(keyCode, ch, keyModifiers)
 	e := event.NewKeyDown(window.Focus(), keyCode, ch, keyModifiers, repeat)
 	bar := window.MenuBar()
@@ -597,7 +600,7 @@ func (window *Wnd) keyDown(keyCode int, ch rune, keyModifiers keys.Modifiers, re
 	}
 }
 
-func (window *Wnd) keyUp(keyCode int, keyModifiers keys.Modifiers) {
+func (window *Wnd) processKeyUp(keyCode int, keyModifiers keys.Modifiers) {
 	event.Dispatch(event.NewKeyUp(window.Focus(), keyCode, keyModifiers))
 }
 

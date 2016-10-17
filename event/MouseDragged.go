@@ -30,7 +30,7 @@ type MouseDragged struct {
 // NewMouseDragged creates a new MouseDragged event. 'target' is the widget that was being clicked
 // on. 'where' is the location in the window where the mouse is. 'modifiers' are the keyboard
 // modifiers keys that were down. 'button' is the button number.
-func NewMouseDragged(target Target, where geom.Point, modifiers keys.Modifiers, button int) *MouseDragged {
+func NewMouseDragged(target Target, where geom.Point, button int, modifiers keys.Modifiers) *MouseDragged {
 	return &MouseDragged{target: target, where: where, modifiers: modifiers, button: button}
 }
 

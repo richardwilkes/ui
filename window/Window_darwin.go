@@ -165,24 +165,69 @@ func windowDidClose(cWindow platformWindow) {
 	}
 }
 
-//export handleWindowMouseEvent
-func handleWindowMouseEvent(cWindow platformWindow, eventType platformEventType, keyModifiers, button, clickCount int, x, y float64) {
+//export handleMouseDownEvent
+func handleMouseDownEvent(cWindow platformWindow, x, y float64, button, clickCount, keyModifiers int) {
 	if window, ok := windowMap[cWindow]; ok {
-		window.mouseEvent(eventType, keys.Modifiers(keyModifiers), button, clickCount, x, y)
+		window.processMouseDown(x, y, button, clickCount, keys.Modifiers(keyModifiers))
+	}
+}
+
+//export handleMouseDraggedEvent
+func handleMouseDraggedEvent(cWindow platformWindow, x, y float64, button, keyModifiers int) {
+	if window, ok := windowMap[cWindow]; ok {
+		window.processMouseDragged(x, y, button, keys.Modifiers(keyModifiers))
+	}
+}
+
+//export handleMouseUpEvent
+func handleMouseUpEvent(cWindow platformWindow, x, y float64, button, keyModifiers int) {
+	if window, ok := windowMap[cWindow]; ok {
+		window.processMouseUp(x, y, button, keys.Modifiers(keyModifiers))
+	}
+}
+
+//export handleMouseEnteredEvent
+func handleMouseEnteredEvent(cWindow platformWindow, x, y float64, keyModifiers int) {
+	if window, ok := windowMap[cWindow]; ok {
+		window.processMouseEntered(x, y, keys.Modifiers(keyModifiers))
+	}
+}
+
+//export handleMouseMovedEvent
+func handleMouseMovedEvent(cWindow platformWindow, x, y float64, keyModifiers int) {
+	if window, ok := windowMap[cWindow]; ok {
+		window.processMouseMoved(x, y, keys.Modifiers(keyModifiers))
+	}
+}
+
+//export handleMouseExitedEvent
+func handleMouseExitedEvent(cWindow platformWindow, x, y float64, keyModifiers int) {
+	if window, ok := windowMap[cWindow]; ok {
+		window.processMouseExited(x, y, keys.Modifiers(keyModifiers))
 	}
 }
 
 //export handleWindowMouseWheelEvent
 func handleWindowMouseWheelEvent(cWindow platformWindow, keyModifiers int, x, y, dx, dy float64) {
 	if window, ok := windowMap[cWindow]; ok {
-		window.mouseWheelEvent(keys.Modifiers(keyModifiers), x, y, dx, dy)
+		window.processMouseWheel(x, y, dx, dy, keys.Modifiers(keyModifiers))
 	}
 }
 
 //export handleCursorUpdateEvent
 func handleCursorUpdateEvent(cWindow platformWindow, keyModifiers int, x, y float64) {
 	if window, ok := windowMap[cWindow]; ok {
-		window.cursorUpdateEvent(keys.Modifiers(keyModifiers), x, y)
+		where := geom.Point{X: x, Y: y}
+		var widget ui.Widget
+		if window.inMouseDown {
+			widget = window.lastMouseWidget
+		} else {
+			widget = window.root.WidgetAt(where)
+			if widget == nil {
+				panic("widget is nil")
+			}
+		}
+		window.updateToolTipAndCursor(widget, where)
 	}
 }
 
@@ -196,9 +241,9 @@ func handleWindowKeyEvent(cWindow platformWindow, keyModifiers, keyCode int, cha
 		code, ch := keys.Transform(keyCode, str)
 		modifiers := keys.Modifiers(keyModifiers)
 		if down {
-			window.keyDown(code, ch, modifiers, repeat)
+			window.processKeyDown(code, ch, modifiers, repeat)
 		} else {
-			window.keyUp(code, modifiers)
+			window.processKeyUp(code, modifiers)
 		}
 	}
 }
