@@ -35,12 +35,12 @@ func platformHideCursorUntilMouseMoves() {
 
 func platformNewWindow(bounds geom.Rect, styleMask WindowStyleMask) (window platformWindow, surface *draw.Surface) {
 	wnd := x11.NewWindow(bounds)
-	return platformWindow(uintptr(wnd)), draw.NewSurface(wnd, bounds.Size)
+	return platformWindow(uintptr(wnd)), wnd.NewSurface(bounds.Size)
 }
 
 func platformNewMenuWindow(parent ui.Window, bounds geom.Rect) (window platformWindow, surface *draw.Surface) {
 	wnd := x11.NewMenuWindow(x11.Window(uintptr(parent.PlatformPtr())), bounds)
-	return platformWindow(uintptr(wnd)), draw.NewSurface(wnd, bounds.Size)
+	return platformWindow(uintptr(wnd)), wnd.NewSurface(bounds.Size)
 }
 
 func (window *Wnd) toXWindow() x11.Window {
@@ -48,7 +48,7 @@ func (window *Wnd) toXWindow() x11.Window {
 }
 
 func (window *Wnd) platformClose() {
-	(*x11.Surface)(window.surface).Destroy()
+	window.surface.Destroy()
 	window.toXWindow().Destroy()
 	window.Dispose()
 }
@@ -124,7 +124,7 @@ func (window *Wnd) platformRepaint(bounds geom.Rect) {
 }
 
 func (window *Wnd) draw(bounds geom.Rect) {
-	gc := draw.NewGraphics((*x11.Surface)(window.surface).NewCairoContext(bounds))
+	gc := draw.NewGraphics(window.surface.NewCairoContext(bounds))
 	gc.Rect(bounds)
 	gc.Clip()
 	window.paint(gc, bounds)

@@ -11,13 +11,15 @@ package x11
 
 import (
 	"github.com/richardwilkes/geom"
+	"github.com/richardwilkes/ui/draw"
 	"os"
 	"unsafe"
-	// #cgo linux LDFLAGS: -lX11 -lcairo
+	// #cgo pkg-config: x11 cairo
 	// #include <stdlib.h>
 	// #include <X11/Xlib.h>
 	// #include <X11/Xatom.h>
 	// #include <X11/Xutil.h>
+	// #include <cairo/cairo-xlib.h>
 	"C"
 )
 
@@ -70,6 +72,10 @@ func (wnd C.Window) setWindowHints(bounds geom.Rect) {
 
 func (wnd Window) Destroy() {
 	C.XDestroyWindow(display, C.Window(wnd))
+}
+
+func (wnd Window) NewSurface(size geom.Size) *draw.Surface {
+	return (*draw.Surface)(C.cairo_xlib_surface_create(display, C.Drawable(uintptr(wnd)), C.XDefaultVisual(display, C.XDefaultScreen(display)), C.int(size.Width), C.int(size.Height)))
 }
 
 func (wnd Window) Title() string {

@@ -13,7 +13,7 @@ import (
 	"github.com/richardwilkes/geom"
 	"github.com/richardwilkes/ui/event/button"
 	"github.com/richardwilkes/ui/keys"
-	// #cgo linux LDFLAGS: -lX11
+	// #cgo pkg-config: x11
 	// #include <X11/Xlib.h>
 	"C"
 )

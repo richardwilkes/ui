@@ -13,7 +13,8 @@ import (
 	"github.com/richardwilkes/geom"
 	"github.com/richardwilkes/ui/draw"
 	"unsafe"
-	// #cgo linux LDFLAGS: -lX11 -lXcursor
+	// #cgo LDFLAGS: -lXcursor
+	// #cgo pkg-config: x11
 	// #include <stdlib.h>
 	// #include <X11/Xlib.h>
 	// #include <X11/cursorfont.h>

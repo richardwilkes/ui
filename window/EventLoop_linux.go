@@ -218,7 +218,7 @@ func processConfigureEvent(evt *x11.ConfigureEvent) {
 		size := win.ContentFrame().Size
 		win.root.SetSize(size)
 		win.ignoreRepaint = false
-		(*x11.Surface)(win.surface).SetSize(size)
+		win.surface.SetSize(size)
 	}
 }
 

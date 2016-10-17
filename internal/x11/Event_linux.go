@@ -12,7 +12,7 @@ package x11
 import (
 	"github.com/richardwilkes/ui/keys"
 	"unsafe"
-	// #cgo linux LDFLAGS: -lX11
+	// #cgo pkg-config: x11
 	// #include <X11/Xlib.h>
 	"C"
 )

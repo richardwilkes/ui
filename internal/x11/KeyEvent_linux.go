@@ -11,7 +11,7 @@ package x11
 
 import (
 	"github.com/richardwilkes/ui/keys"
-	// #cgo linux LDFLAGS: -lX11
+	// #cgo pkg-config: x11
 	// #include <X11/Xutil.h>
 	"C"
 )

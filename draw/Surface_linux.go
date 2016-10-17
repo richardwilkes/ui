@@ -11,16 +11,10 @@ package draw
 
 import (
 	"github.com/richardwilkes/geom"
-	"unsafe"
 	// #cgo pkg-config: cairo
-	// #include <cairo.h>
 	// #include <cairo/cairo-xlib.h>
 	"C"
 )
-
-func NewSurface(wnd Window, size geom.Size) *Surface {
-	return (*Surface)(C.cairo_xlib_surface_create(display, C.Drawable(uintptr(wnd)), C.XDefaultVisual(display, C.XDefaultScreen(display)), C.int(size.Width), C.int(size.Height)))
-}
 
 func (surface *Surface) SetSize(size geom.Size) {
 	C.cairo_xlib_surface_set_size(surface, C.int(size.Width), C.int(size.Height))
