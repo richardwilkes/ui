@@ -424,7 +424,7 @@ func (window *Wnd) Zoom() {
 
 // PlatformPtr returns a pointer to the underlying platform-specific data.
 func (window *Wnd) PlatformPtr() unsafe.Pointer {
-	return unsafe.Pointer(window.window)
+	return unsafe.Pointer(uintptr(window.window))
 }
 
 func (window *Wnd) updateToolTipAndCursor(widget ui.Widget, where geom.Point) {
