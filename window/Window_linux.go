@@ -18,6 +18,8 @@ import (
 	"time"
 )
 
+type platformWindow x11.Window
+
 func platformGetKeyWindow() platformWindow {
 	return platformWindow(uintptr(x11.InputFocus()))
 }
