@@ -152,7 +152,7 @@ func processMotionEvent(evt *x11.MotionEvent) {
 	}
 }
 
-func processMouseExitedEvent(evt *x11.CrossingEvent, eventType platformEventType) {
+func processMouseExitedEvent(evt *x11.CrossingEvent) {
 	if window, ok := windowMap[platformWindow(uintptr(evt.Window()))]; ok {
 		where := evt.Where()
 		window.processMouseExited(where.X, where.Y, evt.Modifiers())

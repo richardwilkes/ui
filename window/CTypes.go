@@ -12,6 +12,5 @@ package window
 // #include "Types.h"
 import "C"
 
-type platformEventType C.int
 type platformWindow C.platformWindow
 type platformSurface C.platformSurface
