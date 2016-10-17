@@ -7,9 +7,22 @@
 // This Source Code Form is "Incompatible With Secondary Licenses", as
 // defined by the Mozilla Public License, version 2.0.
 
-package window
+package draw
 
-// #include "Types.h"
-import "C"
+import (
+	"github.com/richardwilkes/geom"
+	"unsafe"
+	// #cgo pkg-config: cairo
+	// #include <cairo.h>
+	"C"
+)
 
-type platformWindow C.platformWindow
+type Surface C.cairo_surface_t
+
+func (surface *Surface) Destroy() {
+	C.cairo_surface_destroy(surface)
+}
+
+func (surface *Surface) NewCairoContext(bounds geom.Rect) CairoContext {
+	return CairoContext(unsafe.Pointer(C.cairo_create(surface)))
+}

@@ -11,6 +11,5 @@
 #define __RW_GOUI_TYPES__
 
 typedef void *platformWindow;
-typedef void *platformSurface;
 
 #endif // __RW_GOUI_TYPES__

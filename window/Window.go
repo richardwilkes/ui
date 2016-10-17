@@ -42,7 +42,7 @@ const (
 type Wnd struct {
 	id                     int64
 	window                 platformWindow
-	surface                platformSurface // Currently only used by Linux
+	surface                *draw.Surface // Currently only used by Linux
 	eventHandlers          *event.Handlers
 	owner                  ui.Window
 	root                   *RootView
@@ -120,7 +120,7 @@ func NewMenuWindow(parent ui.Window, where geom.Point, contentSize geom.Size) *W
 	return wnd
 }
 
-func newWindow(win platformWindow, styleMask WindowStyleMask, surface platformSurface, where geom.Point) *Wnd {
+func newWindow(win platformWindow, styleMask WindowStyleMask, surface *draw.Surface, where geom.Point) *Wnd {
 	window := &Wnd{window: win, surface: surface, style: styleMask}
 	windowMap[window.window] = window
 	windowIDMap[window.ID()] = window

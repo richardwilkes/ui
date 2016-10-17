@@ -38,11 +38,11 @@ func platformHideCursorUntilMouseMoves() {
 	C.platformHideCursorUntilMouseMoves()
 }
 
-func platformNewWindow(bounds geom.Rect, styleMask WindowStyleMask) (window platformWindow, surface platformSurface) {
+func platformNewWindow(bounds geom.Rect, styleMask WindowStyleMask) (window platformWindow, surface *draw.Surface) {
 	return platformWindow(C.platformNewWindow(C.double(bounds.X), C.double(bounds.Y), C.double(bounds.Width), C.double(bounds.Height), C.int(styleMask))), nil
 }
 
-func platformNewMenuWindow(parent ui.Window, bounds geom.Rect) (window platformWindow, surface platformSurface) {
+func platformNewMenuWindow(parent ui.Window, bounds geom.Rect) (window platformWindow, surface *draw.Surface) {
 	return platformNewWindow(bounds, BorderlessWindowMask)
 }
 

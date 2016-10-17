@@ -33,14 +33,14 @@ func platformHideCursorUntilMouseMoves() {
 	// RAW: Implement for Linux
 }
 
-func platformNewWindow(bounds geom.Rect, styleMask WindowStyleMask) (window platformWindow, surface platformSurface) {
+func platformNewWindow(bounds geom.Rect, styleMask WindowStyleMask) (window platformWindow, surface *draw.Surface) {
 	wnd := x11.NewWindow(bounds)
-	return platformWindow(uintptr(wnd)), platformSurface(x11.NewSurface(wnd, bounds.Size))
+	return platformWindow(uintptr(wnd)), draw.NewSurface(wnd, bounds.Size)
 }
 
-func platformNewMenuWindow(parent ui.Window, bounds geom.Rect) (window platformWindow, surface platformSurface) {
+func platformNewMenuWindow(parent ui.Window, bounds geom.Rect) (window platformWindow, surface *draw.Surface) {
 	wnd := x11.NewMenuWindow(x11.Window(uintptr(parent.PlatformPtr())), bounds)
-	return platformWindow(uintptr(wnd)), platformSurface(x11.NewSurface(wnd, bounds.Size))
+	return platformWindow(uintptr(wnd)), draw.NewSurface(wnd, bounds.Size)
 }
 
 func (window *Wnd) toXWindow() x11.Window {
