@@ -16,29 +16,10 @@ enum {
 	platformMouseUp,
 	platformMouseEntered,
 	platformMouseMoved,
-	platformMouseExited,
-	platformMouseWheel,
-	platformKeyDown,
-	platformKeyTyped,
-	platformKeyUp
-};
-
-enum {
-	platformBorderlessWindowMask	= 0,
-	platformTitledWindowMask		= 1 << 0,
-	platformClosableWindowMask		= 1 << 1,
-	platformMinimizableWindowMask	= 1 << 2,
-	platformResizableWindowMask		= 1 << 3
+	platformMouseExited
 };
 
 typedef void *platformWindow;
 typedef void *platformSurface;
-
-typedef struct {
-	double x;
-	double y;
-	double width;
-	double height;
-} platformRect;
 
 #endif // __RW_GOUI_TYPES__

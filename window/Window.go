@@ -25,6 +25,19 @@ import (
 	"unsafe"
 )
 
+// WindowStyleMask controls the look and capabilities of a window.
+type WindowStyleMask int
+
+// Possible values for the WindowStyleMask.
+const (
+	TitledWindowMask WindowStyleMask = 1 << iota
+	ClosableWindowMask
+	MinimizableWindowMask
+	ResizableWindowMask
+	BorderlessWindowMask = 0
+	StdWindowMask        = TitledWindowMask | ClosableWindowMask | MinimizableWindowMask | ResizableWindowMask
+)
+
 // Wnd represents a window on the display.
 type Wnd struct {
 	id                     int64
@@ -49,7 +62,6 @@ var (
 	windowMap        = make(map[platformWindow]*Wnd)
 	windowIDMap      = make(map[int64]*Wnd)
 	windowList       = make([]*Wnd, 0)
-	diacritic        int
 )
 
 // AllWindowsToFront attempts to bring all of the application's windows to the foreground.
@@ -566,165 +578,27 @@ func (window *Wnd) cursorUpdateEvent(keyModifiers keys.Modifiers, x, y float64) 
 	window.updateToolTipAndCursor(widget, where)
 }
 
-func (window *Wnd) keyEvent(eventType platformEventType, keyModifiers keys.Modifiers, keyCode int, ch rune, repeat bool) {
-	switch eventType {
-	case platformKeyDown:
-		if diacritic != 0 {
-			if keyModifiers&^keys.ShiftModifier == 0 {
-				switch ch {
-				case 'a':
-					switch diacritic {
-					case keys.VK_E:
-						ch = 'á'
-					case keys.VK_I:
-						ch = 'â'
-					case keys.VK_Backtick:
-						ch = 'à'
-					case keys.VK_N:
-						ch = 'ã'
-					case keys.VK_U:
-						ch = 'ä'
-					}
-				case 'A':
-					switch diacritic {
-					case keys.VK_E:
-						ch = 'Á'
-					case keys.VK_I:
-						ch = 'Â'
-					case keys.VK_Backtick:
-						ch = 'À'
-					case keys.VK_N:
-						ch = 'Ã'
-					case keys.VK_U:
-						ch = 'Ä'
-					}
-				case 'e':
-					switch diacritic {
-					case keys.VK_E:
-						ch = 'é'
-					case keys.VK_I:
-						ch = 'ê'
-					case keys.VK_Backtick:
-						ch = 'è'
-					case keys.VK_U:
-						ch = 'ë'
-					}
-				case 'E':
-					switch diacritic {
-					case keys.VK_E:
-						ch = 'É'
-					case keys.VK_I:
-						ch = 'Ê'
-					case keys.VK_Backtick:
-						ch = 'È'
-					case keys.VK_U:
-						ch = 'Ë'
-					}
-				case 'i':
-					switch diacritic {
-					case keys.VK_E:
-						ch = 'í'
-					case keys.VK_I:
-						ch = 'î'
-					case keys.VK_Backtick:
-						ch = 'ì'
-					case keys.VK_U:
-						ch = 'ï'
-					}
-				case 'I':
-					switch diacritic {
-					case keys.VK_E:
-						ch = 'Í'
-					case keys.VK_I:
-						ch = 'Î'
-					case keys.VK_Backtick:
-						ch = 'Ì'
-					case keys.VK_U:
-						ch = 'Ï'
-					}
-				case 'o':
-					switch diacritic {
-					case keys.VK_E:
-						ch = 'ó'
-					case keys.VK_I:
-						ch = 'ô'
-					case keys.VK_Backtick:
-						ch = 'ò'
-					case keys.VK_N:
-						ch = 'õ'
-					case keys.VK_U:
-						ch = 'ö'
-					}
-				case 'O':
-					switch diacritic {
-					case keys.VK_E:
-						ch = 'Ó'
-					case keys.VK_I:
-						ch = 'Ô'
-					case keys.VK_Backtick:
-						ch = 'Ò'
-					case keys.VK_N:
-						ch = 'Õ'
-					case keys.VK_U:
-						ch = 'Ö'
-					}
-				case 'u':
-					switch diacritic {
-					case keys.VK_E:
-						ch = 'ú'
-					case keys.VK_I:
-						ch = 'û'
-					case keys.VK_Backtick:
-						ch = 'ù'
-					case keys.VK_U:
-						ch = 'ü'
-					}
-				case 'U':
-					switch diacritic {
-					case keys.VK_E:
-						ch = 'Ú'
-					case keys.VK_I:
-						ch = 'Û'
-					case keys.VK_Backtick:
-						ch = 'Ù'
-					case keys.VK_U:
-						ch = 'Ü'
-					}
-				}
-			}
-			diacritic = 0
-		}
-		if keyModifiers&^keys.ShiftModifier == keys.OptionModifier {
-			switch keyCode {
-			case keys.VK_E, keys.VK_I, keys.VK_Backtick, keys.VK_N, keys.VK_U:
-				diacritic = keyCode
-			default:
-				diacritic = 0
-			}
-		}
-		if diacritic != 0 {
-			ch = 0
-		}
-		e := event.NewKeyDown(window.Focus(), keyCode, ch, repeat, keyModifiers)
-		bar := window.MenuBar()
-		if bar != nil {
-			bar.ProcessKeyDown(e)
-		}
-		if !e.Discarded() && !e.Finished() {
-			event.Dispatch(e)
-			if !e.Discarded() && keyCode == keys.VK_Tab && (keyModifiers&(keys.AllModifiers & ^keys.ShiftModifier)) == 0 {
-				if keyModifiers.ShiftDown() {
-					window.FocusPrevious()
-				} else {
-					window.FocusNext()
-				}
-			}
-		}
-	case platformKeyUp:
-		event.Dispatch(event.NewKeyUp(window.Focus(), keyCode, ch, keyModifiers))
-	default:
-		panic(fmt.Sprintf("Unknown event type: %d", eventType))
+func (window *Wnd) keyDown(keyCode int, ch rune, keyModifiers keys.Modifiers, repeat bool) {
+	ch = processDiacritics(keyCode, ch, keyModifiers)
+	e := event.NewKeyDown(window.Focus(), keyCode, ch, keyModifiers, repeat)
+	bar := window.MenuBar()
+	if bar != nil {
+		bar.ProcessKeyDown(e)
 	}
+	if !e.Discarded() && !e.Finished() {
+		event.Dispatch(e)
+		if !e.Discarded() && keyCode == keys.VK_Tab && (keyModifiers&(keys.AllModifiers & ^keys.ShiftModifier)) == 0 {
+			if keyModifiers.ShiftDown() {
+				window.FocusPrevious()
+			} else {
+				window.FocusNext()
+			}
+		}
+	}
+}
+
+func (window *Wnd) keyUp(keyCode int, keyModifiers keys.Modifiers) {
+	event.Dispatch(event.NewKeyUp(window.Focus(), keyCode, keyModifiers))
 }
 
 // Invoke a task on the UI thread. The task is put into the system event queue and will be run at

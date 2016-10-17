@@ -20,15 +20,13 @@ type KeyUp struct {
 	target    Target
 	code      int
 	modifiers keys.Modifiers
-	ch        rune
 	finished  bool
 }
 
 // NewKeyUp creates a new KeyUp event. 'target' is the widget that has the keyboard focus.
-// 'code' is the key that was typed. 'ch' is the rune (may be 0). 'modifiers' are the keyboard
-// modifiers keys that were down.
-func NewKeyUp(target Target, code int, ch rune, modifiers keys.Modifiers) *KeyUp {
-	return &KeyUp{target: target, code: code, ch: ch, modifiers: modifiers}
+// 'code' is the key that was typed. 'modifiers' are the keyboard modifiers keys that were down.
+func NewKeyUp(target Target, code int, modifiers keys.Modifiers) *KeyUp {
+	return &KeyUp{target: target, code: code, modifiers: modifiers}
 }
 
 // Type returns the event type ID.
@@ -61,11 +59,6 @@ func (e *KeyUp) Code() int {
 	return e.code
 }
 
-// Rune returns the rune that was typed. May be 0.
-func (e *KeyUp) Rune() rune {
-	return e.ch
-}
-
 // Modifiers returns the key modifiers that were down.
 func (e *KeyUp) Modifiers() keys.Modifiers {
 	return e.modifiers
@@ -74,11 +67,7 @@ func (e *KeyUp) Modifiers() keys.Modifiers {
 // String implements the fmt.Stringer interface.
 func (e *KeyUp) String() string {
 	var buffer bytes.Buffer
-	buffer.WriteString(fmt.Sprintf("KeyUp[Code: %d", e.code))
-	if e.ch != 0 {
-		buffer.WriteString(fmt.Sprintf(", Rune: %d (%s)", e.ch, string(e.ch)))
-	}
-	buffer.WriteString(fmt.Sprintf(", Target: %v", e.target))
+	buffer.WriteString(fmt.Sprintf("KeyUp[Code: %d, Target: %v", e.code, e.target))
 	modifiers := e.modifiers.String()
 	if modifiers != "" {
 		buffer.WriteString(", ")

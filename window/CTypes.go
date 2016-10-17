@@ -16,16 +16,6 @@ import "C"
 // use don't work well in the presence of the 'import "C"' directive, so I'm just trying to minimize
 // the files it appears in.
 
-// Possible values for the WindowStyleMask.
-const (
-	BorderlessWindowMask  WindowStyleMask = C.platformBorderlessWindowMask
-	TitledWindowMask                      = C.platformTitledWindowMask
-	ClosableWindowMask                    = C.platformClosableWindowMask
-	MinimizableWindowMask                 = C.platformMinimizableWindowMask
-	ResizableWindowMask                   = C.platformResizableWindowMask
-	StdWindowMask                         = TitledWindowMask | ClosableWindowMask | MinimizableWindowMask | ResizableWindowMask
-)
-
 const (
 	platformMouseDown    platformEventType = C.platformMouseDown
 	platformMouseDragged platformEventType = C.platformMouseDragged
@@ -33,16 +23,8 @@ const (
 	platformMouseEntered platformEventType = C.platformMouseEntered
 	platformMouseMoved   platformEventType = C.platformMouseMoved
 	platformMouseExited  platformEventType = C.platformMouseExited
-	platformMouseWheel   platformEventType = C.platformMouseWheel
-	platformKeyDown      platformEventType = C.platformKeyDown
-	platformKeyTyped     platformEventType = C.platformKeyTyped
-	platformKeyUp        platformEventType = C.platformKeyUp
 )
-
-// WindowStyleMask controls the look and capabilities of a window.
-type WindowStyleMask C.int
 
 type platformEventType C.int
 type platformWindow C.platformWindow
 type platformSurface C.platformSurface
-type platformRect C.platformRect

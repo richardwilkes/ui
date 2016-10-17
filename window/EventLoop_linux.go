@@ -45,9 +45,9 @@ func RunEventLoop() {
 		event := x11.NextEvent()
 		switch event.Type() {
 		case x11.KeyPressType:
-			processKeyEvent(event.ToKeyEvent(), platformKeyDown)
+			processKeyDownEvent(event.ToKeyEvent())
 		case x11.KeyReleaseType:
-			processKeyEvent(event.ToKeyEvent(), platformKeyUp)
+			processKeyUpEvent(event.ToKeyEvent())
 		case x11.ButtonPressType:
 			processButtonPressEvent(event.ToButtonEvent())
 		case x11.ButtonReleaseType:
@@ -74,10 +74,17 @@ func RunEventLoop() {
 	}
 }
 
-func processKeyEvent(evt *x11.KeyEvent, eventType platformEventType) {
+func processKeyDownEvent(evt *x11.KeyEvent) {
 	if window, ok := windowMap[platformWindow(uintptr(evt.Window()))]; ok {
 		code, ch := evt.CodeAndChar()
-		window.keyEvent(eventType, evt.Modifiers(), code, ch, false)
+		window.keyDown(code, ch, evt.Modifiers(), false)
+	}
+}
+
+func processKeyUpEvent(evt *x11.KeyEvent) {
+	if window, ok := windowMap[platformWindow(uintptr(evt.Window()))]; ok {
+		code, _ := evt.CodeAndChar()
+		window.keyUp(code, evt.Modifiers())
 	}
 }
 

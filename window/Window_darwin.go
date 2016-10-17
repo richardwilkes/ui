@@ -19,20 +19,12 @@ import (
 	"github.com/richardwilkes/ui/keys"
 	"time"
 	"unsafe"
-	// #cgo darwin LDFLAGS: -framework Cocoa -framework Quartz
+	// #cgo LDFLAGS: -framework Cocoa -framework Quartz
 	// #cgo pkg-config: pangocairo
 	// #include <stdlib.h>
 	// #include "Window_darwin.h"
 	"C"
 )
-
-func toRect(r C.platformRect) geom.Rect {
-	return geom.Rect{Point: geom.Point{X: float64(r.x), Y: float64(r.y)}, Size: geom.Size{Width: float64(r.width), Height: float64(r.height)}}
-}
-
-func toCRect(r geom.Rect) C.platformRect {
-	return C.platformRect{x: C.double(r.X), y: C.double(r.Y), width: C.double(r.Width), height: C.double(r.Height)}
-}
 
 func platformGetKeyWindow() platformWindow {
 	return platformWindow(C.platformGetKeyWindow())
@@ -47,7 +39,7 @@ func platformHideCursorUntilMouseMoves() {
 }
 
 func platformNewWindow(bounds geom.Rect, styleMask WindowStyleMask) (window platformWindow, surface platformSurface) {
-	return platformWindow(C.platformNewWindow(toCRect(bounds), C.int(styleMask))), nil
+	return platformWindow(C.platformNewWindow(C.double(bounds.X), C.double(bounds.Y), C.double(bounds.Width), C.double(bounds.Height), C.int(styleMask))), nil
 }
 
 func platformNewMenuWindow(parent ui.Window, bounds geom.Rect) (window platformWindow, surface platformSurface) {
@@ -69,15 +61,19 @@ func (window *Wnd) platformSetTitle(title string) {
 }
 
 func (window *Wnd) platformFrame() geom.Rect {
-	return toRect(C.platformGetWindowFrame(window.window))
+	var bounds geom.Rect
+	C.platformGetWindowFrame(window.window, (*C.double)(&bounds.X), (*C.double)(&bounds.Y), (*C.double)(&bounds.Width), (*C.double)(&bounds.Height))
+	return bounds
 }
 
 func (window *Wnd) platformSetFrame(bounds geom.Rect) {
-	C.platformSetWindowFrame(window.window, toCRect(bounds))
+	C.platformSetWindowFrame(window.window, C.double(bounds.X), C.double(bounds.Y), C.double(bounds.Width), C.double(bounds.Height))
 }
 
 func (window *Wnd) platformContentFrame() geom.Rect {
-	return toRect(C.platformGetWindowContentFrame(window.window))
+	var bounds geom.Rect
+	C.platformGetWindowContentFrame(window.window, (*C.double)(&bounds.X), (*C.double)(&bounds.Y), (*C.double)(&bounds.Width), (*C.double)(&bounds.Height))
+	return bounds
 }
 
 func (window *Wnd) platformToFront() {
@@ -85,7 +81,7 @@ func (window *Wnd) platformToFront() {
 }
 
 func (window *Wnd) platformRepaint(bounds geom.Rect) {
-	C.platformRepaintWindow(window.window, toCRect(bounds))
+	C.platformRepaintWindow(window.window, C.double(bounds.X), C.double(bounds.Y), C.double(bounds.Width), C.double(bounds.Height))
 }
 
 func (window *Wnd) platformFlushPainting() {
@@ -127,9 +123,9 @@ func (window *Wnd) platformInvokeAfter(id uint64, after time.Duration) {
 }
 
 //export drawWindow
-func drawWindow(cWindow platformWindow, gc *C.cairo_t, bounds platformRect) {
+func drawWindow(cWindow platformWindow, gc *C.cairo_t, x, y, width, height float64) {
 	if window, ok := windowMap[cWindow]; ok {
-		window.paint(draw.NewGraphics(draw.CairoContext(unsafe.Pointer(gc))), toRect(C.platformRect(bounds)))
+		window.paint(draw.NewGraphics(draw.CairoContext(unsafe.Pointer(gc))), geom.Rect{Point: geom.Point{X: x, Y: y}, Size: geom.Size{Width: width, Height: height}})
 	}
 }
 
@@ -191,14 +187,19 @@ func handleCursorUpdateEvent(cWindow platformWindow, keyModifiers int, x, y floa
 }
 
 //export handleWindowKeyEvent
-func handleWindowKeyEvent(cWindow platformWindow, eventType platformEventType, keyModifiers, keyCode int, chars *C.char, repeat bool) {
+func handleWindowKeyEvent(cWindow platformWindow, keyModifiers, keyCode int, chars *C.char, down, repeat bool) {
 	if window, ok := windowMap[cWindow]; ok {
 		var str string
 		if chars != nil {
 			str = C.GoString(chars)
 		}
 		code, ch := keys.Transform(keyCode, str)
-		window.keyEvent(eventType, keys.Modifiers(keyModifiers), code, ch, repeat)
+		modifiers := keys.Modifiers(keyModifiers)
+		if down {
+			window.keyDown(code, ch, modifiers, repeat)
+		} else {
+			window.keyUp(code, modifiers)
+		}
 	}
 }
 

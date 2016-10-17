@@ -36,11 +36,11 @@ void platformHideCursorUntilMouseMoves() {
 	[NSCursor setHiddenUntilMouseMoves:YES];
 }
 
-platformWindow platformNewWindow(platformRect bounds, int styleMask) {
+platformWindow platformNewWindow(double x, double y, double width, double height, int styleMask) {
 	// The styleMask bits match those that Mac OS uses
-	NSRect contentRect = NSMakeRect(0, 0, bounds.width, bounds.height);
+	NSRect contentRect = NSMakeRect(0, 0, width, height);
 	NSWindow *window = [[drawingWindow alloc] initWithContentRect:contentRect styleMask:styleMask backing:NSBackingStoreBuffered defer:YES];
-	[window setFrameTopLeftPoint:NSMakePoint(bounds.x, [[NSScreen mainScreen] visibleFrame].size.height - bounds.y)];
+	[window setFrameTopLeftPoint:NSMakePoint(x, [[NSScreen mainScreen] visibleFrame].size.height - y)];
 	[window disableCursorRects];
 	drawingView *rootView = [drawingView new];
 	[window setContentView:rootView];
@@ -61,43 +61,39 @@ void platformSetWindowTitle(platformWindow window, const char *title) {
 	[((NSWindow *)window) setTitle:[NSString stringWithUTF8String:title]];
 }
 
-platformRect platformGetWindowFrame(platformWindow window) {
-	platformRect rect;
+void platformGetWindowFrame(platformWindow window, double *x, double *y, double *width, double *height) {
 	CGRect frame = [((NSWindow *)window) frame];
-	rect.x = frame.origin.x;
-	rect.y = [[NSScreen mainScreen] visibleFrame].size.height - (frame.origin.y + frame.size.height);
-	rect.width = frame.size.width;
-	rect.height = frame.size.height;
-	return rect;
+	*x = frame.origin.x;
+	*y = [[NSScreen mainScreen] visibleFrame].size.height - (frame.origin.y + frame.size.height);
+	*width = frame.size.width;
+	*height = frame.size.height;
 }
 
-void platformSetWindowFrame(platformWindow window, platformRect bounds) {
+void platformSetWindowFrame(platformWindow window, double x, double y, double width, double height) {
 	NSWindow *win = (NSWindow *)window;
 	CGRect frame = [win frame];
-	[win setFrame:NSMakeRect(bounds.x, [[NSScreen mainScreen] visibleFrame].size.height - (bounds.y + bounds.height), bounds.width, bounds.height) display:YES];
+	[win setFrame:NSMakeRect(x, [[NSScreen mainScreen] visibleFrame].size.height - (y + height), width, height) display:YES];
 }
 
-platformRect platformGetWindowContentFrame(platformWindow window) {
+void platformGetWindowContentFrame(platformWindow window, double *x, double *y, double *width, double *height) {
 	NSWindow *win = (NSWindow *)window;
 	CGRect frame = [[win contentView] frame];
 	frame.origin = [win frame].origin;
 	CGRect windowFrame = [win frameRectForContentRect:frame];
 	frame.origin.x += frame.origin.x - windowFrame.origin.x;
 	frame.origin.y += frame.origin.y - windowFrame.origin.y;
-	platformRect rect;
-	rect.x = frame.origin.x;
-	rect.y = [[NSScreen mainScreen] visibleFrame].size.height - (frame.origin.y + frame.size.height);
-	rect.width = frame.size.width;
-	rect.height = frame.size.height;
-	return rect;
+	*x = frame.origin.x;
+	*y = [[NSScreen mainScreen] visibleFrame].size.height - (frame.origin.y + frame.size.height);
+	*width = frame.size.width;
+	*height = frame.size.height;
 }
 
 void platformBringWindowToFront(platformWindow window) {
 	[((NSWindow *)window) makeKeyAndOrderFront:nil];
 }
 
-void platformRepaintWindow(platformWindow window, platformRect bounds) {
-	[[((NSWindow *)window) contentView] setNeedsDisplayInRect:NSMakeRect(bounds.x, bounds.y, bounds.width, bounds.height)];
+void platformRepaintWindow(platformWindow window, double x, double y, double width, double height) {
+	[[((NSWindow *)window) contentView] setNeedsDisplayInRect:NSMakeRect(x, y, width, height)];
 }
 
 void platformFlushPainting(platformWindow window) {
@@ -170,17 +166,12 @@ void platformInvokeAfter(unsigned long id, long afterNanos) {
 }
 
 -(void)drawRect:(NSRect)dirtyRect {
-	platformRect bounds;
-	bounds.x = dirtyRect.origin.x;
-	bounds.y = dirtyRect.origin.y;
-	bounds.width = dirtyRect.size.width;
-	bounds.height = dirtyRect.size.height;
 	platformWindow wnd = (platformWindow)[self window];
 	CGRect rect = [self bounds];
 	cairo_surface_t *surface = cairo_quartz_surface_create_for_cg_context([[NSGraphicsContext currentContext] CGContext], (unsigned int)rect.size.width, (unsigned int)rect.size.height);
 	cairo_t *gc = cairo_create(surface);
 	cairo_surface_destroy(surface); // surface won't actually be destroyed until the gc is destroyed
-	drawWindow(wnd, gc, bounds);
+	drawWindow(wnd, gc, dirtyRect.origin.x, dirtyRect.origin.y, dirtyRect.size.width, dirtyRect.size.height);
 	cairo_destroy(gc);
 }
 
@@ -260,45 +251,45 @@ void platformInvokeAfter(unsigned long id, long afterNanos) {
 	return YES;
 }
 
--(void)deliverKeyEvent:(NSEvent *)theEvent ofType:(unsigned char)type {
-	handleWindowKeyEvent((platformWindow)[self window], type, [self getModifiers:theEvent], theEvent.keyCode, (char *)[theEvent.characters UTF8String], theEvent.ARepeat);
+-(void)deliverKeyEvent:(NSEvent *)theEvent isDown:(BOOL)down {
+	handleWindowKeyEvent((platformWindow)[self window], [self getModifiers:theEvent], theEvent.keyCode, (char *)[theEvent.characters UTF8String], down, theEvent.ARepeat);
 }
 
-- (void)keyDown:(NSEvent *)theEvent {
-	[self deliverKeyEvent:theEvent ofType:platformKeyDown];
+-(void)keyDown:(NSEvent *)theEvent {
+	[self deliverKeyEvent:theEvent isDown:true];
 }
 
-- (void)keyUp:(NSEvent *)theEvent {
-	[self deliverKeyEvent:theEvent ofType:platformKeyUp];
+-(void)keyUp:(NSEvent *)theEvent {
+	[self deliverKeyEvent:theEvent isDown:false];
 }
 
-- (void)flagsChanged:(NSEvent *)theEvent {
-	unsigned char type;
+-(void)flagsChanged:(NSEvent *)theEvent {
+	BOOL down;
 	switch (theEvent.keyCode) {
 		case 57:	// Caps Lock
-			type = (theEvent.modifierFlags & NSEventModifierFlagCapsLock) == 0 ? platformKeyUp : platformKeyDown;
+			down = (theEvent.modifierFlags & NSEventModifierFlagCapsLock) != 0;
 			break;
 		case 56:	// Left Shift
 		case 60:	// Right Shift
-			type = (theEvent.modifierFlags & NSEventModifierFlagShift) == 0 ? platformKeyUp : platformKeyDown;
+			down = (theEvent.modifierFlags & NSEventModifierFlagShift) != 0;
 			break;
 		case 59:	// Left Control
 		case 62:	// Right Control
-			type = (theEvent.modifierFlags & NSEventModifierFlagControl) == 0 ? platformKeyUp : platformKeyDown;
+			down = (theEvent.modifierFlags & NSEventModifierFlagControl) != 0;
 			break;
 		case 58:	// Left Option
 		case 61:	// Right Option
-			type = (theEvent.modifierFlags & NSEventModifierFlagOption) == 0 ? platformKeyUp : platformKeyDown;
+			down = (theEvent.modifierFlags & NSEventModifierFlagOption) != 0;
 			break;
 		case 54:	// Right Cmd
 		case 55:	// Left Cmd
-			type = (theEvent.modifierFlags & NSEventModifierFlagCommand) == 0 ? platformKeyUp : platformKeyDown;
+			down = (theEvent.modifierFlags & NSEventModifierFlagCommand) != 0;
 			break;
 		default:
-			type = platformKeyDown;
+			down = true;
 			break;
 	}
-	handleWindowKeyEvent((platformWindow)[self window], type, [self getModifiers:theEvent], theEvent.keyCode, nil, NO);
+	handleWindowKeyEvent((platformWindow)[self window], [self getModifiers:theEvent], theEvent.keyCode, nil, down, false);
 }
 
 @end
