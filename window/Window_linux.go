@@ -12,6 +12,7 @@ package window
 import (
 	"github.com/richardwilkes/geom"
 	"github.com/richardwilkes/ui"
+	"github.com/richardwilkes/ui/color"
 	"github.com/richardwilkes/ui/cursor"
 	"github.com/richardwilkes/ui/draw"
 	"github.com/richardwilkes/ui/internal/x11"
@@ -19,6 +20,10 @@ import (
 )
 
 type platformWindow x11.Window
+
+var (
+	blankCursor *cursor.Cursor
+)
 
 func platformGetKeyWindow() platformWindow {
 	return platformWindow(uintptr(x11.InputFocus()))
@@ -32,7 +37,12 @@ func platformBringAllWindowsToFront() {
 }
 
 func platformHideCursorUntilMouseMoves() {
-	// RAW: Implement for Linux
+	if window := KeyWindow(); window != nil {
+		if blankCursor == nil {
+			blankCursor = cursor.NewCursor(&draw.ImageData{Width: 1, Height: 1, Pixels: make([]color.Color, 1)}, geom.Point{})
+		}
+		window.SetCursor(blankCursor)
+	}
 }
 
 func platformNewWindow(bounds geom.Rect, styleMask WindowStyleMask) (window platformWindow, surface *draw.Surface) {
