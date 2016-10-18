@@ -23,6 +23,12 @@ import (
 	"C"
 )
 
+const (
+	_NET_WM_STATE_REMOVE = iota
+	_NET_WM_STATE_ADD
+	_NET_WM_STATE_TOGGLE
+)
+
 type Window C.Window
 
 func NewWindow(bounds geom.Rect) Window {
@@ -154,6 +160,19 @@ func (wnd Window) Repaint(bounds geom.Rect) {
 
 func (wnd Window) Minimize() {
 	C.XIconifyWindow(display, C.Window(wnd), C.XDefaultScreen(display))
+}
+
+func (wnd Window) Zoom() {
+	var evt C.XClientMessageEvent
+	evt._type = C.ClientMessage
+	evt.window = C.Window(wnd)
+	evt.message_type = wmWindowStateAtom
+	evt.format = 32
+	data := (*[5]C.Atom)(unsafe.Pointer(&evt.data))
+	data[0] = _NET_WM_STATE_TOGGLE
+	data[1] = wmWindowMaximizedHAtom
+	data[2] = wmWindowMaximizedVAtom
+	C.XSendEvent(display, C.XDefaultRootWindow(display), C.False, C.SubstructureRedirectMask|C.SubstructureNotifyMask, (*C.XEvent)(unsafe.Pointer(&evt)))
 }
 
 func (wnd Window) InvokeTask(id uint64) {

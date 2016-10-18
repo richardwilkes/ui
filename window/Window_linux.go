@@ -157,7 +157,7 @@ func (window *Window) platformMinimize() {
 }
 
 func (window *Window) platformZoom() {
-	// RAW: Implement for Linux
+	window.toXWindow().Zoom()
 }
 
 func (window *Window) platformSetToolTip(tip string) {

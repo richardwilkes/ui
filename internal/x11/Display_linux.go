@@ -24,6 +24,8 @@ var (
 	wmWindowStateAtom            C.Atom
 	wmWindowStateSkipTaskBarAtom C.Atom
 	wmWindowFrameExtentsAtom     C.Atom
+	wmWindowMaximizedHAtom       C.Atom
+	wmWindowMaximizedVAtom       C.Atom
 )
 
 func OpenDisplay() {
@@ -40,6 +42,8 @@ func OpenDisplay() {
 	wmWindowStateAtom = C.XInternAtom(display, C.CString("_NET_WM_STATE"), C.False)
 	wmWindowStateSkipTaskBarAtom = C.XInternAtom(display, C.CString("_NET_WM_STATE_SKIP_TASKBAR"), C.False)
 	wmWindowFrameExtentsAtom = C.XInternAtom(display, C.CString("_NET_FRAME_EXTENTS"), C.False)
+	wmWindowMaximizedHAtom = C.XInternAtom(display, C.CString("_NET_WM_STATE_MAXIMIZED_HORZ"), C.False)
+	wmWindowMaximizedVAtom = C.XInternAtom(display, C.CString("_NET_WM_STATE_MAXIMIZED_VERT"), C.False)
 	TaskSubType = ClientMessageSubType(C.XInternAtom(display, C.CString("GoTask"), C.False))
 }
 
