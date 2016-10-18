@@ -37,71 +37,71 @@ func platformNewMenuWindow(parent ui.Window, bounds geom.Rect) (window platformW
 	return nil, nil
 }
 
-func (window *Wnd) platformClose() {
+func (window *Window) platformClose() {
 	// RAW: Implement for Windows
 	window.Dispose()
 }
 
-func (window *Wnd) platformTitle() string {
+func (window *Window) platformTitle() string {
 	// RAW: Implement for Windows
 	return ""
 }
 
-func (window *Wnd) platformSetTitle(title string) {
+func (window *Window) platformSetTitle(title string) {
 	// RAW: Implement for Windows
 }
 
-func (window *Wnd) platformFrame() geom.Rect {
-	// RAW: Implement for Windows
-	return geom.Rect{}
-}
-
-func (window *Wnd) platformSetFrame(bounds geom.Rect) {
-	// RAW: Implement for Windows
-}
-
-func (window *Wnd) platformContentFrame() geom.Rect {
+func (window *Window) platformFrame() geom.Rect {
 	// RAW: Implement for Windows
 	return geom.Rect{}
 }
 
-func (window *Wnd) platformToFront() {
+func (window *Window) platformSetFrame(bounds geom.Rect) {
 	// RAW: Implement for Windows
 }
 
-func (window *Wnd) platformRepaint(bounds geom.Rect) {
+func (window *Window) platformContentFrame() geom.Rect {
+	// RAW: Implement for Windows
+	return geom.Rect{}
+}
+
+func (window *Window) platformToFront() {
 	// RAW: Implement for Windows
 }
 
-func (window *Wnd) platformFlushPainting() {
+func (window *Window) platformRepaint(bounds geom.Rect) {
 	// RAW: Implement for Windows
 }
 
-func (window *Wnd) platformScalingFactor() float64 {
+func (window *Window) platformFlushPainting() {
+	// RAW: Implement for Windows
+}
+
+func (window *Window) platformScalingFactor() float64 {
 	// RAW: Implement for Windows
 	return 1
 }
 
-func (window *Wnd) platformMinimize() {
+func (window *Window) platformMinimize() {
 	// RAW: Implement for Windows
 }
 
-func (window *Wnd) platformZoom() {
+func (window *Window) platformZoom() {
 	// RAW: Implement for Windows
 }
 
-func (window *Wnd) platformSetToolTip(tip string) {
+func (window *Window) platformSetToolTip(tip string) {
 	// RAW: Implement for Windows
 }
 
-func (window *Wnd) platformSetCursor(c *cursor.Cursor) {
+func (window *Window) platformSetCursor(c *cursor.Cursor) {
 	// RAW: Implement for Windows
 }
 
-func (window *Wnd) platformInvoke(id uint64) {
+func (window *Window) platformInvoke(id uint64) {
 	// RAW: Implement for Windows
 }
 
-func (window *Wnd) platformInvokeAfter(id uint64, after time.Duration) {
+func (window *Window) platformInvokeAfter(id uint64, after time.Duration) {
 	// RAW: Implement for Windows
 }

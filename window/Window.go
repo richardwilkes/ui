@@ -38,8 +38,8 @@ const (
 	StdWindowMask        = TitledWindowMask | ClosableWindowMask | MinimizableWindowMask | ResizableWindowMask
 )
 
-// Wnd represents a window on the display.
-type Wnd struct {
+// Window represents a window on the display.
+type Window struct {
 	id                     int64
 	window                 platformWindow
 	surface                *draw.Surface // Currently only used by Linux
@@ -59,9 +59,9 @@ type Wnd struct {
 
 var (
 	LastWindowClosed func()
-	windowMap        = make(map[platformWindow]*Wnd)
-	windowIDMap      = make(map[int64]*Wnd)
-	windowList       = make([]*Wnd, 0)
+	windowMap        = make(map[platformWindow]*Window)
+	windowIDMap      = make(map[int64]*Window)
+	windowList       = make([]*Window, 0)
 )
 
 // AllWindowsToFront attempts to bring all of the application's windows to the foreground.
@@ -99,12 +99,12 @@ func KeyWindow() ui.Window {
 }
 
 // NewWindow creates a new window at the specified location with the specified style.
-func NewWindow(where geom.Point, styleMask WindowStyleMask) *Wnd {
+func NewWindow(where geom.Point, styleMask WindowStyleMask) *Window {
 	return NewWindowWithContentSize(where, geom.Size{Width: 100, Height: 100}, styleMask)
 }
 
 // NewWindowWithContentSize creates a new window at the specified location with the specified style and content size.
-func NewWindowWithContentSize(where geom.Point, contentSize geom.Size, styleMask WindowStyleMask) *Wnd {
+func NewWindowWithContentSize(where geom.Point, contentSize geom.Size, styleMask WindowStyleMask) *Window {
 	bounds := geom.Rect{Point: where, Size: contentSize}
 	win, surface := platformNewWindow(bounds, styleMask)
 	wnd := newWindow(win, styleMask, surface, where)
@@ -112,7 +112,7 @@ func NewWindowWithContentSize(where geom.Point, contentSize geom.Size, styleMask
 	return wnd
 }
 
-func NewMenuWindow(parent ui.Window, where geom.Point, contentSize geom.Size) *Wnd {
+func NewMenuWindow(parent ui.Window, where geom.Point, contentSize geom.Size) *Window {
 	bounds := geom.Rect{Point: where, Size: contentSize}
 	win, surface := platformNewMenuWindow(parent, bounds)
 	wnd := newWindow(win, BorderlessWindowMask, surface, where)
@@ -120,8 +120,8 @@ func NewMenuWindow(parent ui.Window, where geom.Point, contentSize geom.Size) *W
 	return wnd
 }
 
-func newWindow(win platformWindow, styleMask WindowStyleMask, surface *draw.Surface, where geom.Point) *Wnd {
-	window := &Wnd{window: win, surface: surface, style: styleMask}
+func newWindow(win platformWindow, styleMask WindowStyleMask, surface *draw.Surface, where geom.Point) *Window {
+	window := &Window{window: win, surface: surface, style: styleMask}
 	windowMap[window.window] = window
 	windowIDMap[window.ID()] = window
 	window.initialLocationRequest = where
@@ -139,49 +139,49 @@ func newWindow(win platformWindow, styleMask WindowStyleMask, surface *draw.Surf
 	return window
 }
 
-func (window *Wnd) String() string {
+func (window *Window) String() string {
 	// Can't call window.Title() here, as the window may have been closed already
 	return fmt.Sprintf("Window #%d", window.ID())
 }
 
 // ID returns the unique ID for this window.
-func (window *Wnd) ID() int64 {
+func (window *Window) ID() int64 {
 	if window.id == 0 {
 		window.id = id.NextID()
 	}
 	return window.id
 }
 
-func (window *Wnd) Owner() ui.Window {
+func (window *Window) Owner() ui.Window {
 	return window.owner
 }
 
-func (window *Wnd) repaintFocus() {
+func (window *Window) repaintFocus() {
 	if focus := window.Focus(); focus != nil {
 		focus.Repaint()
 	}
 }
 
 // MayClose returns true if the window is permitted to close.
-func (window *Wnd) MayClose() bool {
+func (window *Window) MayClose() bool {
 	evt := event.NewClosing(window)
 	event.Dispatch(evt)
 	return !evt.Aborted()
 }
 
 // AttemptClose closes the window if a Closing event permits it.
-func (window *Wnd) AttemptClose() {
+func (window *Window) AttemptClose() {
 	if window.MayClose() {
 		window.Close()
 	}
 }
 
 // Close the window.
-func (window *Wnd) Close() {
+func (window *Window) Close() {
 	window.platformClose()
 }
 
-func (window *Wnd) Dispose() {
+func (window *Window) Dispose() {
 	event.Dispatch(event.NewClosed(window))
 	delete(windowIDMap, window.ID())
 	delete(windowMap, window.window)
@@ -202,13 +202,13 @@ func (window *Wnd) Dispose() {
 }
 
 // Valid returns true if the window is still valid (i.e. has not been closed).
-func (window *Wnd) Valid() bool {
+func (window *Window) Valid() bool {
 	_, valid := windowMap[window.window]
 	return valid
 }
 
 // EventHandlers implements the event.Target interface.
-func (window *Wnd) EventHandlers() *event.Handlers {
+func (window *Window) EventHandlers() *event.Handlers {
 	if window.eventHandlers == nil {
 		window.eventHandlers = &event.Handlers{}
 	}
@@ -216,38 +216,38 @@ func (window *Wnd) EventHandlers() *event.Handlers {
 }
 
 // ParentTarget implements the event.Target interface.
-func (window *Wnd) ParentTarget() event.Target {
+func (window *Window) ParentTarget() event.Target {
 	return event.GlobalTarget()
 }
 
 // Title returns the title of this window.
-func (window *Wnd) Title() string {
+func (window *Window) Title() string {
 	return window.platformTitle()
 }
 
 // SetTitle sets the title of this window.
-func (window *Wnd) SetTitle(title string) {
+func (window *Window) SetTitle(title string) {
 	window.platformSetTitle(title)
 }
 
 // Frame returns the boundaries in display coordinates of the frame of this window (i.e. the
 // area that includes both the content and its border and window controls).
-func (window *Wnd) Frame() geom.Rect {
+func (window *Window) Frame() geom.Rect {
 	return window.platformFrame()
 }
 
 // SetFrame sets the boundaries of the frame of this window.
-func (window *Wnd) SetFrame(bounds geom.Rect) {
+func (window *Window) SetFrame(bounds geom.Rect) {
 	window.platformSetFrame(bounds)
 }
 
 // ContentFrame returns the boundaries of the root widget of this window.
-func (window *Wnd) ContentFrame() geom.Rect {
+func (window *Window) ContentFrame() geom.Rect {
 	return window.platformContentFrame()
 }
 
 // SetContentFrame sets the boundaries of the root widget of this window.
-func (window *Wnd) SetContentFrame(bounds geom.Rect) {
+func (window *Window) SetContentFrame(bounds geom.Rect) {
 	frame := window.Frame()
 	cFrame := window.ContentFrame()
 	bounds.X += frame.X - cFrame.X
@@ -258,7 +258,7 @@ func (window *Wnd) SetContentFrame(bounds geom.Rect) {
 }
 
 // ContentLocalFrame returns the local boundaries of the root widget of this window.
-func (window *Wnd) ContentLocalFrame() geom.Rect {
+func (window *Window) ContentLocalFrame() geom.Rect {
 	bounds := window.ContentFrame()
 	bounds.X = 0
 	bounds.Y = 0
@@ -266,7 +266,7 @@ func (window *Wnd) ContentLocalFrame() geom.Rect {
 }
 
 // Pack sets the window's content size to match the preferred size of the root widget.
-func (window *Wnd) Pack() {
+func (window *Window) Pack() {
 	_, pref, _ := ui.Sizes(window.root, layout.NoHintSize)
 	bounds := window.ContentFrame()
 	bounds.Size = pref
@@ -275,7 +275,7 @@ func (window *Wnd) Pack() {
 
 // MenuBar returns the menu bar for the window. On some platforms, the menu bar is a global
 // entity and the same value will be returned for all windows.
-func (window *Wnd) MenuBar() menu.Bar {
+func (window *Window) MenuBar() menu.Bar {
 	if menu.Global() {
 		return menu.AppBar(0)
 	}
@@ -285,16 +285,16 @@ func (window *Wnd) MenuBar() menu.Bar {
 // Content returns the content widget of the window. This is not the root widget of the window,
 // which contains both the content widget and the menu bar, for platforms that hold the menu bar
 // within the window.
-func (window *Wnd) Content() ui.Widget {
+func (window *Window) Content() ui.Widget {
 	return window.root.Content()
 }
 
-func (window *Wnd) Focused() bool {
+func (window *Window) Focused() bool {
 	return window == KeyWindow()
 }
 
 // Focus returns the widget with the keyboard focus in this window.
-func (window *Wnd) Focus() ui.Widget {
+func (window *Window) Focus() ui.Widget {
 	if window.focus == nil {
 		window.FocusNext()
 	}
@@ -302,7 +302,7 @@ func (window *Wnd) Focus() ui.Widget {
 }
 
 // SetFocus sets the keyboard focus to the specified target.
-func (window *Wnd) SetFocus(target ui.Widget) {
+func (window *Window) SetFocus(target ui.Widget) {
 	if target != nil && target.Window() == window && target != window.focus {
 		if window.focus != nil {
 			event.Dispatch(event.NewFocusLost(window.focus))
@@ -315,7 +315,7 @@ func (window *Wnd) SetFocus(target ui.Widget) {
 }
 
 // FocusNext moves the keyboard focus to the next focusable widget.
-func (window *Wnd) FocusNext() {
+func (window *Window) FocusNext() {
 	current := window.focus
 	if current == nil {
 		current = window.root.Content()
@@ -333,7 +333,7 @@ func (window *Wnd) FocusNext() {
 }
 
 // FocusPrevious moves the keyboard focus to the previous focusable widget.
-func (window *Wnd) FocusPrevious() {
+func (window *Window) FocusPrevious() {
 	current := window.focus
 	if current == nil {
 		current = window.root.Content()
@@ -369,11 +369,11 @@ func collectFocusables(current ui.Widget, target ui.Widget, focusables []ui.Widg
 }
 
 // ToFront attempts to bring the window to the foreground and give it the keyboard focus.
-func (window *Wnd) ToFront() {
+func (window *Window) ToFront() {
 	window.platformToFront()
 }
 
-func (window *Wnd) recordFocus() {
+func (window *Window) recordFocus() {
 	for i, wnd := range windowList {
 		if wnd == window {
 			if i != 0 {
@@ -386,14 +386,14 @@ func (window *Wnd) recordFocus() {
 }
 
 // Repaint marks this window for painting at the next update.
-func (window *Wnd) Repaint() {
+func (window *Window) Repaint() {
 	if !window.ignoreRepaint {
 		window.platformRepaint(window.ContentLocalFrame())
 	}
 }
 
 // RepaintBounds marks the specified bounds within the window for painting at the next update.
-func (window *Wnd) RepaintBounds(bounds geom.Rect) {
+func (window *Window) RepaintBounds(bounds geom.Rect) {
 	if !window.ignoreRepaint {
 		bounds.Intersect(window.ContentLocalFrame())
 		if !bounds.IsEmpty() {
@@ -403,36 +403,36 @@ func (window *Wnd) RepaintBounds(bounds geom.Rect) {
 }
 
 // FlushPainting causes any areas marked for repainting to be painted.
-func (window *Wnd) FlushPainting() {
+func (window *Window) FlushPainting() {
 	window.platformFlushPainting()
 }
 
 // ScalingFactor returns the current OS scaling factor being applied to this window.
-func (window *Wnd) ScalingFactor() float64 {
+func (window *Window) ScalingFactor() float64 {
 	return window.platformScalingFactor()
 }
 
 // Minimize performs the platform's minimize function on the window.
-func (window *Wnd) Minimize() {
+func (window *Window) Minimize() {
 	window.platformMinimize()
 }
 
 // Zoom performs the platform's zoom funcion on the window.
-func (window *Wnd) Zoom() {
+func (window *Window) Zoom() {
 	window.platformZoom()
 }
 
 // PlatformPtr returns a pointer to the underlying platform-specific data.
-func (window *Wnd) PlatformPtr() unsafe.Pointer {
+func (window *Window) PlatformPtr() unsafe.Pointer {
 	return unsafe.Pointer(uintptr(window.window))
 }
 
-func (window *Wnd) updateToolTipAndCursor(widget ui.Widget, where geom.Point) {
+func (window *Window) updateToolTipAndCursor(widget ui.Widget, where geom.Point) {
 	window.updateToolTip(widget, where)
 	window.updateCursor(widget, where)
 }
 
-func (window *Wnd) updateToolTip(widget ui.Widget, where geom.Point) {
+func (window *Window) updateToolTip(widget ui.Widget, where geom.Point) {
 	tooltip := ""
 	if widget != nil {
 		e := event.NewToolTip(widget, where)
@@ -445,7 +445,7 @@ func (window *Wnd) updateToolTip(widget ui.Widget, where geom.Point) {
 	}
 }
 
-func (window *Wnd) updateCursor(widget ui.Widget, where geom.Point) {
+func (window *Window) updateCursor(widget ui.Widget, where geom.Point) {
 	if widget != nil {
 		if !event.SendUpdateCursor(widget, where) {
 			window.SetCursor(cursor.Arrow)
@@ -454,7 +454,7 @@ func (window *Wnd) updateCursor(widget ui.Widget, where geom.Point) {
 }
 
 // SetCursor sets the window's current cursor.
-func (window *Wnd) SetCursor(cur *cursor.Cursor) {
+func (window *Window) SetCursor(cur *cursor.Cursor) {
 	if window.lastCursor != cur {
 		window.platformSetCursor(cur)
 		window.lastCursor = cur
@@ -467,33 +467,33 @@ func HideCursorUntilMouseMoves() {
 }
 
 // Closable returns true if the window was created with the ClosableWindowMask.
-func (window *Wnd) Closable() bool {
+func (window *Window) Closable() bool {
 	return window.style&ClosableWindowMask != 0
 }
 
 // Minimizable returns true if the window was created with the MiniaturizableWindowMask.
-func (window *Wnd) Minimizable() bool {
+func (window *Window) Minimizable() bool {
 	return window.style&MinimizableWindowMask != 0
 }
 
 // Resizable returns true if the window was created with the ResizableWindowMask.
-func (window *Wnd) Resizable() bool {
+func (window *Window) Resizable() bool {
 	return window.style&ResizableWindowMask != 0
 }
 
-func (window *Wnd) paint(gc *draw.Graphics, bounds geom.Rect) {
+func (window *Window) paint(gc *draw.Graphics, bounds geom.Rect) {
 	window.root.ValidateLayout()
 	window.root.Paint(gc, bounds)
 }
 
-func (window *Wnd) widgetForMouse(where geom.Point) ui.Widget {
+func (window *Window) widgetForMouse(where geom.Point) ui.Widget {
 	if window.inMouseDown {
 		return window.lastMouseWidget
 	}
 	return window.root.WidgetAt(where)
 }
 
-func (window *Wnd) processMouseDown(x, y float64, button, clickCount int, keyModifiers keys.Modifiers) {
+func (window *Window) processMouseDown(x, y float64, button, clickCount int, keyModifiers keys.Modifiers) {
 	where := geom.Point{X: x, Y: y}
 	widget := window.root.WidgetAt(where)
 	if widget.Enabled() {
@@ -509,7 +509,7 @@ func (window *Wnd) processMouseDown(x, y float64, button, clickCount int, keyMod
 	window.lastMouseWidget = widget
 }
 
-func (window *Wnd) processMouseDragged(x, y float64, button int, keyModifiers keys.Modifiers) {
+func (window *Window) processMouseDragged(x, y float64, button int, keyModifiers keys.Modifiers) {
 	where := geom.Point{X: x, Y: y}
 	widget := window.widgetForMouse(where)
 	if widget.Enabled() {
@@ -518,7 +518,7 @@ func (window *Wnd) processMouseDragged(x, y float64, button int, keyModifiers ke
 	window.lastMouseWidget = widget
 }
 
-func (window *Wnd) processMouseUp(x, y float64, button int, keyModifiers keys.Modifiers) {
+func (window *Window) processMouseUp(x, y float64, button int, keyModifiers keys.Modifiers) {
 	where := geom.Point{X: x, Y: y}
 	widget := window.widgetForMouse(where)
 	if widget.Enabled() {
@@ -531,7 +531,7 @@ func (window *Wnd) processMouseUp(x, y float64, button int, keyModifiers keys.Mo
 	}
 }
 
-func (window *Wnd) processMouseEntered(x, y float64, keyModifiers keys.Modifiers) {
+func (window *Window) processMouseEntered(x, y float64, keyModifiers keys.Modifiers) {
 	where := geom.Point{X: x, Y: y}
 	widget := window.widgetForMouse(where)
 	event.Dispatch(event.NewMouseEntered(widget, where, keyModifiers))
@@ -539,7 +539,7 @@ func (window *Wnd) processMouseEntered(x, y float64, keyModifiers keys.Modifiers
 	window.lastMouseWidget = widget
 }
 
-func (window *Wnd) processMouseMoved(x, y float64, keyModifiers keys.Modifiers) {
+func (window *Window) processMouseMoved(x, y float64, keyModifiers keys.Modifiers) {
 	var evt event.Event
 	where := geom.Point{X: x, Y: y}
 	widget := window.widgetForMouse(where)
@@ -556,7 +556,7 @@ func (window *Wnd) processMouseMoved(x, y float64, keyModifiers keys.Modifiers) 
 	window.lastMouseWidget = widget
 }
 
-func (window *Wnd) processMouseExited(x, y float64, keyModifiers keys.Modifiers) {
+func (window *Window) processMouseExited(x, y float64, keyModifiers keys.Modifiers) {
 	where := geom.Point{X: x, Y: y}
 	widget := window.widgetForMouse(where)
 	event.Dispatch(event.NewMouseExited(widget, where, keyModifiers))
@@ -568,7 +568,7 @@ func (window *Wnd) processMouseExited(x, y float64, keyModifiers keys.Modifiers)
 	window.lastMouseWidget = widget
 }
 
-func (window *Wnd) processMouseWheel(x, y, dx, dy float64, keyModifiers keys.Modifiers) {
+func (window *Window) processMouseWheel(x, y, dx, dy float64, keyModifiers keys.Modifiers) {
 	where := geom.Point{X: x, Y: y}
 	widget := window.root.WidgetAt(where)
 	if widget != nil {
@@ -581,7 +581,7 @@ func (window *Wnd) processMouseWheel(x, y, dx, dy float64, keyModifiers keys.Mod
 	}
 }
 
-func (window *Wnd) processKeyDown(keyCode int, ch rune, keyModifiers keys.Modifiers, repeat bool) {
+func (window *Window) processKeyDown(keyCode int, ch rune, keyModifiers keys.Modifiers, repeat bool) {
 	ch = processDiacritics(keyCode, ch, keyModifiers)
 	e := event.NewKeyDown(window.Focus(), keyCode, ch, keyModifiers, repeat)
 	bar := window.MenuBar()
@@ -600,18 +600,18 @@ func (window *Wnd) processKeyDown(keyCode int, ch rune, keyModifiers keys.Modifi
 	}
 }
 
-func (window *Wnd) processKeyUp(keyCode int, keyModifiers keys.Modifiers) {
+func (window *Window) processKeyUp(keyCode int, keyModifiers keys.Modifiers) {
 	event.Dispatch(event.NewKeyUp(window.Focus(), keyCode, keyModifiers))
 }
 
 // Invoke a task on the UI thread. The task is put into the system event queue and will be run at
 // the next opportunity.
-func (window *Wnd) Invoke(taskFunction func()) {
+func (window *Window) Invoke(taskFunction func()) {
 	window.platformInvoke(task.Record(taskFunction))
 }
 
 // InvokeAfter schedules a task to be run on the UI thread after waiting for the specified
 // duration.
-func (window *Wnd) InvokeAfter(taskFunction func(), after time.Duration) {
+func (window *Window) InvokeAfter(taskFunction func(), after time.Duration) {
 	window.platformInvokeAfter(task.Record(taskFunction), after)
 }

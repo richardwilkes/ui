@@ -259,61 +259,61 @@ func platformNewMenuWindow(parent ui.Window, bounds geom.Rect) (window platformW
 	return platformNewWindow(bounds, BorderlessWindowMask)
 }
 
-func (window *Wnd) platformClose() {
+func (window *Window) platformClose() {
 	C.closeWindow(window.window)
 }
 
-func (window *Wnd) platformTitle() string {
+func (window *Window) platformTitle() string {
 	return C.GoString(C.getWindowTitle(window.window))
 }
 
-func (window *Wnd) platformSetTitle(title string) {
+func (window *Window) platformSetTitle(title string) {
 	cTitle := C.CString(title)
 	C.setWindowTitle(window.window, cTitle)
 	C.free(unsafe.Pointer(cTitle))
 }
 
-func (window *Wnd) platformFrame() geom.Rect {
+func (window *Window) platformFrame() geom.Rect {
 	var bounds geom.Rect
 	C.getWindowFrame(window.window, (*C.double)(&bounds.X), (*C.double)(&bounds.Y), (*C.double)(&bounds.Width), (*C.double)(&bounds.Height))
 	return bounds
 }
 
-func (window *Wnd) platformSetFrame(bounds geom.Rect) {
+func (window *Window) platformSetFrame(bounds geom.Rect) {
 	C.setWindowFrame(window.window, C.double(bounds.X), C.double(bounds.Y), C.double(bounds.Width), C.double(bounds.Height))
 }
 
-func (window *Wnd) platformContentFrame() geom.Rect {
+func (window *Window) platformContentFrame() geom.Rect {
 	var bounds geom.Rect
 	C.getWindowContentFrame(window.window, (*C.double)(&bounds.X), (*C.double)(&bounds.Y), (*C.double)(&bounds.Width), (*C.double)(&bounds.Height))
 	return bounds
 }
 
-func (window *Wnd) platformToFront() {
+func (window *Window) platformToFront() {
 	C.bringWindowToFront(window.window)
 }
 
-func (window *Wnd) platformRepaint(bounds geom.Rect) {
+func (window *Window) platformRepaint(bounds geom.Rect) {
 	C.repaintWindow(window.window, C.double(bounds.X), C.double(bounds.Y), C.double(bounds.Width), C.double(bounds.Height))
 }
 
-func (window *Wnd) platformFlushPainting() {
+func (window *Window) platformFlushPainting() {
 	C.flushPainting(window.window)
 }
 
-func (window *Wnd) platformScalingFactor() float64 {
+func (window *Window) platformScalingFactor() float64 {
 	return float64(C.getWindowScalingFactor(window.window))
 }
 
-func (window *Wnd) platformMinimize() {
+func (window *Window) platformMinimize() {
 	C.minimizeWindow(window.window)
 }
 
-func (window *Wnd) platformZoom() {
+func (window *Window) platformZoom() {
 	C.zoomWindow(window.window)
 }
 
-func (window *Wnd) platformSetToolTip(tip string) {
+func (window *Window) platformSetToolTip(tip string) {
 	if tip != "" {
 		cstr := C.CString(tip)
 		C.setToolTip(window.window, cstr)
@@ -323,14 +323,14 @@ func (window *Wnd) platformSetToolTip(tip string) {
 	}
 }
 
-func (window *Wnd) platformSetCursor(c *cursor.Cursor) {
+func (window *Window) platformSetCursor(c *cursor.Cursor) {
 	C.setCursor(window.window, c.PlatformPtr())
 }
 
-func (window *Wnd) platformInvoke(id uint64) {
+func (window *Window) platformInvoke(id uint64) {
 	C.invoke(C.ulong(id))
 }
 
-func (window *Wnd) platformInvokeAfter(id uint64, after time.Duration) {
+func (window *Window) platformInvokeAfter(id uint64, after time.Duration) {
 	C.invokeAfter(C.ulong(id), C.long(after.Nanoseconds()))
 }

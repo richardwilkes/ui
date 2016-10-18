@@ -45,32 +45,32 @@ func platformNewMenuWindow(parent ui.Window, bounds geom.Rect) (window platformW
 	return platformWindow(uintptr(wnd)), wnd.NewSurface(bounds.Size)
 }
 
-func (window *Wnd) toXWindow() x11.Window {
+func (window *Window) toXWindow() x11.Window {
 	return x11.Window(uintptr(window.window))
 }
 
-func (window *Wnd) platformClose() {
+func (window *Window) platformClose() {
 	window.surface.Destroy()
 	window.toXWindow().Destroy()
 	window.Dispose()
 }
 
-func (window *Wnd) platformTitle() string {
+func (window *Window) platformTitle() string {
 	return window.toXWindow().Title()
 }
 
-func (window *Wnd) platformSetTitle(title string) {
+func (window *Window) platformSetTitle(title string) {
 	window.toXWindow().SetTitle(title)
 }
 
-func (window *Wnd) frameDecorationSpace() (top, left, bottom, right float64) {
+func (window *Window) frameDecorationSpace() (top, left, bottom, right float64) {
 	if window.Valid() {
 		return window.toXWindow().FrameDecorationSpace()
 	}
 	return
 }
 
-func (window *Wnd) platformFrame() geom.Rect {
+func (window *Window) platformFrame() geom.Rect {
 	bounds := window.platformContentFrame()
 	top, left, bottom, right := window.frameDecorationSpace()
 	bounds.X -= left
@@ -80,18 +80,18 @@ func (window *Wnd) platformFrame() geom.Rect {
 	return bounds
 }
 
-func (window *Wnd) platformSetFrame(bounds geom.Rect) {
+func (window *Window) platformSetFrame(bounds geom.Rect) {
 	window.toXWindow().SetFrame(bounds)
 }
 
-func (window *Wnd) platformContentFrame() geom.Rect {
+func (window *Window) platformContentFrame() geom.Rect {
 	if window.Valid() {
 		return window.toXWindow().ContentFrame()
 	}
 	return geom.Rect{}
 }
 
-func (window *Wnd) platformToFront() {
+func (window *Window) platformToFront() {
 	wnd := window.toXWindow()
 	if window.wasMapped {
 		wnd.Raise()
@@ -121,11 +121,11 @@ func (window *Wnd) platformToFront() {
 	}
 }
 
-func (window *Wnd) platformRepaint(bounds geom.Rect) {
+func (window *Window) platformRepaint(bounds geom.Rect) {
 	window.toXWindow().Repaint(bounds)
 }
 
-func (window *Wnd) draw(bounds geom.Rect) {
+func (window *Window) draw(bounds geom.Rect) {
 	gc := draw.NewGraphics(window.surface.NewCairoContext(bounds))
 	gc.Rect(bounds)
 	gc.Clip()
@@ -133,38 +133,38 @@ func (window *Wnd) draw(bounds geom.Rect) {
 	gc.Dispose()
 }
 
-func (window *Wnd) platformFlushPainting() {
+func (window *Window) platformFlushPainting() {
 	x11.Flush()
 }
 
-func (window *Wnd) platformScalingFactor() float64 {
+func (window *Window) platformScalingFactor() float64 {
 	// RAW: Implement for Linux
 	return 1
 }
 
-func (window *Wnd) platformMinimize() {
+func (window *Window) platformMinimize() {
 	window.toXWindow().Minimize()
 }
 
-func (window *Wnd) platformZoom() {
+func (window *Window) platformZoom() {
 	// RAW: Implement for Linux
 }
 
-func (window *Wnd) platformSetToolTip(tip string) {
+func (window *Window) platformSetToolTip(tip string) {
 	// RAW: Implement for Linux
 }
 
-func (window *Wnd) platformSetCursor(c *cursor.Cursor) {
+func (window *Window) platformSetCursor(c *cursor.Cursor) {
 	window.toXWindow().SetCursor(x11.Cursor(uintptr(c.PlatformPtr())))
 }
 
-func (window *Wnd) platformInvoke(id uint64) {
+func (window *Window) platformInvoke(id uint64) {
 	if window.Valid() {
 		window.toXWindow().InvokeTask(id)
 	}
 }
 
-func (window *Wnd) platformInvokeAfter(id uint64, after time.Duration) {
+func (window *Window) platformInvokeAfter(id uint64, after time.Duration) {
 	time.AfterFunc(after, func() {
 		window.platformInvoke(id)
 	})
