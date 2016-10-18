@@ -10,7 +10,6 @@
 package window
 
 import (
-	"fmt"
 	"github.com/richardwilkes/geom"
 	"github.com/richardwilkes/ui/event"
 	"github.com/richardwilkes/ui/internal/task"
@@ -139,8 +138,12 @@ func processMotionEvent(evt *x11.MotionEvent) {
 		if window, ok := windowMap[lastMouseDownWindow]; ok {
 			where := evt.Where()
 			if target != lastMouseDownWindow {
-				// RAW: Translate coordinates appropriately
-				fmt.Println("need translation for mouse drag")
+				if other, ok := windowMap[target]; ok {
+					// Translate the coordinates to the window that had the mouse down
+					bounds := other.ContentFrame()
+					bounds.Point.Subtract(window.ContentFrame().Point)
+					where.Add(bounds.Point)
+				}
 			}
 			window.processMouseDragged(where.X, where.Y, lastMouseDownButton, evt.Modifiers())
 		}
