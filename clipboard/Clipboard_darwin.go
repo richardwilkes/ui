@@ -100,14 +100,12 @@ func platformGetData(dataType string) []byte {
 	return result
 }
 
-func platformSetData(data []TaggedData) {
+func platformSetData(data []datatypes.Data) {
 	C.clearClipboard()
-	if data != nil {
-		for _, one := range data {
-			cstr := C.CString(convertMimeTypeToUTI(one.MimeType))
-			C.setClipboardData(cstr, C.int(len(one.Bytes)), unsafe.Pointer(&one.Bytes[0]))
-			C.free(unsafe.Pointer(cstr))
-		}
+	for _, one := range data {
+		cstr := C.CString(convertMimeTypeToUTI(one.MimeType))
+		C.setClipboardData(cstr, C.int(len(one.Bytes)), unsafe.Pointer(&one.Bytes[0]))
+		C.free(unsafe.Pointer(cstr))
 	}
 }
 

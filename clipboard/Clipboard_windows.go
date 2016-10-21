@@ -9,6 +9,10 @@
 
 package clipboard
 
+import (
+	"github.com/richardwilkes/ui/clipboard/datatypes"
+)
+
 var (
 	clipData            = make(map[string][]byte)
 	clipDataChangeCount int
@@ -41,12 +45,10 @@ func platformGetData(dataType string) []byte {
 	return clipData[dataType]
 }
 
-func platformSetData(data ...TaggedData) {
+func platformSetData(data []datatypes.Data) {
 	// RAW: Implement for Windows (i.e. cross-app support)
 	platformClear()
-	if data != nil {
-		for _, one := range data {
-			clipData[one.MimeType] = one.Bytes
-		}
+	for _, one := range data {
+		clipData[one.MimeType] = one.Bytes
 	}
 }

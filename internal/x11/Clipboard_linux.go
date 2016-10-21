@@ -109,9 +109,12 @@ func GetClipboard(dataType string) []byte {
 	return clipData[dataType]
 }
 
-func SetClipboard(dataType string, bytes []byte) {
-	clipData[dataType] = bytes
+func SetClipboard(data []datatypes.Data) {
+	clipData = make(map[string][]byte)
 	clipDataChangeCount++
+	for _, one := range data {
+		clipData[one.MimeType] = one.Bytes
+	}
 	claimSelectionOwnership()
 }
 

@@ -9,15 +9,14 @@
 
 package clipboard
 
+import (
+	"github.com/richardwilkes/ui/clipboard/datatypes"
+)
+
 var (
 	lastChangeCount = -1
 	dataTypes       []string
 )
-
-type TaggedData struct {
-	MimeType string
-	Bytes    []byte
-}
 
 // Clear the clipboard contents.
 func Clear() {
@@ -51,6 +50,6 @@ func Data(dataType string) []byte {
 }
 
 // SetData sets the data into the system clipboard.
-func SetData(data ...TaggedData) {
+func SetData(data ...datatypes.Data) {
 	platformSetData(data)
 }

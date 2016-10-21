@@ -14,3 +14,8 @@ const (
 	PlainText = `text/plain`
 	RTFText   = "text/rtf"
 )
+
+type Data struct {
+	MimeType string
+	Bytes    []byte
+}

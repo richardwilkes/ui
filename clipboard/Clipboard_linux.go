@@ -10,6 +10,7 @@
 package clipboard
 
 import (
+	"github.com/richardwilkes/ui/clipboard/datatypes"
 	"github.com/richardwilkes/ui/internal/x11"
 )
 
@@ -29,6 +30,6 @@ func platformGetData(dataType string) []byte {
 	return x11.GetClipboard(dataType)
 }
 
-func platformSetData(data []TaggedData) {
+func platformSetData(data []datatypes.Data) {
 	x11.SetClipboard(data)
 }
