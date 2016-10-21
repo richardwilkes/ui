@@ -10,7 +10,6 @@
 package x11
 
 import (
-	"fmt"
 	"github.com/richardwilkes/ui/clipboard/datatypes"
 	"unsafe"
 	// #cgo pkg-config: x11
@@ -50,17 +49,20 @@ func ClipboardClear() {
 	claimSelectionOwnership()
 }
 
+func localClipboardTypes() []string {
+	types := make([]string, len(clipData))
+	i := 0
+	for key := range clipData {
+		types[i] = key
+		i++
+	}
+	return types
+}
+
 func ClipboardTypes() []string {
 	if ownsClipboard() {
-		types := make([]string, len(clipData))
-		i := 0
-		for key := range clipData {
-			types[i] = key
-			i++
-		}
-		return types
+		return localClipboardTypes()
 	}
-
 	clipboardWindow.DeleteProperty(clipboardAtom)
 	C.XConvertSelection(display, C.Atom(clipboardAtom), C.Atom(targetsAtom), C.Atom(clipboardAtom), C.Window(clipboardWindow), lastEventTime)
 	for {
@@ -78,14 +80,20 @@ func ClipboardTypes() []string {
 					names := make([]*C.char, count)
 					C.XGetAtomNames(display, (*C.Atom)(data), C.int(count), &names[0])
 					var seenStringType bool
+					var seenRTFType bool
 					for i := 0; i < count; i++ {
 						name := C.GoString(names[i])
 						switch name {
 						case "TIMESTAMP", "TARGETS", "MULTIPLE", "SAVE_TARGETS":
-						case "UTF8_STRING", "COMPOUND_TEXT", "STRING", "TEXT":
+						case datatypes.PlainText, "UTF8_STRING", "COMPOUND_TEXT", "STRING", "TEXT":
 							if !seenStringType {
 								seenStringType = true
 								result = append(result, datatypes.PlainText)
+							}
+						case datatypes.RTFText, "TEXT/RTF", "application/rtf":
+							if !seenRTFType {
+								seenRTFType = true
+								result = append(result, datatypes.RTFText)
 							}
 						default:
 							result = append(result, name)
@@ -96,17 +104,44 @@ func ClipboardTypes() []string {
 				C.XFree(data)
 			}
 			clipboardWindow.DeleteProperty(prop)
-			for _, t := range result {
-				fmt.Println(t)
-			}
 			return result
 		}
 	}
 }
 
 func GetClipboard(dataType string) []byte {
-	// RAW: Implement for Linux (i.e. cross-app support)
-	return clipData[dataType]
+	if ownsClipboard() {
+		return clipData[dataType]
+	}
+	clipboardWindow.DeleteProperty(clipboardAtom)
+	C.XConvertSelection(display, C.Atom(clipboardAtom), C.Atom(InternAtom(dataType)), C.Atom(clipboardAtom), C.Window(clipboardWindow), lastEventTime)
+	for {
+		evt := clipboardWindow.NextEventOfType(SelectionNotifyType)
+		if evt != nil {
+			selEvt := evt.ToSelectionEvent()
+			prop := selEvt.Property()
+			if prop == C.None {
+				switch dataType {
+				case datatypes.PlainText:
+					return GetClipboard("UTF8_STRING")
+				case "UTF8_STRING":
+					return GetClipboard("STRING")
+				default:
+					return nil
+				}
+			}
+			_, format, count, data := clipboardWindow.Property(prop, C.AnyPropertyType)
+			length := count * format / 8
+			result := make([]byte, length)
+			if data != nil {
+				raw := (*[1 << 30]byte)(data)
+				copy(result, raw[:length])
+				C.XFree(data)
+			}
+			clipboardWindow.DeleteProperty(prop)
+			return result
+		}
+	}
 }
 
 func SetClipboard(data []datatypes.Data) {
@@ -123,7 +158,6 @@ func claimSelectionOwnership() {
 }
 
 func ProcessSelectionClearEvent(evt *SelectionClearEvent) {
-	fmt.Println("ProcessSelectionClearEvent")
 	if evt.Window() == clipboardWindow {
 		clipData = make(map[string][]byte)
 		clipDataChangeCount++
@@ -131,61 +165,58 @@ func ProcessSelectionClearEvent(evt *SelectionClearEvent) {
 	}
 }
 
-func processSelectionNotifyEvent(evt *SelectionEvent) {
-	fmt.Println("ProcessSelectionNotifyEvent")
-}
-
 func ProcessSelectionRequestEvent(evt *SelectionRequestEvent) {
-	fmt.Println("ProcessSelectionRequestEvent")
 	if evt.Owner() == clipboardWindow && evt.Selection() == clipboardAtom {
 		when := evt.When()
-		bad := evt.Property() == C.None || (when != C.CurrentTime && when < acquiredTime)
+		prop := evt.Property()
+		bad := prop == C.None || (when != C.CurrentTime && when < acquiredTime)
 		if !bad {
-			fmt.Printf("From %v\n", evt.Requestor())
-			switch evt.Target() {
+			target := evt.Target()
+			switch target {
 			case targetsAtom:
 				// Send list of supported targets
-				fmt.Println("got targetsAtom")
+				available := localClipboardTypes()
+				atoms := make([]Atom, len(available)+1)
+				atoms[0] = targetsAtom
+				for i, one := range available {
+					atoms[i+1] = InternAtom(one)
+				}
+				evt.Requestor().ChangeProperty(prop, C.XA_ATOM, 32, PropModeReplace, unsafe.Pointer(&atoms[0]), len(atoms))
 			case multipleAtom:
 				// Multiple conversions were requested
-				fmt.Println("got multipleAtom")
+				// Not supported
+				bad = true
+			case saveTargetsAtom:
+				// Save Targets requested
+				// Not supported
+				bad = true
 			default:
 				// Convert data to requested format
-				fmt.Printf("got atom %v\n", evt.Target())
+				requested := target.Name()
+				var adjustedRequest string
+				switch requested {
+				case "UTF8_STRING", "COMPOUND_TEXT", "STRING", "TEXT":
+					adjustedRequest = datatypes.PlainText
+				case "TEXT/RTF", "application/rtf":
+					adjustedRequest = datatypes.RTFText
+				default:
+					adjustedRequest = requested
+				}
+				bad = true
+				for _, one := range localClipboardTypes() {
+					if one == adjustedRequest {
+						bad = false
+						bytes := clipData[one]
+						evt.Requestor().ChangeProperty(prop, target, 8, PropModeReplace, unsafe.Pointer(&bytes[0]), len(bytes))
+						break
+					}
+				}
 			}
 		}
 		evt.Requestor().Send(NoEventMask, evt.NewNotify(bad))
 	}
 }
 
-//    int i;
-//    const Atom formats[] = { _glfw.x11.UTF8_STRING,
-//                             _glfw.x11.COMPOUND_STRING,
-//                             XA_STRING };
-//    const int formatCount = sizeof(formats) / sizeof(formats[0]);
-//
-//    if (request->target == _glfw.x11.TARGETS)
-//    {
-//        // The list of supported targets was requested
-//
-//        const Atom targets[] = { _glfw.x11.TARGETS,
-//                                 _glfw.x11.MULTIPLE,
-//                                 _glfw.x11.UTF8_STRING,
-//                                 _glfw.x11.COMPOUND_STRING,
-//                                 XA_STRING };
-//
-//        XChangeProperty(_glfw.x11.display,
-//                        request->requestor,
-//                        request->property,
-//                        XA_ATOM,
-//                        32,
-//                        PropModeReplace,
-//                        (unsigned char*) targets,
-//                        sizeof(targets) / sizeof(targets[0]));
-//
-//        return request->property;
-//    }
-//
 //    if (request->target == _glfw.x11.MULTIPLE)
 //    {
 //        // Multiple conversions were requested
@@ -253,28 +284,3 @@ func ProcessSelectionRequestEvent(evt *SelectionRequestEvent) {
 //
 //        return request->property;
 //    }
-//
-//    // Conversion to a data target was requested
-//
-//    for (i = 0;  i < formatCount;  i++)
-//    {
-//        if (request->target == formats[i])
-//        {
-//            // The requested target is one we support
-//
-//            XChangeProperty(_glfw.x11.display,
-//                            request->requestor,
-//                            request->property,
-//                            request->target,
-//                            8,
-//                            PropModeReplace,
-//                            (unsigned char*) _glfw.x11.selection.string,
-//                            strlen(_glfw.x11.selection.string));
-//
-//            return request->property;
-//        }
-//    }
-//
-//    // The requested target is not supported
-//
-//    return None

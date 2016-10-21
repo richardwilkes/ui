@@ -10,7 +10,9 @@
 package x11
 
 import (
+	"unsafe"
 	// #cgo pkg-config: x11
+	// #include <stdlib.h>
 	// #include <X11/Xlib.h>
 	"C"
 )
@@ -18,6 +20,7 @@ import (
 type Atom C.Atom
 
 var (
+	atomMap                      = make(map[string]Atom)
 	wmWindowTypeAtom             Atom
 	wmWindowTypeNormalAtom       Atom
 	wmWindowTypeDropDownMenuAtom Atom
@@ -35,30 +38,44 @@ var (
 	compoundStringAtom           Atom
 	pairAtom                     Atom
 	targetsAtom                  Atom
+	saveTargetsAtom              Atom
 	multipleAtom                 Atom
 )
 
 func initAtoms() {
-	wmWindowTypeAtom = NewAtom("_NET_WM_WINDOW_TYPE")
-	wmWindowTypeNormalAtom = NewAtom("_NET_WM_WINDOW_TYPE_NORMAL")
-	wmWindowTypeDropDownMenuAtom = NewAtom("_NET_WM_WINDOW_TYPE_DROPDOWN_MENU")
-	wmPidAtom = NewAtom("_NET_WM_PID")
-	WindowStateAtom = NewAtom("_NET_WM_STATE")
-	wmWindowStateSkipTaskBarAtom = NewAtom("_NET_WM_STATE_SKIP_TASKBAR")
-	wmWindowFrameExtentsAtom = NewAtom("_NET_FRAME_EXTENTS")
-	WindowStateMaximizedHAtom = NewAtom("_NET_WM_STATE_MAXIMIZED_HORZ")
-	WindowStateMaximizedVAtom = NewAtom("_NET_WM_STATE_MAXIMIZED_VERT")
-	ProtocolsSubType = NewAtom("WM_PROTOCOLS")
-	TaskSubType = NewAtom("GoTask")
-	DeleteWindowSubType = NewAtom("WM_DELETE_WINDOW")
-	clipboardAtom = NewAtom("CLIPBOARD")
-	utf8Atom = NewAtom("UTF8_STRING")
-	compoundStringAtom = NewAtom("COMPOUND_STRING")
-	pairAtom = NewAtom("ATOM_PAIR")
-	targetsAtom = NewAtom("TARGETS")
-	multipleAtom = NewAtom("MULTIPLE")
+	wmWindowTypeAtom = InternAtom("_NET_WM_WINDOW_TYPE")
+	wmWindowTypeNormalAtom = InternAtom("_NET_WM_WINDOW_TYPE_NORMAL")
+	wmWindowTypeDropDownMenuAtom = InternAtom("_NET_WM_WINDOW_TYPE_DROPDOWN_MENU")
+	wmPidAtom = InternAtom("_NET_WM_PID")
+	WindowStateAtom = InternAtom("_NET_WM_STATE")
+	wmWindowStateSkipTaskBarAtom = InternAtom("_NET_WM_STATE_SKIP_TASKBAR")
+	wmWindowFrameExtentsAtom = InternAtom("_NET_FRAME_EXTENTS")
+	WindowStateMaximizedHAtom = InternAtom("_NET_WM_STATE_MAXIMIZED_HORZ")
+	WindowStateMaximizedVAtom = InternAtom("_NET_WM_STATE_MAXIMIZED_VERT")
+	ProtocolsSubType = InternAtom("WM_PROTOCOLS")
+	TaskSubType = InternAtom("GoTask")
+	DeleteWindowSubType = InternAtom("WM_DELETE_WINDOW")
+	clipboardAtom = InternAtom("CLIPBOARD")
+	utf8Atom = InternAtom("UTF8_STRING")
+	compoundStringAtom = InternAtom("COMPOUND_STRING")
+	pairAtom = InternAtom("ATOM_PAIR")
+	targetsAtom = InternAtom("TARGETS")
+	saveTargetsAtom = InternAtom("SAVE_TARGETS")
+	multipleAtom = InternAtom("MULTIPLE")
 }
 
-func NewAtom(name string) Atom {
-	return Atom(C.XInternAtom(display, C.CString(name), C.False))
+func InternAtom(name string) Atom {
+	if atom, ok := atomMap[name]; ok {
+		return atom
+	}
+	atom := Atom(C.XInternAtom(display, C.CString(name), C.False))
+	atomMap[name] = atom
+	return atom
+}
+
+func (atom Atom) Name() string {
+	str := C.XGetAtomName(display, C.Atom(atom))
+	result := C.GoString(str)
+	C.free(unsafe.Pointer(str))
+	return result
 }
