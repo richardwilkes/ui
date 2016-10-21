@@ -29,6 +29,6 @@ func platformGetData(dataType string) []byte {
 	return x11.GetClipboard(dataType)
 }
 
-func platformSetData(dataType string, bytes []byte) {
-	x11.SetClipboard(dataType, bytes)
+func platformSetData(data []TaggedData) {
+	x11.SetClipboard(data)
 }

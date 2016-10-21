@@ -41,8 +41,12 @@ func platformGetData(dataType string) []byte {
 	return clipData[dataType]
 }
 
-func platformSetData(dataType string, bytes []byte) {
+func platformSetData(data ...TaggedData) {
 	// RAW: Implement for Windows (i.e. cross-app support)
-	clipData[dataType] = bytes
-	clipDataChangeCount++
+	platformClear()
+	if data != nil {
+		for _, one := range data {
+			clipData[one.MimeType] = one.Bytes
+		}
+	}
 }

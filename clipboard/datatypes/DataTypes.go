@@ -11,6 +11,6 @@ package datatypes
 
 // Common data types that are used on the clipboard.
 const (
-	PlainText = "public.utf8-plain-text"
-	RTFText   = "public.rtf"
+	PlainText = `text/plain`
+	RTFText   = "text/rtf"
 )

@@ -10,6 +10,7 @@
 package clipboard
 
 import (
+	"github.com/richardwilkes/ui/clipboard/datatypes"
 	"unsafe"
 	// #cgo CFLAGS: -x objective-c
 	// #cgo LDFLAGS: -framework Cocoa
@@ -53,6 +54,12 @@ import (
 	"C"
 )
 
+const (
+	utf8 = "public.utf8-plain-text"
+)
+
+type CFStringRef C.CFStringRef
+
 func platformChangeCount() int {
 	return int(C.clipboardChangeCount())
 }
@@ -62,21 +69,26 @@ func platformClear() {
 }
 
 func platformTypes() []string {
+	set := make(map[string]bool)
 	clipTypes := (*[1 << 30]*C.char)(unsafe.Pointer(C.clipboardTypes()))
 	i := 0
 	for clipTypes[i] != nil {
 		i++
 	}
-	types := make([]string, i)
+	types := make([]string, 0, i)
 	for j := 0; j < i; j++ {
-		types[j] = C.GoString(clipTypes[j])
+		str := convertUTItoMimeType(C.GoString(clipTypes[j]))
+		if str != "" && !set[str] {
+			set[str] = true
+			types = append(types, str)
+		}
 	}
 	C.free(unsafe.Pointer(clipTypes))
 	return types
 }
 
 func platformGetData(dataType string) []byte {
-	cstr := C.CString(dataType)
+	cstr := C.CString(convertMimeTypeToUTI(dataType))
 	data := C.getClipboardData(cstr)
 	C.free(unsafe.Pointer(cstr))
 	count := int(data.count)
@@ -88,8 +100,63 @@ func platformGetData(dataType string) []byte {
 	return result
 }
 
-func platformSetData(dataType string, bytes []byte) {
-	cstr := C.CString(dataType)
-	C.setClipboardData(cstr, C.int(len(bytes)), unsafe.Pointer(&bytes[0]))
+func platformSetData(data []TaggedData) {
+	C.clearClipboard()
+	if data != nil {
+		for _, one := range data {
+			cstr := C.CString(convertMimeTypeToUTI(one.MimeType))
+			C.setClipboardData(cstr, C.int(len(one.Bytes)), unsafe.Pointer(&one.Bytes[0]))
+			C.free(unsafe.Pointer(cstr))
+		}
+	}
+}
+
+func convertMimeTypeToUTI(mimeType string) string {
+	if mimeType == datatypes.PlainText {
+		return utf8
+	}
+	cfstr := newCFStringRef(mimeType)
+	uti := CFStringRef(C.UTTypeCreatePreferredIdentifierForTag(C.kUTTagClassMIMEType, cfstr, nil))
+	disposeCFStringRef(cfstr)
+	if uti == nil {
+		return ""
+	}
+	result := cfStringRefToString(uti)
+	disposeCFStringRef(uti)
+	return result
+}
+
+func convertUTItoMimeType(uti string) string {
+	if uti == utf8 {
+		return datatypes.PlainText
+	}
+	cfstr := newCFStringRef(uti)
+	mimeType := CFStringRef(C.UTTypeCopyPreferredTagWithClass(cfstr, C.kUTTagClassMIMEType))
+	disposeCFStringRef(cfstr)
+	if mimeType == nil {
+		return ""
+	}
+	result := cfStringRefToString(mimeType)
+	disposeCFStringRef(mimeType)
+	return result
+}
+
+func newCFStringRef(str string) CFStringRef {
+	cstr := C.CString(str)
+	cfstr := CFStringRef(C.CFStringCreateWithCString(nil, cstr, C.kCFStringEncodingUTF8))
 	C.free(unsafe.Pointer(cstr))
+	return cfstr
+}
+
+func disposeCFStringRef(str CFStringRef) {
+	C.CFRelease(str)
+}
+
+func cfStringRefToString(str CFStringRef) string {
+	length := C.CFStringGetLength(str) * 2
+	buffer := C.malloc(C.size_t(length))
+	C.CFStringGetCString(str, (*C.char)(buffer), length, C.kCFStringEncodingUTF8)
+	result := C.GoString((*C.char)(buffer))
+	C.free(buffer)
+	return result
 }

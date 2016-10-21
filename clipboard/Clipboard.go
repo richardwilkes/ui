@@ -14,7 +14,12 @@ var (
 	dataTypes       []string
 )
 
-// Clear the clipboard contents and prepare it for calls to clipboard.SetData.
+type TaggedData struct {
+	MimeType string
+	Bytes    []byte
+}
+
+// Clear the clipboard contents.
 func Clear() {
 	platformClear()
 }
@@ -45,8 +50,7 @@ func Data(dataType string) []byte {
 	return platformGetData(dataType)
 }
 
-// SetData sets the bytes associated with a particular data type. To provide multiple flavors, first
-// call clipboard.Clear() followed by calls to clipboard.SetData() with each flavor of data.
-func SetData(dataType string, bytes []byte) {
-	platformSetData(dataType, bytes)
+// SetData sets the data into the system clipboard.
+func SetData(data ...TaggedData) {
+	platformSetData(data)
 }

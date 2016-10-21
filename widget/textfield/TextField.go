@@ -624,8 +624,7 @@ func (field *TextField) CanCut() bool {
 // Cut the selected text to the clipboard.
 func (field *TextField) Cut() {
 	if field.HasSelectionRange() {
-		clipboard.Clear()
-		clipboard.SetData(datatypes.PlainText, []byte(field.SelectedText()))
+		clipboard.SetData(clipboard.TaggedData{MimeType: datatypes.PlainText, Bytes: []byte(field.SelectedText())})
 		field.Delete()
 	}
 }
@@ -658,8 +657,7 @@ func (field *TextField) CanCopy() bool {
 // Copy the selected text to the clipboard.
 func (field *TextField) Copy() {
 	if field.HasSelectionRange() {
-		clipboard.Clear()
-		clipboard.SetData(datatypes.PlainText, []byte(field.SelectedText()))
+		clipboard.SetData(clipboard.TaggedData{MimeType: datatypes.PlainText, Bytes: []byte(field.SelectedText())})
 	}
 }
 
