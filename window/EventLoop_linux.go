@@ -63,12 +63,16 @@ func RunEventLoop() {
 			processFocusOutEvent(event.ToFocusChangeEvent())
 		case x11.ExposeType:
 			processExposeEvent(event.ToExposeEvent())
-		case x11.DestroyWindowType:
+		case x11.DestroyNotifyType:
 			processDestroyWindowEvent(event.ToDestroyWindowEvent())
-		case x11.ConfigureType:
+		case x11.ConfigureNotifyType:
 			processConfigureEvent(event.ToConfigureEvent())
 		case x11.ClientMessageType:
 			processClientEvent(event.ToClientMessageEvent())
+		case x11.SelectionClearType:
+			x11.ProcessSelectionClearEvent(event.ToSelectionClearEvent())
+		case x11.SelectionRequestType:
+			x11.ProcessSelectionRequestEvent(event.ToSelectionRequestEvent())
 		}
 	}
 }
@@ -189,7 +193,7 @@ func processExposeEvent(evt *x11.ExposeEvent) {
 		bounds := evt.Bounds()
 		// Collect up any other expose events for this window that are already in the queue and union their exposed area into the area we need to redraw
 		for {
-			if other := x11.NextEventOfTypeForWindow(x11.ExposeType, wnd); other != nil {
+			if other := wnd.NextEventOfType(x11.ExposeType); other != nil {
 				bounds.Union(other.ToExposeEvent().Bounds())
 			} else {
 				break
@@ -211,7 +215,7 @@ func processConfigureEvent(evt *x11.ConfigureEvent) {
 	if win, ok := windowMap[pwnd]; ok {
 		// Collect up the last resize event for this window that is already in the queue and use that one instead
 		for {
-			if other := x11.NextEventOfTypeForWindow(x11.ConfigureType, wnd); other != nil {
+			if other := wnd.NextEventOfType(x11.ConfigureNotifyType); other != nil {
 				evt = other.ToConfigureEvent()
 			} else {
 				break
@@ -228,7 +232,7 @@ func processConfigureEvent(evt *x11.ConfigureEvent) {
 func processClientEvent(evt *x11.ClientMessageEvent) {
 	switch evt.SubType() {
 	case x11.ProtocolsSubType:
-		if evt.Format() == 32 && evt.Protocol() == x11.DeleteWindowProtocol {
+		if evt.Format() == 32 && evt.Protocol() == x11.DeleteWindowSubType {
 			wnd := platformWindow(uintptr(evt.Window()))
 			if win, ok := windowMap[wnd]; ok {
 				if win.MayClose() {

@@ -9,40 +9,26 @@
 
 package clipboard
 
-var (
-	clipData            = make(map[string][]byte)
-	clipDataChangeCount int
+import (
+	"github.com/richardwilkes/ui/internal/x11"
 )
 
 func platformChangeCount() int {
-	// RAW: Implement for Linux (i.e. cross-app support)
-	return clipDataChangeCount
+	return x11.ClipboardChangeCount()
 }
 
 func platformClear() {
-	// RAW: Implement for Linux (i.e. cross-app support)
-	clipData = make(map[string][]byte)
-	clipDataChangeCount++
+	x11.ClipboardClear()
 }
 
 func platformTypes() []string {
-	// RAW: Implement for Linux (i.e. cross-app support)
-	types := make([]string, len(clipData))
-	i := 0
-	for key := range clipData {
-		types[i] = key
-		i++
-	}
-	return types
+	return x11.ClipboardTypes()
 }
 
 func platformGetData(dataType string) []byte {
-	// RAW: Implement for Linux (i.e. cross-app support)
-	return clipData[dataType]
+	return x11.GetClipboard(dataType)
 }
 
 func platformSetData(dataType string, bytes []byte) {
-	// RAW: Implement for Linux (i.e. cross-app support)
-	clipData[dataType] = bytes
-	clipDataChangeCount++
+	x11.SetClipboard(dataType, bytes)
 }

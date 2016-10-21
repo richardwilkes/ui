@@ -13,6 +13,7 @@ import (
 	"fmt"
 	"github.com/richardwilkes/geom"
 	"github.com/richardwilkes/ui/clipboard"
+	"github.com/richardwilkes/ui/clipboard/datatypes"
 	"github.com/richardwilkes/ui/color"
 	"github.com/richardwilkes/ui/cursor"
 	"github.com/richardwilkes/ui/draw"
@@ -624,7 +625,7 @@ func (field *TextField) CanCut() bool {
 func (field *TextField) Cut() {
 	if field.HasSelectionRange() {
 		clipboard.Clear()
-		clipboard.SetData(clipboard.PlainText, []byte(field.SelectedText()))
+		clipboard.SetData(datatypes.PlainText, []byte(field.SelectedText()))
 		field.Delete()
 	}
 }
@@ -658,19 +659,19 @@ func (field *TextField) CanCopy() bool {
 func (field *TextField) Copy() {
 	if field.HasSelectionRange() {
 		clipboard.Clear()
-		clipboard.SetData(clipboard.PlainText, []byte(field.SelectedText()))
+		clipboard.SetData(datatypes.PlainText, []byte(field.SelectedText()))
 	}
 }
 
 // CanPaste returns true if the clipboard has content that can be pasted into the field.
 func (field *TextField) CanPaste() bool {
-	return clipboard.HasType(clipboard.PlainText)
+	return clipboard.HasType(datatypes.PlainText)
 }
 
 // Paste any text on the clipboard into the field.
 func (field *TextField) Paste() {
-	if clipboard.HasType(clipboard.PlainText) {
-		text := sanitize(string(clipboard.Data(clipboard.PlainText)))
+	if clipboard.HasType(datatypes.PlainText) {
+		text := sanitize(string(clipboard.Data(datatypes.PlainText)))
 		runes := ([]rune)(text)
 		if field.HasSelectionRange() {
 			field.runes = append(field.runes[:field.selectionStart], field.runes[field.selectionEnd:]...)

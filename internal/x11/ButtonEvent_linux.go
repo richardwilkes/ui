@@ -13,14 +13,10 @@ import (
 	"github.com/richardwilkes/geom"
 	"github.com/richardwilkes/ui/event/button"
 	"github.com/richardwilkes/ui/keys"
+	"unsafe"
 	// #cgo pkg-config: x11
 	// #include <X11/Xlib.h>
 	"C"
-)
-
-const (
-	ButtonPressType   = EventType(C.ButtonPress)
-	ButtonReleaseType = EventType(C.ButtonRelease)
 )
 
 const ()
@@ -69,4 +65,12 @@ func (evt *ButtonEvent) ScrollWheelDirection() geom.Point {
 		result.X = 1
 	}
 	return result
+}
+
+func (evt *ButtonEvent) When() C.Time {
+	return evt.time
+}
+
+func (evt *ButtonEvent) ToEvent() *Event {
+	return (*Event)(unsafe.Pointer(evt))
 }

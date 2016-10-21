@@ -16,24 +16,12 @@ import (
 	"C"
 )
 
-const (
-	ClientMessageType = EventType(C.ClientMessage)
-)
-
-type ClientMessageSubType C.Atom
-
-var (
-	ProtocolsSubType ClientMessageSubType
-	TaskSubType      ClientMessageSubType
-)
-
-type Protocol C.Atom
-
-var (
-	DeleteWindowProtocol Protocol
-)
-
 type ClientMessageEvent C.XClientMessageEvent
+
+func NewClientMessageEvent(wnd Window, subType Atom, format int) *ClientMessageEvent {
+	evt := &ClientMessageEvent{_type: C.ClientMessage, window: C.Window(wnd), message_type: C.Atom(subType), format: C.int(format)}
+	return evt
+}
 
 func (evt *ClientMessageEvent) Window() Window {
 	return Window(evt.window)
@@ -43,14 +31,18 @@ func (evt *ClientMessageEvent) Format() int {
 	return int(evt.format)
 }
 
-func (evt *ClientMessageEvent) SubType() ClientMessageSubType {
-	return ClientMessageSubType(evt.message_type)
+func (evt *ClientMessageEvent) SubType() Atom {
+	return Atom(evt.message_type)
 }
 
-func (evt *ClientMessageEvent) Protocol() Protocol {
-	return *(*Protocol)(unsafe.Pointer(&evt.data))
+func (evt *ClientMessageEvent) Protocol() Atom {
+	return *(*Atom)(unsafe.Pointer(&evt.data))
 }
 
 func (evt *ClientMessageEvent) TaskID() uint64 {
 	return *(*uint64)(unsafe.Pointer(&evt.data))
+}
+
+func (evt *ClientMessageEvent) ToEvent() *Event {
+	return (*Event)(unsafe.Pointer(evt))
 }

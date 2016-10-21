@@ -7,21 +7,10 @@
 // This Source Code Form is "Incompatible With Secondary Licenses", as
 // defined by the Mozilla Public License, version 2.0.
 
-package x11
+package datatypes
 
-import (
-	"unsafe"
-	// #cgo pkg-config: x11
-	// #include <X11/Xlib.h>
-	"C"
+// Common data types that are used on the clipboard.
+const (
+	PlainText = "public.utf8-plain-text"
+	RTFText   = "public.rtf"
 )
-
-type ConfigureEvent C.XConfigureEvent
-
-func (evt *ConfigureEvent) Window() Window {
-	return Window(evt.window)
-}
-
-func (evt *ConfigureEvent) ToEvent() *Event {
-	return (*Event)(unsafe.Pointer(evt))
-}

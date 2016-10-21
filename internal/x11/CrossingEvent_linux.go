@@ -12,14 +12,10 @@ package x11
 import (
 	"github.com/richardwilkes/geom"
 	"github.com/richardwilkes/ui/keys"
+	"unsafe"
 	// #cgo pkg-config: x11
 	// #include <X11/Xlib.h>
 	"C"
-)
-
-const (
-	EnterNotifyType = EventType(C.EnterNotify)
-	LeaveNotifyType = EventType(C.LeaveNotify)
 )
 
 type CrossingEvent C.XCrossingEvent
@@ -34,4 +30,8 @@ func (evt *CrossingEvent) Where() geom.Point {
 
 func (evt *CrossingEvent) Modifiers() keys.Modifiers {
 	return Modifiers(evt.state)
+}
+
+func (evt *CrossingEvent) ToEvent() *Event {
+	return (*Event)(unsafe.Pointer(evt))
 }

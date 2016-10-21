@@ -109,13 +109,13 @@ func (window *Window) platformToFront() {
 		wnd.Show()
 		// Wait for window to be mapped
 		for {
-			if event := x11.NextEventOfTypeForWindow(x11.MapWindowType, wnd); event != nil {
+			if event := wnd.NextEventOfType(x11.MapNotifyType); event != nil {
 				window.wasMapped = true
 				wnd.Move(window.initialLocationRequest)
 				if window.owner == nil {
 					// Wait for window to be configured so that we have correct placement information
 					for {
-						if event = x11.NextEventOfTypeForWindow(x11.ConfigureType, wnd); event != nil {
+						if event = wnd.NextEventOfType(x11.ConfigureNotifyType); event != nil {
 							processConfigureEvent(event.ToConfigureEvent())
 							break
 						}

@@ -15,36 +15,52 @@ import (
 	"C"
 )
 
-var (
-	display                      *C.Display
-	wmWindowTypeAtom             C.Atom
-	wmWindowTypeNormalAtom       C.Atom
-	wmWindowTypeDropDownMenuAtom C.Atom
-	wmPidAtom                    C.Atom
-	wmWindowStateAtom            C.Atom
-	wmWindowStateSkipTaskBarAtom C.Atom
-	wmWindowFrameExtentsAtom     C.Atom
-	wmWindowMaximizedHAtom       C.Atom
-	wmWindowMaximizedVAtom       C.Atom
+const (
+	KeyPressMask = 1 << iota
+	KeyReleaseMask
+	ButtonPressMask
+	ButtonReleaseMask
+	EnterWindowMask
+	LeaveWindowMask
+	PointerMotionMask
+	PointerMotionHintMask
+	Button1MotionMask
+	Button2MotionMask
+	Button3MotionMask
+	Button4MotionMask
+	Button5MotionMask
+	ButtonMotionMask
+	KeymapStateMask
+	ExposureMask
+	VisibilityChangeMask
+	StructureNotifyMask
+	ResizeRedirectMask
+	SubstructureNotifyMask
+	SubstructureRedirectMask
+	FocusChangeMask
+	PropertyChangeMask
+	ColormapChangeMask
+	OwnerGrabButtonMask
+	NoEventMask = 0
 )
 
+var (
+	display       *C.Display
+	lastEventTime C.Time
+)
+
+type Visual C.Visual
+
 func OpenDisplay() {
+	if display != nil {
+		panic("Cannot open the X11 display again")
+	}
 	C.XInitThreads()
 	if display = C.XOpenDisplay(nil); display == nil {
 		panic("Failed to open the X11 display")
 	}
-	ProtocolsSubType = ClientMessageSubType(C.XInternAtom(display, C.CString("WM_PROTOCOLS"), C.False))
-	DeleteWindowProtocol = Protocol(C.XInternAtom(display, C.CString("WM_DELETE_WINDOW"), C.False))
-	wmWindowTypeAtom = C.XInternAtom(display, C.CString("_NET_WM_WINDOW_TYPE"), C.False)
-	wmWindowTypeNormalAtom = C.XInternAtom(display, C.CString("_NET_WM_WINDOW_TYPE_NORMAL"), C.False)
-	wmWindowTypeDropDownMenuAtom = C.XInternAtom(display, C.CString("_NET_WM_WINDOW_TYPE_DROPDOWN_MENU"), C.False)
-	wmPidAtom = C.XInternAtom(display, C.CString("_NET_WM_PID"), C.False)
-	wmWindowStateAtom = C.XInternAtom(display, C.CString("_NET_WM_STATE"), C.False)
-	wmWindowStateSkipTaskBarAtom = C.XInternAtom(display, C.CString("_NET_WM_STATE_SKIP_TASKBAR"), C.False)
-	wmWindowFrameExtentsAtom = C.XInternAtom(display, C.CString("_NET_FRAME_EXTENTS"), C.False)
-	wmWindowMaximizedHAtom = C.XInternAtom(display, C.CString("_NET_WM_STATE_MAXIMIZED_HORZ"), C.False)
-	wmWindowMaximizedVAtom = C.XInternAtom(display, C.CString("_NET_WM_STATE_MAXIMIZED_VERT"), C.False)
-	TaskSubType = ClientMessageSubType(C.XInternAtom(display, C.CString("GoTask"), C.False))
+	initAtoms()
+	initClipboard()
 }
 
 func CloseDisplay() {
@@ -59,15 +75,25 @@ func Running() bool {
 func NextEvent() *Event {
 	var event Event
 	C.XNextEvent(display, (*C.XEvent)(&event))
+	switch event.Type() {
+	case KeyPressType, KeyReleaseType:
+		lastEventTime = event.ToKeyEvent().When()
+	case ButtonPressType, ButtonReleaseType:
+		lastEventTime = event.ToButtonEvent().When()
+	}
 	return &event
 }
 
-func NextEventOfTypeForWindow(eventType EventType, wnd Window) *Event {
-	var event Event
-	if C.XCheckTypedWindowEvent(display, C.Window(wnd), C.int(eventType), (*C.XEvent)(&event)) != 0 {
-		return &event
-	}
-	return nil
+func DefaultRootWindow() Window {
+	return Window(C.XDefaultRootWindow(display))
+}
+
+func DefaultScreen() int {
+	return int(C.XDefaultScreen(display))
+}
+
+func DefaultVisual() *Visual {
+	return (*Visual)(C.XDefaultVisual(display, C.int(DefaultScreen())))
 }
 
 func InputFocus() Window {

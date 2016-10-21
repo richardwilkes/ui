@@ -10,28 +10,34 @@
 package x11
 
 import (
-	"github.com/richardwilkes/geom"
-	"github.com/richardwilkes/ui/keys"
 	"unsafe"
 	// #cgo pkg-config: x11
 	// #include <X11/Xlib.h>
 	"C"
 )
 
-type MotionEvent C.XMotionEvent
+type SelectionEvent C.XSelectionEvent
 
-func (evt *MotionEvent) Window() Window {
-	return Window(evt.window)
+func (evt *SelectionEvent) Requestor() Window {
+	return Window(evt.requestor)
 }
 
-func (evt *MotionEvent) Where() geom.Point {
-	return geom.Point{X: float64(evt.x), Y: float64(evt.y)}
+func (evt *SelectionEvent) Selection() Atom {
+	return Atom(evt.selection)
 }
 
-func (evt *MotionEvent) Modifiers() keys.Modifiers {
-	return Modifiers(evt.state)
+func (evt *SelectionEvent) Target() Atom {
+	return Atom(evt.target)
 }
 
-func (evt *MotionEvent) ToEvent() *Event {
+func (evt *SelectionEvent) Property() Atom {
+	return Atom(evt.property)
+}
+
+func (evt *SelectionEvent) When() C.Time {
+	return evt.time
+}
+
+func (evt *SelectionEvent) ToEvent() *Event {
 	return (*Event)(unsafe.Pointer(evt))
 }

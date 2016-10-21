@@ -10,35 +10,26 @@
 package x11
 
 import (
-	"github.com/richardwilkes/ui/keys"
 	"unsafe"
 	// #cgo pkg-config: x11
-	// #include <X11/Xutil.h>
+	// #include <X11/Xlib.h>
 	"C"
 )
 
-type KeyEvent C.XKeyEvent
+type SelectionClearEvent C.XSelectionClearEvent
 
-func (evt *KeyEvent) Window() Window {
+func (evt *SelectionClearEvent) Window() Window {
 	return Window(evt.window)
 }
 
-func (evt *KeyEvent) Modifiers() keys.Modifiers {
-	return Modifiers(evt.state)
+func (evt *SelectionClearEvent) Selection() C.Atom {
+	return evt.selection
 }
 
-func (evt *KeyEvent) CodeAndChar() (code int, ch rune) {
-	var buffer [5]C.char
-	var keySym C.KeySym
-	buffer[C.XLookupString(evt, &buffer[0], C.int(len(buffer)-1), &keySym, nil)] = 0
-	code, ch = keys.Transform(int(keySym), C.GoString(&buffer[0]))
-	return
-}
-
-func (evt *KeyEvent) When() C.Time {
+func (evt *SelectionClearEvent) When() C.Time {
 	return evt.time
 }
 
-func (evt *KeyEvent) ToEvent() *Event {
+func (evt *SelectionClearEvent) ToEvent() *Event {
 	return (*Event)(unsafe.Pointer(evt))
 }
