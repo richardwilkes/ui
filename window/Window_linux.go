@@ -50,8 +50,8 @@ func platformNewWindow(bounds geom.Rect, styleMask WindowStyleMask) (window plat
 	return platformWindow(uintptr(wnd)), wnd.NewSurface(bounds.Size)
 }
 
-func platformNewMenuWindow(parent ui.Window, bounds geom.Rect) (window platformWindow, surface *draw.Surface) {
-	wnd := x11.NewMenuWindow(x11.Window(uintptr(parent.PlatformPtr())), bounds)
+func platformNewPopupWindow(parent ui.Window, bounds geom.Rect) (window platformWindow, surface *draw.Surface) {
+	wnd := x11.NewPopupWindow(x11.Window(uintptr(parent.PlatformPtr())), bounds)
 	return platformWindow(uintptr(wnd)), wnd.NewSurface(bounds.Size)
 }
 

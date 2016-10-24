@@ -255,7 +255,7 @@ func platformNewWindow(bounds geom.Rect, styleMask WindowStyleMask) (window plat
 	return platformWindow(C.newWindow(C.double(bounds.X), C.double(bounds.Y), C.double(bounds.Width), C.double(bounds.Height), C.int(styleMask))), nil
 }
 
-func platformNewMenuWindow(parent ui.Window, bounds geom.Rect) (window platformWindow, surface *draw.Surface) {
+func platformNewPopupWindow(parent ui.Window, bounds geom.Rect) (window platformWindow, surface *draw.Surface) {
 	return platformNewWindow(bounds, BorderlessWindowMask)
 }
 

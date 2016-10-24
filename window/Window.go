@@ -112,9 +112,9 @@ func NewWindowWithContentSize(where geom.Point, contentSize geom.Size, styleMask
 	return wnd
 }
 
-func NewMenuWindow(parent ui.Window, where geom.Point, contentSize geom.Size) *Window {
+func NewPopupWindow(parent ui.Window, where geom.Point, contentSize geom.Size) *Window {
 	bounds := geom.Rect{Point: where, Size: contentSize}
-	win, surface := platformNewMenuWindow(parent, bounds)
+	win, surface := platformNewPopupWindow(parent, bounds)
 	wnd := newWindow(win, BorderlessWindowMask, surface, where)
 	wnd.owner = parent
 	return wnd

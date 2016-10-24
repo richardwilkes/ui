@@ -65,7 +65,7 @@ func NewWindow(bounds geom.Rect) Window {
 	return wnd
 }
 
-func NewMenuWindow(parent Window, bounds geom.Rect) Window {
+func NewPopupWindow(parent Window, bounds geom.Rect) Window {
 	attr, mask := prepareCommonWindowAttributes()
 	attr.override_redirect = C.True
 	wnd := createWindow(bounds, mask|CWOverrideRedirect, attr)

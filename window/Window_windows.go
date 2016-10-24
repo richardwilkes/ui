@@ -32,7 +32,7 @@ func platformNewWindow(bounds geom.Rect, styleMask WindowStyleMask) (window plat
 	return nil, nil
 }
 
-func platformNewMenuWindow(parent ui.Window, bounds geom.Rect) (window platformWindow, surface platformSurface) {
+func platformNewPopupWindow(parent ui.Window, bounds geom.Rect) (window platformWindow, surface platformSurface) {
 	// RAW: Implement for Windows
 	return nil, nil
 }
