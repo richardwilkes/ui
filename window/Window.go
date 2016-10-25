@@ -21,6 +21,7 @@ import (
 	"github.com/richardwilkes/ui/keys"
 	"github.com/richardwilkes/ui/layout"
 	"github.com/richardwilkes/ui/menu"
+	"github.com/richardwilkes/ui/widget/tooltip"
 	"time"
 	"unsafe"
 )
@@ -47,11 +48,15 @@ type Window struct {
 	owner                  ui.Window
 	root                   *RootView
 	focus                  ui.Widget
+	tooltipWnd             ui.Window
 	lastMouseWidget        ui.Widget
-	lastToolTip            string
+	lastToolTip            ui.Widget
+	lastTooltipShownAt     time.Time
 	lastCursor             *cursor.Cursor
 	style                  WindowStyleMask
 	initialLocationRequest geom.Point
+	tooltipWidget          ui.Widget
+	tooltipSequence        int
 	inMouseDown            bool
 	ignoreRepaint          bool // Currently only used by Linux
 	wasMapped              bool // Currently only used by Linux
@@ -147,7 +152,7 @@ func (window *Window) String() string {
 // ID returns the unique ID for this window.
 func (window *Window) ID() int64 {
 	if window.id == 0 {
-		window.id = id.NextID()
+		window.id = id.Next()
 	}
 	return window.id
 }
@@ -428,21 +433,39 @@ func (window *Window) PlatformPtr() unsafe.Pointer {
 }
 
 func (window *Window) updateToolTipAndCursor(widget ui.Widget, where geom.Point) {
-	window.updateToolTip(widget, where)
 	window.updateCursor(widget, where)
+	window.updateToolTip(widget, where)
 }
 
 func (window *Window) updateToolTip(widget ui.Widget, where geom.Point) {
-	tooltip := ""
+	avoid := geom.Rect{Point: widget.ToWindow(geom.Point{}), Size: widget.Size()}
+	avoid.GrowToInteger()
+	var tip ui.Widget
 	if widget != nil {
-		e := event.NewToolTip(widget, where)
+		e := tooltip.NewEvent(widget, where, avoid)
 		event.Dispatch(e)
-		tooltip = e.ToolTip()
+		tip = e.ToolTip()
+		avoid = e.Avoid()
 	}
-	if window.lastToolTip != tooltip {
-		window.platformSetToolTip(tooltip)
-		window.lastToolTip = tooltip
+	if window.lastToolTip != tip || widget != window.tooltipWidget {
+		wasShowing := window.root.tooltip != nil
+		window.tooltipWidget = widget
+		window.clearToolTip()
+		window.lastToolTip = tip
+		if tip != nil {
+			ts := &tooltipSequencer{window: window, avoid: avoid, sequence: window.tooltipSequence}
+			if wasShowing || time.Now().Sub(window.lastTooltipShownAt) < TooltipDismissal {
+				ts.show()
+			} else {
+				window.InvokeAfter(ts.show, TooltipDelay)
+			}
+		}
 	}
+}
+
+func (window *Window) clearToolTip() {
+	window.tooltipSequence++
+	window.root.SetTooltip(nil)
 }
 
 func (window *Window) updateCursor(widget ui.Widget, where geom.Point) {
@@ -494,6 +517,7 @@ func (window *Window) widgetForMouse(where geom.Point) ui.Widget {
 }
 
 func (window *Window) processMouseDown(x, y float64, button, clickCount int, keyModifiers keys.Modifiers) {
+	window.clearToolTip()
 	where := geom.Point{X: x, Y: y}
 	widget := window.root.WidgetAt(where)
 	if widget.Enabled() {
@@ -582,6 +606,7 @@ func (window *Window) processMouseWheel(x, y, dx, dy float64, keyModifiers keys.
 }
 
 func (window *Window) processKeyDown(keyCode int, ch rune, keyModifiers keys.Modifiers, repeat bool) {
+	window.clearToolTip()
 	ch = processDiacritics(keyCode, ch, keyModifiers)
 	e := event.NewKeyDown(window.Focus(), keyCode, ch, keyModifiers, repeat)
 	bar := window.MenuBar()

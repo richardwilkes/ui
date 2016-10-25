@@ -39,7 +39,7 @@ func New(factory widget.CellFactory) *List {
 	list := &List{factory: factory, anchor: -1}
 	list.Describer = func() string { return fmt.Sprintf("List #%d", list.ID()) }
 	list.SetBackground(color.White)
-	list.SetBorder(border.NewEmpty(geom.Insets{Top: 2, Left: 2, Bottom: 2, Right: 2}))
+	list.SetBorder(border.NewEmpty(geom.NewUniformInsets(2)))
 	list.SetFocusable(true)
 	list.SetGrabFocusWhenClickedOn(true)
 	list.SetSizer(list)

@@ -225,15 +225,6 @@ import (
 	// 	}
 	//     return [view convertRectToBacking:bounds].size.width / width;
 	// }
-	//
-	// void setToolTip(platformWindow window, const char *tooltip) {
-	// 	NSView *view = [((NSWindow *)window) contentView];
-	// 	// We always clear the old one out first. Failure to do so results in new tooltips not always showing up.
-	// 	[view setToolTip:nil];
-	// 	if (tooltip) {
-	// 		[view setToolTip:[NSString stringWithUTF8String:tooltip]];
-	// 	}
-	// }
 	"C"
 )
 
@@ -311,16 +302,6 @@ func (window *Window) platformMinimize() {
 
 func (window *Window) platformZoom() {
 	C.zoomWindow(window.window)
-}
-
-func (window *Window) platformSetToolTip(tip string) {
-	if tip != "" {
-		cstr := C.CString(tip)
-		C.setToolTip(window.window, cstr)
-		C.free(unsafe.Pointer(cstr))
-	} else {
-		C.setToolTip(window.window, nil)
-	}
 }
 
 func (window *Window) platformSetCursor(c *cursor.Cursor) {

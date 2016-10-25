@@ -40,7 +40,7 @@ func (app *Application) String() string {
 // ID returns the unique ID for this application.
 func (app *Application) ID() int64 {
 	if app.id == 0 {
-		app.id = id.NextID()
+		app.id = id.Next()
 	}
 	return app.id
 }

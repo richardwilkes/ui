@@ -35,8 +35,8 @@ func NewTheme() *Theme {
 
 // Init initializes the theme with its default values.
 func (theme *Theme) Init() {
-	theme.Border = border.NewLine(color.Background.AdjustBrightness(-0.25), geom.Insets{Top: 1, Left: 1, Bottom: 1, Right: 1})
-	lineBorder := border.NewLine(color.KeyboardFocus, geom.Insets{Top: 2, Left: 2, Bottom: 2, Right: 2})
+	theme.Border = border.NewLine(color.Background.AdjustBrightness(-0.25), geom.NewUniformInsets(1))
+	lineBorder := border.NewLine(color.KeyboardFocus, geom.NewUniformInsets(2))
 	lineBorder.NoInset = true
 	theme.FocusBorder = lineBorder
 }

@@ -51,7 +51,7 @@ func (item *platformItem) String() string {
 // ID returns the unique ID associated with this item.
 func (item *platformItem) ID() int64 {
 	if item.id == 0 {
-		item.id = id.NextID()
+		item.id = id.Next()
 	}
 	return item.id
 }

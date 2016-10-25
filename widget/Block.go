@@ -57,7 +57,7 @@ func (b *Block) String() string {
 // ID returns the unique ID for this block.
 func (b *Block) ID() int64 {
 	if b.id == 0 {
-		b.id = id.NextID()
+		b.id = id.Next()
 	}
 	return b.id
 }
@@ -255,7 +255,7 @@ func (b *Block) Children() []ui.Widget {
 // IndexOfChild implements the Widget interface.
 func (b *Block) IndexOfChild(child ui.Widget) int {
 	for i, one := range b.children {
-		if one == child {
+		if one.ID() == child.ID() {
 			return i
 		}
 	}

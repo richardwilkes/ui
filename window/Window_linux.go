@@ -160,10 +160,6 @@ func (window *Window) platformZoom() {
 	window.toXWindow().Zoom()
 }
 
-func (window *Window) platformSetToolTip(tip string) {
-	// RAW: Implement for Linux
-}
-
 func (window *Window) platformSetCursor(c *cursor.Cursor) {
 	window.toXWindow().SetCursor(x11.Cursor(uintptr(c.PlatformPtr())))
 }

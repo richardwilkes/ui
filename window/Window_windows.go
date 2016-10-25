@@ -90,10 +90,6 @@ func (window *Window) platformZoom() {
 	// RAW: Implement for Windows
 }
 
-func (window *Window) platformSetToolTip(tip string) {
-	// RAW: Implement for Windows
-}
-
 func (window *Window) platformSetCursor(c *cursor.Cursor) {
 	// RAW: Implement for Windows
 }

@@ -40,6 +40,7 @@ import (
 	"github.com/richardwilkes/ui/widget/scrollarea"
 	"github.com/richardwilkes/ui/widget/separator"
 	"github.com/richardwilkes/ui/widget/textfield"
+	"github.com/richardwilkes/ui/widget/tooltip"
 	"github.com/richardwilkes/ui/window"
 	"unicode"
 )
@@ -97,7 +98,7 @@ func createButtonsWindow(title string, where geom.Point) ui.Window {
 	wnd.SetTitle(title)
 
 	content := wnd.Content()
-	content.SetBorder(border.NewEmpty(geom.Insets{Top: 10, Left: 10, Bottom: 10, Right: 10}))
+	content.SetBorder(border.NewEmpty(geom.NewUniformInsets(10)))
 	flex.NewLayout(content).SetVerticalSpacing(10)
 
 	buttonsPanel := createButtonsPanel()
@@ -141,6 +142,7 @@ func createButtonsWindow(title string, where geom.Point) ui.Window {
 		imgPanel.SetFocusable(true)
 		_, prefSize, _ := ui.Sizes(imgPanel, layout.NoHintSize)
 		imgPanel.SetSize(prefSize)
+		tooltip.SetText(imgPanel, "mountains.jpg")
 		scrollArea := scrollarea.New(imgPanel, scrollarea.Unmodified)
 		scrollArea.SetLayoutData(flex.NewData().SetHorizontalAlignment(draw.AlignFill).SetVerticalAlignment(draw.AlignFill).SetHorizontalGrab(true).SetVerticalGrab(true))
 		content.AddChild(scrollArea)
@@ -224,7 +226,7 @@ func createButtonsPanel() ui.Widget {
 func createButton(title string, panel ui.Widget) *button.Button {
 	button := button.New(title)
 	button.EventHandlers().Add(event.ClickType, func(evt event.Event) { fmt.Printf("The button '%s' was clicked.\n", title) })
-	widget.NewSimpleToolTip(button, fmt.Sprintf("This is the tooltip for the '%s' button.", title))
+	tooltip.SetText(button, fmt.Sprintf("This is the tooltip for the '%s' button.", title))
 	panel.AddChild(button)
 	return button
 }
@@ -235,7 +237,7 @@ func createImageButton(img *draw.Image, name string, panel ui.Widget) *imagebutt
 	size.Height /= 2
 	button := imagebutton.NewImageButtonWithImageSize(img, size)
 	button.EventHandlers().Add(event.ClickType, func(evt event.Event) { fmt.Printf("The button '%s' was clicked.\n", name) })
-	widget.NewSimpleToolTip(button, name)
+	tooltip.SetText(button, name)
 	panel.AddChild(button)
 	return button
 }
@@ -255,7 +257,7 @@ func createCheckBoxPanel() ui.Widget {
 func createCheckBox(title string, panel ui.Widget) *checkbox.CheckBox {
 	check := checkbox.NewCheckBox(title)
 	check.EventHandlers().Add(event.ClickType, func(evt event.Event) { fmt.Printf("The checkbox '%s' was clicked.\n", title) })
-	widget.NewSimpleToolTip(check, fmt.Sprintf("This is the tooltip for the '%s' checkbox.", title))
+	tooltip.SetText(check, fmt.Sprintf("This is the tooltip for the '%s' checkbox.", title))
 	panel.AddChild(check)
 	return check
 }
@@ -277,7 +279,7 @@ func createRadioButtonsPanel() ui.Widget {
 func createRadioButton(title string, panel ui.Widget, group *radiobutton.Group) *radiobutton.RadioButton {
 	rb := radiobutton.New(title)
 	rb.EventHandlers().Add(event.ClickType, func(evt event.Event) { fmt.Printf("The radio button '%s' was clicked.\n", title) })
-	widget.NewSimpleToolTip(rb, fmt.Sprintf("This is the tooltip for the '%s' radio button.", title))
+	tooltip.SetText(rb, fmt.Sprintf("This is the tooltip for the '%s' radio button.", title))
 	panel.AddChild(rb)
 	group.Add(rb)
 	return rb
@@ -295,7 +297,7 @@ func createPopupMenusPanel() ui.Widget {
 
 func createPopupMenu(panel ui.Widget, selection int, titles ...string) *popupmenu.PopupMenu {
 	p := popupmenu.NewPopupMenu()
-	widget.NewSimpleToolTip(p, fmt.Sprintf("This is the tooltip for the PopupMenu with %d items.", len(titles)))
+	tooltip.SetText(p, fmt.Sprintf("This is the tooltip for the PopupMenu with %d items.", len(titles)))
 	for _, title := range titles {
 		if title == "" {
 			p.AddSeparator()
@@ -335,7 +337,7 @@ func createTextField(text string, panel ui.Widget) *textfield.TextField {
 	field := textfield.New()
 	field.SetText(text)
 	field.SetLayoutData(flex.NewData().SetHorizontalGrab(true).SetHorizontalAlignment(draw.AlignFill))
-	widget.NewSimpleToolTip(field, fmt.Sprintf("This is the tooltip for the '%s' text field.", text))
+	tooltip.SetText(field, fmt.Sprintf("This is the tooltip for the '%s' text field.", text))
 	panel.AddChild(field)
 	return field
 }
@@ -346,7 +348,7 @@ func createAboutWindow(evt event.Event) {
 		aboutWindow.EventHandlers().Add(event.ClosedType, func(evt event.Event) { aboutWindow = nil })
 		aboutWindow.SetTitle("About " + app.AppName())
 		content := aboutWindow.Content()
-		content.SetBorder(border.NewEmpty(geom.Insets{Top: 10, Left: 10, Bottom: 10, Right: 10}))
+		content.SetBorder(border.NewEmpty(geom.NewUniformInsets(10)))
 		flex.NewLayout(content)
 		title := label.NewWithFont(app.AppName(), font.EmphasizedSystem)
 		title.SetLayoutData(flex.NewData().SetHorizontalAlignment(draw.AlignMiddle))

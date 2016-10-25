@@ -37,7 +37,7 @@ func NewMenu(title string) *Menu {
 	mnu.Describer = func() string {
 		return fmt.Sprintf("Menu #%d (%s)", mnu.ID(), mnu.Title())
 	}
-	mnu.SetBorder(border.NewLine(color.Gray, geom.Insets{Top: 1, Left: 1, Bottom: 1, Right: 1}))
+	mnu.SetBorder(border.NewLine(color.Gray, geom.NewUniformInsets(1)))
 	mnu.item.EventHandlers().Add(event.SelectionType, mnu.open)
 	flex.NewLayout(mnu).SetEqualColumns(true)
 	return mnu
@@ -159,12 +159,13 @@ func (mnu *Menu) Popup(windowID int64, where geom.Point, width float64, item men
 
 func (mnu *Menu) preparePopup(wnd ui.Window, where *geom.Point, width float64) geom.Size {
 	mnu.adjustItems(nil)
-	_, pref, _ := mnu.Layout().Sizes(layout.NoHintSize)
+	lay := mnu.Layout()
+	_, pref, _ := lay.Sizes(layout.NoHintSize)
 	if pref.Width < width {
 		pref.Width = width
 	}
 	mnu.SetBounds(geom.Rect{Size: pref})
-	mnu.Layout().Layout()
+	lay.Layout()
 	where.Add(wnd.ContentFrame().Point)
 	return pref
 }

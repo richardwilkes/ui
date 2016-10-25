@@ -14,10 +14,10 @@ import (
 )
 
 var (
-	nextID int64 = 1
+	next int64 = 1
 )
 
-// NextID returns the next available unique ID.
-func NextID() int64 {
-	return atomic.AddInt64(&nextID, 1)
+// Next returns the next available unique ID.
+func Next() int64 {
+	return atomic.AddInt64(&next, 1)
 }

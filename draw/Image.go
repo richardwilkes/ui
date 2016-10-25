@@ -70,7 +70,7 @@ func loadFromStream(key interface{}, stream io.ReadCloser) (ref *imgRef, err err
 		}
 	}
 	C.cairo_surface_mark_dirty(surface)
-	return &imgRef{img: &Image{id: id.NextID(), width: bounds.Dx(), height: bounds.Dy(), surface: surface, key: key}}, nil
+	return &imgRef{img: &Image{id: id.Next(), width: bounds.Dx(), height: bounds.Dy(), surface: surface, key: key}}, nil
 }
 
 // AcquireImageFromFile attempts to load an image from the file system.
@@ -139,7 +139,7 @@ func AcquireImageFromData(data *ImageData) (img *Image, err error) {
 	C.cairo_surface_mark_dirty(surface)
 	imageRegistryLock.Lock()
 	defer imageRegistryLock.Unlock()
-	id := id.NextID()
+	id := id.Next()
 	ref := &imgRef{img: &Image{id: id, width: data.Width, height: data.Height, surface: surface, key: id}, count: 1}
 	imageRegistry[id] = ref
 	return ref.img, nil

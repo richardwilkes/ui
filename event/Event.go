@@ -13,6 +13,46 @@ import (
 	"log"
 )
 
+// Type holds a unique type ID for each event type.
+type Type int
+
+// The event types
+const (
+	AppWillFinishStartupType Type = iota
+	AppDidFinishStartupType
+	AppWillActivateType
+	AppDidActivateType
+	AppWillDeactivateType
+	AppDidDeactivateType
+	AppQuitRequestedType
+	AppWillQuitType
+	AppLastWindowClosedType
+	AppPopulateMenuBarType
+	PaintType
+	MouseDownType
+	MouseDraggedType
+	MouseUpType
+	MouseEnteredType
+	MouseMovedType
+	MouseExitedType
+	MouseWheelType
+	ClickType
+	SelectionType
+	FocusGainedType
+	FocusLostType
+	KeyDownType
+	KeyUpType
+	ToolTipType
+	UpdateCursorType
+	ResizedType
+	ClosingType
+	ClosedType
+	ValidateType
+	ModifiedType
+	// UserType should be used as the base value for custom application events.
+	UserType = 10000
+)
+
 // Event is the minimal interface that must be implemented for events.
 type Event interface {
 	// Type returns the event type ID.

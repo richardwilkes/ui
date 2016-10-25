@@ -46,6 +46,6 @@ func (f *LabelCellFactory) CreateCell(owner ui.Widget, element interface{}, inde
 		label.SetBackground(color.SelectedTextBackground)
 		label.SetForeground(color.SelectedText)
 	}
-	label.SetBorder(border.NewEmpty(geom.Insets{Left: 4, Right: 4}))
+	label.SetBorder(border.NewEmpty(geom.NewHorizontalInsets(4)))
 	return label
 }

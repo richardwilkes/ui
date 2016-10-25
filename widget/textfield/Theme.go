@@ -43,8 +43,8 @@ func NewTheme() *Theme {
 // Init initializes the theme with its default values.
 func (theme *Theme) Init() {
 	theme.Font = font.User
-	theme.Border = border.NewCompound(border.NewLine(color.Background.AdjustBrightness(-0.25), geom.Insets{Top: 1, Left: 1, Bottom: 1, Right: 1}), border.NewEmpty(geom.Insets{Top: 1, Left: 4, Bottom: 1, Right: 4}))
-	theme.FocusBorder = border.NewCompound(border.NewLine(color.KeyboardFocus, geom.Insets{Top: 2, Left: 2, Bottom: 2, Right: 2}), border.NewEmpty(geom.Insets{Top: 0, Left: 3, Bottom: 0, Right: 3}))
+	theme.Border = border.NewCompound(border.NewLine(color.Background.AdjustBrightness(-0.25), geom.NewUniformInsets(1)), border.NewEmpty(geom.Insets{Top: 1, Left: 4, Bottom: 1, Right: 4}))
+	theme.FocusBorder = border.NewCompound(border.NewLine(color.KeyboardFocus, geom.NewUniformInsets(2)), border.NewEmpty(geom.Insets{Top: 0, Left: 3, Bottom: 0, Right: 3}))
 	theme.BlinkRate = time.Millisecond * 560
 	theme.MinimumTextWidth = 10
 	theme.DisabledBackgroundColor = color.Background
