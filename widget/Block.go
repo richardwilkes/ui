@@ -411,7 +411,7 @@ func (b *Block) SetSize(size geom.Size) {
 func (b *Block) WidgetAt(pt geom.Point) ui.Widget {
 	for _, child := range b.children {
 		bounds := child.Bounds()
-		if bounds.Contains(pt) {
+		if bounds.ContainsPoint(pt) {
 			pt.Subtract(bounds.Point)
 			return child.WidgetAt(pt)
 		}

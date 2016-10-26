@@ -166,7 +166,7 @@ func (checkbox *CheckBox) mouseDown(evt event.Event) {
 
 func (checkbox *CheckBox) mouseDragged(evt event.Event) {
 	bounds := checkbox.LocalInsetBounds()
-	pressed := bounds.Contains(checkbox.FromWindow(evt.(*event.MouseDragged).Where()))
+	pressed := bounds.ContainsPoint(checkbox.FromWindow(evt.(*event.MouseDragged).Where()))
 	if checkbox.pressed != pressed {
 		checkbox.pressed = pressed
 		checkbox.Repaint()
@@ -177,7 +177,7 @@ func (checkbox *CheckBox) mouseUp(evt event.Event) {
 	checkbox.pressed = false
 	checkbox.Repaint()
 	bounds := checkbox.LocalInsetBounds()
-	if bounds.Contains(checkbox.FromWindow(evt.(*event.MouseUp).Where())) {
+	if bounds.ContainsPoint(checkbox.FromWindow(evt.(*event.MouseUp).Where())) {
 		checkbox.Click()
 	}
 }

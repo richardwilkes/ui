@@ -146,7 +146,7 @@ func (button *RadioButton) mouseDown(evt event.Event) {
 
 func (button *RadioButton) mouseDragged(evt event.Event) {
 	bounds := button.LocalInsetBounds()
-	pressed := bounds.Contains(button.FromWindow(evt.(*event.MouseDragged).Where()))
+	pressed := bounds.ContainsPoint(button.FromWindow(evt.(*event.MouseDragged).Where()))
 	if button.pressed != pressed {
 		button.pressed = pressed
 		button.Repaint()
@@ -157,7 +157,7 @@ func (button *RadioButton) mouseUp(evt event.Event) {
 	button.pressed = false
 	button.Repaint()
 	bounds := button.LocalInsetBounds()
-	if bounds.Contains(button.FromWindow(evt.(*event.MouseUp).Where())) {
+	if bounds.ContainsPoint(button.FromWindow(evt.(*event.MouseUp).Where())) {
 		button.Click()
 	}
 }

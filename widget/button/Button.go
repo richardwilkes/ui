@@ -117,7 +117,7 @@ func (button *Button) mouseDown(evt event.Event) {
 
 func (button *Button) mouseDragged(evt event.Event) {
 	bounds := button.LocalInsetBounds()
-	pressed := bounds.Contains(button.FromWindow(evt.(*event.MouseDragged).Where()))
+	pressed := bounds.ContainsPoint(button.FromWindow(evt.(*event.MouseDragged).Where()))
 	if button.pressed != pressed {
 		button.pressed = pressed
 		button.Repaint()
@@ -129,7 +129,7 @@ func (button *Button) mouseUp(evt event.Event) {
 	button.Repaint()
 	bounds := button.LocalInsetBounds()
 	mouseUp := evt.(*event.MouseUp)
-	if bounds.Contains(button.FromWindow(mouseUp.Where())) {
+	if bounds.ContainsPoint(button.FromWindow(mouseUp.Where())) {
 		button.Click()
 	}
 }

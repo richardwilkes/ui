@@ -198,7 +198,7 @@ func (item *MenuItem) setMenuOpen(menuOpen bool) {
 func (item *MenuItem) mouseOver(where geom.Point) {
 	if item.Enabled() {
 		bounds := item.LocalInsetBounds()
-		highlighted := bounds.Contains(item.FromWindow(where))
+		highlighted := bounds.ContainsPoint(item.FromWindow(where))
 		if item.highlighted != highlighted {
 			item.highlighted = highlighted
 			item.Repaint()
@@ -215,7 +215,7 @@ func (item *MenuItem) mouseUp(evt event.Event) {
 	item.Repaint()
 	bounds := item.LocalInsetBounds()
 	mouseUp := evt.(*event.MouseUp)
-	if bounds.Contains(item.FromWindow(mouseUp.Where())) {
+	if bounds.ContainsPoint(item.FromWindow(mouseUp.Where())) {
 		event.Dispatch(event.NewSelection(item))
 		event.Dispatch(event.NewClosing(item))
 	}

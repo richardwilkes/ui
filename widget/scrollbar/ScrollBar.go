@@ -183,7 +183,7 @@ func (sb *ScrollBar) scheduleRepeat(which part, delay time.Duration) {
 func (sb *ScrollBar) over(where geom.Point) part {
 	for i := thumb; i <= pageDown; i++ {
 		rect := sb.partRect(i)
-		if rect.Contains(where) {
+		if rect.ContainsPoint(where) {
 			return i
 		}
 	}
