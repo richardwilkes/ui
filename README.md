@@ -2,11 +2,9 @@
 A user interface for Go.
 
 C Dependencies:
-```
-[Cairo](https://www.cairographics.org)
-[Pango](http://www.pango.org)
-X11 (linux only)
-```
+- [Cairo](https://www.cairographics.org)
+- [Pango](http://www.pango.org)
+- X11 (linux only)
 
 Go Dependencies:
 ```
