@@ -72,8 +72,6 @@ type Window interface {
 	RepaintBounds(bounds geom.Rect)
 	// FlushPainting causes any areas marked for repainting to be painted.
 	FlushPainting()
-	// ScalingFactor returns the current OS scaling factor being applied to this window.
-	ScalingFactor() float64
 	// Minimize performs the platform's minimize function on the window.
 	Minimize()
 	// Zoom performs the platform's zoom funcion on the window.

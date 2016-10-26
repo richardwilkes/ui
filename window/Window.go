@@ -412,11 +412,6 @@ func (window *Window) FlushPainting() {
 	window.platformFlushPainting()
 }
 
-// ScalingFactor returns the current OS scaling factor being applied to this window.
-func (window *Window) ScalingFactor() float64 {
-	return window.platformScalingFactor()
-}
-
 // Minimize performs the platform's minimize function on the window.
 func (window *Window) Minimize() {
 	window.platformMinimize()

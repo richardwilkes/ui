@@ -77,11 +77,6 @@ func (window *Window) platformFlushPainting() {
 	// RAW: Implement for Windows
 }
 
-func (window *Window) platformScalingFactor() float64 {
-	// RAW: Implement for Windows
-	return 1
-}
-
 func (window *Window) platformMinimize() {
 	// RAW: Implement for Windows
 }

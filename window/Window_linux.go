@@ -157,11 +157,6 @@ func (window *Window) platformFlushPainting() {
 	x11.Flush()
 }
 
-func (window *Window) platformScalingFactor() float64 {
-	// RAW: Implement for Linux
-	return 1
-}
-
 func (window *Window) platformMinimize() {
 	window.toXWindow().Minimize()
 }

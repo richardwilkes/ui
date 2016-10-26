@@ -215,16 +215,6 @@ import (
 	// 	*width = frame.size.width;
 	// 	*height = frame.size.height;
 	// }
-	//
-	// float getWindowScalingFactor(platformWindow window) {
-	// 	NSView *view = [((NSWindow *)window) contentView];
-	// 	CGRect bounds = [view bounds];
-	// 	CGFloat width = bounds.size.width;
-	// 	if (width <= 0) {
-	// 		return [((NSWindow *)window) backingScaleFactor];
-	// 	}
-	//     return [view convertRectToBacking:bounds].size.width / width;
-	// }
 	"C"
 )
 
@@ -290,10 +280,6 @@ func (window *Window) platformRepaint(bounds geom.Rect) {
 
 func (window *Window) platformFlushPainting() {
 	C.flushPainting(window.window)
-}
-
-func (window *Window) platformScalingFactor() float64 {
-	return float64(C.getWindowScalingFactor(window.window))
 }
 
 func (window *Window) platformMinimize() {
