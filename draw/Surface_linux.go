@@ -11,11 +11,19 @@ package draw
 
 import (
 	"github.com/richardwilkes/geom"
+	"unsafe"
 	// #cgo pkg-config: cairo
 	// #include <cairo/cairo-xlib.h>
 	"C"
 )
 
+func NewSurface(surface unsafe.Pointer, size geom.Size) *Surface {
+	return &Surface{surface: (*C.cairo_surface_t)(surface), size: size}
+}
+
 func (surface *Surface) SetSize(size geom.Size) {
-	C.cairo_xlib_surface_set_size(surface, C.int(size.Width), C.int(size.Height))
+	if surface.size != size {
+		surface.size = size
+		C.cairo_xlib_surface_set_size(surface.surface, C.int(size.Width), C.int(size.Height))
+	}
 }

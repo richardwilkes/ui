@@ -58,7 +58,7 @@ type Window struct {
 	tooltipWidget          ui.Widget
 	tooltipSequence        int
 	inMouseDown            bool
-	ignoreRepaint          bool // Currently only used by Linux
+	ignoreRepaint          bool
 	wasMapped              bool // Currently only used by Linux
 }
 

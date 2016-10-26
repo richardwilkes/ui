@@ -136,11 +136,21 @@ func (window *Window) platformRepaint(bounds geom.Rect) {
 }
 
 func (window *Window) draw(bounds geom.Rect) {
-	gc := draw.NewGraphics(window.surface.NewCairoContext(bounds))
+	buffer := window.surface.CreateSimilar(draw.ColorContent, window.surface.Size())
+	gc := draw.NewGraphics(buffer.NewCairoContext(bounds))
 	gc.Rect(bounds)
 	gc.Clip()
 	window.paint(gc, bounds)
 	gc.Dispose()
+
+	gc = draw.NewGraphics(window.surface.NewCairoContext(bounds))
+	gc.Rect(bounds)
+	gc.Clip()
+	gc.SetSurface(buffer, 0, 0)
+	gc.FillClip()
+	gc.Dispose()
+
+	buffer.Destroy()
 }
 
 func (window *Window) platformFlushPainting() {

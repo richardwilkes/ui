@@ -17,12 +17,31 @@ import (
 	"C"
 )
 
-type Surface C.cairo_surface_t
+type CairoContentType C.cairo_content_t
+
+const (
+	ColorContent         CairoContentType = C.CAIRO_CONTENT_COLOR
+	AlphaContent         CairoContentType = C.CAIRO_CONTENT_ALPHA
+	ColorAndAlphaContent CairoContentType = C.CAIRO_CONTENT_COLOR_ALPHA
+)
+
+type Surface struct {
+	surface *C.cairo_surface_t
+	size    geom.Size
+}
+
+func (surface *Surface) Size() geom.Size {
+	return surface.size
+}
 
 func (surface *Surface) Destroy() {
-	C.cairo_surface_destroy(surface)
+	C.cairo_surface_destroy(surface.surface)
 }
 
 func (surface *Surface) NewCairoContext(bounds geom.Rect) CairoContext {
-	return CairoContext(unsafe.Pointer(C.cairo_create(surface)))
+	return CairoContext(unsafe.Pointer(C.cairo_create(surface.surface)))
+}
+
+func (surface *Surface) CreateSimilar(contentType CairoContentType, size geom.Size) *Surface {
+	return &Surface{surface: C.cairo_surface_create_similar(surface.surface, C.cairo_content_t(contentType), C.int(size.Width), C.int(size.Height)), size: size}
 }

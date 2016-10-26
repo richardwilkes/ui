@@ -330,6 +330,13 @@ func (gc *Graphics) SetImage(img *Image, dx, dy float64) {
 	C.cairo_pattern_set_extend(C.cairo_get_source(gc.gc), C.CAIRO_EXTEND_REPEAT)
 }
 
+// SetSurface sets the current paint with a surface. 'dx' and 'dy' specify the amount to offset
+// the surface pattern.
+func (gc *Graphics) SetSurface(surface *Surface, dx, dy float64) {
+	C.cairo_set_source_surface(gc.gc, surface.surface, C.double(dx), C.double(dy))
+	C.cairo_pattern_set_extend(C.cairo_get_source(gc.gc), C.CAIRO_EXTEND_REPEAT)
+}
+
 // AntiAlias returns the current anti-aliasing mode.
 func (gc *Graphics) AntiAlias() AntiAliasKind {
 	return AntiAliasKind(C.cairo_get_antialias(gc.gc))
