@@ -26,6 +26,7 @@ type MenuItem struct {
 	keyCode      int
 	keyModifiers keys.Modifiers
 	menu         *Menu
+	menuParent   menuRoot
 	title        string
 	pos          float64
 	highlighted  bool
@@ -203,6 +204,12 @@ func (item *MenuItem) mouseOver(where geom.Point) {
 			item.highlighted = highlighted
 			item.Repaint()
 		}
+		if highlighted && item.menu != nil && !item.menuOpen {
+			if leafMenu := item.findRoot().findLeafOpenMenu(); leafMenu != nil {
+				leafMenu.close(nil)
+				item.menu.open(nil)
+			}
+		}
 	}
 }
 
@@ -268,4 +275,11 @@ func (item *MenuItem) processKeyDown(evt *event.KeyDown) bool {
 		return item.menu.processKeyDown(evt)
 	}
 	return false
+}
+
+func (item *MenuItem) findRoot() menuRoot {
+	if item.menuParent != nil {
+		return item.menuParent
+	}
+	return item.menu
 }

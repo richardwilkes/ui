@@ -24,9 +24,15 @@ import (
 	"github.com/richardwilkes/ui/window"
 )
 
+type menuRoot interface {
+	findRoot() menuRoot
+	findLeafOpenMenu() *Menu
+}
+
 type Menu struct {
 	widget.Block
 	item           *MenuItem
+	menuParent     menuRoot
 	wnd            ui.Window
 	attachToBottom bool
 }
@@ -58,6 +64,9 @@ func (mnu *Menu) AppendItem(item menu.Item) {
 func (mnu *Menu) InsertItem(item menu.Item, index int) {
 	if actual, ok := item.(ui.Widget); ok {
 		mnu.AddChildAtIndex(actual, index)
+		if mi, ok := item.(*MenuItem); ok {
+			mi.menuParent = mnu
+		}
 		actual.EventHandlers().Add(event.ClosingType, mnu.close)
 		actual.SetLayoutData(flex.NewData().SetHorizontalGrab(true).SetHorizontalAlignment(draw.AlignFill))
 	}
@@ -115,13 +124,14 @@ func (mnu *Menu) adjustItems(evt event.Event) {
 func (mnu *Menu) open(evt event.Event) {
 	bounds := mnu.item.LocalBounds()
 	where := mnu.item.ToWindow(bounds.Point)
-	size := mnu.preparePopup(mnu.item.Window(), &where, 0)
+	focus := mnu.item.Window()
+	size := mnu.preparePopup(focus, &where, 0)
 	if mnu.attachToBottom {
 		where.Y += bounds.Height
 	} else {
 		where.X += bounds.Width
 	}
-	mnu.showPopup(where, size)
+	mnu.showPopup(focus, where, size)
 }
 
 func (mnu *Menu) close(evt event.Event) {
@@ -153,7 +163,7 @@ func (mnu *Menu) Popup(windowID int64, where geom.Point, width float64, item men
 		if item != nil {
 			where.Add(geom.Point{X: 0, Y: -item.(*MenuItem).Location().Y})
 		}
-		mnu.showPopup(where, size)
+		mnu.showPopup(wnd, where, size)
 	}
 }
 
@@ -170,8 +180,7 @@ func (mnu *Menu) preparePopup(wnd ui.Window, where *geom.Point, width float64) g
 	return pref
 }
 
-func (mnu *Menu) showPopup(where geom.Point, size geom.Size) {
-	focus := window.KeyWindow()
+func (mnu *Menu) showPopup(focus ui.Window, where geom.Point, size geom.Size) {
 	wnd := window.NewPopupWindow(focus, where, size)
 	wnd.Content().AddChild(mnu)
 	wnd.EventHandlers().Add(event.FocusLostType, mnu.close)
@@ -190,4 +199,23 @@ func (mnu *Menu) processKeyDown(evt *event.KeyDown) bool {
 		}
 	}
 	return false
+}
+
+func (mnu *Menu) findRoot() menuRoot {
+	if mnu.menuParent != nil {
+		return mnu.menuParent
+	}
+	return mnu
+}
+
+func (mnu *Menu) findLeafOpenMenu() *Menu {
+	for _, child := range mnu.Children() {
+		if item, ok := child.(*MenuItem); ok && item.menu != nil && item.menuOpen {
+			return item.menu.findLeafOpenMenu()
+		}
+	}
+	if mnu.item.menuOpen {
+		return mnu
+	}
+	return nil
 }

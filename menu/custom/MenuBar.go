@@ -59,6 +59,8 @@ func (bar *MenuBar) AppendMenu(subMenu menu.Menu) {
 func (bar *MenuBar) InsertMenu(subMenu menu.Menu, index int) {
 	if actual, ok := subMenu.(*Menu); ok {
 		bar.AddChildAtIndex(actual.item, index)
+		actual.menuParent = bar
+		actual.item.menuParent = bar
 		actual.attachToBottom = true
 		switch layout := bar.Layout().(type) {
 		case *flex.Flex:
@@ -107,4 +109,17 @@ func (bar *MenuBar) ProcessKeyDown(evt *event.KeyDown) {
 			}
 		}
 	}
+}
+
+func (bar *MenuBar) findRoot() menuRoot {
+	return bar
+}
+
+func (bar *MenuBar) findLeafOpenMenu() *Menu {
+	for _, child := range bar.Children() {
+		if item, ok := child.(*MenuItem); ok && item.menu != nil && item.menuOpen {
+			return item.menu.findLeafOpenMenu()
+		}
+	}
+	return nil
 }
