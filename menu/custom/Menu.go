@@ -156,7 +156,7 @@ func (mnu *Menu) Dispose() {
 
 // Popup displays the menu within the window. An attempt will be made to position the 'item'
 // at 'where' within the window.
-func (mnu *Menu) Popup(windowID int64, where geom.Point, width float64, item menu.Item) {
+func (mnu *Menu) Popup(windowID uint64, where geom.Point, width float64, item menu.Item) {
 	wnd := window.ByID(windowID)
 	if wnd != nil {
 		size := mnu.preparePopup(wnd, &where, width)

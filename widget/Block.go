@@ -17,13 +17,13 @@ import (
 	"github.com/richardwilkes/ui/color"
 	"github.com/richardwilkes/ui/draw"
 	"github.com/richardwilkes/ui/event"
-	"github.com/richardwilkes/ui/id"
 	"github.com/richardwilkes/ui/layout"
+	"github.com/richardwilkes/ui/object"
 )
 
 // Block is the basic graphical block in a window.
 type Block struct {
-	id            int64
+	object.Base
 	Describer     func() string
 	eventHandlers *event.Handlers
 	window        ui.Window
@@ -44,7 +44,9 @@ type Block struct {
 
 // NewBlock creates a new, empty block.
 func NewBlock() *Block {
-	return &Block{}
+	block := &Block{}
+	block.InitTypeAndID(block)
+	return block
 }
 
 func (b *Block) String() string {
@@ -52,14 +54,6 @@ func (b *Block) String() string {
 		return b.Describer()
 	}
 	return fmt.Sprintf("Block #%d", b.ID())
-}
-
-// ID returns the unique ID for this block.
-func (b *Block) ID() int64 {
-	if b.id == 0 {
-		b.id = id.Next()
-	}
-	return b.id
 }
 
 // EventHandlers implements the event.Target interface.
@@ -242,7 +236,7 @@ func (b *Block) SetGrabFocusWhenClickedOn(grabsFocus bool) {
 // Focused implements the Widget interface.
 func (b *Block) Focused() bool {
 	if window := b.Window(); window != nil {
-		return window.Focused() && b.ID() == window.Focus().ID()
+		return window.Focused() && b.Is(window.Focus())
 	}
 	return false
 }

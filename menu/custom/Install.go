@@ -16,7 +16,7 @@ import (
 )
 
 func Install() {
-	menu.AppBar = func(id int64) menu.Bar { return AppBar(id) }
+	menu.AppBar = func(id uint64) menu.Bar { return AppBar(id) }
 	menu.Global = func() bool { return false }
 	menu.NewMenu = func(title string) menu.Menu { return NewMenu(title) }
 	menu.NewItem = func(title string, handler event.Handler) menu.Item { return NewItem(title, handler) }

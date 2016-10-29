@@ -36,7 +36,7 @@ type Menu interface {
 	// Popup displays the menu within the window. An attempt will be made to position the 'item'
 	// at 'where' within the window. 'width' is a hint at how wide the menu item should be. It may
 	// be ignored and will not be used to make the menu smaller than it otherwise would be.
-	Popup(windowID int64, where geom.Point, width float64, item Item)
+	Popup(windowID uint64, where geom.Point, width float64, item Item)
 	// Dispose releases any operating system resources associated with this menu. It will also
 	// call Dispose() on all menu items it contains.
 	Dispose()

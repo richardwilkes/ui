@@ -33,10 +33,8 @@ func New(text string) *Label {
 
 // NewWithFont creates a label with the specified text and font.
 func NewWithFont(text string, font *font.Font) *Label {
-	label := &Label{}
-	label.text = text
-	label.foreground = color.Black
-	label.font = font
+	label := &Label{text: text, foreground: color.Black, font: font}
+	label.InitTypeAndID(label)
 	label.Describer = func() string { return fmt.Sprintf("Label #%d (%s)", label.ID(), label.text) }
 	label.SetSizer(label)
 	label.EventHandlers().Add(event.PaintType, label.paint)

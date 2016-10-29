@@ -35,9 +35,8 @@ type separationMarker struct {
 
 // NewPopupMenu creates a new PopupMenu.
 func NewPopupMenu() *PopupMenu {
-	pm := &PopupMenu{}
-	pm.selectedIndex = -1
-	pm.Theme = button.StdButton
+	pm := &PopupMenu{selectedIndex: -1, Theme: button.StdButton}
+	pm.InitTypeAndID(pm)
 	pm.Describer = func() string { return fmt.Sprintf("PopupMenu #%d", pm.ID()) }
 	pm.SetFocusable(true)
 	pm.SetSizer(pm)

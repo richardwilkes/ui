@@ -50,8 +50,8 @@ type TextField struct {
 
 // New creates a new, empty, text field.
 func New() *TextField {
-	field := &TextField{}
-	field.Theme = StdTheme
+	field := &TextField{Theme: StdTheme}
+	field.InitTypeAndID(field)
 	field.Describer = func() string { return fmt.Sprintf("TextField #%d", field.ID()) }
 	field.SetBackground(color.TextBackground)
 	field.SetBorder(field.Theme.Border)

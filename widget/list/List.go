@@ -37,6 +37,7 @@ type List struct {
 // New creates a new List control.
 func New(factory widget.CellFactory) *List {
 	list := &List{factory: factory, anchor: -1}
+	list.InitTypeAndID(list)
 	list.Describer = func() string { return fmt.Sprintf("List #%d", list.ID()) }
 	list.SetBackground(color.White)
 	list.SetBorder(border.NewEmpty(geom.NewUniformInsets(2)))

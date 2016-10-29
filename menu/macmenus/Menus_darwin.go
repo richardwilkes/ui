@@ -15,6 +15,7 @@ import (
 	"github.com/richardwilkes/ui/event"
 	"github.com/richardwilkes/ui/keys"
 	"github.com/richardwilkes/ui/menu"
+	"github.com/richardwilkes/ui/object"
 	"strings"
 	"unsafe"
 	// #cgo CFLAGS: -x objective-c
@@ -79,8 +80,8 @@ type platformMenu struct {
 }
 
 type platformItem struct {
-	item          C.Item // Must be first element in struct!
-	id            int64
+	item C.Item // Must be first element in struct!
+	object.Base
 	eventHandlers *event.Handlers
 	title         string
 	keyCode       int

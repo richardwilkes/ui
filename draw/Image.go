@@ -14,7 +14,7 @@ import (
 	"github.com/richardwilkes/errs"
 	"github.com/richardwilkes/geom"
 	"github.com/richardwilkes/ui/color"
-	"github.com/richardwilkes/ui/id"
+	"github.com/richardwilkes/ui/object"
 	"image"
 	_ "image/gif"  // Support loading of GIF
 	_ "image/jpeg" // Support loading of JPEG
@@ -40,8 +40,8 @@ type fsKey struct {
 
 // Image represents a set of pixels that can be drawn to a graphics.Context.
 type Image struct {
-	id         int64
-	disabledID int64
+	object.Base
+	disabledID uint64
 	width      int
 	height     int
 	surface    *C.cairo_surface_t
@@ -70,7 +70,9 @@ func loadFromStream(key interface{}, stream io.ReadCloser) (ref *imgRef, err err
 		}
 	}
 	C.cairo_surface_mark_dirty(surface)
-	return &imgRef{img: &Image{id: id.Next(), width: bounds.Dx(), height: bounds.Dy(), surface: surface, key: key}}, nil
+	img := &Image{width: bounds.Dx(), height: bounds.Dy(), surface: surface, key: key}
+	img.InitTypeAndID(img)
+	return &imgRef{img: img}, nil
 }
 
 // AcquireImageFromFile attempts to load an image from the file system.
@@ -116,7 +118,7 @@ func AcquireImageFromURL(url string) (img *Image, err error) {
 
 // AcquireImageFromID attempts to find an already loaded image by its ID and return it. Returns nil
 // if it cannot be found.
-func AcquireImageFromID(id int64) *Image {
+func AcquireImageFromID(id uint64) *Image {
 	imageRegistryLock.Lock()
 	defer imageRegistryLock.Unlock()
 	if r, ok := imageRegistry[id]; ok {
@@ -139,10 +141,12 @@ func AcquireImageFromData(data *ImageData) (img *Image, err error) {
 	C.cairo_surface_mark_dirty(surface)
 	imageRegistryLock.Lock()
 	defer imageRegistryLock.Unlock()
-	id := id.Next()
-	ref := &imgRef{img: &Image{id: id, width: data.Width, height: data.Height, surface: surface, key: id}, count: 1}
-	imageRegistry[id] = ref
-	return ref.img, nil
+	img = &Image{width: data.Width, height: data.Height, surface: surface}
+	img.InitTypeAndID(img)
+	img.key = img.ID()
+	ref := &imgRef{img: img, count: 1}
+	imageRegistry[img.ID()] = ref
+	return img, nil
 }
 
 // AcquireImageArea creates a new image from an area within this image.
@@ -164,14 +168,9 @@ func (img *Image) AcquireDisabled() (image *Image, e error) {
 		data.Pixels[i] = color.RGBA(v, v, v, p.AlphaIntensity()*0.4)
 	}
 	if image, e = AcquireImageFromData(data); e == nil {
-		img.disabledID = image.id
+		img.disabledID = image.ID()
 	}
 	return image, e
-}
-
-// ID returns the underlying ID of the image.
-func (img *Image) ID() int64 {
-	return img.id
 }
 
 // Size returns the size of the image.

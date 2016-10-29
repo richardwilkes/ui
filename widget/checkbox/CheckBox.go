@@ -43,9 +43,8 @@ type CheckBox struct {
 
 // NewCheckBox creates a new checkbox with the specified title.
 func NewCheckBox(title string) *CheckBox {
-	checkbox := &CheckBox{}
-	checkbox.Title = title
-	checkbox.Theme = StdCheckBox
+	checkbox := &CheckBox{Title: title, Theme: StdCheckBox}
+	checkbox.InitTypeAndID(checkbox)
 	checkbox.Describer = func() string { return fmt.Sprintf("CheckBox #%d (%s)", checkbox.ID(), checkbox.Title) }
 	checkbox.SetFocusable(true)
 	checkbox.SetSizer(checkbox)

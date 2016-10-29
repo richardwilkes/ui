@@ -34,9 +34,8 @@ type RadioButton struct {
 
 // New creates a new radio button with the specified title.
 func New(title string) *RadioButton {
-	button := &RadioButton{}
-	button.Title = title
-	button.Theme = StdTheme
+	button := &RadioButton{Title: title, Theme: StdTheme}
+	button.InitTypeAndID(button)
 	button.Describer = func() string { return fmt.Sprintf("RadioButton #%d (%s)", button.ID(), button.Title) }
 	button.SetFocusable(true)
 	button.SetSizer(button)

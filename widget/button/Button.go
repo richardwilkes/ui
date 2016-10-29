@@ -31,9 +31,8 @@ type Button struct {
 
 // New creates a new button with the specified title.
 func New(title string) *Button {
-	button := &Button{}
-	button.Title = title
-	button.Theme = StdButton
+	button := &Button{Title: title, Theme: StdButton}
+	button.InitTypeAndID(button)
 	button.Describer = func() string { return fmt.Sprintf("Button #%d (%s)", button.ID(), button.Title) }
 	button.SetFocusable(true)
 	button.SetSizer(button)

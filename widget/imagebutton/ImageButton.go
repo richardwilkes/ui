@@ -38,13 +38,12 @@ func NewImageButton(img *draw.Image) *ImageButton {
 // to the specified size. The button itself will be a bit larger, based on the theme settings and
 // border.
 func NewImageButtonWithImageSize(img *draw.Image, size geom.Size) *ImageButton {
-	button := &ImageButton{}
-	button.image = img
+	button := &ImageButton{image: img, Theme: StdImageButton}
+	button.InitTypeAndID(button)
 	var err error
 	if button.disabledImage, err = img.AcquireDisabled(); err != nil {
 		button.disabledImage = img
 	}
-	button.Theme = StdImageButton
 	button.Describer = func() string { return fmt.Sprintf("ImageButton #%d (%v)", button.ID(), button.Image()) }
 	button.SetFocusable(true)
 	if size.Width <= 0 || size.Height <= 0 {

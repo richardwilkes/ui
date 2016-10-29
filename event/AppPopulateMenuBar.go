@@ -19,12 +19,12 @@ import (
 // window with a title bar.
 type AppPopulateMenuBar struct {
 	target   Target
-	id       int64
+	id       uint64
 	finished bool
 }
 
 // SendAppLastWindowClosed sends a new AppPopulateMenuBar event.
-func SendAppPopulateMenuBar(id int64) {
+func SendAppPopulateMenuBar(id uint64) {
 	Dispatch(&AppPopulateMenuBar{target: GlobalTarget(), id: id})
 }
 
@@ -55,7 +55,7 @@ func (e *AppPopulateMenuBar) Finish() {
 
 // ID returns the id of the window that requires its menu bar populated, or 0 if this is for the
 // global menu bar.
-func (e *AppPopulateMenuBar) ID() int64 {
+func (e *AppPopulateMenuBar) ID() uint64 {
 	return e.id
 }
 

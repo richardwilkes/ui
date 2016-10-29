@@ -46,7 +46,7 @@ type Bar interface {
 var (
 	// AppBar returns the menu bar for the given window id. On some platforms, the menu bar is a
 	// global entity and the same value will be returned for all window ids.
-	AppBar func(id int64) Bar
+	AppBar func(id uint64) Bar
 	// Global returns true if the menu bar is global.
 	Global func() bool
 )

@@ -32,6 +32,7 @@ func New(img *draw.Image) *ImageLabel {
 // specified size.
 func NewWithSize(img *draw.Image, size geom.Size) *ImageLabel {
 	label := &ImageLabel{image: img}
+	label.InitTypeAndID(label)
 	label.Describer = func() string { return fmt.Sprintf("ImageLabel #%d (%v)", label.ID(), label.image) }
 	if size.Width <= 0 || size.Height <= 0 {
 		label.SetSizer(label)

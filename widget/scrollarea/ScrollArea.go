@@ -45,8 +45,8 @@ type ScrollArea struct {
 
 // New creates a new ScrollArea with the specified block as its content. The content may be nil.
 func New(content ui.Widget, behavior Behavior) *ScrollArea {
-	sa := &ScrollArea{}
-	sa.Theme = StdTheme
+	sa := &ScrollArea{Theme: StdTheme}
+	sa.InitTypeAndID(sa)
 	sa.Describer = func() string { return fmt.Sprintf("ScrollArea #%d", sa.ID()) }
 	sa.SetBorder(sa.Theme.Border)
 	handlers := sa.EventHandlers()

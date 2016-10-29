@@ -45,10 +45,8 @@ type ScrollBar struct {
 
 // New creates a new scrollbar.
 func New(horizontal bool, target Scrollable) *ScrollBar {
-	sb := &ScrollBar{}
-	sb.Theme = StdTheme
-	sb.Target = target
-	sb.horizontal = horizontal
+	sb := &ScrollBar{Theme: StdTheme, Target: target, horizontal: horizontal}
+	sb.InitTypeAndID(sb)
 	sb.Describer = func() string { return fmt.Sprintf("ScrollBar #%d", sb.ID()) }
 	sb.SetSizer(sb)
 	handlers := sb.EventHandlers()

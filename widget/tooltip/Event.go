@@ -15,11 +15,6 @@ import (
 	"github.com/richardwilkes/geom"
 	"github.com/richardwilkes/ui"
 	"github.com/richardwilkes/ui/event"
-	"github.com/richardwilkes/ui/id"
-)
-
-var (
-	EventType = event.Type(id.Next())
 )
 
 // ToolTip is generated when a tooltip is being requested for the widget.

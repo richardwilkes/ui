@@ -12,13 +12,13 @@ package app
 import (
 	"fmt"
 	"github.com/richardwilkes/ui/event"
-	"github.com/richardwilkes/ui/id"
+	"github.com/richardwilkes/ui/object"
 	"runtime"
 )
 
 // Application represents the overall application.
 type Application struct {
-	id            int64
+	object.Base
 	eventHandlers event.Handlers
 }
 
@@ -30,19 +30,12 @@ var (
 )
 
 func init() {
+	App.InitTypeAndID(&App)
 	event.SetGlobalTarget(&App)
 }
 
 func (app *Application) String() string {
 	return fmt.Sprintf("Application #%d", app.ID())
-}
-
-// ID returns the unique ID for this application.
-func (app *Application) ID() int64 {
-	if app.id == 0 {
-		app.id = id.Next()
-	}
-	return app.id
 }
 
 // EventHandlers implements the event.Target interface.

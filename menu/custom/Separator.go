@@ -21,6 +21,7 @@ type Separator struct {
 
 func NewSeparator() *Separator {
 	sep := &Separator{}
+	sep.InitTypeAndID(sep)
 	sep.Initialize(true)
 	return sep
 }

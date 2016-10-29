@@ -31,7 +31,7 @@ var (
 )
 
 // AppBar returns the menu bar for the given window.
-func AppBar(id int64) menu.Bar {
+func AppBar(id uint64) menu.Bar {
 	if lookingUpBar {
 		return nil
 	}

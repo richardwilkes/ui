@@ -27,6 +27,7 @@ type Separator struct {
 // New creates a new separator.
 func New(horizontal bool) *Separator {
 	sep := &Separator{}
+	sep.InitTypeAndID(sep)
 	sep.Initialize(horizontal)
 	return sep
 }

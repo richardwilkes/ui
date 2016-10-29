@@ -16,11 +16,11 @@ import (
 	"github.com/richardwilkes/ui/cursor"
 	"github.com/richardwilkes/ui/draw"
 	"github.com/richardwilkes/ui/event"
-	"github.com/richardwilkes/ui/id"
 	"github.com/richardwilkes/ui/internal/task"
 	"github.com/richardwilkes/ui/keys"
 	"github.com/richardwilkes/ui/layout"
 	"github.com/richardwilkes/ui/menu"
+	"github.com/richardwilkes/ui/object"
 	"github.com/richardwilkes/ui/widget/tooltip"
 	"time"
 	"unsafe"
@@ -41,7 +41,7 @@ const (
 
 // Window represents a window on the display.
 type Window struct {
-	id                     int64
+	object.Base
 	window                 platformWindow
 	surface                *draw.Surface // Currently only used by Linux
 	eventHandlers          *event.Handlers
@@ -65,7 +65,7 @@ type Window struct {
 var (
 	LastWindowClosed func()
 	windowMap        = make(map[platformWindow]*Window)
-	windowIDMap      = make(map[int64]*Window)
+	windowIDMap      = make(map[uint64]*Window)
 	windowList       = make([]*Window, 0)
 )
 
@@ -78,7 +78,7 @@ func WindowCount() int {
 	return len(windowMap)
 }
 
-func ByID(id int64) ui.Window {
+func ByID(id uint64) ui.Window {
 	return windowIDMap[id]
 }
 
@@ -127,6 +127,7 @@ func NewPopupWindow(parent ui.Window, where geom.Point, contentSize geom.Size) *
 
 func newWindow(win platformWindow, styleMask WindowStyleMask, surface *draw.Surface, where geom.Point) *Window {
 	window := &Window{window: win, surface: surface, style: styleMask}
+	window.InitTypeAndID(window)
 	windowMap[window.window] = window
 	windowIDMap[window.ID()] = window
 	window.initialLocationRequest = where
@@ -147,14 +148,6 @@ func newWindow(win platformWindow, styleMask WindowStyleMask, surface *draw.Surf
 func (window *Window) String() string {
 	// Can't call window.Title() here, as the window may have been closed already
 	return fmt.Sprintf("Window #%d", window.ID())
-}
-
-// ID returns the unique ID for this window.
-func (window *Window) ID() int64 {
-	if window.id == 0 {
-		window.id = id.Next()
-	}
-	return window.id
 }
 
 func (window *Window) Owner() ui.Window {

@@ -12,7 +12,6 @@ package macmenus
 import (
 	"fmt"
 	"github.com/richardwilkes/ui/event"
-	"github.com/richardwilkes/ui/id"
 	"github.com/richardwilkes/ui/keys"
 	"github.com/richardwilkes/ui/menu"
 )
@@ -20,6 +19,7 @@ import (
 // NewSeparator creates a new separator item.
 func NewSeparator() menu.Item {
 	item := &platformItem{item: platformNewSeparator()}
+	item.InitTypeAndID(item)
 	itemMap[item.item] = item
 	return item
 }
@@ -37,6 +37,7 @@ func NewItemWithKey(title string, keyCode int, handler event.Handler) menu.Item 
 // NewItemWithKeyAndModifiers creates a new item.
 func NewItemWithKeyAndModifiers(title string, keyCode int, modifiers keys.Modifiers, handler event.Handler) menu.Item {
 	item := &platformItem{item: platformNewItem(title, keyCode, modifiers), title: title, keyCode: keyCode, keyModifiers: modifiers, enabled: true}
+	item.InitTypeAndID(item)
 	if handler != nil {
 		item.EventHandlers().Add(event.SelectionType, handler)
 	}
@@ -46,14 +47,6 @@ func NewItemWithKeyAndModifiers(title string, keyCode int, modifiers keys.Modifi
 
 func (item *platformItem) String() string {
 	return fmt.Sprintf("menu.Item #%d (%s)", item.ID(), item.Title())
-}
-
-// ID returns the unique ID associated with this item.
-func (item *platformItem) ID() int64 {
-	if item.id == 0 {
-		item.id = id.Next()
-	}
-	return item.id
 }
 
 // EventHandlers returns the handler mappings for this item.
