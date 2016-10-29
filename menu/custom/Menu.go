@@ -39,6 +39,7 @@ type Menu struct {
 
 func NewMenu(title string) *Menu {
 	mnu := &Menu{item: NewItem(title, nil)}
+	mnu.InitTypeAndID(mnu)
 	mnu.item.menu = mnu
 	mnu.Describer = func() string {
 		return fmt.Sprintf("Menu #%d (%s)", mnu.ID(), mnu.Title())

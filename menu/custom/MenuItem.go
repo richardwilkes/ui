@@ -45,11 +45,8 @@ func NewItemWithKey(title string, keyCode int, handler event.Handler) *MenuItem 
 
 // NewItemWithKeyAndModifiers creates a new item.
 func NewItemWithKeyAndModifiers(title string, keyCode int, modifiers keys.Modifiers, handler event.Handler) *MenuItem {
-	item := &MenuItem{}
-	item.Theme = StdTheme
-	item.title = title
-	item.keyCode = keyCode
-	item.keyModifiers = modifiers
+	item := &MenuItem{Theme: StdTheme, title: title, keyCode: keyCode, keyModifiers: modifiers}
+	item.InitTypeAndID(item)
 	item.Describer = func() string { return fmt.Sprintf("MenuItem #%d (%s)", item.ID(), item.title) }
 	item.SetSizer(item)
 	handlers := item.EventHandlers()

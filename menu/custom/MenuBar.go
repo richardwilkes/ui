@@ -41,6 +41,7 @@ func AppBar(id uint64) menu.Bar {
 	lookingUpBar = false
 	if bar == nil {
 		mb := &MenuBar{special: make(map[menu.SpecialMenuType]menu.Menu)}
+		mb.InitTypeAndID(mb)
 		mb.Describer = func() string { return fmt.Sprintf("MenuBar #%d", mb.ID()) }
 		mb.SetBorder(border.NewLine(color.Background.AdjustBrightness(-0.25), geom.Insets{Top: 0, Left: 0, Bottom: 1, Right: 0}))
 		flex.NewLayout(mb)
