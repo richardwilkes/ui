@@ -351,9 +351,10 @@ func createAboutWindow(evt event.Event) {
 		content.SetBorder(border.NewEmpty(geom.NewUniformInsets(10)))
 		flex.NewLayout(content)
 		title := label.NewWithFont(app.AppName(), font.EmphasizedSystem)
-		title.SetLayoutData(flex.NewData().SetHorizontalAlignment(draw.AlignMiddle))
+		title.SetLayoutData(flex.NewData().SetHorizontalAlignment(draw.AlignMiddle).SetHorizontalGrab(true))
 		content.AddChild(title)
 		desc := label.New("Simple app to demonstrate the\ncapabilities of the ui framework.")
+		desc.SetLayoutData(flex.NewData().SetHorizontalAlignment(draw.AlignMiddle).SetHorizontalGrab(true))
 		content.AddChild(desc)
 		aboutWindow.Pack()
 	}
