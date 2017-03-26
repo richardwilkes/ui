@@ -49,7 +49,7 @@ func initFamilyLists() {
 			familiesMono = append(familiesMono, familiesAll[i])
 		}
 	}
-	C.g_free(list)
+	C.g_free(C.gpointer(list))
 	sort.Sort(familiesByName(familiesAll))
 	sort.Sort(familiesByName(familiesMono))
 }
@@ -87,7 +87,7 @@ func (f *Family) Faces() []*Face {
 	for i = 0; i < count; i++ {
 		faces[i] = &Face{face: fontFaces[i]}
 	}
-	C.g_free(list)
+	C.g_free(C.gpointer(list))
 	sort.Sort(facesByName(faces))
 	return faces
 }

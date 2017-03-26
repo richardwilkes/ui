@@ -10,8 +10,9 @@
 package font
 
 import (
-	"github.com/richardwilkes/geom"
 	"unsafe"
+
+	"github.com/richardwilkes/geom"
 	// #cgo pkg-config: pangocairo
 	// #include <pango/pangocairo.h>
 	"C"
@@ -39,7 +40,7 @@ type Font struct {
 
 func init() {
 	// Tell Pango we want our typographic points to be 1/72 of an inch.
-	C.pango_cairo_font_map_set_resolution(C.pango_cairo_font_map_get_default(), 72)
+	C.pango_cairo_font_map_set_resolution((*C.PangoCairoFontMap)(C.pango_cairo_font_map_get_default()), 72)
 }
 
 // NewFont creates a font from a string.
@@ -99,7 +100,7 @@ func (d *Font) Family() string {
 func (d *Font) SetFamily(family string) {
 	cstr := C.CString(family)
 	C.pango_font_description_set_family(d.pfd, cstr)
-	C.g_free(cstr)
+	C.g_free(C.gpointer(cstr))
 	d.metricsLoaded = false
 }
 
@@ -259,11 +260,11 @@ func (d *Font) createLayout(text string) (layout *C.PangoLayout, gc *C.cairo_t) 
 	C.pango_layout_set_spacing(layout, C.int(d.Leading()*PangoScale))
 	cstr := C.CString(text)
 	C.pango_layout_set_text(layout, cstr, -1)
-	C.g_free(cstr)
+	C.g_free(C.gpointer(cstr))
 	return layout, gc
 }
 
 func (d *Font) destroyLayout(layout *C.PangoLayout, gc *C.cairo_t) {
-	C.g_object_unref(layout)
+	C.g_object_unref(C.gpointer(layout))
 	C.cairo_destroy(gc)
 }

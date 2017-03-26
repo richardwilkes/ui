@@ -10,11 +10,12 @@
 package draw
 
 import (
+	"math"
+
 	"github.com/richardwilkes/geom"
 	"github.com/richardwilkes/ui/color"
 	"github.com/richardwilkes/ui/draw/compositing"
 	"github.com/richardwilkes/ui/font"
-	"math"
 	// #cgo darwin LDFLAGS: -framework Cocoa -framework Quartz
 	// #cgo linux LDFLAGS: -lX11
 	// #cgo pkg-config: pangocairo
@@ -605,16 +606,16 @@ func (gc *Graphics) DrawImageInRect(img *Image, bounds geom.Rect) {
 // DrawString at the specified location using the current font and fill color.
 func (gc *Graphics) DrawString(x, y float64, str string, f *font.Font) {
 	layout := C.pango_cairo_create_layout(gc.gc)
-	C.pango_layout_set_font_description(layout, f.PangoFontDescription())
+	C.pango_layout_set_font_description(layout, (*C.PangoFontDescription)(f.PangoFontDescription()))
 	C.pango_layout_set_spacing(layout, C.int(f.Leading()*font.PangoScale))
 	cstr := C.CString(str)
 	C.pango_layout_set_text(layout, cstr, -1)
-	C.g_free(cstr)
+	C.g_free(C.gpointer(cstr))
 	gc.MoveTo(x, y+f.Leading())
 	C.pango_cairo_show_layout(gc.gc, layout)
 	var inkRect, logicalRect C.PangoRectangle
 	C.pango_layout_get_pixel_extents(layout, &inkRect, &logicalRect)
-	C.g_object_unref(layout)
+	C.g_object_unref(C.gpointer(layout))
 }
 
 func toCairoMatrix(matrix *geom.Matrix) *C.cairo_matrix_t {
