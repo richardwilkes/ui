@@ -10,12 +10,13 @@
 package window
 
 import (
+	"time"
+	"unsafe"
+
 	"github.com/richardwilkes/geom"
 	"github.com/richardwilkes/ui"
 	"github.com/richardwilkes/ui/cursor"
 	"github.com/richardwilkes/ui/draw"
-	"time"
-	"unsafe"
 	// #cgo CFLAGS: -x objective-c
 	// #cgo LDFLAGS: -framework Cocoa -framework Quartz
 	// #cgo pkg-config: pangocairo
@@ -241,57 +242,57 @@ func platformNewPopupWindow(parent ui.Window, bounds geom.Rect) (window platform
 }
 
 func (window *Window) platformClose() {
-	C.closeWindow(window.window)
+	C.closeWindow(C.platformWindow(window.window))
 }
 
 func (window *Window) platformTitle() string {
-	return C.GoString(C.getWindowTitle(window.window))
+	return C.GoString(C.getWindowTitle(C.platformWindow(window.window)))
 }
 
 func (window *Window) platformSetTitle(title string) {
 	cTitle := C.CString(title)
-	C.setWindowTitle(window.window, cTitle)
+	C.setWindowTitle(C.platformWindow(window.window), cTitle)
 	C.free(unsafe.Pointer(cTitle))
 }
 
 func (window *Window) platformFrame() geom.Rect {
 	var bounds geom.Rect
-	C.getWindowFrame(window.window, (*C.double)(&bounds.X), (*C.double)(&bounds.Y), (*C.double)(&bounds.Width), (*C.double)(&bounds.Height))
+	C.getWindowFrame(C.platformWindow(window.window), (*C.double)(&bounds.X), (*C.double)(&bounds.Y), (*C.double)(&bounds.Width), (*C.double)(&bounds.Height))
 	return bounds
 }
 
 func (window *Window) platformSetFrame(bounds geom.Rect) {
-	C.setWindowFrame(window.window, C.double(bounds.X), C.double(bounds.Y), C.double(bounds.Width), C.double(bounds.Height))
+	C.setWindowFrame(C.platformWindow(window.window), C.double(bounds.X), C.double(bounds.Y), C.double(bounds.Width), C.double(bounds.Height))
 }
 
 func (window *Window) platformContentFrame() geom.Rect {
 	var bounds geom.Rect
-	C.getWindowContentFrame(window.window, (*C.double)(&bounds.X), (*C.double)(&bounds.Y), (*C.double)(&bounds.Width), (*C.double)(&bounds.Height))
+	C.getWindowContentFrame(C.platformWindow(window.window), (*C.double)(&bounds.X), (*C.double)(&bounds.Y), (*C.double)(&bounds.Width), (*C.double)(&bounds.Height))
 	return bounds
 }
 
 func (window *Window) platformToFront() {
-	C.bringWindowToFront(window.window)
+	C.bringWindowToFront(C.platformWindow(window.window))
 }
 
 func (window *Window) platformRepaint(bounds geom.Rect) {
-	C.repaintWindow(window.window, C.double(bounds.X), C.double(bounds.Y), C.double(bounds.Width), C.double(bounds.Height))
+	C.repaintWindow(C.platformWindow(window.window), C.double(bounds.X), C.double(bounds.Y), C.double(bounds.Width), C.double(bounds.Height))
 }
 
 func (window *Window) platformFlushPainting() {
-	C.flushPainting(window.window)
+	C.flushPainting(C.platformWindow(window.window))
 }
 
 func (window *Window) platformMinimize() {
-	C.minimizeWindow(window.window)
+	C.minimizeWindow(C.platformWindow(window.window))
 }
 
 func (window *Window) platformZoom() {
-	C.zoomWindow(window.window)
+	C.zoomWindow(C.platformWindow(window.window))
 }
 
 func (window *Window) platformSetCursor(c *cursor.Cursor) {
-	C.setCursor(window.window, c.PlatformPtr())
+	C.setCursor(C.platformWindow(window.window), c.PlatformPtr())
 }
 
 func (window *Window) platformInvoke(id uint64) {

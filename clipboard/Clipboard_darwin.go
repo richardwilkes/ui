@@ -10,8 +10,9 @@
 package clipboard
 
 import (
-	"github.com/richardwilkes/ui/clipboard/datatypes"
 	"unsafe"
+
+	"github.com/richardwilkes/ui/clipboard/datatypes"
 	// #cgo CFLAGS: -x objective-c
 	// #cgo LDFLAGS: -framework Cocoa
 	// #include <Cocoa/Cocoa.h>
@@ -147,7 +148,7 @@ func newCFStringRef(str string) CFStringRef {
 }
 
 func disposeCFStringRef(str CFStringRef) {
-	C.CFRelease(str)
+	C.CFRelease(C.CFTypeRef(str))
 }
 
 func cfStringRefToString(str CFStringRef) string {
