@@ -10,7 +10,10 @@
 package window
 
 import (
+	"time"
+
 	"github.com/richardwilkes/geom"
+	"github.com/richardwilkes/ui"
 	"github.com/richardwilkes/ui/cursor"
 )
 
@@ -27,7 +30,7 @@ func platformHideCursorUntilMouseMoves() {
 	// RAW: Implement for Windows
 }
 
-func platformNewWindow(bounds geom.Rect, styleMask WindowStyleMask) (window platformWindow, surface platformSurface) {
+func platformNewWindow(bounds geom.Rect, styleMask StyleMask) (window platformWindow, surface platformSurface) {
 	// RAW: Implement for Windows
 	return nil, nil
 }

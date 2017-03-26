@@ -10,14 +10,16 @@
 package ui
 
 import (
+	"time"
+	"unsafe"
+
 	"github.com/richardwilkes/geom"
 	"github.com/richardwilkes/ui/cursor"
 	"github.com/richardwilkes/ui/event"
 	"github.com/richardwilkes/ui/menu"
-	"time"
-	"unsafe"
 )
 
+// Window defines the methods that all Windows must have.
 type Window interface {
 	event.Target
 	// MayClose returns true if the window is permitted to close.

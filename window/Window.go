@@ -11,6 +11,9 @@ package window
 
 import (
 	"fmt"
+	"time"
+	"unsafe"
+
 	"github.com/richardwilkes/geom"
 	"github.com/richardwilkes/ui"
 	"github.com/richardwilkes/ui/cursor"
@@ -22,16 +25,14 @@ import (
 	"github.com/richardwilkes/ui/menu"
 	"github.com/richardwilkes/ui/object"
 	"github.com/richardwilkes/ui/widget/tooltip"
-	"time"
-	"unsafe"
 )
 
-// WindowStyleMask controls the look and capabilities of a window.
-type WindowStyleMask int
+// StyleMask controls the look and capabilities of a window.
+type StyleMask int
 
-// Possible values for the WindowStyleMask.
+// Possible values for the StyleMask.
 const (
-	TitledWindowMask WindowStyleMask = 1 << iota
+	TitledWindowMask StyleMask = 1 << iota
 	ClosableWindowMask
 	MinimizableWindowMask
 	ResizableWindowMask
@@ -53,7 +54,7 @@ type Window struct {
 	lastToolTip            ui.Widget
 	lastTooltipShownAt     time.Time
 	lastCursor             *cursor.Cursor
-	style                  WindowStyleMask
+	style                  StyleMask
 	initialLocationRequest geom.Point
 	tooltipWidget          ui.Widget
 	tooltipSequence        int
@@ -104,12 +105,12 @@ func KeyWindow() ui.Window {
 }
 
 // NewWindow creates a new window at the specified location with the specified style.
-func NewWindow(where geom.Point, styleMask WindowStyleMask) *Window {
+func NewWindow(where geom.Point, styleMask StyleMask) *Window {
 	return NewWindowWithContentSize(where, geom.Size{Width: 100, Height: 100}, styleMask)
 }
 
 // NewWindowWithContentSize creates a new window at the specified location with the specified style and content size.
-func NewWindowWithContentSize(where geom.Point, contentSize geom.Size, styleMask WindowStyleMask) *Window {
+func NewWindowWithContentSize(where geom.Point, contentSize geom.Size, styleMask StyleMask) *Window {
 	bounds := geom.Rect{Point: where, Size: contentSize}
 	win, surface := platformNewWindow(bounds, styleMask)
 	wnd := newWindow(win, styleMask, surface, where)
@@ -125,7 +126,7 @@ func NewPopupWindow(parent ui.Window, where geom.Point, contentSize geom.Size) *
 	return wnd
 }
 
-func newWindow(win platformWindow, styleMask WindowStyleMask, surface *draw.Surface, where geom.Point) *Window {
+func newWindow(win platformWindow, styleMask StyleMask, surface *draw.Surface, where geom.Point) *Window {
 	window := &Window{window: win, surface: surface, style: styleMask}
 	window.InitTypeAndID(window)
 	windowMap[window.window] = window

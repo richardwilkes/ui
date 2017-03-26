@@ -10,13 +10,14 @@
 package window
 
 import (
+	"time"
+
 	"github.com/richardwilkes/geom"
 	"github.com/richardwilkes/ui"
 	"github.com/richardwilkes/ui/color"
 	"github.com/richardwilkes/ui/cursor"
 	"github.com/richardwilkes/ui/draw"
 	"github.com/richardwilkes/ui/internal/x11"
-	"time"
 )
 
 type platformWindow x11.Window
@@ -45,7 +46,7 @@ func platformHideCursorUntilMouseMoves() {
 	}
 }
 
-func platformNewWindow(bounds geom.Rect, styleMask WindowStyleMask) (window platformWindow, surface *draw.Surface) {
+func platformNewWindow(bounds geom.Rect, styleMask StyleMask) (window platformWindow, surface *draw.Surface) {
 	wnd := x11.NewWindow(bounds)
 	return platformWindow(uintptr(wnd)), wnd.NewSurface(bounds.Size)
 }
