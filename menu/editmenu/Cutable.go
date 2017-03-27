@@ -32,7 +32,7 @@ func AppendCutItem(m menu.Menu) {
 
 // InsertCutItem adds the standard Cut menu item to the specified menu.
 func InsertCutItem(m menu.Menu, index int) {
-	item := menu.NewItemWithKey(i18n.Text("Cut"), keys.VK_X, Cut)
+	item := menu.NewItemWithKey(i18n.Text("Cut"), keys.VirtualKeyX, Cut)
 	item.EventHandlers().Add(event.ValidateType, CanCut)
 	m.InsertItem(item, index)
 }

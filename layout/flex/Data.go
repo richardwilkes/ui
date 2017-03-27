@@ -32,7 +32,13 @@ type Data struct {
 
 // NewData creates a new Data.
 func NewData() *Data {
-	return &Data{hSpan: 1, vSpan: 1, hAlign: draw.AlignStart, vAlign: draw.AlignMiddle, sizeHint: layout.NoHintSize, minSize: layout.NoHintSize}
+	return &Data{
+		hSpan:    1,
+		vSpan:    1,
+		hAlign:   draw.AlignStart,
+		vAlign:   draw.AlignMiddle,
+		sizeHint: layout.NoHintSize,
+		minSize:  layout.NoHintSize}
 }
 
 // HorizontalAlignment returns the horizontal alignment of the widget within its space.

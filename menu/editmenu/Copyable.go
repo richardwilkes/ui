@@ -32,7 +32,7 @@ func AppendCopyItem(m menu.Menu) {
 
 // InsertCopyItem adds the standard Copy menu item to the specified menu.
 func InsertCopyItem(m menu.Menu, index int) {
-	item := menu.NewItemWithKey(i18n.Text("Copy"), keys.VK_C, Copy)
+	item := menu.NewItemWithKey(i18n.Text("Copy"), keys.VirtualKeyC, Copy)
 	item.EventHandlers().Add(event.ValidateType, CanCopy)
 	m.InsertItem(item, index)
 }

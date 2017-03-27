@@ -11,10 +11,12 @@ package cursor
 
 import (
 	"fmt"
+	"unsafe"
+
 	"github.com/richardwilkes/geom"
 	"github.com/richardwilkes/ui/color"
 	"github.com/richardwilkes/ui/draw"
-	"unsafe"
+
 	// #cgo CFLAGS: -x objective-c
 	// #cgo LDFLAGS: -framework Cocoa
 	// #include <Cocoa/Cocoa.h>
@@ -37,7 +39,10 @@ import (
 	// void *DragLinkCursor() { return [NSCursor dragLinkCursor]; }
 	// void *DragCopyCursor() { return [NSCursor dragCopyCursor]; }
 	// void *ContextMenuCursor() { return [NSCursor contextualMenuCursor]; }
-	// void *NewCursor(void *img, float hotX, float hotY) { return [[[NSCursor alloc] initWithImage:img hotSpot:NSMakePoint(hotX,hotY)] retain]; }
+	// void *NewCursor(void *img, float hotX, float hotY) {
+	//		NSImage *nsimg = [[[NSImage alloc] initWithCGImage:img size:NSZeroSize] retain];
+	// 		return [[[NSCursor alloc] initWithImage:nsimg hotSpot:NSMakePoint(hotX,hotY)] retain];
+	// }
 	// void DisposeCursor(void *cursor) { [((NSCursor *)cursor) release]; }
 	"C"
 )
@@ -89,19 +94,11 @@ func platformNewCursor(imgData *draw.ImageData, hotSpot geom.Point) unsafe.Point
 	colorspace := C.CGColorSpaceCreateWithName(C.kCGColorSpaceGenericRGB)
 	defer C.CGColorSpaceRelease(colorspace)
 
-	length := len(imgData.Pixels)
-	size := C.size_t(length * 4)
-	buffer := C.malloc(size)
-	C.memcpy(buffer, unsafe.Pointer(&imgData.Pixels[0]), size)
-	pixels := (*[1 << 30]color.Color)(buffer)
-
-	// Perform alpha pre-multiplication, since macOS requires it
-	for i := 0; i < length; i++ {
-		pixels[i] = pixels[i].Premultiply()
+	buffer := make([]color.Color, len(imgData.Pixels))
+	for i, pixel := range imgData.Pixels {
+		buffer[i] = pixel.Premultiply()
 	}
-
-	provider := C.CGDataProviderCreateWithData(nil, buffer, size, nil)
-	defer C.free(buffer)
+	provider := C.CGDataProviderCreateWithData(nil, unsafe.Pointer(&buffer[0]), C.size_t(len(buffer)*4), nil)
 	defer C.CGDataProviderRelease(provider)
 	image := C.CGImageCreate(C.size_t(imgData.Width), C.size_t(imgData.Height), 8, 32, C.size_t(imgData.Width*4), colorspace, C.kCGBitmapByteOrder32Host|C.kCGImageAlphaPremultipliedFirst, provider, nil, false, C.kCGRenderingIntentDefault)
 

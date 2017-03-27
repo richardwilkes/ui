@@ -32,7 +32,7 @@ func AppendPasteItem(m menu.Menu) {
 
 // InsertPasteItem adds the standard Paste menu item to the specified menu.
 func InsertPasteItem(m menu.Menu, index int) {
-	item := menu.NewItemWithKey(i18n.Text("Paste"), keys.VK_V, Paste)
+	item := menu.NewItemWithKey(i18n.Text("Paste"), keys.VirtualKeyV, Paste)
 	item.EventHandlers().Add(event.ValidateType, CanPaste)
 	m.InsertItem(item, index)
 }

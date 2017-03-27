@@ -33,7 +33,7 @@ func AppendSelectAllItem(m menu.Menu) {
 
 // InsertSelectAllItem adds the standard Select All menu item to the specified menu.
 func InsertSelectAllItem(m menu.Menu, index int) {
-	item := menu.NewItemWithKey(i18n.Text("Select All"), keys.VK_A, SelectAll)
+	item := menu.NewItemWithKey(i18n.Text("Select All"), keys.VirtualKeyA, SelectAll)
 	item.EventHandlers().Add(event.ValidateType, CanSelectAll)
 	m.InsertItem(item, index)
 }

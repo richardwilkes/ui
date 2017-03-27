@@ -10,10 +10,11 @@
 package flow
 
 import (
+	"math"
+
 	"github.com/richardwilkes/geom"
 	"github.com/richardwilkes/ui"
 	"github.com/richardwilkes/ui/layout"
-	"math"
 )
 
 // Flow lays out the children of its widget left-to-right, then top-to-bottom at their preferred

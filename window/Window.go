@@ -604,7 +604,7 @@ func (window *Window) processKeyDown(keyCode int, ch rune, keyModifiers keys.Mod
 	}
 	if !e.Discarded() && !e.Finished() {
 		event.Dispatch(e)
-		if !e.Discarded() && keyCode == keys.VK_Tab && (keyModifiers&(keys.AllModifiers & ^keys.ShiftModifier)) == 0 {
+		if !e.Discarded() && keyCode == keys.VirtualKeyTab && (keyModifiers&(keys.AllModifiers & ^keys.ShiftModifier)) == 0 {
 			if keyModifiers.ShiftDown() {
 				window.FocusPrevious()
 			} else {

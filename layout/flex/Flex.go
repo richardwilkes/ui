@@ -10,12 +10,13 @@
 package flex
 
 import (
+	"math"
+
 	"github.com/richardwilkes/geom"
 	"github.com/richardwilkes/ui"
 	"github.com/richardwilkes/ui/draw"
 	"github.com/richardwilkes/ui/layout"
 	"github.com/richardwilkes/xmath"
-	"math"
 )
 
 // Flex lays out the children of its widget based on the Data assigned to each child.
@@ -32,7 +33,14 @@ type Flex struct {
 
 // NewLayout creates a new Flex layout and sets it on the widget.
 func NewLayout(widget ui.Widget) *Flex {
-	layout := &Flex{widget: widget, columns: 1, hSpacing: 4, vSpacing: 2, hAlign: draw.AlignStart, vAlign: draw.AlignStart}
+	layout := &Flex{
+		widget:   widget,
+		columns:  1,
+		hSpacing: 4,
+		vSpacing: 2,
+		hAlign:   draw.AlignStart,
+		vAlign:   draw.AlignStart,
+	}
 	widget.SetLayout(layout)
 	return layout
 }

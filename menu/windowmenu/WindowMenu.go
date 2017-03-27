@@ -21,7 +21,7 @@ import (
 func Install(bar menu.Bar) {
 	windowMenu := menu.NewMenu(i18n.Text("Window"))
 
-	item := menu.NewItemWithKey(i18n.Text("Minimize"), keys.VK_M, func(evt event.Event) {
+	item := menu.NewItemWithKey(i18n.Text("Minimize"), keys.VirtualKeyM, func(evt event.Event) {
 		wnd := window.KeyWindow()
 		if wnd != nil {
 			wnd.Minimize()
@@ -35,7 +35,7 @@ func Install(bar menu.Bar) {
 	})
 	windowMenu.AppendItem(item)
 
-	item = menu.NewItemWithKey(i18n.Text("Zoom"), keys.VK_BackSlash, func(evt event.Event) {
+	item = menu.NewItemWithKey(i18n.Text("Zoom"), keys.VirtualKeyBackSlash, func(evt event.Event) {
 		wnd := window.KeyWindow()
 		if wnd != nil {
 			wnd.Zoom()

@@ -32,7 +32,7 @@ func AppendDeleteItem(m menu.Menu) {
 
 // InsertDeleteItem adds the standard Delete menu item to the specified menu.
 func InsertDeleteItem(m menu.Menu, index int) {
-	item := menu.NewItemWithKeyAndModifiers(i18n.Text("Delete"), keys.VK_Backspace, 0, Delete)
+	item := menu.NewItemWithKeyAndModifiers(i18n.Text("Delete"), keys.VirtualKeyBackspace, 0, Delete)
 	item.EventHandlers().Add(event.ValidateType, CanDelete)
 	m.InsertItem(item, index)
 }

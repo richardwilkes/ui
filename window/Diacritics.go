@@ -23,120 +23,120 @@ func processDiacritics(keyCode int, ch rune, keyModifiers keys.Modifiers) rune {
 			switch ch {
 			case 'a':
 				switch diacriticState {
-				case keys.VK_E:
+				case keys.VirtualKeyE:
 					ch = 'á'
-				case keys.VK_I:
+				case keys.VirtualKeyI:
 					ch = 'â'
-				case keys.VK_Backtick:
+				case keys.VirtualKeyBacktick:
 					ch = 'à'
-				case keys.VK_N:
+				case keys.VirtualKeyN:
 					ch = 'ã'
-				case keys.VK_U:
+				case keys.VirtualKeyU:
 					ch = 'ä'
 				}
 			case 'A':
 				switch diacriticState {
-				case keys.VK_E:
+				case keys.VirtualKeyE:
 					ch = 'Á'
-				case keys.VK_I:
+				case keys.VirtualKeyI:
 					ch = 'Â'
-				case keys.VK_Backtick:
+				case keys.VirtualKeyBacktick:
 					ch = 'À'
-				case keys.VK_N:
+				case keys.VirtualKeyN:
 					ch = 'Ã'
-				case keys.VK_U:
+				case keys.VirtualKeyU:
 					ch = 'Ä'
 				}
 			case 'e':
 				switch diacriticState {
-				case keys.VK_E:
+				case keys.VirtualKeyE:
 					ch = 'é'
-				case keys.VK_I:
+				case keys.VirtualKeyI:
 					ch = 'ê'
-				case keys.VK_Backtick:
+				case keys.VirtualKeyBacktick:
 					ch = 'è'
-				case keys.VK_U:
+				case keys.VirtualKeyU:
 					ch = 'ë'
 				}
 			case 'E':
 				switch diacriticState {
-				case keys.VK_E:
+				case keys.VirtualKeyE:
 					ch = 'É'
-				case keys.VK_I:
+				case keys.VirtualKeyI:
 					ch = 'Ê'
-				case keys.VK_Backtick:
+				case keys.VirtualKeyBacktick:
 					ch = 'È'
-				case keys.VK_U:
+				case keys.VirtualKeyU:
 					ch = 'Ë'
 				}
 			case 'i':
 				switch diacriticState {
-				case keys.VK_E:
+				case keys.VirtualKeyE:
 					ch = 'í'
-				case keys.VK_I:
+				case keys.VirtualKeyI:
 					ch = 'î'
-				case keys.VK_Backtick:
+				case keys.VirtualKeyBacktick:
 					ch = 'ì'
-				case keys.VK_U:
+				case keys.VirtualKeyU:
 					ch = 'ï'
 				}
 			case 'I':
 				switch diacriticState {
-				case keys.VK_E:
+				case keys.VirtualKeyE:
 					ch = 'Í'
-				case keys.VK_I:
+				case keys.VirtualKeyI:
 					ch = 'Î'
-				case keys.VK_Backtick:
+				case keys.VirtualKeyBacktick:
 					ch = 'Ì'
-				case keys.VK_U:
+				case keys.VirtualKeyU:
 					ch = 'Ï'
 				}
 			case 'o':
 				switch diacriticState {
-				case keys.VK_E:
+				case keys.VirtualKeyE:
 					ch = 'ó'
-				case keys.VK_I:
+				case keys.VirtualKeyI:
 					ch = 'ô'
-				case keys.VK_Backtick:
+				case keys.VirtualKeyBacktick:
 					ch = 'ò'
-				case keys.VK_N:
+				case keys.VirtualKeyN:
 					ch = 'õ'
-				case keys.VK_U:
+				case keys.VirtualKeyU:
 					ch = 'ö'
 				}
 			case 'O':
 				switch diacriticState {
-				case keys.VK_E:
+				case keys.VirtualKeyE:
 					ch = 'Ó'
-				case keys.VK_I:
+				case keys.VirtualKeyI:
 					ch = 'Ô'
-				case keys.VK_Backtick:
+				case keys.VirtualKeyBacktick:
 					ch = 'Ò'
-				case keys.VK_N:
+				case keys.VirtualKeyN:
 					ch = 'Õ'
-				case keys.VK_U:
+				case keys.VirtualKeyU:
 					ch = 'Ö'
 				}
 			case 'u':
 				switch diacriticState {
-				case keys.VK_E:
+				case keys.VirtualKeyE:
 					ch = 'ú'
-				case keys.VK_I:
+				case keys.VirtualKeyI:
 					ch = 'û'
-				case keys.VK_Backtick:
+				case keys.VirtualKeyBacktick:
 					ch = 'ù'
-				case keys.VK_U:
+				case keys.VirtualKeyU:
 					ch = 'ü'
 				}
 			case 'U':
 				switch diacriticState {
-				case keys.VK_E:
+				case keys.VirtualKeyE:
 					ch = 'Ú'
-				case keys.VK_I:
+				case keys.VirtualKeyI:
 					ch = 'Û'
-				case keys.VK_Backtick:
+				case keys.VirtualKeyBacktick:
 					ch = 'Ù'
-				case keys.VK_U:
+				case keys.VirtualKeyU:
 					ch = 'Ü'
 				}
 			}
@@ -145,7 +145,7 @@ func processDiacritics(keyCode int, ch rune, keyModifiers keys.Modifiers) rune {
 	}
 	if keyModifiers&^keys.ShiftModifier == keys.OptionModifier {
 		switch keyCode {
-		case keys.VK_E, keys.VK_I, keys.VK_Backtick, keys.VK_N, keys.VK_U:
+		case keys.VirtualKeyE, keys.VirtualKeyI, keys.VirtualKeyBacktick, keys.VirtualKeyN, keys.VirtualKeyU:
 			diacriticState = keyCode
 		default:
 			diacriticState = 0

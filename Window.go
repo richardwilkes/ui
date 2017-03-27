@@ -28,14 +28,16 @@ type Window interface {
 	AttemptClose()
 	// Close the window.
 	Close()
-	// Valid returns true if the window is still valid (i.e. has not been closed).
+	// Valid returns true if the window is still valid (i.e. has not been
+	// closed).
 	Valid() bool
 	// Title returns the title of this window.
 	Title() string
 	// SetTitle sets the title of this window.
 	SetTitle(title string)
-	// Frame returns the boundaries in display coordinates of the frame of this window (i.e. the
-	// area that includes both the content and its border and window controls).
+	// Frame returns the boundaries in display coordinates of the frame of this
+	// window (i.e. the area that includes both the content and its border and
+	// window controls).
 	Frame() geom.Rect
 	// SetFrame sets the boundaries of the frame of this window.
 	SetFrame(bounds geom.Rect)
@@ -43,16 +45,19 @@ type Window interface {
 	ContentFrame() geom.Rect
 	// SetContentFrame sets the boundaries of the root widget of this window.
 	SetContentFrame(bounds geom.Rect)
-	// ContentLocalFrame returns the local boundaries of the root widget of this window.
+	// ContentLocalFrame returns the local boundaries of the root widget of
+	// this window.
 	ContentLocalFrame() geom.Rect
-	// Pack sets the window's content size to match the preferred size of the root widget.
+	// Pack sets the window's content size to match the preferred size of the
+	// root widget.
 	Pack()
-	// MenuBar returns the menu bar for the window. On some platforms, the menu bar is a global
-	// entity and the same value will be returned for all windows.
+	// MenuBar returns the menu bar for the window. On some platforms, the menu
+	// bar is a global entity and the same value will be returned for all
+	// windows.
 	MenuBar() menu.Bar
-	// Content returns the content widget of the window. This is not the root widget of the window,
-	// which contains both the content widget and the menu bar, for platforms that hold the menu bar
-	// within the window.
+	// Content returns the content widget of the window. This is not the root
+	// widget of the window, which contains both the content widget and the menu
+	// bar, for platforms that hold the menu bar within the window.
 	Content() Widget
 	// SetCursor sets the window's current cursor.
 	SetCursor(cur *cursor.Cursor)
@@ -66,11 +71,13 @@ type Window interface {
 	FocusPrevious()
 	// Focused returns true when this window has the keyboard focus.
 	Focused() bool
-	// ToFront attempts to bring the window to the foreground and give it the keyboard focus.
+	// ToFront attempts to bring the window to the foreground and give it the
+	// keyboard focus.
 	ToFront()
 	// Repaint marks this window for painting at the next update.
 	Repaint()
-	// RepaintBounds marks the specified bounds within the window for painting at the next update.
+	// RepaintBounds marks the specified bounds within the window for painting
+	// at the next update.
 	RepaintBounds(bounds geom.Rect)
 	// FlushPainting causes any areas marked for repainting to be painted.
 	FlushPainting()
@@ -80,16 +87,19 @@ type Window interface {
 	Zoom()
 	// PlatformPtr returns a pointer to the underlying platform-specific data.
 	PlatformPtr() unsafe.Pointer
-	// Closable returns true if the window was created with the ClosableWindowMask.
+	// Closable returns true if the window was created with the
+	// ClosableWindowMask.
 	Closable() bool
-	// Minimizable returns true if the window was created with the MiniaturizableWindowMask.
+	// Minimizable returns true if the window was created with the
+	// MiniaturizableWindowMask.
 	Minimizable() bool
-	// Resizable returns true if the window was created with the ResizableWindowMask.
+	// Resizable returns true if the window was created with the
+	// ResizableWindowMask.
 	Resizable() bool
-	// Invoke a task on the UI thread. The task is put into the system event queue and will be run at
-	// the next opportunity.
+	// Invoke a task on the UI thread. The task is put into the system event
+	// queue and will be run at the next opportunity.
 	Invoke(task func())
-	// InvokeAfter schedules a task to be run on the UI thread after waiting for the specified
-	// duration.
+	// InvokeAfter schedules a task to be run on the UI thread after waiting for
+	// the specified duration.
 	InvokeAfter(task func(), after time.Duration)
 }

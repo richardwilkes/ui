@@ -11,11 +11,16 @@ package main
 
 import (
 	"fmt"
+	"unicode"
+
+	"sync"
+
 	"github.com/richardwilkes/geom"
 	"github.com/richardwilkes/ui"
 	"github.com/richardwilkes/ui/Demo/images"
 	"github.com/richardwilkes/ui/app"
 	"github.com/richardwilkes/ui/border"
+	"github.com/richardwilkes/ui/cursor"
 	"github.com/richardwilkes/ui/draw"
 	"github.com/richardwilkes/ui/event"
 	"github.com/richardwilkes/ui/font"
@@ -42,7 +47,6 @@ import (
 	"github.com/richardwilkes/ui/widget/textfield"
 	"github.com/richardwilkes/ui/widget/tooltip"
 	"github.com/richardwilkes/ui/window"
-	"unicode"
 )
 
 var (
@@ -74,10 +78,10 @@ func main() {
 func newFileMenu() menu.Menu {
 	fileMenu := menu.NewMenu("File")
 
-	fileMenu.AppendItem(menu.NewItemWithKey("Open", keys.VK_O, nil))
+	fileMenu.AppendItem(menu.NewItemWithKey("Open", keys.VirtualKeyO, nil))
 	fileMenu.AppendItem(menu.NewSeparator())
 
-	item := menu.NewItemWithKey("Close", keys.VK_W, func(evt event.Event) {
+	item := menu.NewItemWithKey("Close", keys.VirtualKeyW, func(evt event.Event) {
 		wnd := window.KeyWindow()
 		if wnd != nil && wnd.Closable() {
 			wnd.AttemptClose()
@@ -146,6 +150,19 @@ func createButtonsWindow(title string, where geom.Point) ui.Window {
 		scrollArea := scrollarea.New(imgPanel, scrollarea.Unmodified)
 		scrollArea.SetLayoutData(flex.NewData().SetHorizontalAlignment(draw.AlignFill).SetVerticalAlignment(draw.AlignFill).SetHorizontalGrab(true).SetVerticalGrab(true))
 		content.AddChild(scrollArea)
+
+		wnd.EventHandlers().Add(event.FocusGainedType, func(evt event.Event) {
+			if !installedMap[wnd] {
+				crsr := getAppleCursor()
+				if crsr != nil {
+					imgPanel.EventHandlers().Add(event.UpdateCursorType, func(evt event.Event) {
+						wnd.SetCursor(crsr)
+						evt.Finish()
+					})
+					installedMap[wnd] = true
+				}
+			}
+		})
 	} else {
 		fmt.Println(err)
 	}
@@ -153,7 +170,25 @@ func createButtonsWindow(title string, where geom.Point) ui.Window {
 	wnd.SetFocus(textFieldsPanel.Children()[0])
 	wnd.Pack()
 	wnd.ToFront()
+
 	return wnd
+}
+
+var installedMap = make(map[*window.Window]bool)
+var appleCursorOnce sync.Once
+var appleCursor *cursor.Cursor
+
+func getAppleCursor() *cursor.Cursor {
+	appleCursorOnce.Do(func() {
+		if img, err := draw.AcquireImageFromFile(images.FS, "/classic-apple-logo.png"); err == nil {
+			imgSize := img.Size()
+			appleCursor = cursor.NewCursor(img.Data(), geom.Point{
+				X: imgSize.Width / 2,
+				Y: imgSize.Height / 2,
+			})
+		}
+	})
+	return appleCursor
 }
 
 func createListPanel() ui.Widget {
