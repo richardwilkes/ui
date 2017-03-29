@@ -21,6 +21,7 @@ import (
 	"github.com/richardwilkes/ui/widget"
 )
 
+// MenuItem represents a single menu item.
 type MenuItem struct {
 	widget.Block
 	Theme        *Theme

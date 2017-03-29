@@ -25,9 +25,8 @@ import (
 )
 
 const (
-	unlimitedSize = 1000000
-	oneThird      = 1.0 / 3.0
-	twoThirds     = 2.0 / 3.0
+	oneThird  = 1.0 / 3.0
+	twoThirds = 2.0 / 3.0
 )
 
 const (
@@ -298,8 +297,8 @@ func (gc *Graphics) PushGroup() {
 
 // PopGroup terminates the redirection begun by a call to PushGroup and returns a new Paint
 // containing the results of all drawing operations performed to the group.
-func (gc *Graphics) PopGroup() Paint {
-	return Paint{pattern: C.cairo_pop_group(gc.gc)}
+func (gc *Graphics) PopGroup() *Paint {
+	return &Paint{pattern: C.cairo_pop_group(gc.gc)}
 }
 
 // PopGroupToPaint terminates the redirection begun by a call to PushGroup and installs the
@@ -309,14 +308,14 @@ func (gc *Graphics) PopGroupToPaint() {
 }
 
 // Paint returns a copy of the current paint. You are responsible for calling its Dispose() method.
-func (gc *Graphics) Paint() Paint {
+func (gc *Graphics) Paint() *Paint {
 	pattern := C.cairo_get_source(gc.gc)
 	C.cairo_pattern_reference(pattern)
-	return Paint{pattern: pattern}
+	return &Paint{pattern: pattern}
 }
 
 // SetPaint sets the current paint.
-func (gc *Graphics) SetPaint(paint Paint) {
+func (gc *Graphics) SetPaint(paint *Paint) {
 	C.cairo_set_source(gc.gc, paint.pattern)
 }
 
@@ -501,7 +500,7 @@ func (gc *Graphics) InFill(x, y float64) bool {
 // MaskClipWithPaint uses the current Paint to cover the entire clip region, but uses the alpha
 // channel of 'mask' as a mask (i.e. opaque areas of 'mask' are painted with the current Paint,
 // transparent areas are not painted).
-func (gc *Graphics) MaskClipWithPaint(mask Paint) {
+func (gc *Graphics) MaskClipWithPaint(mask *Paint) {
 	C.cairo_mask(gc.gc, mask.pattern)
 }
 

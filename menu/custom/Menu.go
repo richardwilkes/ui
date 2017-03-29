@@ -30,6 +30,7 @@ type menuRoot interface {
 	findLeafOpenMenu() *Menu
 }
 
+// Menu represents a set of menu items.
 type Menu struct {
 	widget.Block
 	item           *MenuItem
@@ -38,6 +39,7 @@ type Menu struct {
 	attachToBottom bool
 }
 
+// NewMenu creates a new menu with the given title.
 func NewMenu(title string) *Menu {
 	mnu := &Menu{item: NewItem(title, nil)}
 	mnu.InitTypeAndID(mnu)

@@ -14,8 +14,9 @@ import (
 	"github.com/richardwilkes/ui/menu"
 )
 
+// Bar represents a set of menus.
 type Bar struct {
-	menu    *platformMenu
+	menu    menu.Menu //*platformMenu
 	special map[menu.SpecialMenuType]menu.Menu
 }
 
@@ -27,7 +28,9 @@ var (
 func AppBar() menu.Bar {
 	if appBar == nil {
 		appBar = &Bar{menu: NewMenu(""), special: make(map[menu.SpecialMenuType]menu.Menu)}
-		platformSetBar(appBar.menu.menu)
+		if macMenu, ok := appBar.menu.(*platformMenu); ok {
+			platformSetBar(macMenu.menu)
+		}
 	}
 	return appBar
 }

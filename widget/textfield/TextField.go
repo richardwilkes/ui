@@ -96,69 +96,70 @@ func (field *TextField) Sizes(hint geom.Size) (min, pref, max geom.Size) {
 }
 
 func (field *TextField) paint(evt event.Event) {
-	bounds := field.LocalInsetBounds()
-	e := evt.(*event.Paint)
-	gc := e.GC()
-	gc.Save()
-	defer gc.Restore()
-	if field.invalid && field.Theme.InvalidBackgroundColor.Alpha() > 0 {
-		gc.SetColor(field.Theme.InvalidBackgroundColor)
-		gc.FillRect(e.DirtyRect())
-	} else if !field.Enabled() && field.Theme.DisabledBackgroundColor.Alpha() > 0 {
-		gc.SetColor(field.Theme.DisabledBackgroundColor)
-		gc.FillRect(e.DirtyRect())
-	}
-	gc.Rect(bounds)
-	gc.Clip()
-	textTop := bounds.Y + (bounds.Height-field.Theme.Font.Height())/2
-	if field.HasSelectionRange() {
-		left := bounds.X + field.scrollOffset
-		if field.selectionStart > 0 {
-			gc.SetColor(color.Text)
-			pre := string(field.runes[:field.selectionStart])
-			gc.DrawString(left, textTop, pre, field.Theme.Font)
-			left += field.Theme.Font.Measure(pre).Width
+	if e, ok := evt.(*event.Paint); ok {
+		bounds := field.LocalInsetBounds()
+		gc := e.GC()
+		gc.Save()
+		defer gc.Restore()
+		if field.invalid && field.Theme.InvalidBackgroundColor.Alpha() > 0 {
+			gc.SetColor(field.Theme.InvalidBackgroundColor)
+			gc.FillRect(e.DirtyRect())
+		} else if !field.Enabled() && field.Theme.DisabledBackgroundColor.Alpha() > 0 {
+			gc.SetColor(field.Theme.DisabledBackgroundColor)
+			gc.FillRect(e.DirtyRect())
 		}
-		mid := string(field.runes[field.selectionStart:field.selectionEnd])
-		right := bounds.X + field.Theme.Font.Measure(string(field.runes[:field.selectionEnd])).Width + field.scrollOffset
-		selRect := geom.Rect{Point: geom.Point{X: left, Y: textTop}, Size: geom.Size{Width: right - left, Height: field.Theme.Font.Height()}}
-		if field.Focused() {
-			gc.SetColor(color.SelectedTextBackground)
-			gc.FillRect(selRect)
-		} else {
-			gc.SetColor(color.SelectedTextBackground)
-			gc.SetStrokeWidth(2)
-			selRect.InsetUniform(0.5)
-			gc.StrokeRect(selRect)
-		}
-		gc.SetColor(color.SelectedText)
-		gc.DrawString(left, textTop, mid, field.Theme.Font)
-		if field.selectionStart < len(field.runes) {
-			gc.SetColor(color.Text)
-			gc.DrawString(right, textTop, string(field.runes[field.selectionEnd:]), field.Theme.Font)
-		}
-	} else if len(field.runes) == 0 {
-		if field.watermark != "" {
-			gc.SetColor(color.Gray)
-			gc.DrawString(bounds.X, textTop, field.watermark, field.Theme.Font)
-		}
-	} else {
-		gc.SetColor(color.Text)
-		gc.DrawString(bounds.X+field.scrollOffset, textTop, string(field.runes), field.Theme.Font)
-	}
-	if !field.HasSelectionRange() && field.Focused() {
-		if field.showCursor {
-			var cursorColor color.Color
-			if field.Background().Luminance() > 0.6 {
-				cursorColor = color.Black
-			} else {
-				cursorColor = color.White
+		gc.Rect(bounds)
+		gc.Clip()
+		textTop := bounds.Y + (bounds.Height-field.Theme.Font.Height())/2
+		if field.HasSelectionRange() {
+			left := bounds.X + field.scrollOffset
+			if field.selectionStart > 0 {
+				gc.SetColor(color.Text)
+				pre := string(field.runes[:field.selectionStart])
+				gc.DrawString(left, textTop, pre, field.Theme.Font)
+				left += field.Theme.Font.Measure(pre).Width
 			}
-			x := bounds.X + field.Theme.Font.Measure(string(field.runes[:field.selectionEnd])).Width + field.scrollOffset
-			gc.SetColor(cursorColor)
-			gc.StrokeLine(x, textTop, x, textTop+field.Theme.Font.Height()-1)
+			mid := string(field.runes[field.selectionStart:field.selectionEnd])
+			right := bounds.X + field.Theme.Font.Measure(string(field.runes[:field.selectionEnd])).Width + field.scrollOffset
+			selRect := geom.Rect{Point: geom.Point{X: left, Y: textTop}, Size: geom.Size{Width: right - left, Height: field.Theme.Font.Height()}}
+			if field.Focused() {
+				gc.SetColor(color.SelectedTextBackground)
+				gc.FillRect(selRect)
+			} else {
+				gc.SetColor(color.SelectedTextBackground)
+				gc.SetStrokeWidth(2)
+				selRect.InsetUniform(0.5)
+				gc.StrokeRect(selRect)
+			}
+			gc.SetColor(color.SelectedText)
+			gc.DrawString(left, textTop, mid, field.Theme.Font)
+			if field.selectionStart < len(field.runes) {
+				gc.SetColor(color.Text)
+				gc.DrawString(right, textTop, string(field.runes[field.selectionEnd:]), field.Theme.Font)
+			}
+		} else if len(field.runes) == 0 {
+			if field.watermark != "" {
+				gc.SetColor(color.Gray)
+				gc.DrawString(bounds.X, textTop, field.watermark, field.Theme.Font)
+			}
+		} else {
+			gc.SetColor(color.Text)
+			gc.DrawString(bounds.X+field.scrollOffset, textTop, string(field.runes), field.Theme.Font)
 		}
-		field.scheduleBlink()
+		if !field.HasSelectionRange() && field.Focused() {
+			if field.showCursor {
+				var cursorColor color.Color
+				if field.Background().Luminance() > 0.6 {
+					cursorColor = color.Black
+				} else {
+					cursorColor = color.White
+				}
+				x := bounds.X + field.Theme.Font.Measure(string(field.runes[:field.selectionEnd])).Width + field.scrollOffset
+				gc.SetColor(cursorColor)
+				gc.StrokeLine(x, textTop, x, textTop+field.Theme.Font.Height()-1)
+			}
+			field.scheduleBlink()
+		}
 	}
 }
 
@@ -194,36 +195,37 @@ func (field *TextField) focusLost(evt event.Event) {
 
 func (field *TextField) mouseDown(evt event.Event) {
 	field.Window().SetFocus(field)
-	e := evt.(*event.MouseDown)
-	if e.Button() == button.Left {
-		field.extendByWord = false
-		switch e.Clicks() {
-		case 2:
-			start, end := field.findWordAt(field.ToSelectionIndex(field.FromWindow(e.Where()).X))
-			field.SetSelection(start, end)
-			field.extendByWord = true
-		case 3:
-			field.SelectAll()
-		default:
-			oldAnchor := field.selectionAnchor
-			field.selectionAnchor = field.ToSelectionIndex(field.FromWindow(e.Where()).X)
-			var start, end int
-			if e.Modifiers().ShiftDown() {
-				if oldAnchor > field.selectionAnchor {
-					start = field.selectionAnchor
-					end = oldAnchor
+	if e, ok := evt.(*event.MouseDown); ok {
+		if e.Button() == button.Left {
+			field.extendByWord = false
+			switch e.Clicks() {
+			case 2:
+				start, end := field.findWordAt(field.ToSelectionIndex(field.FromWindow(e.Where()).X))
+				field.SetSelection(start, end)
+				field.extendByWord = true
+			case 3:
+				field.SelectAll()
+			default:
+				oldAnchor := field.selectionAnchor
+				field.selectionAnchor = field.ToSelectionIndex(field.FromWindow(e.Where()).X)
+				var start, end int
+				if e.Modifiers().ShiftDown() {
+					if oldAnchor > field.selectionAnchor {
+						start = field.selectionAnchor
+						end = oldAnchor
+					} else {
+						start = oldAnchor
+						end = field.selectionAnchor
+					}
 				} else {
-					start = oldAnchor
+					start = field.selectionAnchor
 					end = field.selectionAnchor
 				}
-			} else {
-				start = field.selectionAnchor
-				end = field.selectionAnchor
+				field.setSelection(start, end, field.selectionAnchor)
 			}
-			field.setSelection(start, end, field.selectionAnchor)
+		} else if e.Button() == button.Right {
+			fmt.Println("right click")
 		}
-	} else if e.Button() == button.Right {
-		fmt.Println("right click")
 	}
 }
 
@@ -271,53 +273,54 @@ func (field *TextField) mouseDragged(evt event.Event) {
 
 func (field *TextField) keyDown(evt event.Event) {
 	window.HideCursorUntilMouseMoves()
-	e := evt.(*event.KeyDown)
-	code := e.Code()
-	switch code {
-	case keys.VirtualKeyBackspace:
-		field.Delete()
-		evt.Finish()
-	case keys.VirtualKeyDelete, keys.VirtualKeyNumPadDelete:
-		if field.HasSelectionRange() {
+	if e, ok := evt.(*event.KeyDown); ok {
+		code := e.Code()
+		switch code {
+		case keys.VirtualKeyBackspace:
 			field.Delete()
-		} else if field.selectionStart < len(field.runes) {
-			field.runes = append(field.runes[:field.selectionStart], field.runes[field.selectionStart+1:]...)
-			field.notifyOfModification()
-		}
-		evt.Finish()
-		field.Repaint()
-	case keys.VirtualKeyLeft, keys.VirtualKeyNumPadLeft:
-		extend := e.Modifiers().ShiftDown()
-		if e.Modifiers().CommandDown() {
-			field.handleHome(extend)
-		} else {
-			field.handleArrowLeft(extend, e.Modifiers().OptionDown())
-		}
-		evt.Finish()
-	case keys.VirtualKeyRight, keys.VirtualKeyNumPadRight:
-		extend := e.Modifiers().ShiftDown()
-		if e.Modifiers().CommandDown() {
-			field.handleEnd(extend)
-		} else {
-			field.handleArrowRight(extend, e.Modifiers().OptionDown())
-		}
-		evt.Finish()
-	case keys.VirtualKeyEnd, keys.VirtualKeyNumPadEnd, keys.VirtualKeyPageDown, keys.VirtualKeyNumPadPageDown, keys.VirtualKeyDown, keys.VirtualKeyNumPadDown:
-		field.handleEnd(e.Modifiers().ShiftDown())
-		evt.Finish()
-	case keys.VirtualKeyHome, keys.VirtualKeyNumPadHome, keys.VirtualKeyPageUp, keys.VirtualKeyNumPadPageUp, keys.VirtualKeyUp, keys.VirtualKeyNumPadUp:
-		field.handleHome(e.Modifiers().ShiftDown())
-		evt.Finish()
-	default:
-		r := e.Rune()
-		if !unicode.IsControl(r) {
-			if field.HasSelectionRange() {
-				field.runes = append(field.runes[:field.selectionStart], field.runes[field.selectionEnd:]...)
-			}
-			field.runes = append(field.runes[:field.selectionStart], append([]rune{r}, field.runes[field.selectionStart:]...)...)
-			field.SetSelectionTo(field.selectionStart + 1)
-			field.notifyOfModification()
 			evt.Finish()
+		case keys.VirtualKeyDelete, keys.VirtualKeyNumPadDelete:
+			if field.HasSelectionRange() {
+				field.Delete()
+			} else if field.selectionStart < len(field.runes) {
+				field.runes = append(field.runes[:field.selectionStart], field.runes[field.selectionStart+1:]...)
+				field.notifyOfModification()
+			}
+			evt.Finish()
+			field.Repaint()
+		case keys.VirtualKeyLeft, keys.VirtualKeyNumPadLeft:
+			extend := e.Modifiers().ShiftDown()
+			if e.Modifiers().CommandDown() {
+				field.handleHome(extend)
+			} else {
+				field.handleArrowLeft(extend, e.Modifiers().OptionDown())
+			}
+			evt.Finish()
+		case keys.VirtualKeyRight, keys.VirtualKeyNumPadRight:
+			extend := e.Modifiers().ShiftDown()
+			if e.Modifiers().CommandDown() {
+				field.handleEnd(extend)
+			} else {
+				field.handleArrowRight(extend, e.Modifiers().OptionDown())
+			}
+			evt.Finish()
+		case keys.VirtualKeyEnd, keys.VirtualKeyNumPadEnd, keys.VirtualKeyPageDown, keys.VirtualKeyNumPadPageDown, keys.VirtualKeyDown, keys.VirtualKeyNumPadDown:
+			field.handleEnd(e.Modifiers().ShiftDown())
+			evt.Finish()
+		case keys.VirtualKeyHome, keys.VirtualKeyNumPadHome, keys.VirtualKeyPageUp, keys.VirtualKeyNumPadPageUp, keys.VirtualKeyUp, keys.VirtualKeyNumPadUp:
+			field.handleHome(e.Modifiers().ShiftDown())
+			evt.Finish()
+		default:
+			r := e.Rune()
+			if !unicode.IsControl(r) {
+				if field.HasSelectionRange() {
+					field.runes = append(field.runes[:field.selectionStart], field.runes[field.selectionEnd:]...)
+				}
+				field.runes = append(field.runes[:field.selectionStart], append([]rune{r}, field.runes[field.selectionStart:]...)...)
+				field.SetSelectionTo(field.selectionStart + 1)
+				field.notifyOfModification()
+				evt.Finish()
+			}
 		}
 	}
 }

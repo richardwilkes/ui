@@ -15,10 +15,12 @@ import (
 	"github.com/richardwilkes/ui/widget/separator"
 )
 
+// Separator represents a menu item separator.
 type Separator struct {
 	separator.Separator
 }
 
+// NewSeparator creates a new menu item separator.
 func NewSeparator() *Separator {
 	sep := &Separator{}
 	sep.InitTypeAndID(sep)

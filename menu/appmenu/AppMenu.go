@@ -22,7 +22,7 @@ import (
 
 // Install adds a standard 'application' menu to the front of the menu bar.
 func Install(bar menu.Bar) (appMenu menu.Menu, aboutItem menu.Item, prefsItem menu.Item) {
-	name := app.AppName()
+	name := app.Name()
 	appMenu = menu.NewMenu(name)
 
 	aboutItem = menu.NewItem(i18n.Text("About ")+name, nil)
@@ -40,10 +40,10 @@ func Install(bar menu.Bar) (appMenu menu.Menu, aboutItem menu.Item, prefsItem me
 	}
 
 	appMenu.AppendItem(menu.NewSeparator())
-	appMenu.AppendItem(menu.NewItemWithKey(i18n.Text("Hide ")+name, keys.VirtualKeyH, func(evt event.Event) { app.HideApp() }))
+	appMenu.AppendItem(menu.NewItemWithKey(i18n.Text("Hide ")+name, keys.VirtualKeyH, func(evt event.Event) { app.Hide() }))
 	if runtime.GOOS == "darwin" {
-		appMenu.AppendItem(menu.NewItemWithKeyAndModifiers(i18n.Text("Hide Others"), keys.VirtualKeyH, keys.OptionModifier|keys.PlatformMenuModifier(), func(evt event.Event) { app.HideOtherApps() }))
-		appMenu.AppendItem(menu.NewItem(i18n.Text("Show All"), func(evt event.Event) { app.ShowAllApps() }))
+		appMenu.AppendItem(menu.NewItemWithKeyAndModifiers(i18n.Text("Hide Others"), keys.VirtualKeyH, keys.OptionModifier|keys.PlatformMenuModifier(), func(evt event.Event) { app.HideOthers() }))
+		appMenu.AppendItem(menu.NewItem(i18n.Text("Show All"), func(evt event.Event) { app.ShowAll() }))
 	}
 
 	appMenu.AppendItem(menu.NewSeparator())

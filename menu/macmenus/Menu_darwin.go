@@ -16,10 +16,10 @@ import (
 )
 
 // NewMenu creates a new menu.
-func NewMenu(title string) *platformMenu {
-	menu := &platformMenu{title: title, menu: platformNewMenu(title)}
-	menuMap[menu.menu] = menu
-	return menu
+func NewMenu(title string) menu.Menu {
+	mnu := &platformMenu{title: title, menu: platformNewMenu(title)}
+	menuMap[mnu.menu] = mnu
+	return mnu
 }
 
 // AppendItem appends an item at the end of this menu.

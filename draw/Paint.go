@@ -67,74 +67,74 @@ type Paint struct {
 }
 
 // NewColorPaint creates a new Paint from a color.
-func NewColorPaint(color color.Color) Paint {
-	return Paint{pattern: C.cairo_pattern_create_rgba(C.double(color.RedIntensity()), C.double(color.GreenIntensity()), C.double(color.BlueIntensity()), C.double(color.AlphaIntensity()))}
+func NewColorPaint(color color.Color) *Paint {
+	return &Paint{pattern: C.cairo_pattern_create_rgba(C.double(color.RedIntensity()), C.double(color.GreenIntensity()), C.double(color.BlueIntensity()), C.double(color.AlphaIntensity()))}
 }
 
 // NewImagePaint creates a new Paint from an image.
-func NewImagePaint(img *Image) Paint {
-	return Paint{pattern: C.cairo_pattern_create_for_surface(img.surface)}
+func NewImagePaint(img *Image) *Paint {
+	return &Paint{pattern: C.cairo_pattern_create_for_surface(img.surface)}
 }
 
 // NewLinearGradientPaint creates a new Paint from a gradient that is spread across the specified
 // line.
-func NewLinearGradientPaint(gradient *Gradient, sx, sy, ex, ey float64) Paint {
+func NewLinearGradientPaint(gradient *Gradient, sx, sy, ex, ey float64) *Paint {
 	pattern := C.cairo_pattern_create_linear(C.double(sx), C.double(sy), C.double(ex), C.double(ey))
 	for _, one := range gradient.Stops {
 		C.cairo_pattern_add_color_stop_rgba(pattern, C.double(one.Location), C.double(one.Color.RedIntensity()), C.double(one.Color.GreenIntensity()), C.double(one.Color.BlueIntensity()), C.double(one.Color.AlphaIntensity()))
 	}
-	return Paint{pattern: pattern}
+	return &Paint{pattern: pattern}
 }
 
 // NewRadialGradientPaint creates a new Paint from a gradient that radiates from one circle to
 // another.
-func NewRadialGradientPaint(gradient *Gradient, scx, scy, startRadius, ecx, ecy, endRadius float64) Paint {
+func NewRadialGradientPaint(gradient *Gradient, scx, scy, startRadius, ecx, ecy, endRadius float64) *Paint {
 	pattern := C.cairo_pattern_create_radial(C.double(scx), C.double(scy), C.double(startRadius), C.double(ecx), C.double(ecy), C.double(endRadius))
 	for _, one := range gradient.Stops {
 		C.cairo_pattern_add_color_stop_rgba(pattern, C.double(one.Location), C.double(one.Color.RedIntensity()), C.double(one.Color.GreenIntensity()), C.double(one.Color.BlueIntensity()), C.double(one.Color.AlphaIntensity()))
 	}
-	return Paint{pattern: pattern}
+	return &Paint{pattern: pattern}
 }
 
 // PaintMode returns the PaintMode of this Paint.
-func (p Paint) PaintMode() PaintMode {
+func (p *Paint) PaintMode() PaintMode {
 	return PaintMode(C.cairo_pattern_get_extend(p.pattern))
 }
 
 // SetPaintMode sets the PaintMode of this Paint.
-func (p Paint) SetPaintMode(mode PaintMode) {
+func (p *Paint) SetPaintMode(mode PaintMode) {
 	C.cairo_pattern_set_extend(p.pattern, C.cairo_extend_t(mode))
 }
 
 // FilterMode returns the FilterMode of this Paint.
-func (p Paint) FilterMode() FilterMode {
+func (p *Paint) FilterMode() FilterMode {
 	return FilterMode(C.cairo_pattern_get_filter(p.pattern))
 }
 
 // SetFilterMode sets the FilterMode of this Paint.
-func (p Paint) SetFilterMode(mode FilterMode) {
+func (p *Paint) SetFilterMode(mode FilterMode) {
 	C.cairo_pattern_set_filter(p.pattern, C.cairo_filter_t(mode))
 }
 
 // Matrix returns the Matrix of this Paint.
-func (p Paint) Matrix() *geom.Matrix {
+func (p *Paint) Matrix() *geom.Matrix {
 	var matrix C.cairo_matrix_t
 	C.cairo_pattern_get_matrix(p.pattern, &matrix)
 	return fromCairoMatrix(&matrix)
 }
 
 // SetMatrix sets the Matrix of this Paint.
-func (p Paint) SetMatrix(matrix *geom.Matrix) {
+func (p *Paint) SetMatrix(matrix *geom.Matrix) {
 	C.cairo_pattern_set_matrix(p.pattern, toCairoMatrix(matrix))
 }
 
 // Kind returns the PaintKind of this Paint.
-func (p Paint) Kind() PaintKind {
+func (p *Paint) Kind() PaintKind {
 	return PaintKind(C.cairo_pattern_get_type(p.pattern))
 }
 
 // Dispose releases the underlying resources used by this Paint.
-func (p Paint) Dispose() {
+func (p *Paint) Dispose() {
 	C.cairo_pattern_destroy(p.pattern)
 	p.pattern = nil
 }

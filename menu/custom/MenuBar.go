@@ -22,6 +22,7 @@ import (
 	"github.com/richardwilkes/ui/window"
 )
 
+// MenuBar represents a set of menus.
 type MenuBar struct {
 	widget.Block
 	special map[menu.SpecialMenuType]menu.Menu

@@ -305,7 +305,7 @@ func (sb *ScrollBar) drawThumb(g *draw.Graphics) {
 	if !bounds.IsEmpty() {
 		bgColor := sb.baseBackground(thumb)
 		g.Rect(bounds)
-		var paint draw.Paint
+		var paint *draw.Paint
 		if sb.horizontal {
 			paint = draw.NewLinearGradientPaint(sb.Theme.Gradient(bgColor), bounds.X, bounds.Y, bounds.X, bounds.Y+bounds.Height)
 		} else {

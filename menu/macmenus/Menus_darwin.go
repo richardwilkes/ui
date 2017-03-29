@@ -19,6 +19,7 @@ import (
 	"github.com/richardwilkes/ui/keys"
 	"github.com/richardwilkes/ui/menu"
 	"github.com/richardwilkes/ui/object"
+
 	// #cgo CFLAGS: -x objective-c
 	// #cgo LDFLAGS: -framework Cocoa
 	// #include <Cocoa/Cocoa.h>
@@ -160,14 +161,17 @@ func (item *platformItem) platformSetSubMenu(subMenu C.Menu) {
 	C.setSubMenu(item.item, subMenu)
 }
 
+// SetServicesMenu designates which menu is the services menu.
 func SetServicesMenu(menu menu.Menu) {
 	C.setServicesMenu(menu.(*platformMenu).menu)
 }
 
+// SetWindowMenu designates which menu is the window menu.
 func SetWindowMenu(menu menu.Menu) {
 	C.setWindowMenu(menu.(*platformMenu).menu)
 }
 
+// SetHelpMenu designates which menu is the help menu.
 func SetHelpMenu(menu menu.Menu) {
 	C.setHelpMenu(menu.(*platformMenu).menu)
 }

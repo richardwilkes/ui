@@ -356,11 +356,12 @@ func createTextFieldsPanel() ui.Widget {
 	field = createTextField("", panel)
 	field.SetWatermark("Enter only numbers")
 	field.EventHandlers().Add(event.ValidateType, func(evt event.Event) {
-		e := evt.(*event.Validate)
-		for _, r := range field.Text() {
-			if !unicode.IsDigit(r) {
-				e.MarkInvalid()
-				break
+		if e, ok := evt.(*event.Validate); ok {
+			for _, r := range field.Text() {
+				if !unicode.IsDigit(r) {
+					e.MarkInvalid()
+					break
+				}
 			}
 		}
 	})
@@ -381,11 +382,11 @@ func createAboutWindow(evt event.Event) {
 	if aboutWindow == nil {
 		aboutWindow = window.NewWindow(geom.Point{}, window.TitledWindowMask|window.ClosableWindowMask)
 		aboutWindow.EventHandlers().Add(event.ClosedType, func(evt event.Event) { aboutWindow = nil })
-		aboutWindow.SetTitle("About " + app.AppName())
+		aboutWindow.SetTitle("About " + app.Name())
 		content := aboutWindow.Content()
 		content.SetBorder(border.NewEmpty(geom.NewUniformInsets(10)))
 		flex.NewLayout(content)
-		title := label.NewWithFont(app.AppName(), font.EmphasizedSystem)
+		title := label.NewWithFont(app.Name(), font.EmphasizedSystem)
 		title.SetLayoutData(flex.NewData().SetHorizontalAlignment(draw.AlignMiddle).SetHorizontalGrab(true))
 		content.AddChild(title)
 		desc := label.New("Simple app to demonstrate the\ncapabilities of the ui framework.")
@@ -398,46 +399,4 @@ func createAboutWindow(evt event.Event) {
 
 func createPreferencesWindow(evt event.Event) {
 	fmt.Println("Preferences...")
-}
-
-type scrollTarget struct {
-	hpos float64
-	vpos float64
-}
-
-// LineScrollAmount implements ui.Scrollable.
-func (st *scrollTarget) LineScrollAmount(horizontal, towardsStart bool) float64 {
-	return 1
-}
-
-// PageScrollAmount implements ui.Scrollable.
-func (st *scrollTarget) PageScrollAmount(horizontal, towardsStart bool) float64 {
-	return 10
-}
-
-// ScrolledPosition implements ui.Scrollable.
-func (st *scrollTarget) ScrolledPosition(horizontal bool) float64 {
-	if horizontal {
-		return st.hpos
-	}
-	return st.vpos
-}
-
-// SetScrolledPosition implements ui.Scrollable.
-func (st *scrollTarget) SetScrolledPosition(horizontal bool, position float64) {
-	if horizontal {
-		st.hpos = position
-	} else {
-		st.vpos = position
-	}
-}
-
-// VisibleSize implements ui.Scrollable.
-func (st *scrollTarget) VisibleSize(horizontal bool) float64 {
-	return 10
-}
-
-// ContentSize implements ui.Scrollable.
-func (st *scrollTarget) ContentSize(horizontal bool) float64 {
-	return 1000
 }

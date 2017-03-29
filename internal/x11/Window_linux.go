@@ -16,6 +16,7 @@ import (
 
 	"github.com/richardwilkes/geom"
 	"github.com/richardwilkes/ui/draw"
+
 	// #cgo pkg-config: x11 cairo
 	// #include <stdlib.h>
 	// #include <X11/Xlib.h>
@@ -26,9 +27,9 @@ import (
 )
 
 const (
-	_NET_WM_STATE_REMOVE = iota
-	_NET_WM_STATE_ADD
-	_NET_WM_STATE_TOGGLE
+	//_NET_WM_STATE_REMOVE = iota
+	//_NET_WM_STATE_ADD
+	_NET_WM_STATE_TOGGLE = 2
 )
 
 const (

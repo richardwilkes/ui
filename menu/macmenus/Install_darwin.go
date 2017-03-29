@@ -15,6 +15,7 @@ import (
 	"github.com/richardwilkes/ui/menu"
 )
 
+// Install the standard menu bar.
 func Install() {
 	menu.AppBar = func(id uint64) menu.Bar { return AppBar() }
 	menu.Global = func() bool { return true }

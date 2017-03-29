@@ -143,33 +143,34 @@ func (list *List) rowAt(y float64) (index int, top float64) {
 
 func (list *List) mouseDown(evt event.Event) {
 	list.Window().SetFocus(list)
-	list.savedSelection = list.Selection.Clone()
-	e := evt.(*event.MouseDown)
-	if index, _ := list.rowAt(list.FromWindow(e.Where()).Y); index >= 0 {
-		if e.Modifiers().CommandDown() {
-			list.Selection.Flip(index)
-			list.anchor = index
-		} else if e.Modifiers().ShiftDown() {
-			if list.anchor != -1 {
-				list.Selection.SetRange(list.anchor, index)
+	if e, ok := evt.(*event.MouseDown); ok {
+		list.savedSelection = list.Selection.Clone()
+		if index, _ := list.rowAt(list.FromWindow(e.Where()).Y); index >= 0 {
+			if e.Modifiers().CommandDown() {
+				list.Selection.Flip(index)
+				list.anchor = index
+			} else if e.Modifiers().ShiftDown() {
+				if list.anchor != -1 {
+					list.Selection.SetRange(list.anchor, index)
+				} else {
+					list.Selection.Set(index)
+					list.anchor = index
+				}
+			} else if list.Selection.State(index) {
+				list.anchor = index
+				if e.Clicks() == 2 {
+					event.Dispatch(event.NewClick(list))
+					e.Discard()
+					return
+				}
 			} else {
+				list.Selection.Reset()
 				list.Selection.Set(index)
 				list.anchor = index
 			}
-		} else if list.Selection.State(index) {
-			list.anchor = index
-			if e.Clicks() == 2 {
-				event.Dispatch(event.NewClick(list))
-				e.Discard()
-				return
+			if !list.Selection.Equal(list.savedSelection) {
+				list.Repaint()
 			}
-		} else {
-			list.Selection.Reset()
-			list.Selection.Set(index)
-			list.anchor = index
-		}
-		if !list.Selection.Equal(list.savedSelection) {
-			list.Repaint()
 		}
 	}
 	list.pressed = true
@@ -177,22 +178,23 @@ func (list *List) mouseDown(evt event.Event) {
 
 func (list *List) mouseDragged(evt event.Event) {
 	if list.pressed {
-		e := evt.(*event.MouseDragged)
-		list.Selection.Copy(list.savedSelection)
-		if index, _ := list.rowAt(list.FromWindow(e.Where()).Y); index >= 0 {
-			if list.anchor == -1 {
-				list.anchor = index
-			}
-			if e.Modifiers().CommandDown() {
-				list.Selection.FlipRange(list.anchor, index)
-			} else if e.Modifiers().ShiftDown() {
-				list.Selection.SetRange(list.anchor, index)
-			} else {
-				list.Selection.Reset()
-				list.Selection.SetRange(list.anchor, index)
-			}
-			if !list.Selection.Equal(list.savedSelection) {
-				list.Repaint()
+		if e, ok := evt.(*event.MouseDragged); ok {
+			list.Selection.Copy(list.savedSelection)
+			if index, _ := list.rowAt(list.FromWindow(e.Where()).Y); index >= 0 {
+				if list.anchor == -1 {
+					list.anchor = index
+				}
+				if e.Modifiers().CommandDown() {
+					list.Selection.FlipRange(list.anchor, index)
+				} else if e.Modifiers().ShiftDown() {
+					list.Selection.SetRange(list.anchor, index)
+				} else {
+					list.Selection.Reset()
+					list.Selection.SetRange(list.anchor, index)
+				}
+				if !list.Selection.Equal(list.savedSelection) {
+					list.Repaint()
+				}
 			}
 		}
 	}
@@ -209,85 +211,87 @@ func (list *List) mouseUp(evt event.Event) {
 }
 
 func (list *List) paint(evt event.Event) {
-	e := evt.(*event.Paint)
-	dirty := e.DirtyRect()
-	index, y := list.rowAt(dirty.Y)
-	if index >= 0 {
-		cellHeight := math.Ceil(list.factory.CellHeight())
-		count := len(list.rows)
-		ymax := dirty.Y + dirty.Height
-		focused := list.Focused()
-		selCount := list.Selection.Count()
-		fullBounds := list.LocalBounds()
-		bounds := list.LocalInsetBounds()
-		gc := e.GC()
-		for index < count && y < ymax {
-			selected := list.Selection.State(index)
-			cell := list.factory.CreateCell(list, list.rows[index], index, selected, focused && selected && selCount == 1)
-			cellBounds := geom.Rect{Point: geom.Point{X: bounds.X, Y: y}, Size: geom.Size{Width: bounds.Width, Height: cellHeight}}
-			if cellHeight < 1 {
-				_, pref, _ := ui.Sizes(cell, layout.NoHintSize)
-				pref.GrowToInteger()
-				cellBounds.Height = pref.Height
+	if e, ok := evt.(*event.Paint); ok {
+		dirty := e.DirtyRect()
+		index, y := list.rowAt(dirty.Y)
+		if index >= 0 {
+			cellHeight := math.Ceil(list.factory.CellHeight())
+			count := len(list.rows)
+			ymax := dirty.Y + dirty.Height
+			focused := list.Focused()
+			selCount := list.Selection.Count()
+			fullBounds := list.LocalBounds()
+			bounds := list.LocalInsetBounds()
+			gc := e.GC()
+			for index < count && y < ymax {
+				selected := list.Selection.State(index)
+				cell := list.factory.CreateCell(list, list.rows[index], index, selected, focused && selected && selCount == 1)
+				cellBounds := geom.Rect{Point: geom.Point{X: bounds.X, Y: y}, Size: geom.Size{Width: bounds.Width, Height: cellHeight}}
+				if cellHeight < 1 {
+					_, pref, _ := ui.Sizes(cell, layout.NoHintSize)
+					pref.GrowToInteger()
+					cellBounds.Height = pref.Height
+				}
+				cell.SetBounds(cellBounds)
+				y += cellBounds.Height
+				if selected {
+					gc.SetColor(color.SelectedTextBackground)
+					gc.FillRect(geom.Rect{Point: geom.Point{X: fullBounds.X, Y: cellBounds.Y}, Size: geom.Size{Width: fullBounds.Width, Height: cellBounds.Height}})
+				}
+				gc.Save()
+				tl := cellBounds.Point
+				dirty.Point.Subtract(tl)
+				gc.Translate(cellBounds.X, cellBounds.Y)
+				cellBounds.X = 0
+				cellBounds.Y = 0
+				cell.Paint(gc, dirty)
+				dirty.Point.Add(tl)
+				gc.Restore()
+				index++
 			}
-			cell.SetBounds(cellBounds)
-			y += cellBounds.Height
-			if selected {
-				gc.SetColor(color.SelectedTextBackground)
-				gc.FillRect(geom.Rect{Point: geom.Point{X: fullBounds.X, Y: cellBounds.Y}, Size: geom.Size{Width: fullBounds.Width, Height: cellBounds.Height}})
-			}
-			gc.Save()
-			tl := cellBounds.Point
-			dirty.Point.Subtract(tl)
-			gc.Translate(cellBounds.X, cellBounds.Y)
-			cellBounds.X = 0
-			cellBounds.Y = 0
-			cell.Paint(gc, dirty)
-			dirty.Point.Add(tl)
-			gc.Restore()
-			index++
 		}
 	}
 }
 
 func (list *List) keyDown(evt event.Event) {
-	e := evt.(*event.KeyDown)
-	code := e.Code()
-	if keys.IsControlAction(code) {
-		if list.Selection.Count() > 0 {
-			event.Dispatch(event.NewClick(list))
-		}
-	} else {
-		switch code {
-		case keys.VirtualKeyUp, keys.VirtualKeyNumPadUp:
-			evt.Finish()
-			var first int
-			if list.Selection.Count() == 0 {
-				first = len(list.rows) - 1
-			} else {
-				first = list.Selection.FirstSet() - 1
-				if first < 0 {
-					first = 0
+	if e, ok := evt.(*event.KeyDown); ok {
+		code := e.Code()
+		if keys.IsControlAction(code) {
+			if list.Selection.Count() > 0 {
+				event.Dispatch(event.NewClick(list))
+			}
+		} else {
+			switch code {
+			case keys.VirtualKeyUp, keys.VirtualKeyNumPadUp:
+				evt.Finish()
+				var first int
+				if list.Selection.Count() == 0 {
+					first = len(list.rows) - 1
+				} else {
+					first = list.Selection.FirstSet() - 1
+					if first < 0 {
+						first = 0
+					}
 				}
+				list.Select(e.Modifiers().ShiftDown(), first)
+				event.Dispatch(event.NewSelection(list))
+			case keys.VirtualKeyDown, keys.VirtualKeyNumPadDown:
+				evt.Finish()
+				last := list.Selection.LastSet() + 1
+				if last >= len(list.rows) {
+					last = len(list.rows) - 1
+				}
+				list.Select(e.Modifiers().ShiftDown(), last)
+				event.Dispatch(event.NewSelection(list))
+			case keys.VirtualKeyHome, keys.VirtualKeyNumPadHome:
+				evt.Finish()
+				list.Select(e.Modifiers().ShiftDown(), 0)
+				event.Dispatch(event.NewSelection(list))
+			case keys.VirtualKeyEnd, keys.VirtualKeyNumPadEnd:
+				evt.Finish()
+				list.Select(e.Modifiers().ShiftDown(), len(list.rows)-1)
+				event.Dispatch(event.NewSelection(list))
 			}
-			list.Select(e.Modifiers().ShiftDown(), first)
-			event.Dispatch(event.NewSelection(list))
-		case keys.VirtualKeyDown, keys.VirtualKeyNumPadDown:
-			evt.Finish()
-			last := list.Selection.LastSet() + 1
-			if last >= len(list.rows) {
-				last = len(list.rows) - 1
-			}
-			list.Select(e.Modifiers().ShiftDown(), last)
-			event.Dispatch(event.NewSelection(list))
-		case keys.VirtualKeyHome, keys.VirtualKeyNumPadHome:
-			evt.Finish()
-			list.Select(e.Modifiers().ShiftDown(), 0)
-			event.Dispatch(event.NewSelection(list))
-		case keys.VirtualKeyEnd, keys.VirtualKeyNumPadEnd:
-			evt.Finish()
-			list.Select(e.Modifiers().ShiftDown(), len(list.rows)-1)
-			event.Dispatch(event.NewSelection(list))
 		}
 	}
 }

@@ -223,9 +223,9 @@ func (flow *Flow) Layout() {
 		}
 	}
 	for i, child := range children {
-		if flow.vCenter {
-			// RAW: Implement
-		}
+		// RAW: Implement
+		//if flow.vCenter {
+		//}
 		child.SetBounds(rects[i])
 	}
 }

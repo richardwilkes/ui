@@ -13,12 +13,14 @@ import (
 	"github.com/richardwilkes/ui/event"
 )
 
+// Special menu ids.
 const (
 	ServicesMenu SpecialMenuType = iota
 	WindowMenu
 	HelpMenu
 )
 
+// SpecialMenuType identifies which special menu is being referred to.
 type SpecialMenuType int
 
 // Bar represents a set of menus.

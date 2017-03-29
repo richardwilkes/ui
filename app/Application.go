@@ -56,22 +56,22 @@ func StartUserInterface() {
 	platformStartUserInterface()
 }
 
-// AppName returns the application's name.
-func AppName() string {
+// Name returns the application's name.
+func Name() string {
 	return platformAppName()
 }
 
-// HideApp attempts to hide this application.
-func HideApp() {
+// Hide attempts to hide this application.
+func Hide() {
 	platformHideApp()
 }
 
-// HideOtherApps attempts to hide other applications, leaving just this application visible.
-func HideOtherApps() {
+// HideOthers attempts to hide other applications, leaving just this application visible.
+func HideOthers() {
 	platformHideOtherApps()
 }
 
-// ShowAllApps attempts to show all applications that are currently hidden.
-func ShowAllApps() {
+// ShowAll attempts to show all applications that are currently hidden.
+func ShowAll() {
 	platformShowAllApps()
 }

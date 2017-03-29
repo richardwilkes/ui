@@ -176,15 +176,18 @@ func (flex *Flex) layout(location geom.Point, hint geom.Size, move, useMinimumSi
 func (flex *Flex) prepChildren(useMinimumSize bool) []ui.Widget {
 	children := flex.widget.Children()
 	for _, child := range children {
-		var data *Data
-		var ok bool
-		if data, ok = child.LayoutData().(*Data); !ok {
-			data = NewData()
-			child.SetLayoutData(data)
-		}
-		data.computeCacheSize(child, layout.NoHintSize, useMinimumSize)
+		getDataFromWidget(child).computeCacheSize(child, layout.NoHintSize, useMinimumSize)
 	}
 	return children
+}
+
+func getDataFromWidget(w ui.Widget) *Data {
+	if data, ok := w.LayoutData().(*Data); ok {
+		return data
+	}
+	data := NewData()
+	w.SetLayoutData(data)
+	return data
 }
 
 func (flex *Flex) buildGrid(children []ui.Widget) [][]ui.Widget {
@@ -192,7 +195,7 @@ func (flex *Flex) buildGrid(children []ui.Widget) [][]ui.Widget {
 	var row, column int
 	flex.rows = 0
 	for _, child := range children {
-		data := child.LayoutData().(*Data)
+		data := getDataFromWidget(child)
 		hSpan := xmath.MaxInt(1, xmath.MinInt(data.hSpan, flex.columns))
 		vSpan := xmath.MaxInt(1, data.vSpan)
 		for {
@@ -426,7 +429,7 @@ func (flex *Flex) apportionExtra(extra float64, base, count, span int, expand []
 func (flex *Flex) getData(grid [][]ui.Widget, row, column int, first bool) *Data {
 	block := grid[row][column]
 	if block != nil {
-		data := block.LayoutData().(*Data)
+		data := getDataFromWidget(block)
 		hSpan := xmath.MaxInt(1, xmath.MinInt(data.hSpan, flex.columns))
 		vSpan := xmath.MaxInt(1, data.vSpan)
 		var i, j int
