@@ -296,10 +296,12 @@ func (list *List) keyDown(evt event.Event) {
 	}
 }
 
+// CanSelectAll returns true if SelectAll() will change anything.
 func (list *List) CanSelectAll() bool {
 	return list.Selection.Count() < len(list.rows)
 }
 
+// SelectAll selects all rows.
 func (list *List) SelectAll() {
 	list.SelectRange(0, len(list.rows)-1, false)
 }

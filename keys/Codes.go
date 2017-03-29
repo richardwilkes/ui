@@ -189,6 +189,9 @@ func IsControlAction(keyCode int) bool {
 	return keyCode == VirtualKeyReturn || keyCode == VirtualKeyNumPadEnter || keyCode == VirtualKeySpace
 }
 
+// Transform a scan code into a key code and character. If the scan code has no
+// mapping or the mapping is dynamic, the first character of chars will be
+// returned as the character, if available.
 func Transform(scanCode int, chars string) (code int, ch rune) {
 	extract := true
 	if mapping := MappingForScanCode(scanCode); mapping != nil {

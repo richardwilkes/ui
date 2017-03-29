@@ -18,7 +18,7 @@ var (
 	StdImageButton = NewTheme()
 )
 
-// ImageButton contains the theme elements for ImageButtons.
+// Theme contains the theme elements for ImageButtons.
 type Theme struct {
 	button.BaseTheme
 	HorizontalMargin float64 // The margin on the left and right side of the image.

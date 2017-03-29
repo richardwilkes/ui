@@ -23,22 +23,22 @@ import (
 	"github.com/richardwilkes/ui/widget"
 )
 
-// Possible values for CheckBoxState.
+// Possible values for State.
 const (
-	Unchecked CheckBoxState = iota
+	Unchecked State = iota
 	Mixed
 	Checked
 )
 
-// CheckBoxState represents the current state of the checkbox.
-type CheckBoxState int
+// State represents the current state of the checkbox.
+type State int
 
 // CheckBox represents a clickable checkbox with an optional label.
 type CheckBox struct {
 	widget.Block
 	Theme   *Theme // The theme the checkbox will use to draw itself.
 	Title   string // An optional title for the checkbox.
-	state   CheckBoxState
+	state   State
 	pressed bool
 }
 
@@ -244,12 +244,12 @@ func (checkbox *CheckBox) TextColor() color.Color {
 }
 
 // State returns this checkbox's current state.
-func (checkbox *CheckBox) State() CheckBoxState {
+func (checkbox *CheckBox) State() State {
 	return checkbox.state
 }
 
 // SetState sets the checkbox's state.
-func (checkbox *CheckBox) SetState(state CheckBoxState) {
+func (checkbox *CheckBox) SetState(state State) {
 	if checkbox.state != state {
 		checkbox.state = state
 		checkbox.Repaint()

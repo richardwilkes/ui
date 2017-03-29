@@ -20,19 +20,19 @@ import (
 	"github.com/richardwilkes/ui/font"
 )
 
-// LabelCellFactory provides simple text cells.
-type LabelCellFactory struct {
+// CellFactory provides simple text cells.
+type CellFactory struct {
 	// Height is returned when CellHeight() is called.
 	Height float64
 }
 
-// CellHeight implements the CellFactory interface.
-func (f *LabelCellFactory) CellHeight() float64 {
+// CellHeight implements the widget.CellFactory interface.
+func (f *CellFactory) CellHeight() float64 {
 	return f.Height
 }
 
-// CreateCell implements the CellFactory interface.
-func (f *LabelCellFactory) CreateCell(owner ui.Widget, element interface{}, index int, selected, focused bool) ui.Widget {
+// CreateCell implements the widget.CellFactory interface.
+func (f *CellFactory) CreateCell(owner ui.Widget, element interface{}, index int, selected, focused bool) ui.Widget {
 	var text string
 	switch v := element.(type) {
 	case string:

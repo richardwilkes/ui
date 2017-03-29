@@ -14,7 +14,7 @@ var (
 	StdButton = NewTheme()
 )
 
-// Button contains the theme elements for Buttons.
+// Theme contains the theme elements for Buttons.
 type Theme struct {
 	BaseTextTheme
 	HorizontalMargin float64 // The margin on the left and right side of the text.
