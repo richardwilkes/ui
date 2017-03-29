@@ -24,6 +24,7 @@ func MayQuitNow(quit bool) {
 	platformAppMayQuitNow(quit)
 }
 
+// AppShouldQuit is called when a request to quit the application is made.
 func AppShouldQuit() Response {
 	e := event.NewAppQuitRequested(event.GlobalTarget())
 	event.Dispatch(e)
@@ -36,6 +37,8 @@ func AppShouldQuit() Response {
 	return Now
 }
 
+// AppShouldQuitAfterLastWindowClosed is called when the last window is closed
+// to determine if the application should quit as a result.
 func AppShouldQuitAfterLastWindowClosed() bool {
 	return event.SendAppLastWindowClosed().Quit()
 }

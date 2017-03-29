@@ -15,6 +15,7 @@ const (
 	RTFText   = "text/rtf"
 )
 
+// Data holds the data for a clipboard.
 type Data struct {
 	MimeType string
 	Bytes    []byte

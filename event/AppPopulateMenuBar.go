@@ -23,7 +23,7 @@ type AppPopulateMenuBar struct {
 	finished bool
 }
 
-// SendAppLastWindowClosed sends a new AppPopulateMenuBar event.
+// SendAppPopulateMenuBar sends a new AppPopulateMenuBar event.
 func SendAppPopulateMenuBar(id uint64) {
 	Dispatch(&AppPopulateMenuBar{target: GlobalTarget(), id: id})
 }

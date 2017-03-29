@@ -13,6 +13,7 @@ import (
 	"unsafe"
 
 	"github.com/richardwilkes/ui/clipboard/datatypes"
+
 	// #cgo CFLAGS: -x objective-c
 	// #cgo LDFLAGS: -framework Cocoa
 	// #include <Cocoa/Cocoa.h>
@@ -59,8 +60,6 @@ const (
 	utf8 = "public.utf8-plain-text"
 )
 
-type CFStringRef C.CFStringRef
-
 func platformChangeCount() int {
 	return int(C.clipboardChangeCount())
 }
@@ -94,7 +93,7 @@ func platformGetData(dataType string) []byte {
 	C.free(unsafe.Pointer(cstr))
 	count := int(data.count)
 	result := make([]byte, count)
-	bytes := (*[1 << 30]byte)(unsafe.Pointer(data.data))
+	bytes := (*[1 << 30]byte)(data.data)
 	for i := 0; i < count; i++ {
 		result[i] = bytes[i]
 	}
@@ -115,7 +114,7 @@ func convertMimeTypeToUTI(mimeType string) string {
 		return utf8
 	}
 	cfstr := newCFStringRef(mimeType)
-	uti := CFStringRef(C.UTTypeCreatePreferredIdentifierForTag(C.kUTTagClassMIMEType, cfstr, nil))
+	uti := C.UTTypeCreatePreferredIdentifierForTag(C.kUTTagClassMIMEType, cfstr, nil)
 	disposeCFStringRef(cfstr)
 	if uti == nil {
 		return ""
@@ -130,7 +129,7 @@ func convertUTItoMimeType(uti string) string {
 		return datatypes.PlainText
 	}
 	cfstr := newCFStringRef(uti)
-	mimeType := CFStringRef(C.UTTypeCopyPreferredTagWithClass(cfstr, C.kUTTagClassMIMEType))
+	mimeType := C.UTTypeCopyPreferredTagWithClass(cfstr, C.kUTTagClassMIMEType)
 	disposeCFStringRef(cfstr)
 	if mimeType == nil {
 		return ""
@@ -140,18 +139,18 @@ func convertUTItoMimeType(uti string) string {
 	return result
 }
 
-func newCFStringRef(str string) CFStringRef {
+func newCFStringRef(str string) C.CFStringRef {
 	cstr := C.CString(str)
-	cfstr := CFStringRef(C.CFStringCreateWithCString(nil, cstr, C.kCFStringEncodingUTF8))
+	cfstr := C.CFStringCreateWithCString(nil, cstr, C.kCFStringEncodingUTF8)
 	C.free(unsafe.Pointer(cstr))
 	return cfstr
 }
 
-func disposeCFStringRef(str CFStringRef) {
+func disposeCFStringRef(str C.CFStringRef) {
 	C.CFRelease(C.CFTypeRef(str))
 }
 
-func cfStringRefToString(str CFStringRef) string {
+func cfStringRefToString(str C.CFStringRef) string {
 	length := C.CFStringGetLength(str) * 2
 	buffer := C.malloc(C.size_t(length))
 	C.CFStringGetCString(str, (*C.char)(buffer), length, C.kCFStringEncodingUTF8)
