@@ -23,7 +23,6 @@ type MouseEntered struct {
 	where     geom.Point
 	modifiers keys.Modifiers
 	finished  bool
-	discarded bool
 }
 
 // NewMouseEntered creates a new MouseEntered event. 'target' is the widget that mouse is entering.

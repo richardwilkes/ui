@@ -40,7 +40,6 @@ type Block struct {
 	disabled      bool
 	focusable     bool
 	grabsFocus    bool
-	padding       bool // Just here to quiet aligncheck, since there is nothing I can do about it
 }
 
 // NewBlock creates a new, empty block.

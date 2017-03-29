@@ -49,7 +49,6 @@ type Window struct {
 	owner                  ui.Window
 	root                   *RootView
 	focus                  ui.Widget
-	tooltipWnd             ui.Window
 	lastMouseWidget        ui.Widget
 	lastToolTip            ui.Widget
 	lastTooltipShownAt     time.Time
@@ -443,7 +442,7 @@ func (window *Window) updateToolTip(widget ui.Widget, where geom.Point) {
 		window.lastToolTip = tip
 		if tip != nil {
 			ts := &tooltipSequencer{window: window, avoid: avoid, sequence: window.tooltipSequence}
-			if wasShowing || time.Now().Sub(window.lastTooltipShownAt) < TooltipDismissal {
+			if wasShowing || time.Since(window.lastTooltipShownAt) < TooltipDismissal {
 				ts.show()
 			} else {
 				window.InvokeAfter(ts.show, TooltipDelay)
@@ -457,9 +456,9 @@ func (window *Window) clearToolTip() {
 	window.root.SetTooltip(nil)
 }
 
-func (window *Window) updateCursor(widget ui.Widget, where geom.Point) {
-	if widget != nil {
-		if !event.SendUpdateCursor(widget, where) {
+func (window *Window) updateCursor(target event.Target, where geom.Point) {
+	if target != nil {
+		if !event.SendUpdateCursor(target, where) {
 			window.SetCursor(cursor.Arrow)
 		}
 	}

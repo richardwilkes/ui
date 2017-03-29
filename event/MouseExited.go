@@ -23,7 +23,6 @@ type MouseExited struct {
 	where     geom.Point
 	modifiers keys.Modifiers
 	finished  bool
-	discarded bool
 }
 
 // NewMouseExited creates a new MouseExited event. 'target' is the widget that mouse is leaving.

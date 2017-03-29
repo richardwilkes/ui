@@ -21,7 +21,6 @@ import (
 	"github.com/richardwilkes/ui/clipboard/datatypes"
 	"github.com/richardwilkes/ui/color"
 	"github.com/richardwilkes/ui/cursor"
-	"github.com/richardwilkes/ui/draw"
 	"github.com/richardwilkes/ui/event"
 	"github.com/richardwilkes/ui/event/button"
 	"github.com/richardwilkes/ui/keys"
@@ -42,7 +41,6 @@ type TextField struct {
 	selectionAnchor int
 	forceShowUntil  time.Time
 	scrollOffset    float64
-	align           draw.Alignment
 	showCursor      bool
 	pending         bool
 	extendByWord    bool

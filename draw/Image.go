@@ -56,7 +56,11 @@ var (
 )
 
 func loadFromStream(key interface{}, stream io.ReadCloser) (ref *imgRef, err error) {
-	defer stream.Close()
+	defer func() {
+		if serr := stream.Close(); serr != nil && err == nil {
+			err = errs.Wrap(serr)
+		}
+	}()
 	var simg image.Image
 	if simg, _, err = image.Decode(stream); err != nil {
 		return nil, errs.Wrap(err)

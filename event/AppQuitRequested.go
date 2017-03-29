@@ -15,10 +15,10 @@ import (
 
 // AppQuitRequested is generated to ask if it is OK to quit the application.
 type AppQuitRequested struct {
-	target    Target
-	cancelled bool
-	delayed   bool
-	finished  bool
+	target   Target
+	canceled bool
+	delayed  bool
+	finished bool
 }
 
 // NewAppQuitRequested creates a new AppQuitRequested event. 'target' is the app.
@@ -51,14 +51,14 @@ func (e *AppQuitRequested) Finish() {
 	e.finished = true
 }
 
-// Cancelled returns true if the request has been cancelled.
-func (e *AppQuitRequested) Cancelled() bool {
-	return e.cancelled
+// Canceled returns true if the request has been canceled.
+func (e *AppQuitRequested) Canceled() bool {
+	return e.canceled
 }
 
 // Cancel the request.
 func (e *AppQuitRequested) Cancel() {
-	e.cancelled = true
+	e.canceled = true
 	e.finished = true
 }
 
@@ -78,8 +78,8 @@ func (e *AppQuitRequested) String() string {
 	var buffer bytes.Buffer
 	buffer.WriteString("AppQuitRequested[")
 	needComma := false
-	if e.cancelled {
-		buffer.WriteString("Cancelled")
+	if e.canceled {
+		buffer.WriteString("Canceled")
 		needComma = true
 	}
 	if e.delayed {
@@ -93,8 +93,6 @@ func (e *AppQuitRequested) String() string {
 	if e.finished {
 		if needComma {
 			buffer.WriteString(", ")
-		} else {
-			needComma = true
 		}
 		buffer.WriteString("Finished")
 	}

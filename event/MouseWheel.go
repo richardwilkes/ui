@@ -24,7 +24,6 @@ type MouseWheel struct {
 	where     geom.Point
 	modifiers keys.Modifiers
 	finished  bool
-	discarded bool
 }
 
 // NewMouseWheel creates a new MouseWheel event. 'target' is the widget that mouse is over. 'delta'

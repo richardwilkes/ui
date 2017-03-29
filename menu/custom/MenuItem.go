@@ -124,36 +124,38 @@ func (item *MenuItem) calculateAcceleratorPosition() float64 {
 }
 
 func (item *MenuItem) paint(evt event.Event) {
-	bounds := item.LocalInsetBounds()
-	gc := evt.(*event.Paint).GC()
-	gc.SetColor(item.currentBackground())
-	gc.FillRect(bounds)
-	size := item.Theme.TitleFont.Measure(item.title)
-	gc.SetColor(item.textColor())
-	gc.DrawString(bounds.X+item.Theme.HMargin, bounds.Y+(bounds.Height-size.Height)/2, item.title, item.Theme.TitleFont)
-	if item.keyCode != 0 && item.pos > 0 {
-		mapping := keys.MappingForKeyCode(item.keyCode)
-		if mapping != nil {
-			size = item.Theme.KeyFont.Measure(mapping.Name)
-			x := bounds.X + bounds.Width - item.pos
-			y := bounds.Y + (bounds.Height-size.Height)/2
-			modY := y - (item.Theme.KeyFont.Leading() + 0.5)
-			needOffset := false
-			for _, r := range mapping.Name {
-				if r < ' ' || r > utf8.RuneSelf {
-					needOffset = true
-				} else {
-					needOffset = false
-					break
+	if paintEvent, ok := evt.(*event.Paint); ok {
+		bounds := item.LocalInsetBounds()
+		gc := paintEvent.GC()
+		gc.SetColor(item.currentBackground())
+		gc.FillRect(bounds)
+		size := item.Theme.TitleFont.Measure(item.title)
+		gc.SetColor(item.textColor())
+		gc.DrawString(bounds.X+item.Theme.HMargin, bounds.Y+(bounds.Height-size.Height)/2, item.title, item.Theme.TitleFont)
+		if item.keyCode != 0 && item.pos > 0 {
+			mapping := keys.MappingForKeyCode(item.keyCode)
+			if mapping != nil {
+				size = item.Theme.KeyFont.Measure(mapping.Name)
+				x := bounds.X + bounds.Width - item.pos
+				y := bounds.Y + (bounds.Height-size.Height)/2
+				modY := y - (item.Theme.KeyFont.Leading() + 0.5)
+				needOffset := false
+				for _, r := range mapping.Name {
+					if r < ' ' || r > utf8.RuneSelf {
+						needOffset = true
+					} else {
+						needOffset = false
+						break
+					}
 				}
+				if needOffset {
+					y = modY
+				}
+				gc.DrawString(x, y, mapping.Name, item.Theme.KeyFont)
+				modText := item.keyModifiers.String()
+				size = item.Theme.KeyFont.Measure(modText)
+				gc.DrawString(x-size.Width, modY, modText, item.Theme.KeyFont)
 			}
-			if needOffset {
-				y = modY
-			}
-			gc.DrawString(x, y, mapping.Name, item.Theme.KeyFont)
-			modText := item.keyModifiers.String()
-			size = item.Theme.KeyFont.Measure(modText)
-			gc.DrawString(x-size.Width, modY, modText, item.Theme.KeyFont)
 		}
 	}
 }
@@ -212,36 +214,47 @@ func (item *MenuItem) mouseOver(where geom.Point) {
 }
 
 func (item *MenuItem) mouseDragged(evt event.Event) {
-	item.mouseOver(evt.(*event.MouseDragged).Where())
+	if evt2, ok := evt.(*event.MouseDragged); ok {
+		item.mouseOver(evt2.Where())
+	}
 }
 
 func (item *MenuItem) mouseUp(evt event.Event) {
 	item.highlighted = false
 	item.Repaint()
-	bounds := item.LocalInsetBounds()
-	mouseUp := evt.(*event.MouseUp)
-	if bounds.ContainsPoint(item.FromWindow(mouseUp.Where())) {
-		event.Dispatch(event.NewSelection(item))
-		event.Dispatch(event.NewClosing(item))
+	if mouseUp, ok := evt.(*event.MouseUp); ok {
+		bounds := item.LocalInsetBounds()
+		if bounds.ContainsPoint(item.FromWindow(mouseUp.Where())) {
+			event.Dispatch(event.NewSelection(item))
+			event.Dispatch(event.NewClosing(item))
+		}
 	}
 }
 
 func (item *MenuItem) mouseEntered(evt event.Event) {
-	item.mouseOver(evt.(*event.MouseEntered).Where())
+	if evt2, ok := evt.(*event.MouseEntered); ok {
+		item.mouseOver(evt2.Where())
+	}
 }
 
 func (item *MenuItem) mouseMoved(evt event.Event) {
-	item.mouseOver(evt.(*event.MouseMoved).Where())
+	if evt2, ok := evt.(*event.MouseMoved); ok {
+		item.mouseOver(evt2.Where())
+	}
 }
 
 func (item *MenuItem) mouseExited(evt event.Event) {
-	item.mouseOver(evt.(*event.MouseExited).Where())
+	if evt2, ok := evt.(*event.MouseExited); ok {
+		item.mouseOver(evt2.Where())
+	}
 }
 
 func (item *MenuItem) keyDown(evt event.Event) {
-	if keys.IsControlAction(evt.(*event.KeyDown).Code()) {
-		evt.Finish()
-		event.Dispatch(event.NewSelection(item))
+	if evt2, ok := evt.(*event.KeyDown); ok {
+		if keys.IsControlAction(evt2.Code()) {
+			evt.Finish()
+			event.Dispatch(event.NewSelection(item))
+		}
 	}
 }
 

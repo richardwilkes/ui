@@ -25,7 +25,6 @@ type MouseDragged struct {
 	modifiers keys.Modifiers
 	button    int
 	finished  bool
-	discarded bool
 }
 
 // NewMouseDragged creates a new MouseDragged event. 'target' is the widget that was being clicked

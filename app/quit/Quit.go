@@ -27,7 +27,7 @@ func MayQuitNow(quit bool) {
 func AppShouldQuit() Response {
 	e := event.NewAppQuitRequested(event.GlobalTarget())
 	event.Dispatch(e)
-	if e.Cancelled() {
+	if e.Canceled() {
 		return Cancel
 	}
 	if e.Delayed() {

@@ -24,7 +24,6 @@ type MouseMoved struct {
 	where     geom.Point
 	modifiers keys.Modifiers
 	finished  bool
-	discarded bool
 }
 
 // NewMouseMoved creates a new MouseMoved event. 'target' is the widget that mouse is over.

@@ -25,7 +25,6 @@ type MouseUp struct {
 	modifiers keys.Modifiers
 	button    int
 	finished  bool
-	discarded bool
 }
 
 // NewMouseUp creates a new MouseUp event. 'target' is the widget that was being clicked on.
