@@ -11,6 +11,7 @@ package font
 
 import (
 	"fmt"
+
 	"github.com/richardwilkes/i18n"
 	// #cgo pkg-config: pangocairo
 	// #include <pango/pangocairo.h>

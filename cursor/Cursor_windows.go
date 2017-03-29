@@ -11,9 +11,10 @@ package cursor
 
 import (
 	"fmt"
+	"unsafe"
+
 	"github.com/richardwilkes/geom"
 	"github.com/richardwilkes/ui/draw"
-	"unsafe"
 )
 
 func platformSystemCursor(id int) unsafe.Pointer {

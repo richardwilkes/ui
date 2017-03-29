@@ -11,6 +11,7 @@ package window
 
 import (
 	"fmt"
+
 	"github.com/richardwilkes/geom"
 	"github.com/richardwilkes/ui"
 	"github.com/richardwilkes/ui/color"

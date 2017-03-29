@@ -17,6 +17,7 @@ import (
 	"github.com/richardwilkes/ui"
 	"github.com/richardwilkes/ui/cursor"
 	"github.com/richardwilkes/ui/draw"
+
 	// #cgo CFLAGS: -x objective-c
 	// #cgo LDFLAGS: -framework Cocoa -framework Quartz
 	// #cgo pkg-config: pangocairo

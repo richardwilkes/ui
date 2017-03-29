@@ -11,6 +11,8 @@ package button
 
 import (
 	"fmt"
+	"time"
+
 	"github.com/richardwilkes/geom"
 	"github.com/richardwilkes/ui/color"
 	"github.com/richardwilkes/ui/draw"
@@ -18,7 +20,6 @@ import (
 	"github.com/richardwilkes/ui/keys"
 	"github.com/richardwilkes/ui/layout"
 	"github.com/richardwilkes/ui/widget"
-	"time"
 )
 
 // Button represents a clickable text button.

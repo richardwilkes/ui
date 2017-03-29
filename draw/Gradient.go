@@ -12,6 +12,7 @@ package draw
 import (
 	"bytes"
 	"fmt"
+
 	"github.com/richardwilkes/ui/color"
 )
 

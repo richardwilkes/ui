@@ -12,6 +12,7 @@ package draw
 import (
 	"github.com/richardwilkes/geom"
 	"github.com/richardwilkes/ui/color"
+
 	// #cgo pkg-config: pangocairo
 	// #include <pango/pangocairo.h>
 	"C"

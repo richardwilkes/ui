@@ -11,13 +11,14 @@ package scrollarea
 
 import (
 	"fmt"
+	"math"
+
 	"github.com/richardwilkes/ui"
 	"github.com/richardwilkes/ui/color"
 	"github.com/richardwilkes/ui/event"
 	"github.com/richardwilkes/ui/keys"
 	"github.com/richardwilkes/ui/widget"
 	"github.com/richardwilkes/ui/widget/scrollbar"
-	"math"
 )
 
 // Possible ways to handle auto-sizing of the scroll content's preferred size.

@@ -11,6 +11,9 @@ package radiobutton
 
 import (
 	"fmt"
+	"math"
+	"time"
+
 	"github.com/richardwilkes/geom"
 	"github.com/richardwilkes/ui/color"
 	"github.com/richardwilkes/ui/draw"
@@ -18,8 +21,6 @@ import (
 	"github.com/richardwilkes/ui/keys"
 	"github.com/richardwilkes/ui/layout"
 	"github.com/richardwilkes/ui/widget"
-	"math"
-	"time"
 )
 
 // RadioButton represents a radio button with an optional label.

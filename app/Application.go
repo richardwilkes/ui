@@ -11,9 +11,10 @@ package app
 
 import (
 	"fmt"
+	"runtime"
+
 	"github.com/richardwilkes/ui/event"
 	"github.com/richardwilkes/ui/object"
-	"runtime"
 )
 
 // Application represents the overall application.

@@ -10,11 +10,12 @@
 package x11
 
 import (
-	"github.com/richardwilkes/geom"
-	"github.com/richardwilkes/ui/draw"
 	"math"
 	"os"
 	"unsafe"
+
+	"github.com/richardwilkes/geom"
+	"github.com/richardwilkes/ui/draw"
 	// #cgo pkg-config: x11 cairo
 	// #include <stdlib.h>
 	// #include <X11/Xlib.h>

@@ -11,6 +11,7 @@ package imagelabel
 
 import (
 	"fmt"
+
 	"github.com/richardwilkes/geom"
 	"github.com/richardwilkes/ui/draw"
 	"github.com/richardwilkes/ui/event"

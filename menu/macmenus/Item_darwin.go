@@ -11,6 +11,7 @@ package macmenus
 
 import (
 	"fmt"
+
 	"github.com/richardwilkes/ui/event"
 	"github.com/richardwilkes/ui/keys"
 	"github.com/richardwilkes/ui/menu"

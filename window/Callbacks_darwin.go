@@ -10,13 +10,14 @@
 package window
 
 import (
+	"unsafe"
+
 	"github.com/richardwilkes/geom"
 	"github.com/richardwilkes/ui"
 	"github.com/richardwilkes/ui/draw"
 	"github.com/richardwilkes/ui/event"
 	"github.com/richardwilkes/ui/internal/task"
 	"github.com/richardwilkes/ui/keys"
-	"unsafe"
 	// #cgo pkg-config: cairo
 	// #include <cairo.h>
 	"C"

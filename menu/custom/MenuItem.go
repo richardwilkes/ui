@@ -11,13 +11,14 @@ package custom
 
 import (
 	"fmt"
+	"unicode/utf8"
+
 	"github.com/richardwilkes/geom"
 	"github.com/richardwilkes/ui/color"
 	"github.com/richardwilkes/ui/event"
 	"github.com/richardwilkes/ui/keys"
 	"github.com/richardwilkes/ui/menu"
 	"github.com/richardwilkes/ui/widget"
-	"unicode/utf8"
 )
 
 type MenuItem struct {

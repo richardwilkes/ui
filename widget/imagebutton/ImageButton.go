@@ -11,13 +11,14 @@ package imagebutton
 
 import (
 	"fmt"
+	"time"
+
 	"github.com/richardwilkes/geom"
 	"github.com/richardwilkes/ui/color"
 	"github.com/richardwilkes/ui/draw"
 	"github.com/richardwilkes/ui/event"
 	"github.com/richardwilkes/ui/keys"
 	"github.com/richardwilkes/ui/widget"
-	"time"
 )
 
 // ImageButton represents a clickable image button.

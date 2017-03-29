@@ -10,9 +10,10 @@
 package button
 
 import (
+	"time"
+
 	"github.com/richardwilkes/ui/color"
 	"github.com/richardwilkes/ui/draw"
-	"time"
 )
 
 // BaseTheme contains the common theme elements used in all buttons.

@@ -10,9 +10,10 @@
 package x11
 
 import (
+	"unsafe"
+
 	"github.com/richardwilkes/geom"
 	"github.com/richardwilkes/ui/draw"
-	"unsafe"
 	// #cgo LDFLAGS: -lXcursor
 	// #cgo pkg-config: x11
 	// #include <stdlib.h>

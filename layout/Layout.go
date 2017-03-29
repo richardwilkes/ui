@@ -10,8 +10,9 @@
 package layout
 
 import (
-	"github.com/richardwilkes/geom"
 	"math"
+
+	"github.com/richardwilkes/geom"
 )
 
 const (

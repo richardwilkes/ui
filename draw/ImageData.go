@@ -10,9 +10,10 @@
 package draw
 
 import (
-	"github.com/richardwilkes/ui/color"
 	"image"
 	gocolor "image/color"
+
+	"github.com/richardwilkes/ui/color"
 )
 
 // ImageData is the raw information that makes up an Image.

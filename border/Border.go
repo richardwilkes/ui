@@ -10,8 +10,8 @@
 package border
 
 import (
-	"github.com/richardwilkes/ui/draw"
 	"github.com/richardwilkes/geom"
+	"github.com/richardwilkes/ui/draw"
 )
 
 // The Border interface should be implemented by objects that provide a border around an area.

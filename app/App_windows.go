@@ -10,9 +10,11 @@
 package app
 
 import (
-	"github.com/richardwilkes/ui/menu/custom"
 	"os"
 	"path/filepath"
+
+	"github.com/richardwilkes/ui/menu/custom"
+	"github.com/richardwilkes/ui/window"
 )
 
 func platformStartUserInterface() {

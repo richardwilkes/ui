@@ -10,10 +10,11 @@
 package app
 
 import (
-	"C"
 	"github.com/richardwilkes/ui/app/quit"
 	"github.com/richardwilkes/ui/event"
 	"github.com/richardwilkes/ui/menu/macmenus"
+
+	"C"
 )
 
 //export callbackAppShouldQuit

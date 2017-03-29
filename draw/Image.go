@@ -11,10 +11,6 @@ package draw
 
 import (
 	"fmt"
-	"github.com/richardwilkes/errs"
-	"github.com/richardwilkes/geom"
-	"github.com/richardwilkes/ui/color"
-	"github.com/richardwilkes/ui/object"
 	"image"
 	_ "image/gif"  // Support loading of GIF
 	_ "image/jpeg" // Support loading of JPEG
@@ -23,6 +19,12 @@ import (
 	"net/http"
 	"sync"
 	"unsafe"
+
+	"github.com/richardwilkes/errs"
+	"github.com/richardwilkes/geom"
+	"github.com/richardwilkes/ui/color"
+	"github.com/richardwilkes/ui/object"
+
 	// #cgo pkg-config: pangocairo
 	// #include <pango/pangocairo.h>
 	"C"

@@ -10,13 +10,14 @@
 package app
 
 import (
+	"os"
+	"path/filepath"
+
 	"github.com/richardwilkes/ui/app/quit"
 	"github.com/richardwilkes/ui/event"
 	"github.com/richardwilkes/ui/internal/x11"
 	"github.com/richardwilkes/ui/menu/custom"
 	"github.com/richardwilkes/ui/window"
-	"os"
-	"path/filepath"
 )
 
 func platformStartUserInterface() {

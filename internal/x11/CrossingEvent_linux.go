@@ -10,9 +10,10 @@
 package x11
 
 import (
+	"unsafe"
+
 	"github.com/richardwilkes/geom"
 	"github.com/richardwilkes/ui/keys"
-	"unsafe"
 	// #cgo pkg-config: x11
 	// #include <X11/Xlib.h>
 	"C"

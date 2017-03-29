@@ -10,8 +10,10 @@
 package draw
 
 import (
-	"github.com/richardwilkes/geom"
 	"unsafe"
+
+	"github.com/richardwilkes/geom"
+
 	// #cgo pkg-config: cairo
 	// #include <cairo.h>
 	"C"

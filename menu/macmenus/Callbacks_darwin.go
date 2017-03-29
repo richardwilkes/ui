@@ -12,6 +12,7 @@ package macmenus
 import (
 	// typedef void *Item;
 	"C"
+
 	"github.com/richardwilkes/ui/event"
 )
 

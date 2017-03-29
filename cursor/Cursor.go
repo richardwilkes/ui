@@ -10,9 +10,10 @@
 package cursor
 
 import (
+	"unsafe"
+
 	"github.com/richardwilkes/geom"
 	"github.com/richardwilkes/ui/draw"
-	"unsafe"
 )
 
 const (

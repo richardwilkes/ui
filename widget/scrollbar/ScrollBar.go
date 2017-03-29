@@ -11,14 +11,15 @@ package scrollbar
 
 import (
 	"fmt"
+	"math"
+	"time"
+
 	"github.com/richardwilkes/geom"
 	"github.com/richardwilkes/ui/color"
 	"github.com/richardwilkes/ui/draw"
 	"github.com/richardwilkes/ui/event"
 	"github.com/richardwilkes/ui/layout"
 	"github.com/richardwilkes/ui/widget"
-	"math"
-	"time"
 )
 
 const (

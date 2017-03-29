@@ -10,13 +10,14 @@
 package appmenu
 
 import (
+	"runtime"
+
 	"github.com/richardwilkes/i18n"
 	"github.com/richardwilkes/ui/app"
 	"github.com/richardwilkes/ui/app/quit"
 	"github.com/richardwilkes/ui/event"
 	"github.com/richardwilkes/ui/keys"
 	"github.com/richardwilkes/ui/menu"
-	"runtime"
 )
 
 // Install adds a standard 'application' menu to the front of the menu bar.

@@ -10,14 +10,15 @@
 package macmenus
 
 import (
+	"strings"
+	"unsafe"
+
 	"github.com/richardwilkes/geom"
 	"github.com/richardwilkes/ui"
 	"github.com/richardwilkes/ui/event"
 	"github.com/richardwilkes/ui/keys"
 	"github.com/richardwilkes/ui/menu"
 	"github.com/richardwilkes/ui/object"
-	"strings"
-	"unsafe"
 	// #cgo CFLAGS: -x objective-c
 	// #cgo LDFLAGS: -framework Cocoa
 	// #include <Cocoa/Cocoa.h>

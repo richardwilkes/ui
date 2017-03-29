@@ -10,9 +10,10 @@
 package scrollbar
 
 import (
+	"time"
+
 	"github.com/richardwilkes/ui/color"
 	"github.com/richardwilkes/ui/draw"
-	"time"
 )
 
 var (

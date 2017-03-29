@@ -11,6 +11,8 @@ package list
 
 import (
 	"fmt"
+	"math"
+
 	"github.com/richardwilkes/geom"
 	"github.com/richardwilkes/ui"
 	"github.com/richardwilkes/ui/border"
@@ -20,7 +22,6 @@ import (
 	"github.com/richardwilkes/ui/layout"
 	"github.com/richardwilkes/ui/widget"
 	"github.com/richardwilkes/xmath"
-	"math"
 )
 
 // List provides a control that allows the user to select from a list of items, represented by cells.

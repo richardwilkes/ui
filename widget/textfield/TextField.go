@@ -11,6 +11,11 @@ package textfield
 
 import (
 	"fmt"
+	"math"
+	"strings"
+	"time"
+	"unicode"
+
 	"github.com/richardwilkes/geom"
 	"github.com/richardwilkes/ui/clipboard"
 	"github.com/richardwilkes/ui/clipboard/datatypes"
@@ -24,10 +29,6 @@ import (
 	"github.com/richardwilkes/ui/widget"
 	"github.com/richardwilkes/ui/window"
 	"github.com/richardwilkes/xmath"
-	"math"
-	"strings"
-	"time"
-	"unicode"
 )
 
 // TextField provides a single-line text input control.
