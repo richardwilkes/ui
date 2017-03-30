@@ -30,7 +30,7 @@ func platformStartUserInterface() {
 	custom.Install()
 	event.SendAppWillFinishStartup()
 	event.SendAppDidFinishStartup()
-	if window.WindowCount() == 0 && quit.AppShouldQuitAfterLastWindowClosed() {
+	if window.Count() == 0 && quit.AppShouldQuitAfterLastWindowClosed() {
 		quit.AttemptQuit()
 	}
 	window.RunEventLoop()

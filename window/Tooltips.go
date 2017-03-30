@@ -18,7 +18,9 @@ import (
 )
 
 var (
-	TooltipDelay     time.Duration = 1500 * time.Millisecond
+	// TooltipDelay holds the delay before a tooltip will be shown.
+	TooltipDelay time.Duration = 1500 * time.Millisecond
+	// TooltipDismissal holds the delay before a tooltip will be dismissed.
 	TooltipDismissal time.Duration = 3 * time.Second
 )
 

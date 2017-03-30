@@ -29,15 +29,11 @@ type Separator struct {
 func New(horizontal bool) *Separator {
 	sep := &Separator{}
 	sep.InitTypeAndID(sep)
-	sep.Initialize(horizontal)
-	return sep
-}
-
-func (sep *Separator) Initialize(horizontal bool) {
 	sep.horizontal = horizontal
 	sep.Describer = func() string { return fmt.Sprintf("Separator #%d", sep.ID()) }
 	sep.SetSizer(sep)
 	sep.EventHandlers().Add(event.PaintType, sep.paint)
+	return sep
 }
 
 // Sizes implements Sizer

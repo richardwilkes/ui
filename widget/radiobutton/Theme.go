@@ -24,7 +24,7 @@ type Theme struct {
 	HorizontalGap float64 // The gap between the radio button graphic and its label.
 }
 
-// NewRadioButton creates a new radio button theme.
+// NewTheme creates a new radio button theme.
 func NewTheme() *Theme {
 	theme := &Theme{}
 	theme.Init()

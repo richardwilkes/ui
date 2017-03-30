@@ -88,7 +88,7 @@ func extractAlpha(buffer string) float64 {
 	if err != nil {
 		return 0
 	}
-	return clamp0To1(float64(alpha))
+	return clamp0To1(alpha)
 }
 
 func extractPercentage(buffer string) float64 {

@@ -20,6 +20,7 @@ import (
 	"github.com/richardwilkes/ui/widget"
 )
 
+// RootView provides a root view for a window.
 type RootView struct {
 	widget.Block
 	tooltip ui.Widget
@@ -38,10 +39,12 @@ func newRootView(window ui.Window) *RootView {
 	return view
 }
 
+// MenuBar returns the menu bar.
 func (view *RootView) MenuBar() menu.Bar {
 	return view.menuBar
 }
 
+// SetMenuBar sets the menu bar.
 func (view *RootView) SetMenuBar(bar menu.Bar) {
 	if view.menuBar != nil {
 		if actual, ok := view.menuBar.(ui.Widget); ok {
@@ -54,10 +57,12 @@ func (view *RootView) SetMenuBar(bar menu.Bar) {
 	}
 }
 
+// Tooltip returns the tooltip for this component.
 func (view *RootView) Tooltip() ui.Widget {
 	return view.tooltip
 }
 
+// SetTooltip sets the tooltip for this component.
 func (view *RootView) SetTooltip(tip ui.Widget) {
 	if view.tooltip != nil {
 		view.tooltip.Repaint()
@@ -70,14 +75,17 @@ func (view *RootView) SetTooltip(tip ui.Widget) {
 	}
 }
 
+// Content returns the content area.
 func (view *RootView) Content() ui.Widget {
 	return view.content
 }
 
+// RootLayout holds layout information.
 type RootLayout struct {
 	view *RootView
 }
 
+// Sizes implements the Sizer interface.
 func (lay *RootLayout) Sizes(hint geom.Size) (min, pref, max geom.Size) {
 	min, pref, max = ui.Sizes(lay.view.content, hint)
 	if lay.view.menuBar != nil {
@@ -98,6 +106,7 @@ func (lay *RootLayout) adjustSizeForBarSize(size *geom.Size, barSize geom.Size) 
 	}
 }
 
+// Layout implements the Layout interface.
 func (lay *RootLayout) Layout() {
 	bounds := lay.view.LocalBounds()
 	if lay.view.menuBar != nil {

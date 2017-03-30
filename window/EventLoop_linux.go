@@ -255,7 +255,7 @@ func DeferQuit() {
 func StartQuit() {
 	event.SendAppWillQuit()
 	quitting = true
-	if WindowCount() > 0 {
+	if Count() > 0 {
 		for _, w := range Windows() {
 			w.Close()
 		}

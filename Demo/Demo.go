@@ -192,7 +192,7 @@ func getAppleCursor() *cursor.Cursor {
 }
 
 func createListPanel() ui.Widget {
-	list := list.New(&label.LabelCellFactory{})
+	list := list.New(&label.CellFactory{})
 	list.Append("One",
 		"Two",
 		"Three with some long text to make it interesting",

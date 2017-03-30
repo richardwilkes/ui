@@ -63,6 +63,7 @@ type Window struct {
 }
 
 var (
+	// LastWindowClosed will be called when the last window is closed, if not nil.
 	LastWindowClosed func()
 	windowMap        = make(map[platformWindow]*Window)
 	windowIDMap      = make(map[uint64]*Window)
@@ -74,10 +75,12 @@ func AllWindowsToFront() {
 	platformBringAllWindowsToFront()
 }
 
-func WindowCount() int {
+// Count returns the number of windows that are open.
+func Count() int {
 	return len(windowMap)
 }
 
+// ByID returns the window associated with the specified ID.
 func ByID(id uint64) ui.Window {
 	return windowIDMap[id]
 }
@@ -117,6 +120,7 @@ func NewWindowWithContentSize(where geom.Point, contentSize geom.Size, styleMask
 	return wnd
 }
 
+// NewPopupWindow creates a new popup window at the specified location and content size.
 func NewPopupWindow(parent ui.Window, where geom.Point, contentSize geom.Size) *Window {
 	bounds := geom.Rect{Point: where, Size: contentSize}
 	win, surface := platformNewPopupWindow(parent, bounds)
@@ -150,6 +154,7 @@ func (window *Window) String() string {
 	return fmt.Sprintf("Window #%d", window.ID())
 }
 
+// Owner returns the owner of the window.
 func (window *Window) Owner() ui.Window {
 	return window.owner
 }
@@ -179,6 +184,7 @@ func (window *Window) Close() {
 	window.platformClose()
 }
 
+// Dispose of the window.
 func (window *Window) Dispose() {
 	event.Dispatch(event.NewClosed(window))
 	delete(windowIDMap, window.ID())
@@ -194,7 +200,7 @@ func (window *Window) Dispose() {
 			}
 		}
 	}
-	if WindowCount() == 0 && LastWindowClosed != nil {
+	if Count() == 0 && LastWindowClosed != nil {
 		LastWindowClosed()
 	}
 }
@@ -287,6 +293,7 @@ func (window *Window) Content() ui.Widget {
 	return window.root.Content()
 }
 
+// Focused returns true if the window has the current keyboard focus.
 func (window *Window) Focused() bool {
 	return window == KeyWindow()
 }

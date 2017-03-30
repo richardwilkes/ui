@@ -26,8 +26,8 @@ func HSBA(hue, saturation, brightness, alpha float64) Color {
 	if saturation == 0 {
 		return RGBA(v, v, v, alpha)
 	}
-	h := (hue - float64(math.Floor(float64(hue)))) * 6
-	f := h - float64(math.Floor(float64(h)))
+	h := (hue - math.Floor(hue)) * 6
+	f := h - math.Floor(h)
 	p := clamp0To1AndScale255(brightness * (1 - saturation))
 	q := clamp0To1AndScale255(brightness * (1 - saturation*f))
 	t := clamp0To1AndScale255(brightness * (1 - (saturation * (1 - f))))

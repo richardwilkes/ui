@@ -18,7 +18,7 @@ import (
 	"github.com/richardwilkes/ui/event"
 )
 
-// ToolTip is generated when a tooltip is being requested for the widget.
+// Event is generated when a tooltip is being requested for the widget.
 type Event struct {
 	target   ui.Widget
 	where    geom.Point
@@ -27,7 +27,7 @@ type Event struct {
 	finished bool
 }
 
-// NewToolTip creates a new ToolTip event. 'target' is the widget the mouse is over. 'where' is the
+// NewEvent creates a new ToolTip event. 'target' is the widget the mouse is over. 'where' is the
 // location in the window where the mouse is. 'avoid' is the area to avoid placing the tooltip
 // within, using window coordinates. Typically, 'avoid' is set to the boundaries of the widget
 // within the window.
