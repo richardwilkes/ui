@@ -17,6 +17,7 @@ import (
 )
 
 //export validateMenuItemCallback
+// nolint: deadcode
 func validateMenuItemCallback(menuItem C.Item) bool {
 	if item, ok := itemMap[menuItem]; ok {
 		evt := event.NewValidate(item)
@@ -28,6 +29,7 @@ func validateMenuItemCallback(menuItem C.Item) bool {
 }
 
 //export handleMenuItemCallback
+// nolint: deadcode
 func handleMenuItemCallback(menuItem C.Item) {
 	if item, ok := itemMap[menuItem]; ok {
 		event.Dispatch(event.NewSelection(item))

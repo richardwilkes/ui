@@ -18,47 +18,56 @@ import (
 )
 
 //export callbackAppShouldQuit
+// nolint: deadcode
 func callbackAppShouldQuit() int {
 	return int(quit.AppShouldQuit())
 }
 
 //export callbackAppShouldQuitAfterLastWindowClosed
+// nolint: deadcode
 func callbackAppShouldQuitAfterLastWindowClosed() bool {
 	return quit.AppShouldQuitAfterLastWindowClosed()
 }
 
 //export callbackAppWillQuit
+// nolint: deadcode
 func callbackAppWillQuit() {
 	event.SendAppWillQuit()
 }
 
 //export callbackAppWillFinishStartup
+// nolint: deadcode
 func callbackAppWillFinishStartup() {
 	macmenus.Install()
 	event.SendAppWillFinishStartup()
 }
 
 //export callbackAppDidFinishStartup
+// nolint: deadcode
 func callbackAppDidFinishStartup() {
 	event.SendAppDidFinishStartup()
 }
 
 //export callbackAppWillBecomeActive
+// nolint: deadcode
 func callbackAppWillBecomeActive() {
 	event.SendAppWillActivate()
 }
 
 //export callbackAppDidBecomeActive
+// nolint: deadcode
 func callbackAppDidBecomeActive() {
 	event.SendAppDidActivate()
 }
 
 //export callbackAppWillResignActive
+// nolint: deadcode
 func callbackAppWillResignActive() {
 	event.SendAppWillDeactivate()
 }
 
 //export callbackAppDidResignActive
+// nolint: deadcode
 func callbackAppDidResignActive() {
 	event.SendAppDidDeactivate()
 }

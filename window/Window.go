@@ -59,7 +59,8 @@ type Window struct {
 	tooltipSequence        int
 	inMouseDown            bool
 	ignoreRepaint          bool
-	wasMapped              bool // Currently only used by Linux
+	// nolint: structcheck
+	wasMapped bool // Currently only used by Linux
 }
 
 var (
