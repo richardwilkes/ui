@@ -13,7 +13,8 @@ import (
 	"fmt"
 	"math"
 
-	"github.com/richardwilkes/geom"
+	"github.com/richardwilkes/toolbox/xmath"
+	"github.com/richardwilkes/toolbox/xmath/geom"
 	"github.com/richardwilkes/ui"
 	"github.com/richardwilkes/ui/border"
 	"github.com/richardwilkes/ui/color"
@@ -21,7 +22,6 @@ import (
 	"github.com/richardwilkes/ui/keys"
 	"github.com/richardwilkes/ui/layout"
 	"github.com/richardwilkes/ui/widget"
-	"github.com/richardwilkes/xmath"
 )
 
 // List provides a control that allows the user to select from a list of items, represented by cells.

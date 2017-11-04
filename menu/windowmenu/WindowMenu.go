@@ -10,7 +10,7 @@
 package windowmenu
 
 import (
-	"github.com/richardwilkes/i18n"
+	"github.com/richardwilkes/toolbox/i18n"
 	"github.com/richardwilkes/ui/event"
 	"github.com/richardwilkes/ui/keys"
 	"github.com/richardwilkes/ui/menu"

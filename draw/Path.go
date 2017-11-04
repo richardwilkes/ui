@@ -10,7 +10,7 @@
 package draw
 
 import (
-	"github.com/richardwilkes/geom"
+	"github.com/richardwilkes/toolbox/xmath/geom"
 )
 
 // Path is a description of a series of shapes or lines.

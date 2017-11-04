@@ -12,7 +12,7 @@ package imagelabel
 import (
 	"fmt"
 
-	"github.com/richardwilkes/geom"
+	"github.com/richardwilkes/toolbox/xmath/geom"
 	"github.com/richardwilkes/ui/draw"
 	"github.com/richardwilkes/ui/event"
 	"github.com/richardwilkes/ui/widget"

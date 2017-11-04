@@ -12,7 +12,7 @@ package x11
 import (
 	"unsafe"
 
-	"github.com/richardwilkes/geom"
+	"github.com/richardwilkes/toolbox/xmath/geom"
 	"github.com/richardwilkes/ui/draw"
 	// #cgo LDFLAGS: -lXcursor
 	// #cgo pkg-config: x11

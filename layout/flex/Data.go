@@ -10,7 +10,7 @@
 package flex
 
 import (
-	"github.com/richardwilkes/geom"
+	"github.com/richardwilkes/toolbox/xmath/geom"
 	"github.com/richardwilkes/ui"
 	"github.com/richardwilkes/ui/draw"
 	"github.com/richardwilkes/ui/layout"

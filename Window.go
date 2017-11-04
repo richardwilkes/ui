@@ -13,7 +13,7 @@ import (
 	"time"
 	"unsafe"
 
-	"github.com/richardwilkes/geom"
+	"github.com/richardwilkes/toolbox/xmath/geom"
 	"github.com/richardwilkes/ui/cursor"
 	"github.com/richardwilkes/ui/event"
 	"github.com/richardwilkes/ui/menu"

@@ -12,7 +12,7 @@ package layout
 import (
 	"math"
 
-	"github.com/richardwilkes/geom"
+	"github.com/richardwilkes/toolbox/xmath/geom"
 )
 
 const (

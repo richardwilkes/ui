@@ -12,11 +12,11 @@ package flex
 import (
 	"math"
 
-	"github.com/richardwilkes/geom"
+	"github.com/richardwilkes/toolbox/xmath"
+	"github.com/richardwilkes/toolbox/xmath/geom"
 	"github.com/richardwilkes/ui"
 	"github.com/richardwilkes/ui/draw"
 	"github.com/richardwilkes/ui/layout"
-	"github.com/richardwilkes/xmath"
 )
 
 // Flex lays out the children of its widget based on the Data assigned to each child.

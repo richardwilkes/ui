@@ -10,7 +10,7 @@
 package editmenu
 
 import (
-	"github.com/richardwilkes/i18n"
+	"github.com/richardwilkes/toolbox/i18n"
 	"github.com/richardwilkes/ui/menu"
 )
 

@@ -12,7 +12,7 @@ package appmenu
 import (
 	"runtime"
 
-	"github.com/richardwilkes/i18n"
+	"github.com/richardwilkes/toolbox/i18n"
 	"github.com/richardwilkes/ui/app"
 	"github.com/richardwilkes/ui/app/quit"
 	"github.com/richardwilkes/ui/event"

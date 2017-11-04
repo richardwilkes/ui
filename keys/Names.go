@@ -10,7 +10,7 @@
 package keys
 
 import (
-	"github.com/richardwilkes/i18n"
+	"github.com/richardwilkes/toolbox/i18n"
 )
 
 // Names of various key codes.

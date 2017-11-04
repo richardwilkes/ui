@@ -15,7 +15,7 @@ import (
 
 	"sync"
 
-	"github.com/richardwilkes/geom"
+	"github.com/richardwilkes/toolbox/xmath/geom"
 	"github.com/richardwilkes/ui"
 	"github.com/richardwilkes/ui/Demo/images"
 	"github.com/richardwilkes/ui/app"

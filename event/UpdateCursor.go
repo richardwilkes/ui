@@ -13,7 +13,7 @@ import (
 	"bytes"
 	"fmt"
 
-	"github.com/richardwilkes/geom"
+	"github.com/richardwilkes/toolbox/xmath/geom"
 )
 
 // UpdateCursor is generated when a cursor is being requested for the widget.

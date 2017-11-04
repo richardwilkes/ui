@@ -10,7 +10,7 @@
 package menu
 
 import (
-	"github.com/richardwilkes/geom"
+	"github.com/richardwilkes/toolbox/xmath/geom"
 )
 
 // Menu represents a set of menu items.

@@ -1,3 +1,0 @@
-#!/bin/bash
-
-time gometalinter --config linter-config.json ./...

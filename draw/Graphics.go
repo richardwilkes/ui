@@ -12,7 +12,8 @@ package draw
 import (
 	"math"
 
-	"github.com/richardwilkes/geom"
+	"github.com/richardwilkes/toolbox/xmath"
+	"github.com/richardwilkes/toolbox/xmath/geom"
 	"github.com/richardwilkes/ui/color"
 	"github.com/richardwilkes/ui/draw/compositing"
 	"github.com/richardwilkes/ui/font"
@@ -137,19 +138,19 @@ func (gc *Graphics) Rotate(angleInRadians float64) {
 }
 
 // Transform the coordinate system by the matrix.
-func (gc *Graphics) Transform(matrix *geom.Matrix) {
+func (gc *Graphics) Transform(matrix *xmath.Matrix2D) {
 	C.cairo_transform(gc.gc, toCairoMatrix(matrix))
 }
 
 // Matrix returns the current transformation matrix.
-func (gc *Graphics) Matrix() *geom.Matrix {
+func (gc *Graphics) Matrix() *xmath.Matrix2D {
 	var matrix C.cairo_matrix_t
 	C.cairo_get_matrix(gc.gc, &matrix)
 	return fromCairoMatrix(&matrix)
 }
 
 // SetMatrix sets the current transformation matrix.
-func (gc *Graphics) SetMatrix(matrix *geom.Matrix) {
+func (gc *Graphics) SetMatrix(matrix *xmath.Matrix2D) {
 	C.cairo_set_matrix(gc.gc, toCairoMatrix(matrix))
 }
 
@@ -618,10 +619,10 @@ func (gc *Graphics) DrawString(x, y float64, str string, f *font.Font) {
 	C.g_object_unref(C.gpointer(layout))
 }
 
-func toCairoMatrix(matrix *geom.Matrix) *C.cairo_matrix_t {
+func toCairoMatrix(matrix *xmath.Matrix2D) *C.cairo_matrix_t {
 	return &C.cairo_matrix_t{xx: C.double(matrix.XX), yx: C.double(matrix.YX), xy: C.double(matrix.XY), yy: C.double(matrix.YY), x0: C.double(matrix.X0), y0: C.double(matrix.Y0)}
 }
 
-func fromCairoMatrix(matrix *C.cairo_matrix_t) *geom.Matrix {
-	return &geom.Matrix{XX: float64(matrix.xx), YX: float64(matrix.yx), XY: float64(matrix.xy), YY: float64(matrix.yy), X0: float64(matrix.x0), Y0: float64(matrix.y0)}
+func fromCairoMatrix(matrix *C.cairo_matrix_t) *xmath.Matrix2D {
+	return &xmath.Matrix2D{XX: float64(matrix.xx), YX: float64(matrix.yx), XY: float64(matrix.xy), YY: float64(matrix.yy), X0: float64(matrix.x0), Y0: float64(matrix.y0)}
 }

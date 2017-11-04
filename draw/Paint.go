@@ -10,7 +10,7 @@
 package draw
 
 import (
-	"github.com/richardwilkes/geom"
+	"github.com/richardwilkes/toolbox/xmath"
 	"github.com/richardwilkes/ui/color"
 
 	// #cgo pkg-config: pangocairo
@@ -117,14 +117,14 @@ func (p *Paint) SetFilterMode(mode FilterMode) {
 }
 
 // Matrix returns the Matrix of this Paint.
-func (p *Paint) Matrix() *geom.Matrix {
+func (p *Paint) Matrix() *xmath.Matrix2D {
 	var matrix C.cairo_matrix_t
 	C.cairo_pattern_get_matrix(p.pattern, &matrix)
 	return fromCairoMatrix(&matrix)
 }
 
 // SetMatrix sets the Matrix of this Paint.
-func (p *Paint) SetMatrix(matrix *geom.Matrix) {
+func (p *Paint) SetMatrix(matrix *xmath.Matrix2D) {
 	C.cairo_pattern_set_matrix(p.pattern, toCairoMatrix(matrix))
 }
 

@@ -10,7 +10,7 @@
 package macmenus
 
 import (
-	"github.com/richardwilkes/geom"
+	"github.com/richardwilkes/toolbox/xmath/geom"
 	"github.com/richardwilkes/ui/menu"
 	"github.com/richardwilkes/ui/window"
 )

@@ -8,9 +8,7 @@ C Dependencies:
 
 Go Dependencies:
 ```
-go get -u github.com/richardwilkes/errs
-go get -u github.com/richardwilkes/i18n
-go get -u github.com/richardwilkes/xmath
+go get -u github.com/richardwilkes/toolbox
 ```
 
 This is very much a work in progress. My intent is to make this work for Mac, Linux & Windows.

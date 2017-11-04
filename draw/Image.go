@@ -20,8 +20,8 @@ import (
 	"sync"
 	"unsafe"
 
-	"github.com/richardwilkes/errs"
-	"github.com/richardwilkes/geom"
+	"github.com/richardwilkes/toolbox/errs"
+	"github.com/richardwilkes/toolbox/xmath/geom"
 	"github.com/richardwilkes/ui/color"
 	"github.com/richardwilkes/ui/object"
 

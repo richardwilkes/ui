@@ -16,7 +16,8 @@ import (
 	"time"
 	"unicode"
 
-	"github.com/richardwilkes/geom"
+	"github.com/richardwilkes/toolbox/xmath"
+	"github.com/richardwilkes/toolbox/xmath/geom"
 	"github.com/richardwilkes/ui/clipboard"
 	"github.com/richardwilkes/ui/clipboard/datatypes"
 	"github.com/richardwilkes/ui/color"
@@ -27,7 +28,6 @@ import (
 	"github.com/richardwilkes/ui/layout"
 	"github.com/richardwilkes/ui/widget"
 	"github.com/richardwilkes/ui/window"
-	"github.com/richardwilkes/xmath"
 )
 
 // TextField provides a single-line text input control.

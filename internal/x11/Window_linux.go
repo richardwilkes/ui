@@ -14,7 +14,7 @@ import (
 	"os"
 	"unsafe"
 
-	"github.com/richardwilkes/geom"
+	"github.com/richardwilkes/toolbox/xmath/geom"
 	"github.com/richardwilkes/ui/draw"
 
 	// #cgo pkg-config: x11 cairo

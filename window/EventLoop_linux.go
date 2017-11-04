@@ -14,7 +14,7 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/richardwilkes/geom"
+	"github.com/richardwilkes/toolbox/xmath/geom"
 	"github.com/richardwilkes/ui/event"
 	"github.com/richardwilkes/ui/internal/task"
 	"github.com/richardwilkes/ui/internal/x11"
