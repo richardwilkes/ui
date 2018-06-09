@@ -114,9 +114,9 @@ func convertMimeTypeToUTI(mimeType string) string {
 		return utf8
 	}
 	cfstr := newCFStringRef(mimeType)
-	uti := C.UTTypeCreatePreferredIdentifierForTag(C.kUTTagClassMIMEType, cfstr, nil)
+	uti := C.UTTypeCreatePreferredIdentifierForTag(C.kUTTagClassMIMEType, cfstr, C.CFStringRef(C.NULL))
 	disposeCFStringRef(cfstr)
-	if uti == nil {
+	if uti == C.CFStringRef(C.NULL) {
 		return ""
 	}
 	result := cfStringRefToString(uti)
@@ -131,7 +131,7 @@ func convertUTItoMimeType(uti string) string {
 	cfstr := newCFStringRef(uti)
 	mimeType := C.UTTypeCopyPreferredTagWithClass(cfstr, C.kUTTagClassMIMEType)
 	disposeCFStringRef(cfstr)
-	if mimeType == nil {
+	if mimeType == C.CFStringRef(C.NULL) {
 		return ""
 	}
 	result := cfStringRefToString(mimeType)

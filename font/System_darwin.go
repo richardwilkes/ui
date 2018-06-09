@@ -34,7 +34,7 @@ func init() {
 
 func systemFont(fontType C.CTFontUIFontType) *Font {
 	var buffer bytes.Buffer
-	font := C.CTFontCreateUIFontForLanguage(fontType, 0, nil)
+	font := C.CTFontCreateUIFontForLanguage(fontType, 0, C.CFStringRef(C.NULL))
 	buffer.WriteString(stringFromCFString(C.CTFontCopyFamilyName(font)))
 	traits := C.CTFontGetSymbolicTraits(font)
 	if traits&C.kCTFontBoldTrait != 0 {
