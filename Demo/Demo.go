@@ -11,9 +11,8 @@ package main
 
 import (
 	"fmt"
-	"unicode"
-
 	"sync"
+	"unicode"
 
 	"github.com/richardwilkes/toolbox/xmath/geom"
 	"github.com/richardwilkes/ui"
