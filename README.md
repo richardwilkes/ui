@@ -6,6 +6,11 @@ C Dependencies:
 - [Pango](http://www.pango.org)
 - X11 (linux only)
 
+On Linux, you'll likely need to do the following:
+```
+sudo apt install pkg-config libcairo2-dev libpango1.0-dev libx11-dev libxcursor-dev
+```
+
 Go Dependencies:
 ```
 go get -u github.com/richardwilkes/toolbox
