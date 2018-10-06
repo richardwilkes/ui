@@ -31,7 +31,7 @@ func (evt *KeyEvent) Modifiers() keys.Modifiers {
 func (evt *KeyEvent) CodeAndChar() (code int, ch rune) {
 	var buffer [5]C.char
 	var keySym C.KeySym
-	buffer[C.XLookupString(evt, &buffer[0], C.int(len(buffer)-1), &keySym, nil)] = 0
+	buffer[C.XLookupString((*C.XKeyEvent)(evt), &buffer[0], C.int(len(buffer)-1), &keySym, nil)] = 0
 	code, ch = keys.Transform(int(keySym), C.GoString(&buffer[0]))
 	return
 }

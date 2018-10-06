@@ -56,7 +56,7 @@ func platformHideCursorUntilMouseMoves() {
 func platformNewWindow(bounds geom.Rect, styleMask StyleMask) *Window {
 	wnd := x11.NewWindow(bounds)
 	return &Window{
-		window:  platformWindow(uintptr(wnd)),
+		commonWindow: commonWindow{window: platformWindow(uintptr(wnd))},
 		surface: wnd.NewSurface(bounds.Size),
 	}
 }
@@ -64,7 +64,7 @@ func platformNewWindow(bounds geom.Rect, styleMask StyleMask) *Window {
 func platformNewPopupWindow(parent ui.Window, bounds geom.Rect) *Window {
 	wnd := x11.NewPopupWindow(x11.Window(uintptr(parent.PlatformPtr())), bounds)
 	return &Window{
-		window:  platformWindow(uintptr(wnd)),
+		commonWindow: commonWindow{window: platformWindow(uintptr(wnd))},
 		surface: wnd.NewSurface(bounds.Size),
 	}
 }

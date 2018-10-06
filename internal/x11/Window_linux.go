@@ -109,7 +109,7 @@ func (wnd Window) Destroy() {
 }
 
 func (wnd Window) NewSurface(size geom.Size) *draw.Surface {
-	return draw.NewSurface(unsafe.Pointer(C.cairo_xlib_surface_create(display, C.Drawable(uintptr(wnd)), DefaultVisual(), C.int(size.Width), C.int(size.Height))), size)
+	return draw.NewSurface(unsafe.Pointer(C.cairo_xlib_surface_create(display, C.Drawable(uintptr(wnd)), (*C.Visual)(DefaultVisual()), C.int(size.Width), C.int(size.Height))), size)
 }
 
 func (wnd Window) SelectInput(mask int) {
