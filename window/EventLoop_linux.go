@@ -171,7 +171,6 @@ func processFocusInEvent(evt *x11.FocusChangeEvent) {
 	event.SendAppWillActivate()
 	event.SendAppDidActivate()
 	if window, ok := windowMap[platformWindow(uintptr(evt.Window()))]; ok {
-		window.recordFocus()
 		event.Dispatch(event.NewFocusGained(window))
 	}
 }

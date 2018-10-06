@@ -16,7 +16,6 @@ import (
 	"github.com/richardwilkes/toolbox/xmath/geom"
 	"github.com/richardwilkes/ui"
 	"github.com/richardwilkes/ui/cursor"
-	"github.com/richardwilkes/ui/draw"
 
 	// #cgo CFLAGS: -x objective-c
 	// #cgo LDFLAGS: -framework Cocoa -framework Quartz
@@ -220,6 +219,9 @@ import (
 	"C"
 )
 
+// Window represents a window on the display.
+type Window commonWindow
+
 type platformWindow unsafe.Pointer
 
 func platformGetKeyWindow() platformWindow {
@@ -234,11 +236,13 @@ func platformHideCursorUntilMouseMoves() {
 	C.hideCursorUntilMouseMoves()
 }
 
-func platformNewWindow(bounds geom.Rect, styleMask StyleMask) (window platformWindow, surface *draw.Surface) {
-	return platformWindow(C.newWindow(C.double(bounds.X), C.double(bounds.Y), C.double(bounds.Width), C.double(bounds.Height), C.int(styleMask))), nil
+func platformNewWindow(bounds geom.Rect, styleMask StyleMask) *Window {
+	return &Window{
+		window: platformWindow(C.newWindow(C.double(bounds.X), C.double(bounds.Y), C.double(bounds.Width), C.double(bounds.Height), C.int(styleMask))),
+	}
 }
 
-func platformNewPopupWindow(parent ui.Window, bounds geom.Rect) (window platformWindow, surface *draw.Surface) {
+func platformNewPopupWindow(parent ui.Window, bounds geom.Rect) *Window {
 	return platformNewWindow(bounds, BorderlessWindowMask)
 }
 

@@ -20,6 +20,13 @@ import (
 	"github.com/richardwilkes/ui/internal/x11"
 )
 
+// Window represents a window on the display.
+type Window struct {
+	commonWindow
+	surface   *draw.Surface
+	wasMapped bool
+}
+
 type platformWindow x11.Window
 
 var (
@@ -46,14 +53,20 @@ func platformHideCursorUntilMouseMoves() {
 	}
 }
 
-func platformNewWindow(bounds geom.Rect, styleMask StyleMask) (window platformWindow, surface *draw.Surface) {
+func platformNewWindow(bounds geom.Rect, styleMask StyleMask) *Window {
 	wnd := x11.NewWindow(bounds)
-	return platformWindow(uintptr(wnd)), wnd.NewSurface(bounds.Size)
+	return &Window{
+		window:  platformWindow(uintptr(wnd)),
+		surface: wnd.NewSurface(bounds.Size),
+	}
 }
 
-func platformNewPopupWindow(parent ui.Window, bounds geom.Rect) (window platformWindow, surface *draw.Surface) {
+func platformNewPopupWindow(parent ui.Window, bounds geom.Rect) *Window {
 	wnd := x11.NewPopupWindow(x11.Window(uintptr(parent.PlatformPtr())), bounds)
-	return platformWindow(uintptr(wnd)), wnd.NewSurface(bounds.Size)
+	return &Window{
+		window:  platformWindow(uintptr(wnd)),
+		surface: wnd.NewSurface(bounds.Size),
+	}
 }
 
 func (window *Window) toXWindow() x11.Window {

@@ -40,11 +40,9 @@ const (
 	StdWindowMask        = TitledWindowMask | ClosableWindowMask | MinimizableWindowMask | ResizableWindowMask
 )
 
-// Window represents a window on the display.
-type Window struct {
+type commonWindow struct {
 	object.Base
 	window                 platformWindow
-	surface                *draw.Surface // Currently only used by Linux
 	eventHandlers          *event.Handlers
 	owner                  ui.Window
 	root                   *RootView
@@ -59,8 +57,6 @@ type Window struct {
 	tooltipSequence        int
 	inMouseDown            bool
 	ignoreRepaint          bool
-	// nolint: structcheck
-	wasMapped bool // Currently only used by Linux
 }
 
 var (
@@ -115,8 +111,7 @@ func NewWindow(where geom.Point, styleMask StyleMask) *Window {
 // NewWindowWithContentSize creates a new window at the specified location with the specified style and content size.
 func NewWindowWithContentSize(where geom.Point, contentSize geom.Size, styleMask StyleMask) *Window {
 	bounds := geom.Rect{Point: where, Size: contentSize}
-	win, surface := platformNewWindow(bounds, styleMask)
-	wnd := newWindow(win, styleMask, surface, where)
+	wnd := newWindow(platformNewWindow(bounds, styleMask), styleMask, where)
 	windowList = append(windowList, wnd)
 	return wnd
 }
@@ -124,14 +119,13 @@ func NewWindowWithContentSize(where geom.Point, contentSize geom.Size, styleMask
 // NewPopupWindow creates a new popup window at the specified location and content size.
 func NewPopupWindow(parent ui.Window, where geom.Point, contentSize geom.Size) *Window {
 	bounds := geom.Rect{Point: where, Size: contentSize}
-	win, surface := platformNewPopupWindow(parent, bounds)
-	wnd := newWindow(win, BorderlessWindowMask, surface, where)
+	wnd := newWindow(platformNewPopupWindow(parent, bounds), BorderlessWindowMask, where)
 	wnd.owner = parent
 	return wnd
 }
 
-func newWindow(win platformWindow, styleMask StyleMask, surface *draw.Surface, where geom.Point) *Window {
-	window := &Window{window: win, surface: surface, style: styleMask}
+func newWindow(window *Window, styleMask StyleMask, where geom.Point) *Window {
+	window.style = styleMask
 	window.InitTypeAndID(window)
 	windowMap[window.window] = window
 	windowIDMap[window.ID()] = window
@@ -377,18 +371,6 @@ func collectFocusables(current ui.Widget, target ui.Widget, focusables []ui.Widg
 // ToFront attempts to bring the window to the foreground and give it the keyboard focus.
 func (window *Window) ToFront() {
 	window.platformToFront()
-}
-
-func (window *Window) recordFocus() {
-	for i, wnd := range windowList {
-		if wnd == window {
-			if i != 0 {
-				copy(windowList[1:i+1], windowList[:i])
-				windowList[0] = wnd
-			}
-			break
-		}
-	}
 }
 
 // Repaint marks this window for painting at the next update.

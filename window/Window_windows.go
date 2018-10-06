@@ -17,6 +17,9 @@ import (
 	"github.com/richardwilkes/ui/cursor"
 )
 
+// Window represents a window on the display.
+type Window commonWindow
+
 func platformGetKeyWindow() platformWindow {
 	// RAW: Implement for Windows
 	return nil
@@ -30,14 +33,14 @@ func platformHideCursorUntilMouseMoves() {
 	// RAW: Implement for Windows
 }
 
-func platformNewWindow(bounds geom.Rect, styleMask StyleMask) (window platformWindow, surface platformSurface) {
+func platformNewWindow(bounds geom.Rect, styleMask StyleMask) *Window {
 	// RAW: Implement for Windows
-	return nil, nil
+	return nil
 }
 
-func platformNewPopupWindow(parent ui.Window, bounds geom.Rect) (window platformWindow, surface platformSurface) {
+func platformNewPopupWindow(parent ui.Window, bounds geom.Rect) *Window {
 	// RAW: Implement for Windows
-	return nil, nil
+	return nil
 }
 
 func (window *Window) platformClose() {
