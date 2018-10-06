@@ -141,7 +141,7 @@ func convertUTItoMimeType(uti string) string {
 
 func newCFStringRef(str string) C.CFStringRef {
 	cstr := C.CString(str)
-	cfstr := C.CFStringCreateWithCString(nil, cstr, C.kCFStringEncodingUTF8)
+	cfstr := C.CFStringCreateWithCString(C.CFAllocatorRef(C.NULL), cstr, C.kCFStringEncodingUTF8)
 	C.free(unsafe.Pointer(cstr))
 	return cfstr
 }
