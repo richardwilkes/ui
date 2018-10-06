@@ -7,6 +7,8 @@
 // This Source Code Form is "Incompatible With Secondary Licenses", as
 // defined by the Mozilla Public License, version 2.0.
 
+//go:generate mkembeddedfs --no-modtime --output images/fs_gen.go --pkg images --name FS --strip images/images images/images
+
 package main
 
 import (
@@ -50,6 +52,7 @@ import (
 
 var (
 	aboutWindow ui.Window
+	imagesFS    = images.FS.FileSystem(("images/images"))
 )
 
 func main() {
@@ -139,7 +142,7 @@ func createButtonsWindow(title string, where geom.Point) ui.Window {
 
 	addSeparator(content)
 
-	img, err := draw.AcquireImageFromFile(images.FS, "/mountains.jpg")
+	img, err := draw.AcquireImageFromFile(imagesFS, "/mountains.jpg")
 	if err == nil {
 		imgPanel := imagelabel.New(img)
 		imgPanel.SetFocusable(true)
@@ -179,7 +182,7 @@ var appleCursor *cursor.Cursor
 
 func getAppleCursor() *cursor.Cursor {
 	appleCursorOnce.Do(func() {
-		if img, err := draw.AcquireImageFromFile(images.FS, "/classic-apple-logo.png"); err == nil {
+		if img, err := draw.AcquireImageFromFile(imagesFS, "/classic-apple-logo.png"); err == nil {
 			imgSize := img.Size()
 			appleCursor = cursor.NewCursor(img.Data(), geom.Point{
 				X: imgSize.Width / 2,
@@ -238,7 +241,7 @@ func createButtonsPanel() ui.Widget {
 	createButton("Press Me", panel)
 	createButton("Disabled", panel).SetEnabled(false)
 
-	img, err := draw.AcquireImageFromFile(images.FS, "/home.png")
+	img, err := draw.AcquireImageFromFile(imagesFS, "/home.png")
 	if err == nil {
 		createImageButton(img, "Home", panel)
 		createImageButton(img, "Home (disabled)", panel).SetEnabled(false)
@@ -246,7 +249,7 @@ func createButtonsPanel() ui.Widget {
 		fmt.Println(err)
 	}
 
-	img, err = draw.AcquireImageFromFile(images.FS, "/classic-apple-logo.png")
+	img, err = draw.AcquireImageFromFile(imagesFS, "/classic-apple-logo.png")
 	if err == nil {
 		createImageButton(img, "Classic Apple Logo", panel)
 		createImageButton(img, "Classic Apple Logo (disabled)", panel).SetEnabled(false)
