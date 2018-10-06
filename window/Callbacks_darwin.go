@@ -18,6 +18,7 @@ import (
 	"github.com/richardwilkes/ui/event"
 	"github.com/richardwilkes/ui/internal/task"
 	"github.com/richardwilkes/ui/keys"
+
 	// #cgo pkg-config: cairo
 	// #include <cairo.h>
 	"C"

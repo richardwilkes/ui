@@ -14,6 +14,7 @@ import (
 
 	"github.com/richardwilkes/toolbox/xmath/geom"
 	"github.com/richardwilkes/ui/draw"
+
 	// #cgo LDFLAGS: -lXcursor
 	// #cgo pkg-config: x11
 	// #include <stdlib.h>

@@ -19,9 +19,9 @@ import (
 
 var (
 	// TooltipDelay holds the delay before a tooltip will be shown.
-	TooltipDelay time.Duration = 1500 * time.Millisecond
+	TooltipDelay = 1500 * time.Millisecond
 	// TooltipDismissal holds the delay before a tooltip will be dismissed.
-	TooltipDismissal time.Duration = 3 * time.Second
+	TooltipDismissal = 3 * time.Second
 )
 
 type tooltipSequencer struct {

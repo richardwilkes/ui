@@ -13,6 +13,7 @@ import (
 	"sort"
 	"sync"
 	"unsafe"
+
 	// #cgo pkg-config: pangocairo
 	// #include <pango/pangocairo.h>
 	"C"
