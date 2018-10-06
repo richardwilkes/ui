@@ -57,7 +57,7 @@ func platformNewWindow(bounds geom.Rect, styleMask StyleMask) *Window {
 	wnd := x11.NewWindow(bounds)
 	return &Window{
 		commonWindow: commonWindow{window: platformWindow(uintptr(wnd))},
-		surface: wnd.NewSurface(bounds.Size),
+		surface:      wnd.NewSurface(bounds.Size),
 	}
 }
 
@@ -65,7 +65,7 @@ func platformNewPopupWindow(parent ui.Window, bounds geom.Rect) *Window {
 	wnd := x11.NewPopupWindow(x11.Window(uintptr(parent.PlatformPtr())), bounds)
 	return &Window{
 		commonWindow: commonWindow{window: platformWindow(uintptr(wnd))},
-		surface: wnd.NewSurface(bounds.Size),
+		surface:      wnd.NewSurface(bounds.Size),
 	}
 }
 
