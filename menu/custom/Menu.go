@@ -16,7 +16,7 @@ import (
 	"github.com/richardwilkes/ui"
 	"github.com/richardwilkes/ui/border"
 	"github.com/richardwilkes/ui/color"
-	"github.com/richardwilkes/ui/draw"
+	"github.com/richardwilkes/ui/draw/align"
 	"github.com/richardwilkes/ui/event"
 	"github.com/richardwilkes/ui/layout"
 	"github.com/richardwilkes/ui/layout/flex"
@@ -72,7 +72,7 @@ func (mnu *Menu) InsertItem(item menu.Item, index int) {
 			mi.menuParent = mnu
 		}
 		actual.EventHandlers().Add(event.ClosingType, mnu.close)
-		actual.SetLayoutData(flex.NewData().SetHorizontalGrab(true).SetHorizontalAlignment(draw.AlignFill))
+		actual.SetLayoutData(flex.NewData().SetHorizontalGrab(true).SetHorizontalAlignment(align.Fill))
 	}
 }
 

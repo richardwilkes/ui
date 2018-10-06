@@ -7,14 +7,14 @@
 // This Source Code Form is "Incompatible With Secondary Licenses", as
 // defined by the Mozilla Public License, version 2.0.
 
-package draw
+package align
 
 // Alignment constants.
 const (
-	AlignStart Alignment = iota
-	AlignMiddle
-	AlignEnd
-	AlignFill
+	Start Alignment = iota
+	Middle
+	End
+	Fill
 )
 
 // Alignment specifies how to align an object within its available space.

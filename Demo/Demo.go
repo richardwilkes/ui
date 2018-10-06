@@ -23,6 +23,7 @@ import (
 	"github.com/richardwilkes/ui/border"
 	"github.com/richardwilkes/ui/cursor"
 	"github.com/richardwilkes/ui/draw"
+	"github.com/richardwilkes/ui/draw/align"
 	"github.com/richardwilkes/ui/event"
 	"github.com/richardwilkes/ui/font"
 	"github.com/richardwilkes/ui/keys"
@@ -133,9 +134,9 @@ func createButtonsWindow(title string, where geom.Point) ui.Window {
 
 	wrapper := widget.NewBlock()
 	flex.NewLayout(wrapper).SetColumns(2).SetEqualColumns(true).SetHorizontalSpacing(10)
-	wrapper.SetLayoutData(flex.NewData().SetHorizontalGrab(true).SetHorizontalAlignment(draw.AlignFill))
+	wrapper.SetLayoutData(flex.NewData().SetHorizontalGrab(true).SetHorizontalAlignment(align.Fill))
 	textFieldsPanel := createTextFieldsPanel()
-	textFieldsPanel.SetLayoutData(flex.NewData().SetHorizontalGrab(true).SetHorizontalAlignment(draw.AlignFill))
+	textFieldsPanel.SetLayoutData(flex.NewData().SetHorizontalGrab(true).SetHorizontalAlignment(align.Fill))
 	wrapper.AddChild(textFieldsPanel)
 	wrapper.AddChild(createListPanel())
 	content.AddChild(wrapper)
@@ -150,7 +151,7 @@ func createButtonsWindow(title string, where geom.Point) ui.Window {
 		imgPanel.SetSize(prefSize)
 		tooltip.SetText(imgPanel, "mountains.jpg")
 		scrollArea := scrollarea.New(imgPanel, scrollarea.Unmodified)
-		scrollArea.SetLayoutData(flex.NewData().SetHorizontalAlignment(draw.AlignFill).SetVerticalAlignment(draw.AlignFill).SetHorizontalGrab(true).SetVerticalGrab(true))
+		scrollArea.SetLayoutData(flex.NewData().SetHorizontalAlignment(align.Fill).SetVerticalAlignment(align.Fill).SetHorizontalGrab(true).SetVerticalGrab(true))
 		content.AddChild(scrollArea)
 
 		wnd.EventHandlers().Add(event.FocusGainedType, func(evt event.Event) {
@@ -224,13 +225,13 @@ func createListPanel() ui.Widget {
 	_, prefSize, _ := ui.Sizes(list, layout.NoHintSize)
 	list.SetSize(prefSize)
 	scrollArea := scrollarea.New(list, scrollarea.Fill)
-	scrollArea.SetLayoutData(flex.NewData().SetHorizontalAlignment(draw.AlignFill).SetVerticalAlignment(draw.AlignFill).SetHorizontalGrab(true).SetVerticalGrab(true))
+	scrollArea.SetLayoutData(flex.NewData().SetHorizontalAlignment(align.Fill).SetVerticalAlignment(align.Fill).SetHorizontalGrab(true).SetVerticalGrab(true))
 	return scrollArea
 }
 
 func addSeparator(parent ui.Widget) {
 	sep := separator.New(true)
-	sep.SetLayoutData(flex.NewData().SetHorizontalAlignment(draw.AlignFill))
+	sep.SetLayoutData(flex.NewData().SetHorizontalAlignment(align.Fill))
 	parent.AddChild(sep)
 }
 
@@ -374,7 +375,7 @@ func createTextFieldsPanel() ui.Widget {
 func createTextField(text string, panel ui.Widget) *textfield.TextField {
 	field := textfield.New()
 	field.SetText(text)
-	field.SetLayoutData(flex.NewData().SetHorizontalGrab(true).SetHorizontalAlignment(draw.AlignFill))
+	field.SetLayoutData(flex.NewData().SetHorizontalGrab(true).SetHorizontalAlignment(align.Fill))
 	tooltip.SetText(field, fmt.Sprintf("This is the tooltip for the '%s' text field.", text))
 	panel.AddChild(field)
 	return field
@@ -389,10 +390,10 @@ func createAboutWindow(evt event.Event) {
 		content.SetBorder(border.NewEmpty(geom.NewUniformInsets(10)))
 		flex.NewLayout(content)
 		title := label.NewWithFont(app.Name(), font.EmphasizedSystem)
-		title.SetLayoutData(flex.NewData().SetHorizontalAlignment(draw.AlignMiddle).SetHorizontalGrab(true))
+		title.SetLayoutData(flex.NewData().SetHorizontalAlignment(align.Middle).SetHorizontalGrab(true))
 		content.AddChild(title)
 		desc := label.New("Simple app to demonstrate the\ncapabilities of the ui framework.")
-		desc.SetLayoutData(flex.NewData().SetHorizontalAlignment(draw.AlignMiddle).SetHorizontalGrab(true))
+		desc.SetLayoutData(flex.NewData().SetHorizontalAlignment(align.Middle).SetHorizontalGrab(true))
 		content.AddChild(desc)
 		aboutWindow.Pack()
 	}

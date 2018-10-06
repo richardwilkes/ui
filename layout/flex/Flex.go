@@ -15,7 +15,7 @@ import (
 	"github.com/richardwilkes/toolbox/xmath"
 	"github.com/richardwilkes/toolbox/xmath/geom"
 	"github.com/richardwilkes/ui"
-	"github.com/richardwilkes/ui/draw"
+	"github.com/richardwilkes/ui/draw/align"
 	"github.com/richardwilkes/ui/layout"
 )
 
@@ -26,8 +26,8 @@ type Flex struct {
 	columns  int
 	hSpacing float64
 	vSpacing float64
-	hAlign   draw.Alignment
-	vAlign   draw.Alignment
+	hAlign   align.Alignment
+	vAlign   align.Alignment
 	equal    bool
 }
 
@@ -38,8 +38,8 @@ func NewLayout(widget ui.Widget) *Flex {
 		columns:  1,
 		hSpacing: 4,
 		vSpacing: 2,
-		hAlign:   draw.AlignStart,
-		vAlign:   draw.AlignStart,
+		hAlign:   align.Start,
+		vAlign:   align.Start,
 	}
 	widget.SetLayout(layout)
 	return layout
@@ -90,23 +90,23 @@ func (flex *Flex) SetVerticalSpacing(spacing float64) *Flex {
 }
 
 // HorizontalAlignment returns the horizontal alignment of the widget within its space.
-func (flex *Flex) HorizontalAlignment() draw.Alignment {
+func (flex *Flex) HorizontalAlignment() align.Alignment {
 	return flex.hAlign
 }
 
 // SetHorizontalAlignment sets the horizontal alignment of the widget within its space.
-func (flex *Flex) SetHorizontalAlignment(alignment draw.Alignment) *Flex {
+func (flex *Flex) SetHorizontalAlignment(alignment align.Alignment) *Flex {
 	flex.hAlign = alignment
 	return flex
 }
 
 // VerticalAlignment returns the vertical alignment of the widget within its space.
-func (flex *Flex) VerticalAlignment() draw.Alignment {
+func (flex *Flex) VerticalAlignment() align.Alignment {
 	return flex.vAlign
 }
 
 // SetVerticalAlignment sets the vertical alignment of the widget within its space.
-func (flex *Flex) SetVerticalAlignment(alignment draw.Alignment) *Flex {
+func (flex *Flex) SetVerticalAlignment(alignment align.Alignment) *Flex {
 	flex.vAlign = alignment
 	return flex
 }
@@ -153,16 +153,16 @@ func (flex *Flex) layout(location geom.Point, hint geom.Size, move, useMinimumSi
 			}
 			if move {
 				if totalSize.Width < hint.Width {
-					if flex.hAlign == draw.AlignMiddle {
+					if flex.hAlign == align.Middle {
 						location.X += xmath.Round((hint.Width - totalSize.Width) / 2)
-					} else if flex.hAlign == draw.AlignEnd {
+					} else if flex.hAlign == align.End {
 						location.X += hint.Width - totalSize.Width
 					}
 				}
 				if totalSize.Height < hint.Height {
-					if flex.vAlign == draw.AlignMiddle {
+					if flex.vAlign == align.Middle {
 						location.Y += xmath.Round((hint.Height - totalSize.Height) / 2)
-					} else if flex.vAlign == draw.AlignEnd {
+					} else if flex.vAlign == align.End {
 						location.Y += hint.Height - totalSize.Height
 					}
 				}
@@ -464,7 +464,7 @@ func (flex *Flex) wrap(width float64, grid [][]ui.Widget, widths []float64, useM
 							currentWidth += widths[j-k]
 						}
 						currentWidth += float64(hSpan-1) * flex.hSpacing
-						if currentWidth != data.cacheSize.Width && data.hAlign == draw.AlignFill || data.cacheSize.Width > currentWidth {
+						if currentWidth != data.cacheSize.Width && data.hAlign == align.Fill || data.cacheSize.Width > currentWidth {
 							data.computeCacheSize(grid[i][j], geom.Size{Width: math.Max(data.minCacheSize.Width, currentWidth), Height: layout.NoHint}, useMinimumSize)
 							minimumHeight := data.minSize.Height
 							if data.vGrab && minimumHeight > 0 && data.cacheSize.Height < minimumHeight {
@@ -646,11 +646,11 @@ func (flex *Flex) positionChildren(location geom.Point, grid [][]ui.Widget, widt
 				childX := gridX
 				childWidth := math.Min(data.cacheSize.Width, cellWidth)
 				switch data.hAlign {
-				case draw.AlignMiddle:
+				case align.Middle:
 					childX += math.Max(0, (cellWidth-childWidth)/2)
-				case draw.AlignEnd:
+				case align.End:
 					childX += math.Max(0, cellWidth-childWidth)
-				case draw.AlignFill:
+				case align.Fill:
 					childWidth = cellWidth
 				default:
 				}
@@ -658,11 +658,11 @@ func (flex *Flex) positionChildren(location geom.Point, grid [][]ui.Widget, widt
 				childY := gridY
 				childHeight := math.Min(data.cacheSize.Height, cellHeight)
 				switch data.vAlign {
-				case draw.AlignMiddle:
+				case align.Middle:
 					childY += math.Max(0, (cellHeight-childHeight)/2)
-				case draw.AlignEnd:
+				case align.End:
 					childY += math.Max(0, cellHeight-childHeight)
-				case draw.AlignFill:
+				case align.Fill:
 					childHeight = cellHeight
 				default:
 				}

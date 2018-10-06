@@ -12,7 +12,7 @@ package flex
 import (
 	"github.com/richardwilkes/toolbox/xmath/geom"
 	"github.com/richardwilkes/ui"
-	"github.com/richardwilkes/ui/draw"
+	"github.com/richardwilkes/ui/draw/align"
 	"github.com/richardwilkes/ui/layout"
 )
 
@@ -24,8 +24,8 @@ type Data struct {
 	minSize      geom.Size
 	cacheSize    geom.Size
 	minCacheSize geom.Size
-	hAlign       draw.Alignment
-	vAlign       draw.Alignment
+	hAlign       align.Alignment
+	vAlign       align.Alignment
 	hGrab        bool
 	vGrab        bool
 }
@@ -35,30 +35,30 @@ func NewData() *Data {
 	return &Data{
 		hSpan:    1,
 		vSpan:    1,
-		hAlign:   draw.AlignStart,
-		vAlign:   draw.AlignMiddle,
+		hAlign:   align.Start,
+		vAlign:   align.Middle,
 		sizeHint: layout.NoHintSize,
 		minSize:  layout.NoHintSize}
 }
 
 // HorizontalAlignment returns the horizontal alignment of the widget within its space.
-func (data *Data) HorizontalAlignment() draw.Alignment {
+func (data *Data) HorizontalAlignment() align.Alignment {
 	return data.hAlign
 }
 
 // SetHorizontalAlignment sets the horizontal alignment of the widget within its space.
-func (data *Data) SetHorizontalAlignment(alignment draw.Alignment) *Data {
+func (data *Data) SetHorizontalAlignment(alignment align.Alignment) *Data {
 	data.hAlign = alignment
 	return data
 }
 
 // VerticalAlignment returns the vertical alignment of the widget within its space.
-func (data *Data) VerticalAlignment() draw.Alignment {
+func (data *Data) VerticalAlignment() align.Alignment {
 	return data.vAlign
 }
 
 // SetVerticalAlignment sets the vertical alignment of the widget within its space.
-func (data *Data) SetVerticalAlignment(alignment draw.Alignment) *Data {
+func (data *Data) SetVerticalAlignment(alignment align.Alignment) *Data {
 	data.vAlign = alignment
 	return data
 }
