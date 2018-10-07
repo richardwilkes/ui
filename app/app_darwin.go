@@ -10,36 +10,31 @@ import (
 	"github.com/richardwilkes/ui/menu/macmenus"
 )
 
-var osApp app = &darwinApp{}
-
-type darwinApp struct {
-}
-
-func (a *darwinApp) Start() {
+func platformAppStart() {
 	C.startUserInterface()
 }
 
-func (a *darwinApp) Name() string {
+func platformAppName() string {
 	return C.GoString(C.appName())
 }
 
-func (a *darwinApp) Hide() {
+func platformHideApp() {
 	C.hideApp()
 }
 
-func (a *darwinApp) HideOthers() {
+func platformHideOtherApps() {
 	C.hideOtherApps()
 }
 
-func (a *darwinApp) ShowAll() {
+func platformShowAllApps() {
 	C.showAllApps()
 }
 
-func (a *darwinApp) AttemptQuit() {
+func platformAttemptQuit() {
 	C.attemptQuit()
 }
 
-func (a *darwinApp) MayQuitNow(quit bool) {
+func platformMayQuitNow(quit bool) {
 	var mayQuit C.int
 	if quit {
 		mayQuit = 1
@@ -49,12 +44,12 @@ func (a *darwinApp) MayQuitNow(quit bool) {
 
 //export cbAppShouldQuit
 func cbAppShouldQuit() int {
-	return int(App.ShouldQuit())
+	return int(ShouldQuit())
 }
 
 //export cbAppShouldQuitAfterLastWindowClosed
 func cbAppShouldQuitAfterLastWindowClosed() bool {
-	return App.ShouldQuitAfterLastWindowClosed()
+	return ShouldQuitAfterLastWindowClosed()
 }
 
 //export cbAppWillQuit

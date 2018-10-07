@@ -8,38 +8,33 @@ import (
 	"github.com/richardwilkes/ui/window"
 )
 
-var osApp app = &windowsApp{}
-
-type windowsApp struct {
-}
-
-func (a *windowsApp) Start() {
+func platformAppStart() {
 	custom.Install()
 	panic("unimplemented")
 }
 
-func (a *windowsApp) Name() string {
+func platformAppName() string {
 	return filepath.Base(os.Args[0])
 }
 
-func (a *windowsApp) Hide() {
+func platformHideApp() {
 	for _, wnd := range window.Windows() {
 		wnd.Minimize()
 	}
 }
 
-func (a *windowsApp) HideOthers() {
+func platformHideOtherApps() {
+	// Not supported
+}
+
+func platformShowAllApps() {
+	// Not supported
+}
+
+func platformAttemptQuit() {
 	panic("unimplemented")
 }
 
-func (a *windowsApp) ShowAll() {
-	panic("unimplemented")
-}
-
-func (a *windowsApp) AttemptQuit() {
-	panic("unimplemented")
-}
-
-func (a *windowsApp) MayQuitNow(quit bool) {
+func platformMayQuitNow(quit bool) {
 	panic("unimplemented")
 }

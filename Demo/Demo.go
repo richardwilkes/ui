@@ -75,7 +75,7 @@ func main() {
 		frame1 := w1.Frame()
 		createButtonsWindow("Demo #2", geom.Point{X: frame1.X + frame1.Width + 5, Y: frame1.Y})
 	})
-	app.App.Start()
+	app.Start()
 }
 
 func newFileMenu() menu.Menu {
@@ -385,11 +385,11 @@ func createAboutWindow(evt event.Event) {
 	if aboutWindow == nil {
 		aboutWindow = window.NewWindow(geom.Point{}, window.TitledWindowMask|window.ClosableWindowMask)
 		aboutWindow.EventHandlers().Add(event.ClosedType, func(evt event.Event) { aboutWindow = nil })
-		aboutWindow.SetTitle("About " + app.App.Name())
+		aboutWindow.SetTitle("About " + app.Name())
 		content := aboutWindow.Content()
 		content.SetBorder(border.NewEmpty(geom.NewUniformInsets(10)))
 		flex.NewLayout(content)
-		title := label.NewWithFont(app.App.Name(), font.EmphasizedSystem)
+		title := label.NewWithFont(app.Name(), font.EmphasizedSystem)
 		title.SetLayoutData(flex.NewData().SetHorizontalAlignment(align.Middle).SetHorizontalGrab(true))
 		content.AddChild(title)
 		desc := label.New("Simple app to demonstrate the\ncapabilities of the ui framework.")

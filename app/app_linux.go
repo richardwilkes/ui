@@ -10,47 +10,42 @@ import (
 	"github.com/richardwilkes/ui/window"
 )
 
-var osApp app = &linuxApp{}
-
-type linuxApp struct {
-}
-
-func (a *linuxApp) Start() {
+func platformAppStart() {
 	x11.OpenDisplay()
 	window.LastWindowClosed = func() {
-		if App.ShouldQuitAfterLastWindowClosed() {
-			App.AttemptQuit()
+		if ShouldQuitAfterLastWindowClosed() {
+			AttemptQuit()
 		}
 	}
 	custom.Install()
 	event.SendAppWillFinishStartup()
 	event.SendAppDidFinishStartup()
-	if window.Count() == 0 && App.ShouldQuitAfterLastWindowClosed() {
-		App.AttemptQuit()
+	if window.Count() == 0 && ShouldQuitAfterLastWindowClosed() {
+		AttemptQuit()
 	}
 	window.RunEventLoop()
 }
 
-func (a *linuxApp) Name() string {
+func platformAppName() string {
 	return filepath.Base(os.Args[0])
 }
 
-func (a *linuxApp) Hide() {
+func platformHideApp() {
 	for _, wnd := range window.Windows() {
 		wnd.Minimize()
 	}
 }
 
-func (a *linuxApp) HideOthers() {
-	panic("unimplemented")
+func platformHideOtherApps() {
+	// Not supported
 }
 
-func (a *linuxApp) ShowAll() {
-	panic("unimplemented")
+func platformShowAllApps() {
+	// Not supported
 }
 
-func (a *linuxApp) AttemptQuit() {
-	switch App.ShouldQuit() {
+func platformAttemptQuit() {
+	switch ShouldQuit() {
 	case Cancel:
 	case Later:
 		window.DeferQuit()
@@ -59,6 +54,6 @@ func (a *linuxApp) AttemptQuit() {
 	}
 }
 
-func (a *linuxApp) MayQuitNow(quit bool) {
+func platformMayQuitNow(quit bool) {
 	window.ResumeQuit(quit)
 }
