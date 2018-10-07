@@ -4,6 +4,7 @@ import (
 	"unsafe"
 
 	"github.com/richardwilkes/ui/keys"
+
 	// #cgo pkg-config: x11
 	// #include <X11/Xlib.h>
 	"C"

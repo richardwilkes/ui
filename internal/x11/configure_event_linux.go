@@ -2,17 +2,18 @@ package x11
 
 import (
 	"unsafe"
+
 	// #cgo pkg-config: x11
 	// #include <X11/Xlib.h>
 	"C"
 )
 
-type DestroyWindowEvent C.XDestroyWindowEvent
+type ConfigureEvent C.XConfigureEvent
 
-func (evt *DestroyWindowEvent) Window() Window {
+func (evt *ConfigureEvent) Window() Window {
 	return Window(evt.window)
 }
 
-func (evt *DestroyWindowEvent) ToEvent() *Event {
+func (evt *ConfigureEvent) ToEvent() *Event {
 	return (*Event)(unsafe.Pointer(evt))
 }

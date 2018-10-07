@@ -4,6 +4,7 @@ import (
 	"unsafe"
 
 	"github.com/richardwilkes/ui/clipboard/datatypes"
+
 	// #cgo pkg-config: x11
 	// #include <X11/Xlib.h>
 	// #include <X11/Xatom.h>
