@@ -14,7 +14,6 @@ import (
 
 	"github.com/richardwilkes/toolbox/i18n"
 	"github.com/richardwilkes/ui/app"
-	"github.com/richardwilkes/ui/app/quit"
 	"github.com/richardwilkes/ui/event"
 	"github.com/richardwilkes/ui/keys"
 	"github.com/richardwilkes/ui/menu"
@@ -22,7 +21,7 @@ import (
 
 // Install adds a standard 'application' menu to the front of the menu bar.
 func Install(bar menu.Bar) (appMenu menu.Menu, aboutItem menu.Item, prefsItem menu.Item) {
-	name := app.Name()
+	name := app.App.Name()
 	appMenu = menu.NewMenu(name)
 
 	aboutItem = menu.NewItem(i18n.Text("About ")+name, nil)
@@ -40,14 +39,14 @@ func Install(bar menu.Bar) (appMenu menu.Menu, aboutItem menu.Item, prefsItem me
 	}
 
 	appMenu.AppendItem(menu.NewSeparator())
-	appMenu.AppendItem(menu.NewItemWithKey(i18n.Text("Hide ")+name, keys.VirtualKeyH, func(evt event.Event) { app.Hide() }))
+	appMenu.AppendItem(menu.NewItemWithKey(i18n.Text("Hide ")+name, keys.VirtualKeyH, func(evt event.Event) { app.App.Hide() }))
 	if runtime.GOOS == "darwin" {
-		appMenu.AppendItem(menu.NewItemWithKeyAndModifiers(i18n.Text("Hide Others"), keys.VirtualKeyH, keys.OptionModifier|keys.PlatformMenuModifier(), func(evt event.Event) { app.HideOthers() }))
-		appMenu.AppendItem(menu.NewItem(i18n.Text("Show All"), func(evt event.Event) { app.ShowAll() }))
+		appMenu.AppendItem(menu.NewItemWithKeyAndModifiers(i18n.Text("Hide Others"), keys.VirtualKeyH, keys.OptionModifier|keys.PlatformMenuModifier(), func(evt event.Event) { app.App.HideOthers() }))
+		appMenu.AppendItem(menu.NewItem(i18n.Text("Show All"), func(evt event.Event) { app.App.ShowAll() }))
 	}
 
 	appMenu.AppendItem(menu.NewSeparator())
-	appMenu.AppendItem(menu.NewItemWithKey(i18n.Text("Quit ")+name, keys.VirtualKeyQ, func(evt event.Event) { quit.AttemptQuit() }))
+	appMenu.AppendItem(menu.NewItemWithKey(i18n.Text("Quit ")+name, keys.VirtualKeyQ, func(evt event.Event) { app.App.AttemptQuit() }))
 
 	bar.InsertMenu(appMenu, 0)
 
