@@ -4,6 +4,7 @@ import (
 	"unsafe"
 
 	"github.com/richardwilkes/toolbox/xmath/geom"
+
 	// #cgo pkg-config: pangocairo
 	// #include <pango/pangocairo.h>
 	"C"
