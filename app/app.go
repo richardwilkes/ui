@@ -8,22 +8,42 @@ import (
 	"github.com/richardwilkes/ui/object"
 )
 
-// Application represents the overall application.
-type Application struct {
-	object.Base
-	driver        driver
-	eventHandlers event.Handlers
-}
+// Possible termination responses
+const (
+	Cancel QuitResponse = iota
+	Now
+	Later // Must make a call to MayQuitNow() at some point in the future.
+)
 
 var (
-	// App provides the top-level event distribution point. Events that cascade will flow from the
-	// widgets, to their parents, to their window, then finally to this app if not handled somewhere
-	// along the line.
+	// App provides the top-level event distribution point. Events that
+	// cascade will flow from the widgets, to their parents, to their window,
+	// then finally to this app if not handled somewhere along the line.
 	App *Application
 )
 
+// QuitResponse is used to respond to requests for app termination.
+type QuitResponse int
+
+type app interface {
+	Start()
+	Name() string
+	Hide()
+	HideOthers()
+	ShowAll()
+	AttemptQuit()
+	MayQuitNow(quit bool)
+}
+
+// Application represents the overall application.
+type Application struct {
+	object.Base
+	app           app
+	eventHandlers event.Handlers
+}
+
 func init() {
-	App = &Application{driver: osDriver}
+	App = &Application{app: osApp}
 	App.InitTypeAndID(App)
 	event.SetGlobalTarget(App)
 }
@@ -32,28 +52,28 @@ func init() {
 // thread. Does not return.
 func (app *Application) Start() {
 	runtime.LockOSThread()
-	app.driver.Start()
+	app.app.Start()
 }
 
 // Name returns the application's name.
 func (app *Application) Name() string {
-	return app.driver.Name()
+	return app.app.Name()
 }
 
 // Hide attempts to hide this application.
 func (app *Application) Hide() {
-	app.driver.Hide()
+	app.app.Hide()
 }
 
 // HideOthers attempts to hide other applications, leaving just this
 // application visible.
 func (app *Application) HideOthers() {
-	app.driver.HideOthers()
+	app.app.HideOthers()
 }
 
 // ShowAll attempts to show all applications that are currently hidden.
 func (app *Application) ShowAll() {
-	app.driver.ShowAll()
+	app.app.ShowAll()
 }
 
 func (app *Application) String() string {
@@ -72,13 +92,13 @@ func (app *Application) ParentTarget() event.Target {
 
 // AttemptQuit initiates the termination sequence.
 func (app *Application) AttemptQuit() {
-	app.driver.AttemptQuit()
+	app.app.AttemptQuit()
 }
 
 // MayQuitNow resumes the termination sequence that was delayed by calling
 // Delay() on the AppTerminationRequested event.
 func (app *Application) MayQuitNow(quit bool) {
-	app.driver.MayQuitNow(quit)
+	app.app.MayQuitNow(quit)
 }
 
 // ShouldQuit is called when a request to quit the application is made.

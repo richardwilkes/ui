@@ -3,43 +3,43 @@ package app
 import (
 	// #cgo CFLAGS: -x objective-c
 	// #cgo LDFLAGS: -framework Cocoa
-	// #include "driver_darwin.h"
+	// #include "app_darwin.h"
 	"C"
 
 	"github.com/richardwilkes/ui/event"
 	"github.com/richardwilkes/ui/menu/macmenus"
 )
 
-var osDriver driver = &darwinDriver{}
+var osApp app = &darwinApp{}
 
-type darwinDriver struct {
+type darwinApp struct {
 }
 
-func (d *darwinDriver) Start() {
+func (a *darwinApp) Start() {
 	C.startUserInterface()
 }
 
-func (d *darwinDriver) Name() string {
+func (a *darwinApp) Name() string {
 	return C.GoString(C.appName())
 }
 
-func (d *darwinDriver) Hide() {
+func (a *darwinApp) Hide() {
 	C.hideApp()
 }
 
-func (d *darwinDriver) HideOthers() {
+func (a *darwinApp) HideOthers() {
 	C.hideOtherApps()
 }
 
-func (d *darwinDriver) ShowAll() {
+func (a *darwinApp) ShowAll() {
 	C.showAllApps()
 }
 
-func (d *darwinDriver) AttemptQuit() {
+func (a *darwinApp) AttemptQuit() {
 	C.attemptQuit()
 }
 
-func (d *darwinDriver) MayQuitNow(quit bool) {
+func (a *darwinApp) MayQuitNow(quit bool) {
 	var mayQuit C.int
 	if quit {
 		mayQuit = 1

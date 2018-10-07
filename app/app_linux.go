@@ -10,12 +10,12 @@ import (
 	"github.com/richardwilkes/ui/window"
 )
 
-var osDriver driver = &linuxDriver{}
+var osApp app = &linuxApp{}
 
-type linuxDriver struct {
+type linuxApp struct {
 }
 
-func (d *linuxDriver) Start() {
+func (a *linuxApp) Start() {
 	x11.OpenDisplay()
 	window.LastWindowClosed = func() {
 		if App.ShouldQuitAfterLastWindowClosed() {
@@ -31,25 +31,25 @@ func (d *linuxDriver) Start() {
 	window.RunEventLoop()
 }
 
-func (d *linuxDriver) Name() string {
+func (a *linuxApp) Name() string {
 	return filepath.Base(os.Args[0])
 }
 
-func (d *linuxDriver) Hide() {
+func (a *linuxApp) Hide() {
 	for _, wnd := range window.Windows() {
 		wnd.Minimize()
 	}
 }
 
-func (d *linuxDriver) HideOthers() {
+func (a *linuxApp) HideOthers() {
 	panic("unimplemented")
 }
 
-func (d *linuxDriver) ShowAll() {
+func (a *linuxApp) ShowAll() {
 	panic("unimplemented")
 }
 
-func (d *linuxDriver) AttemptQuit() {
+func (a *linuxApp) AttemptQuit() {
 	switch App.ShouldQuit() {
 	case Cancel:
 	case Later:
@@ -59,6 +59,6 @@ func (d *linuxDriver) AttemptQuit() {
 	}
 }
 
-func (d *linuxDriver) MayQuitNow(quit bool) {
+func (a *linuxApp) MayQuitNow(quit bool) {
 	window.ResumeQuit(quit)
 }

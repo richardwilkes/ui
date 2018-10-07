@@ -8,38 +8,38 @@ import (
 	"github.com/richardwilkes/ui/window"
 )
 
-var osDriver driver = &windowsDriver{}
+var osApp app = &windowsApp{}
 
-type windowsDriver struct {
+type windowsApp struct {
 }
 
-func (d *windowsDriver) Start() {
+func (a *windowsApp) Start() {
 	custom.Install()
 	panic("unimplemented")
 }
 
-func (d *windowsDriver) Name() string {
+func (a *windowsApp) Name() string {
 	return filepath.Base(os.Args[0])
 }
 
-func (d *windowsDriver) Hide() {
+func (a *windowsApp) Hide() {
 	for _, wnd := range window.Windows() {
 		wnd.Minimize()
 	}
 }
 
-func (d *windowsDriver) HideOthers() {
+func (a *windowsApp) HideOthers() {
 	panic("unimplemented")
 }
 
-func (d *windowsDriver) ShowAll() {
+func (a *windowsApp) ShowAll() {
 	panic("unimplemented")
 }
 
-func (d *windowsDriver) AttemptQuit() {
+func (a *windowsApp) AttemptQuit() {
 	panic("unimplemented")
 }
 
-func (d *windowsDriver) MayQuitNow(quit bool) {
+func (a *windowsApp) MayQuitNow(quit bool) {
 	panic("unimplemented")
 }
