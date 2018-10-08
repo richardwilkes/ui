@@ -11,10 +11,10 @@ import (
 // Layout lays out the children of its widget left-to-right, then
 // top-to-bottom at their preferred sizes, if possible.
 type Layout struct {
+	HSpacing float64 // Horizontal spacing between columns
+	VSpacing float64 // Vertical spacing between rows
+	VCenter  bool    // Center widgets vertically in their row if true
 	widget   ui.Widget
-	hSpacing float64
-	vSpacing float64
-	vCenter  bool
 }
 
 // New creates a new Flow layout and sets it on the widget.
@@ -24,43 +24,14 @@ func New(widget ui.Widget) *Layout {
 	return layout
 }
 
-// HorizontalSpacing returns the horizontal spacing between widgets.
-func (l *Layout) HorizontalSpacing() float64 {
-	return l.hSpacing
-}
-
-// SetHorizontalSpacing sets the horizontal spacing between widgets.
-func (l *Layout) SetHorizontalSpacing(spacing float64) *Layout {
-	l.hSpacing = math.Max(spacing, 0)
-	return l
-}
-
-// VerticalSpacing returns the vertical spacing between rows.
-func (l *Layout) VerticalSpacing() float64 {
-	return l.vSpacing
-}
-
-// SetVerticalSpacing sets the vertical spacing between rows.
-func (l *Layout) SetVerticalSpacing(spacing float64) *Layout {
-	l.vSpacing = math.Max(spacing, 0)
-	return l
-}
-
-// VerticallyCentered returns true if the widgets should be vertically
-// centered in their row.
-func (l *Layout) VerticallyCentered() bool {
-	return l.vCenter
-}
-
-// SetVerticallyCentered sets whether the widgets should be vertically
-// centered in their row.
-func (l *Layout) SetVerticallyCentered(center bool) *Layout {
-	l.vCenter = center
-	return l
-}
-
 // Sizes implements the Layout interface.
 func (l *Layout) Sizes(hint geom.Size) (min, pref, max geom.Size) {
+	if l.HSpacing < 0 {
+		l.HSpacing = 0
+	}
+	if l.VSpacing < 0 {
+		l.VSpacing = 0
+	}
 	var insets geom.Insets
 	if border := l.widget.Border(); border != nil {
 		insets = border.Insets()
@@ -94,9 +65,9 @@ func (l *Layout) Sizes(hint geom.Size) (min, pref, max geom.Size) {
 				pref.Width = min.Width
 			} else {
 				pt.X = insets.Left
-				pt.Y += maxHeight + l.vSpacing
+				pt.Y += maxHeight + l.VSpacing
 				availWidth = width
-				availHeight -= maxHeight + l.vSpacing
+				availHeight -= maxHeight + l.VSpacing
 				maxHeight = 0
 				if pref.Width > availWidth {
 					if min.Width <= availWidth {
@@ -128,15 +99,15 @@ func (l *Layout) Sizes(hint geom.Size) (min, pref, max geom.Size) {
 		if maxHeight < pref.Height {
 			maxHeight = pref.Height
 		}
-		availWidth -= pref.Width + l.hSpacing
+		availWidth -= pref.Width + l.HSpacing
 		if availWidth <= 0 {
 			pt.X = insets.Left
-			pt.Y += maxHeight + l.vSpacing
+			pt.Y += maxHeight + l.VSpacing
 			availWidth = width
-			availHeight -= maxHeight + l.vSpacing
+			availHeight -= maxHeight + l.VSpacing
 			maxHeight = 0
 		} else {
-			pt.X += pref.Width + l.hSpacing
+			pt.X += pref.Width + l.HSpacing
 		}
 	}
 	result.Width += insets.Right
@@ -171,9 +142,9 @@ func (l *Layout) Layout() {
 				pref.Width = min.Width
 			} else {
 				pt.X = insets.Left
-				pt.Y += maxHeight + l.vSpacing
+				pt.Y += maxHeight + l.VSpacing
 				availWidth = width
-				availHeight -= maxHeight + l.vSpacing
+				availHeight -= maxHeight + l.VSpacing
 				if i > start {
 					l.applyRects(children[start:i], rects[start:i], maxHeight)
 					start = i
@@ -202,17 +173,17 @@ func (l *Layout) Layout() {
 		if maxHeight < pref.Height {
 			maxHeight = pref.Height
 		}
-		availWidth -= pref.Width + l.hSpacing
+		availWidth -= pref.Width + l.HSpacing
 		if availWidth <= 0 {
 			pt.X = insets.Left
-			pt.Y += maxHeight + l.vSpacing
+			pt.Y += maxHeight + l.VSpacing
 			availWidth = width
-			availHeight -= maxHeight + l.vSpacing
+			availHeight -= maxHeight + l.VSpacing
 			l.applyRects(children[start:i+1], rects[start:i+1], maxHeight)
 			start = i + 1
 			maxHeight = 0
 		} else {
-			pt.X += pref.Width + l.hSpacing
+			pt.X += pref.Width + l.HSpacing
 		}
 	}
 	for i, child := range children {
@@ -225,7 +196,7 @@ func (l *Layout) Layout() {
 
 func (l *Layout) applyRects(children []ui.Widget, rects []geom.Rect, maxHeight float64) {
 	for i, child := range children {
-		if l.vCenter {
+		if l.VCenter {
 			if rects[i].Height < maxHeight {
 				rects[i].Y += (maxHeight - rects[i].Height) / 2
 			}

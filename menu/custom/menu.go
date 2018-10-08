@@ -40,7 +40,8 @@ func NewMenu(title string) *Menu {
 	}
 	mnu.SetBorder(border.NewLine(color.Gray, geom.NewUniformInsets(1)))
 	mnu.item.EventHandlers().Add(event.SelectionType, mnu.open)
-	flex.NewLayout(mnu).SetEqualColumns(true)
+	lay := flex.NewLayout(mnu)
+	lay.EqualColumns = true
 	return mnu
 }
 
@@ -63,7 +64,10 @@ func (mnu *Menu) InsertItem(item menu.Item, index int) {
 			mi.menuParent = mnu
 		}
 		actual.EventHandlers().Add(event.ClosingType, mnu.close)
-		actual.SetLayoutData(flex.NewData().SetHorizontalGrab(true).SetHorizontalAlignment(align.Fill))
+		flexData := flex.NewData()
+		flexData.HGrab = true
+		flexData.HAlign = align.Fill
+		actual.SetLayoutData(flexData)
 	}
 }
 

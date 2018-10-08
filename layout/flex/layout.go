@@ -13,100 +13,28 @@ import (
 // Layout lays out the children of its widget based on the Data assigned to
 // each child.
 type Layout struct {
-	widget   ui.Widget
-	rows     int
-	columns  int
-	hSpacing float64
-	vSpacing float64
-	hAlign   align.Alignment
-	vAlign   align.Alignment
-	equal    bool
+	Columns      int             // Number of columns
+	HSpacing     float64         // Horizontal spacing between columns
+	VSpacing     float64         // Vertical spacing between rows
+	HAlign       align.Alignment // Horizontal alignment of the widget within its space
+	VAlign       align.Alignment // Vertical alignment of the widget within its space
+	EqualColumns bool            // Each column uses the same amount of horizontal space if true
+	widget       ui.Widget
+	rows         int
 }
 
 // NewLayout creates a new Flex layout and sets it on the widget.
 func NewLayout(widget ui.Widget) *Layout {
 	layout := &Layout{
+		Columns:  1,
+		HSpacing: 4,
+		VSpacing: 2,
+		HAlign:   align.Start,
+		VAlign:   align.Start,
 		widget:   widget,
-		columns:  1,
-		hSpacing: 4,
-		vSpacing: 2,
-		hAlign:   align.Start,
-		vAlign:   align.Start,
 	}
 	widget.SetLayout(layout)
 	return layout
-}
-
-//Columns returns the number of columns.
-func (l *Layout) Columns() int {
-	return l.columns
-}
-
-// SetColumns sets the number of columns.
-func (l *Layout) SetColumns(columns int) *Layout {
-	l.columns = columns
-	return l
-}
-
-// EqualColumns returns true if each column will use the same amount of
-// horizontal space.
-func (l *Layout) EqualColumns() bool {
-	return l.equal
-}
-
-// SetEqualColumns sets each column to use the same amount of horizontal space
-// if true.
-func (l *Layout) SetEqualColumns(equal bool) *Layout {
-	l.equal = equal
-	return l
-}
-
-// HorizontalSpacing returns the horizontal spacing between columns.
-func (l *Layout) HorizontalSpacing() float64 {
-	return l.hSpacing
-}
-
-// SetHorizontalSpacing sets the horizontal spacing between columns.
-func (l *Layout) SetHorizontalSpacing(spacing float64) *Layout {
-	l.hSpacing = spacing
-	return l
-}
-
-// VerticalSpacing returns the vertical spacing between rows.
-func (l *Layout) VerticalSpacing() float64 {
-	return l.vSpacing
-}
-
-// SetVerticalSpacing sets the vertical spacing between rows.
-func (l *Layout) SetVerticalSpacing(spacing float64) *Layout {
-	l.vSpacing = spacing
-	return l
-}
-
-// HorizontalAlignment returns the horizontal alignment of the widget within
-// its space.
-func (l *Layout) HorizontalAlignment() align.Alignment {
-	return l.hAlign
-}
-
-// SetHorizontalAlignment sets the horizontal alignment of the widget within
-// its space.
-func (l *Layout) SetHorizontalAlignment(alignment align.Alignment) *Layout {
-	l.hAlign = alignment
-	return l
-}
-
-// VerticalAlignment returns the vertical alignment of the widget within its
-// space.
-func (l *Layout) VerticalAlignment() align.Alignment {
-	return l.vAlign
-}
-
-// SetVerticalAlignment sets the vertical alignment of the widget within its
-// space.
-func (l *Layout) SetVerticalAlignment(alignment align.Alignment) *Layout {
-	l.vAlign = alignment
-	return l
 }
 
 // Sizes implements the Layout interface.
@@ -134,16 +62,22 @@ func (l *Layout) Layout() {
 
 func (l *Layout) layout(location geom.Point, hint geom.Size, move, useMinimumSize bool) geom.Size {
 	var totalSize geom.Size
-	if l.columns > 0 {
+	if l.Columns > 0 {
 		children := l.prepChildren(useMinimumSize)
 		if len(children) > 0 {
+			if l.HSpacing < 0 {
+				l.HSpacing = 0
+			}
+			if l.VSpacing < 0 {
+				l.VSpacing = 0
+			}
 			grid := l.buildGrid(children)
 			widths := l.adjustColumnWidths(hint.Width, grid)
 			l.wrap(hint.Width, grid, widths, useMinimumSize)
 			heights := l.adjustRowHeights(hint.Height, grid)
-			totalSize.Width += l.hSpacing * float64(l.columns-1)
-			totalSize.Height += l.vSpacing * float64(l.rows-1)
-			for i := 0; i < l.columns; i++ {
+			totalSize.Width += l.HSpacing * float64(l.Columns-1)
+			totalSize.Height += l.VSpacing * float64(l.rows-1)
+			for i := 0; i < l.Columns; i++ {
 				totalSize.Width += widths[i]
 			}
 			for i := 0; i < l.rows; i++ {
@@ -151,16 +85,16 @@ func (l *Layout) layout(location geom.Point, hint geom.Size, move, useMinimumSiz
 			}
 			if move {
 				if totalSize.Width < hint.Width {
-					if l.hAlign == align.Middle {
+					if l.HAlign == align.Middle {
 						location.X += xmath.Round((hint.Width - totalSize.Width) / 2)
-					} else if l.hAlign == align.End {
+					} else if l.HAlign == align.End {
 						location.X += hint.Width - totalSize.Width
 					}
 				}
 				if totalSize.Height < hint.Height {
-					if l.vAlign == align.Middle {
+					if l.VAlign == align.Middle {
 						location.Y += xmath.Round((hint.Height - totalSize.Height) / 2)
-					} else if l.vAlign == align.End {
+					} else if l.VAlign == align.End {
 						location.Y += hint.Height - totalSize.Height
 					}
 				}
@@ -194,18 +128,18 @@ func (l *Layout) buildGrid(children []ui.Widget) [][]ui.Widget {
 	l.rows = 0
 	for _, child := range children {
 		data := getDataFromWidget(child)
-		hSpan := xmath.MaxInt(1, xmath.MinInt(data.hSpan, l.columns))
-		vSpan := xmath.MaxInt(1, data.vSpan)
+		hSpan := xmath.MaxInt(1, xmath.MinInt(data.HSpan, l.Columns))
+		vSpan := xmath.MaxInt(1, data.VSpan)
 		for {
 			lastRow := row + vSpan
 			if lastRow >= len(grid) {
-				grid = append(grid, make([]ui.Widget, l.columns))
+				grid = append(grid, make([]ui.Widget, l.Columns))
 			}
-			for column < l.columns && grid[row][column] != nil {
+			for column < l.Columns && grid[row][column] != nil {
 				column++
 			}
 			endCount := column + hSpan
-			if endCount <= l.columns {
+			if endCount <= l.Columns {
 				index := column
 				for index < endCount && grid[row][index] == nil {
 					index++
@@ -215,7 +149,7 @@ func (l *Layout) buildGrid(children []ui.Widget) [][]ui.Widget {
 				}
 				column = index
 			}
-			if column+hSpan >= l.columns {
+			if column+hSpan >= l.Columns {
 				column = 0
 				row++
 			}
@@ -233,29 +167,29 @@ func (l *Layout) buildGrid(children []ui.Widget) [][]ui.Widget {
 }
 
 func (l *Layout) adjustColumnWidths(width float64, grid [][]ui.Widget) []float64 {
-	availableWidth := width - l.hSpacing*float64(l.columns-1)
+	availableWidth := width - l.HSpacing*float64(l.Columns-1)
 	expandCount := 0
-	widths := make([]float64, l.columns)
-	minWidths := make([]float64, l.columns)
-	expandColumn := make([]bool, l.columns)
-	for j := 0; j < l.columns; j++ {
+	widths := make([]float64, l.Columns)
+	minWidths := make([]float64, l.Columns)
+	expandColumn := make([]bool, l.Columns)
+	for j := 0; j < l.Columns; j++ {
 		for i := 0; i < l.rows; i++ {
 			data := l.getData(grid, i, j, true)
 			if data != nil {
-				hSpan := xmath.MaxInt(1, xmath.MinInt(data.hSpan, l.columns))
+				hSpan := xmath.MaxInt(1, xmath.MinInt(data.HSpan, l.Columns))
 				if hSpan == 1 {
 					w := data.cacheSize.Width
 					if widths[j] < w {
 						widths[j] = w
 					}
-					if data.hGrab {
+					if data.HGrab {
 						if !expandColumn[j] {
 							expandCount++
 						}
 						expandColumn[j] = true
 					}
 					minimumWidth := data.minCacheSize.Width
-					if !data.hGrab || minimumWidth != 0 {
+					if !data.HGrab || minimumWidth != 0 {
 						if minimumWidth == layout.NoHint {
 							w = data.cacheSize.Width
 						} else {
@@ -271,7 +205,7 @@ func (l *Layout) adjustColumnWidths(width float64, grid [][]ui.Widget) []float64
 		for i := 0; i < l.rows; i++ {
 			data := l.getData(grid, i, j, false)
 			if data != nil {
-				hSpan := xmath.MaxInt(1, xmath.MinInt(data.hSpan, l.columns))
+				hSpan := xmath.MaxInt(1, xmath.MinInt(data.HSpan, l.Columns))
 				if hSpan > 1 {
 					var spanWidth, spanMinWidth float64
 					spanExpandCount := 0
@@ -282,13 +216,13 @@ func (l *Layout) adjustColumnWidths(width float64, grid [][]ui.Widget) []float64
 							spanExpandCount++
 						}
 					}
-					if data.hGrab && spanExpandCount == 0 {
+					if data.HGrab && spanExpandCount == 0 {
 						expandCount++
 						expandColumn[j] = true
 					}
-					w := data.cacheSize.Width - spanWidth - float64(hSpan-1)*l.hSpacing
+					w := data.cacheSize.Width - spanWidth - float64(hSpan-1)*l.HSpacing
 					if w > 0 {
-						if l.equal {
+						if l.EqualColumns {
 							equalWidth := math.Floor((w + spanWidth) / float64(hSpan))
 							for k := 0; k < hSpan; k++ {
 								if widths[j-k] < equalWidth {
@@ -300,13 +234,13 @@ func (l *Layout) adjustColumnWidths(width float64, grid [][]ui.Widget) []float64
 						}
 					}
 					minimumWidth := data.minCacheSize.Width
-					if !data.hGrab || minimumWidth != 0 {
-						if !data.hGrab || minimumWidth == layout.NoHint {
+					if !data.HGrab || minimumWidth != 0 {
+						if !data.HGrab || minimumWidth == layout.NoHint {
 							w = data.cacheSize.Width
 						} else {
 							w = minimumWidth
 						}
-						w -= spanMinWidth + float64(hSpan-1)*l.hSpacing
+						w -= spanMinWidth + float64(hSpan-1)*l.HSpacing
 						if w > 0 {
 							l.apportionExtra(w, j, spanExpandCount, hSpan, expandColumn, minWidths)
 						}
@@ -315,9 +249,9 @@ func (l *Layout) adjustColumnWidths(width float64, grid [][]ui.Widget) []float64
 			}
 		}
 	}
-	if l.equal {
+	if l.EqualColumns {
 		var minColumnWidth, columnWidth float64
-		for i := 0; i < l.columns; i++ {
+		for i := 0; i < l.Columns; i++ {
 			if minColumnWidth < minWidths[i] {
 				minColumnWidth = minWidths[i]
 			}
@@ -326,22 +260,22 @@ func (l *Layout) adjustColumnWidths(width float64, grid [][]ui.Widget) []float64
 			}
 		}
 		if width != layout.NoHint && expandCount != 0 {
-			columnWidth = math.Max(minColumnWidth, math.Floor(availableWidth/float64(l.columns)))
+			columnWidth = math.Max(minColumnWidth, math.Floor(availableWidth/float64(l.Columns)))
 		}
-		for i := 0; i < l.columns; i++ {
+		for i := 0; i < l.Columns; i++ {
 			expandColumn[i] = expandCount > 0
 			widths[i] = columnWidth
 		}
 	} else {
 		if width != layout.NoHint && expandCount > 0 {
 			var totalWidth float64
-			for i := 0; i < l.columns; i++ {
+			for i := 0; i < l.Columns; i++ {
 				totalWidth += widths[i]
 			}
 			c := expandCount
 			for math.Abs(totalWidth-availableWidth) > 0.01 {
 				delta := (availableWidth - totalWidth) / float64(c)
-				for j := 0; j < l.columns; j++ {
+				for j := 0; j < l.Columns; j++ {
 					if expandColumn[j] {
 						if widths[j]+delta > minWidths[j] {
 							widths[j] += delta
@@ -352,14 +286,14 @@ func (l *Layout) adjustColumnWidths(width float64, grid [][]ui.Widget) []float64
 						}
 					}
 				}
-				for j := 0; j < l.columns; j++ {
+				for j := 0; j < l.Columns; j++ {
 					for i := 0; i < l.rows; i++ {
 						data := l.getData(grid, i, j, false)
 						if data != nil {
-							hSpan := xmath.MaxInt(1, xmath.MinInt(data.hSpan, l.columns))
+							hSpan := xmath.MaxInt(1, xmath.MinInt(data.HSpan, l.Columns))
 							if hSpan > 1 {
 								minimumWidth := data.minCacheSize.Width
-								if !data.hGrab || minimumWidth != 0 {
+								if !data.HGrab || minimumWidth != 0 {
 									var spanWidth float64
 									spanExpandCount := 0
 									for k := 0; k < hSpan; k++ {
@@ -369,12 +303,12 @@ func (l *Layout) adjustColumnWidths(width float64, grid [][]ui.Widget) []float64
 										}
 									}
 									var w float64
-									if !data.hGrab || minimumWidth == layout.NoHint {
+									if !data.HGrab || minimumWidth == layout.NoHint {
 										w = data.cacheSize.Width
 									} else {
 										w = minimumWidth
 									}
-									w -= spanWidth + float64(hSpan-1)*l.hSpacing
+									w -= spanWidth + float64(hSpan-1)*l.HSpacing
 									if w > 0 {
 										l.apportionExtra(w, j, spanExpandCount, hSpan, expandColumn, widths)
 									}
@@ -387,7 +321,7 @@ func (l *Layout) adjustColumnWidths(width float64, grid [][]ui.Widget) []float64
 					break
 				}
 				totalWidth = 0
-				for i := 0; i < l.columns; i++ {
+				for i := 0; i < l.Columns; i++ {
 					totalWidth += widths[i]
 				}
 			}
@@ -428,8 +362,8 @@ func (l *Layout) getData(grid [][]ui.Widget, row, column int, first bool) *Data 
 	block := grid[row][column]
 	if block != nil {
 		data := getDataFromWidget(block)
-		hSpan := xmath.MaxInt(1, xmath.MinInt(data.hSpan, l.columns))
-		vSpan := xmath.MaxInt(1, data.vSpan)
+		hSpan := xmath.MaxInt(1, xmath.MinInt(data.HSpan, l.Columns))
+		vSpan := xmath.MaxInt(1, data.VSpan)
 		var i, j int
 		if first {
 			i = row + vSpan - 1
@@ -439,7 +373,7 @@ func (l *Layout) getData(grid [][]ui.Widget, row, column int, first bool) *Data 
 			j = column - hSpan + 1
 		}
 		if i >= 0 && i < l.rows {
-			if j >= 0 && j < l.columns {
+			if j >= 0 && j < l.Columns {
 				if block == grid[i][j] {
 					return data
 				}
@@ -451,21 +385,21 @@ func (l *Layout) getData(grid [][]ui.Widget, row, column int, first bool) *Data 
 
 func (l *Layout) wrap(width float64, grid [][]ui.Widget, widths []float64, useMinimumSize bool) {
 	if width != layout.NoHint {
-		for j := 0; j < l.columns; j++ {
+		for j := 0; j < l.Columns; j++ {
 			for i := 0; i < l.rows; i++ {
 				data := l.getData(grid, i, j, false)
 				if data != nil {
-					if data.sizeHint.Height == layout.NoHint {
-						hSpan := xmath.MaxInt(1, xmath.MinInt(data.hSpan, l.columns))
+					if data.SizeHint.Height == layout.NoHint {
+						hSpan := xmath.MaxInt(1, xmath.MinInt(data.HSpan, l.Columns))
 						var currentWidth float64
 						for k := 0; k < hSpan; k++ {
 							currentWidth += widths[j-k]
 						}
-						currentWidth += float64(hSpan-1) * l.hSpacing
-						if currentWidth != data.cacheSize.Width && data.hAlign == align.Fill || data.cacheSize.Width > currentWidth {
+						currentWidth += float64(hSpan-1) * l.HSpacing
+						if currentWidth != data.cacheSize.Width && data.HAlign == align.Fill || data.cacheSize.Width > currentWidth {
 							data.computeCacheSize(grid[i][j], geom.Size{Width: math.Max(data.minCacheSize.Width, currentWidth), Height: layout.NoHint}, useMinimumSize)
-							minimumHeight := data.minSize.Height
-							if data.vGrab && minimumHeight > 0 && data.cacheSize.Height < minimumHeight {
+							minimumHeight := data.MinSize.Height
+							if data.VGrab && minimumHeight > 0 && data.cacheSize.Height < minimumHeight {
 								data.cacheSize.Height = minimumHeight
 							}
 						}
@@ -477,31 +411,31 @@ func (l *Layout) wrap(width float64, grid [][]ui.Widget, widths []float64, useMi
 }
 
 func (l *Layout) adjustRowHeights(height float64, grid [][]ui.Widget) []float64 {
-	availableHeight := height - l.vSpacing*float64(l.rows-1)
+	availableHeight := height - l.VSpacing*float64(l.rows-1)
 	expandCount := 0
 	heights := make([]float64, l.rows)
 	minHeights := make([]float64, l.rows)
 	expandRow := make([]bool, l.rows)
 	for i := 0; i < l.rows; i++ {
-		for j := 0; j < l.columns; j++ {
+		for j := 0; j < l.Columns; j++ {
 			data := l.getData(grid, i, j, true)
 			if data != nil {
-				vSpan := xmath.MaxInt(1, xmath.MinInt(data.vSpan, l.rows))
+				vSpan := xmath.MaxInt(1, xmath.MinInt(data.VSpan, l.rows))
 				if vSpan == 1 {
 					h := data.cacheSize.Height
 					if heights[i] < h {
 						heights[i] = h
 					}
-					if data.vGrab {
+					if data.VGrab {
 						if !expandRow[i] {
 							expandCount++
 						}
 						expandRow[i] = true
 					}
-					minimumHeight := data.minSize.Height
-					if !data.vGrab || minimumHeight != 0 {
+					minimumHeight := data.MinSize.Height
+					if !data.VGrab || minimumHeight != 0 {
 						var h float64
-						if !data.vGrab || minimumHeight == layout.NoHint {
+						if !data.VGrab || minimumHeight == layout.NoHint {
 							h = data.minCacheSize.Height
 						} else {
 							h = minimumHeight
@@ -513,10 +447,10 @@ func (l *Layout) adjustRowHeights(height float64, grid [][]ui.Widget) []float64 
 				}
 			}
 		}
-		for j := 0; j < l.columns; j++ {
+		for j := 0; j < l.Columns; j++ {
 			data := l.getData(grid, i, j, false)
 			if data != nil {
-				vSpan := xmath.MaxInt(1, xmath.MinInt(data.vSpan, l.rows))
+				vSpan := xmath.MaxInt(1, xmath.MinInt(data.VSpan, l.rows))
 				if vSpan > 1 {
 					var spanHeight, spanMinHeight float64
 					spanExpandCount := 0
@@ -527,11 +461,11 @@ func (l *Layout) adjustRowHeights(height float64, grid [][]ui.Widget) []float64 
 							spanExpandCount++
 						}
 					}
-					if data.vGrab && spanExpandCount == 0 {
+					if data.VGrab && spanExpandCount == 0 {
 						expandCount++
 						expandRow[i] = true
 					}
-					h := data.cacheSize.Height - spanHeight - float64(vSpan-1)*l.vSpacing
+					h := data.cacheSize.Height - spanHeight - float64(vSpan-1)*l.VSpacing
 					if h > 0 {
 						if spanExpandCount == 0 {
 							heights[i] += h
@@ -544,15 +478,15 @@ func (l *Layout) adjustRowHeights(height float64, grid [][]ui.Widget) []float64 
 							}
 						}
 					}
-					minimumHeight := data.minSize.Height
-					if !data.vGrab || minimumHeight != 0 {
+					minimumHeight := data.MinSize.Height
+					if !data.VGrab || minimumHeight != 0 {
 						var h float64
-						if !data.vGrab || minimumHeight == layout.NoHint {
+						if !data.VGrab || minimumHeight == layout.NoHint {
 							h = data.minCacheSize.Height
 						} else {
 							h = minimumHeight
 						}
-						h -= spanMinHeight + float64(vSpan-1)*l.vSpacing
+						h -= spanMinHeight + float64(vSpan-1)*l.VSpacing
 						if h > 0 {
 							l.apportionExtra(h, i, spanExpandCount, vSpan, expandRow, minHeights)
 						}
@@ -581,13 +515,13 @@ func (l *Layout) adjustRowHeights(height float64, grid [][]ui.Widget) []float64 
 				}
 			}
 			for i := 0; i < l.rows; i++ {
-				for j := 0; j < l.columns; j++ {
+				for j := 0; j < l.Columns; j++ {
 					data := l.getData(grid, i, j, false)
 					if data != nil {
-						vSpan := xmath.MaxInt(1, xmath.MinInt(data.vSpan, l.rows))
+						vSpan := xmath.MaxInt(1, xmath.MinInt(data.VSpan, l.rows))
 						if vSpan > 1 {
-							minimumHeight := data.minSize.Height
-							if !data.vGrab || minimumHeight != 0 {
+							minimumHeight := data.MinSize.Height
+							if !data.VGrab || minimumHeight != 0 {
 								var spanHeight float64
 								spanExpandCount := 0
 								for k := 0; k < vSpan; k++ {
@@ -597,12 +531,12 @@ func (l *Layout) adjustRowHeights(height float64, grid [][]ui.Widget) []float64 
 									}
 								}
 								var h float64
-								if !data.vGrab || minimumHeight == layout.NoHint {
+								if !data.VGrab || minimumHeight == layout.NoHint {
 									h = data.minCacheSize.Height
 								} else {
 									h = minimumHeight
 								}
-								h -= spanHeight + float64(vSpan-1)*l.vSpacing
+								h -= spanHeight + float64(vSpan-1)*l.VSpacing
 								if h > 0 {
 									l.apportionExtra(h, i, spanExpandCount, vSpan, expandRow, heights)
 								}
@@ -628,11 +562,11 @@ func (l *Layout) positionChildren(location geom.Point, grid [][]ui.Widget, width
 	gridY := location.Y
 	for i := 0; i < l.rows; i++ {
 		gridX := location.X
-		for j := 0; j < l.columns; j++ {
+		for j := 0; j < l.Columns; j++ {
 			data := l.getData(grid, i, j, true)
 			if data != nil {
-				hSpan := xmath.MaxInt(1, xmath.MinInt(data.hSpan, l.columns))
-				vSpan := xmath.MaxInt(1, data.vSpan)
+				hSpan := xmath.MaxInt(1, xmath.MinInt(data.HSpan, l.Columns))
+				vSpan := xmath.MaxInt(1, data.VSpan)
 				var cellWidth, cellHeight float64
 				for k := 0; k < hSpan; k++ {
 					cellWidth += widths[j+k]
@@ -640,10 +574,10 @@ func (l *Layout) positionChildren(location geom.Point, grid [][]ui.Widget, width
 				for k := 0; k < vSpan; k++ {
 					cellHeight += heights[i+k]
 				}
-				cellWidth += l.hSpacing * float64(hSpan-1)
+				cellWidth += l.HSpacing * float64(hSpan-1)
 				childX := gridX
 				childWidth := math.Min(data.cacheSize.Width, cellWidth)
-				switch data.hAlign {
+				switch data.HAlign {
 				case align.Middle:
 					childX += math.Max(0, (cellWidth-childWidth)/2)
 				case align.End:
@@ -652,10 +586,10 @@ func (l *Layout) positionChildren(location geom.Point, grid [][]ui.Widget, width
 					childWidth = cellWidth
 				default:
 				}
-				cellHeight += l.vSpacing * float64(vSpan-1)
+				cellHeight += l.VSpacing * float64(vSpan-1)
 				childY := gridY
 				childHeight := math.Min(data.cacheSize.Height, cellHeight)
-				switch data.vAlign {
+				switch data.VAlign {
 				case align.Middle:
 					childY += math.Max(0, (cellHeight-childHeight)/2)
 				case align.End:
@@ -669,8 +603,8 @@ func (l *Layout) positionChildren(location geom.Point, grid [][]ui.Widget, width
 					child.SetBounds(geom.Rect{Point: geom.Point{X: childX, Y: childY}, Size: geom.Size{Width: childWidth, Height: childHeight}})
 				}
 			}
-			gridX += widths[j] + l.hSpacing
+			gridX += widths[j] + l.HSpacing
 		}
-		gridY += heights[i] + l.vSpacing
+		gridY += heights[i] + l.VSpacing
 	}
 }

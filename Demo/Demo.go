@@ -97,37 +97,45 @@ func createButtonsWindow(title string, where geom.Point) ui.Window {
 
 	content := wnd.Content()
 	content.SetBorder(border.NewEmpty(geom.NewUniformInsets(10)))
-	flex.NewLayout(content).SetVerticalSpacing(10)
+	lay := flex.NewLayout(content)
+	lay.VSpacing = 10
 
 	buttonsPanel := createButtonsPanel()
-	buttonsPanel.SetLayoutData(flex.NewData().SetHorizontalGrab(true))
+	flexData := flex.NewData()
+	flexData.HGrab = true
+	buttonsPanel.SetLayoutData(flexData)
 	content.AddChild(buttonsPanel)
 
 	addSeparator(content)
 
 	checkBoxPanel := createCheckBoxPanel()
-	checkBoxPanel.SetLayoutData(flex.NewData().SetHorizontalGrab(true))
+	checkBoxPanel.SetLayoutData(flexData.Clone())
 	content.AddChild(checkBoxPanel)
 
 	addSeparator(content)
 
 	radioButtonsPanel := createRadioButtonsPanel()
-	radioButtonsPanel.SetLayoutData(flex.NewData().SetHorizontalGrab(true))
+	radioButtonsPanel.SetLayoutData(flexData.Clone())
 	content.AddChild(radioButtonsPanel)
 
 	addSeparator(content)
 
 	popupMenusPanel := createPopupMenusPanel()
-	popupMenusPanel.SetLayoutData(flex.NewData().SetHorizontalGrab(true))
+	popupMenusPanel.SetLayoutData(flexData.Clone())
 	content.AddChild(popupMenusPanel)
 
 	addSeparator(content)
 
 	wrapper := widget.NewBlock()
-	flex.NewLayout(wrapper).SetColumns(2).SetEqualColumns(true).SetHorizontalSpacing(10)
-	wrapper.SetLayoutData(flex.NewData().SetHorizontalGrab(true).SetHorizontalAlignment(align.Fill))
+	lay = flex.NewLayout(wrapper)
+	lay.Columns = 2
+	lay.EqualColumns = true
+	lay.HSpacing = 10
+	flexData = flexData.Clone()
+	flexData.HAlign = align.Fill
+	wrapper.SetLayoutData(flexData)
 	textFieldsPanel := createTextFieldsPanel()
-	textFieldsPanel.SetLayoutData(flex.NewData().SetHorizontalGrab(true).SetHorizontalAlignment(align.Fill))
+	textFieldsPanel.SetLayoutData(flexData.Clone())
 	wrapper.AddChild(textFieldsPanel)
 	wrapper.AddChild(createListPanel())
 	content.AddChild(wrapper)
@@ -142,7 +150,12 @@ func createButtonsWindow(title string, where geom.Point) ui.Window {
 		imgPanel.SetSize(prefSize)
 		tooltip.SetText(imgPanel, "mountains.jpg")
 		scrollArea := scrollarea.New(imgPanel, scrollarea.Unmodified)
-		scrollArea.SetLayoutData(flex.NewData().SetHorizontalAlignment(align.Fill).SetVerticalAlignment(align.Fill).SetHorizontalGrab(true).SetVerticalGrab(true))
+		flexData = flex.NewData()
+		flexData.HAlign = align.Fill
+		flexData.VAlign = align.Fill
+		flexData.HGrab = true
+		flexData.VGrab = true
+		scrollArea.SetLayoutData(flexData)
 		content.AddChild(scrollArea)
 
 		wnd.EventHandlers().Add(event.FocusGainedType, func(evt event.Event) {
@@ -216,19 +229,29 @@ func createListPanel() ui.Widget {
 	_, prefSize, _ := ui.Sizes(list, layout.NoHintSize)
 	list.SetSize(prefSize)
 	scrollArea := scrollarea.New(list, scrollarea.Fill)
-	scrollArea.SetLayoutData(flex.NewData().SetHorizontalAlignment(align.Fill).SetVerticalAlignment(align.Fill).SetHorizontalGrab(true).SetVerticalGrab(true))
+	flexData := flex.NewData()
+	flexData.HAlign = align.Fill
+	flexData.VAlign = align.Fill
+	flexData.HGrab = true
+	flexData.VGrab = true
+	scrollArea.SetLayoutData(flexData)
 	return scrollArea
 }
 
 func addSeparator(parent ui.Widget) {
 	sep := separator.New(true)
-	sep.SetLayoutData(flex.NewData().SetHorizontalAlignment(align.Fill))
+	flexData := flex.NewData()
+	flexData.HAlign = align.Fill
+	sep.SetLayoutData(flexData)
 	parent.AddChild(sep)
 }
 
 func createButtonsPanel() ui.Widget {
 	panel := widget.NewBlock()
-	flow.New(panel).SetHorizontalSpacing(5).SetVerticalSpacing(5).SetVerticallyCentered(true)
+	lay := flow.New(panel)
+	lay.HSpacing = 5
+	lay.VSpacing = 5
+	lay.VCenter = true
 
 	createButton("Press Me", panel)
 	createButton("Disabled", panel).SetEnabled(false)
@@ -366,7 +389,10 @@ func createTextFieldsPanel() ui.Widget {
 func createTextField(text string, panel ui.Widget) *textfield.TextField {
 	field := textfield.New()
 	field.SetText(text)
-	field.SetLayoutData(flex.NewData().SetHorizontalGrab(true).SetHorizontalAlignment(align.Fill))
+	flexData := flex.NewData()
+	flexData.HAlign = align.Fill
+	flexData.HGrab = true
+	field.SetLayoutData(flexData)
 	tooltip.SetText(field, fmt.Sprintf("This is the tooltip for the '%s' text field.", text))
 	panel.AddChild(field)
 	return field
@@ -381,10 +407,13 @@ func createAboutWindow(evt event.Event) {
 		content.SetBorder(border.NewEmpty(geom.NewUniformInsets(10)))
 		flex.NewLayout(content)
 		title := label.NewWithFont(app.Name(), font.EmphasizedSystem)
-		title.SetLayoutData(flex.NewData().SetHorizontalAlignment(align.Middle).SetHorizontalGrab(true))
+		flexData := flex.NewData()
+		flexData.HAlign = align.Middle
+		flexData.HGrab = true
+		title.SetLayoutData(flexData)
 		content.AddChild(title)
 		desc := label.New("Simple app to demonstrate the\ncapabilities of the ui framework.")
-		desc.SetLayoutData(flex.NewData().SetHorizontalAlignment(align.Middle).SetHorizontalGrab(true))
+		desc.SetLayoutData(flexData.Clone())
 		content.AddChild(desc)
 		aboutWindow.Pack()
 	}

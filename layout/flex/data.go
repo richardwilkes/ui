@@ -9,150 +9,67 @@ import (
 
 // Data is used to control how an object is laid out by the Flex layout.
 type Data struct {
-	hSpan        int
-	vSpan        int
-	sizeHint     geom.Size
-	minSize      geom.Size
+	HSpan        int             // Number of columns the widget should span
+	VSpan        int             // Number of rows the widget should span
+	SizeHint     geom.Size       // Hint requesting a particular size of the widget
+	MinSize      geom.Size       // Override for the minimum size of the widget
+	HAlign       align.Alignment // Horizontal alignment of the widget within its space
+	VAlign       align.Alignment // Vertical alignment of the widget within its space
+	HGrab        bool            // Grab excess horizontal space if true
+	VGrab        bool            // Grab excess vertical space if true
 	cacheSize    geom.Size
 	minCacheSize geom.Size
-	hAlign       align.Alignment
-	vAlign       align.Alignment
-	hGrab        bool
-	vGrab        bool
 }
 
 // NewData creates a new Data.
 func NewData() *Data {
 	return &Data{
-		hSpan:    1,
-		vSpan:    1,
-		hAlign:   align.Start,
-		vAlign:   align.Middle,
-		sizeHint: layout.NoHintSize,
-		minSize:  layout.NoHintSize}
+		HSpan:    1,
+		VSpan:    1,
+		HAlign:   align.Start,
+		VAlign:   align.Middle,
+		SizeHint: layout.NoHintSize,
+		MinSize:  layout.NoHintSize}
 }
 
-// HorizontalAlignment returns the horizontal alignment of the widget within its space.
-func (data *Data) HorizontalAlignment() align.Alignment {
-	return data.hAlign
+// Clone the Data.
+func (data *Data) Clone() *Data {
+	d := *data
+	d.normalizeAndResetCache()
+	return &d
 }
 
-// SetHorizontalAlignment sets the horizontal alignment of the widget within its space.
-func (data *Data) SetHorizontalAlignment(alignment align.Alignment) *Data {
-	data.hAlign = alignment
-	return data
-}
-
-// VerticalAlignment returns the vertical alignment of the widget within its space.
-func (data *Data) VerticalAlignment() align.Alignment {
-	return data.vAlign
-}
-
-// SetVerticalAlignment sets the vertical alignment of the widget within its space.
-func (data *Data) SetVerticalAlignment(alignment align.Alignment) *Data {
-	data.vAlign = alignment
-	return data
-}
-
-// SizeHint returns a hint requesting a particular size of the widget.
-func (data *Data) SizeHint() geom.Size {
-	return data.sizeHint
-}
-
-// SetSizeHint sets a hint requesting a particular size of the widget.
-func (data *Data) SetSizeHint(size geom.Size) *Data {
-	data.sizeHint = size
-	return data
-}
-
-// SetWidthHint sets a hint requesting a particular width of the widget.
-func (data *Data) SetWidthHint(width float64) *Data {
-	data.sizeHint.Width = width
-	return data
-}
-
-// SetHeightHint sets a hint requesting a particular height of the widget.
-func (data *Data) SetHeightHint(height float64) *Data {
-	data.sizeHint.Height = height
-	return data
-}
-
-// HorizontalSpan returns the number of columns the widget should span.
-func (data *Data) HorizontalSpan() int {
-	return data.hSpan
-}
-
-// SetHorizontalSpan sets the number of columns the widget should span.
-func (data *Data) SetHorizontalSpan(span int) *Data {
-	data.hSpan = span
-	return data
-}
-
-// VerticalSpan returns the number of rows the widget should span.
-func (data *Data) VerticalSpan() int {
-	return data.vSpan
-}
-
-// SetVerticalSpan sets the number of rows the widget should span.
-func (data *Data) SetVerticalSpan(span int) *Data {
-	data.vSpan = span
-	return data
-}
-
-// MinSize returns an override for the minimum size of the widget.
-func (data *Data) MinSize() geom.Size {
-	return data.minSize
-}
-
-// SetMinSize sets an override for the minimum size of the widget.
-func (data *Data) SetMinSize(size geom.Size) *Data {
-	data.minSize = size
-	return data
-}
-
-// SetMinWidth sets an override for the minimum width of the widget.
-func (data *Data) SetMinWidth(width float64) *Data {
-	data.minSize.Width = width
-	return data
-}
-
-// SetMinHeight sets an override for the minimum height of the widget.
-func (data *Data) SetMinHeight(height float64) *Data {
-	data.minSize.Height = height
-	return data
-}
-
-// HorizontalGrab returns true if the widget should attempt to grab excess horizontal space.
-func (data *Data) HorizontalGrab() bool {
-	return data.hGrab
-}
-
-// SetHorizontalGrab marks the widget to attempt to grab excess horizontal space if true.
-func (data *Data) SetHorizontalGrab(grab bool) *Data {
-	data.hGrab = grab
-	return data
-}
-
-// VerticalGrab returns true if the widget should attempt to grab excess vertical space.
-func (data *Data) VerticalGrab() bool {
-	return data.vGrab
-}
-
-// SetVerticalGrab marks the widget to attempt to grab excess vertical space if true.
-func (data *Data) SetVerticalGrab(grab bool) *Data {
-	data.vGrab = grab
-	return data
-}
-
-func (data *Data) computeCacheSize(target ui.Widget, hint geom.Size, useMinimumSize bool) {
+func (data *Data) normalizeAndResetCache() {
 	data.minCacheSize.Width = 0
 	data.minCacheSize.Height = 0
 	data.cacheSize.Width = 0
 	data.cacheSize.Height = 0
+	if data.HSpan < 1 {
+		data.HSpan = 1
+	}
+	if data.VSpan < 1 {
+		data.VSpan = 1
+	}
+	if data.SizeHint.Width < layout.NoHint {
+		data.SizeHint.Width = layout.NoHint
+	}
+	if data.SizeHint.Height < layout.NoHint {
+		data.SizeHint.Height = layout.NoHint
+	}
+	if data.MinSize.Width < layout.NoHint {
+		data.MinSize.Width = layout.NoHint
+	}
+	if data.MinSize.Height < layout.NoHint {
+		data.MinSize.Height = layout.NoHint
+	}
+}
+
+func (data *Data) computeCacheSize(target ui.Widget, hint geom.Size, useMinimumSize bool) {
+	data.normalizeAndResetCache()
 	min, pref, max := ui.Sizes(target, hint)
 	if hint.Width != layout.NoHint || hint.Height != layout.NoHint {
-		if data.minSize.Width != layout.NoHint {
-			data.minCacheSize.Width = data.minSize.Width
+		if data.MinSize.Width != layout.NoHint {
+			data.minCacheSize.Width = data.MinSize.Width
 		} else {
 			data.minCacheSize.Width = min.Width
 		}
@@ -162,9 +79,8 @@ func (data *Data) computeCacheSize(target ui.Widget, hint geom.Size, useMinimumS
 		if hint.Width != layout.NoHint && hint.Width > max.Width {
 			hint.Width = max.Width
 		}
-
-		if data.minSize.Height != layout.NoHint {
-			data.minCacheSize.Height = data.minSize.Height
+		if data.MinSize.Height != layout.NoHint {
+			data.minCacheSize.Height = data.MinSize.Height
 		} else {
 			data.minCacheSize.Height = min.Height
 		}
@@ -177,13 +93,13 @@ func (data *Data) computeCacheSize(target ui.Widget, hint geom.Size, useMinimumS
 	}
 	if useMinimumSize {
 		data.cacheSize = min
-		if data.minSize.Width != layout.NoHint {
-			data.minCacheSize.Width = data.minSize.Width
+		if data.MinSize.Width != layout.NoHint {
+			data.minCacheSize.Width = data.MinSize.Width
 		} else {
 			data.minCacheSize.Width = min.Width
 		}
-		if data.minSize.Height != layout.NoHint {
-			data.minCacheSize.Height = data.minSize.Height
+		if data.MinSize.Height != layout.NoHint {
+			data.minCacheSize.Height = data.MinSize.Height
 		} else {
 			data.minCacheSize.Height = min.Height
 		}
@@ -193,19 +109,19 @@ func (data *Data) computeCacheSize(target ui.Widget, hint geom.Size, useMinimumS
 	if hint.Width != layout.NoHint {
 		data.cacheSize.Width = hint.Width
 	}
-	if data.minSize.Width != layout.NoHint && data.cacheSize.Width < data.minSize.Width {
-		data.cacheSize.Width = data.minSize.Width
+	if data.MinSize.Width != layout.NoHint && data.cacheSize.Width < data.MinSize.Width {
+		data.cacheSize.Width = data.MinSize.Width
 	}
-	if data.sizeHint.Width != layout.NoHint {
-		data.cacheSize.Width = data.sizeHint.Width
+	if data.SizeHint.Width != layout.NoHint {
+		data.cacheSize.Width = data.SizeHint.Width
 	}
 	if hint.Height != layout.NoHint {
 		data.cacheSize.Height = hint.Height
 	}
-	if data.minSize.Height != layout.NoHint && data.cacheSize.Height < data.minSize.Height {
-		data.cacheSize.Height = data.minSize.Height
+	if data.MinSize.Height != layout.NoHint && data.cacheSize.Height < data.MinSize.Height {
+		data.cacheSize.Height = data.MinSize.Height
 	}
-	if data.sizeHint.Height != layout.NoHint {
-		data.cacheSize.Height = data.sizeHint.Height
+	if data.SizeHint.Height != layout.NoHint {
+		data.cacheSize.Height = data.SizeHint.Height
 	}
 }
