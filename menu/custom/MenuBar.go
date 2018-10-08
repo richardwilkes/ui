@@ -57,7 +57,7 @@ func (bar *MenuBar) InsertMenu(subMenu menu.Menu, index int) {
 		actual.item.menuParent = bar
 		actual.attachToBottom = true
 		switch layout := bar.Layout().(type) {
-		case *flex.Flex:
+		case *flex.Layout:
 			layout.SetColumns(len(bar.Children()))
 		}
 	}

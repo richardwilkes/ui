@@ -8,9 +8,9 @@ import (
 	"github.com/richardwilkes/ui/layout"
 )
 
-// Flow lays out the children of its widget left-to-right, then top-to-bottom at their preferred
-// sizes, if possible.
-type Flow struct {
+// Layout lays out the children of its widget left-to-right, then
+// top-to-bottom at their preferred sizes, if possible.
+type Layout struct {
 	widget   ui.Widget
 	hSpacing float64
 	vSpacing float64
@@ -18,49 +18,51 @@ type Flow struct {
 }
 
 // New creates a new Flow layout and sets it on the widget.
-func New(widget ui.Widget) *Flow {
-	layout := &Flow{widget: widget}
+func New(widget ui.Widget) *Layout {
+	layout := &Layout{widget: widget}
 	widget.SetLayout(layout)
 	return layout
 }
 
 // HorizontalSpacing returns the horizontal spacing between widgets.
-func (flow *Flow) HorizontalSpacing() float64 {
-	return flow.hSpacing
+func (l *Layout) HorizontalSpacing() float64 {
+	return l.hSpacing
 }
 
 // SetHorizontalSpacing sets the horizontal spacing between widgets.
-func (flow *Flow) SetHorizontalSpacing(spacing float64) *Flow {
-	flow.hSpacing = math.Max(spacing, 0)
-	return flow
+func (l *Layout) SetHorizontalSpacing(spacing float64) *Layout {
+	l.hSpacing = math.Max(spacing, 0)
+	return l
 }
 
 // VerticalSpacing returns the vertical spacing between rows.
-func (flow *Flow) VerticalSpacing() float64 {
-	return flow.vSpacing
+func (l *Layout) VerticalSpacing() float64 {
+	return l.vSpacing
 }
 
 // SetVerticalSpacing sets the vertical spacing between rows.
-func (flow *Flow) SetVerticalSpacing(spacing float64) *Flow {
-	flow.vSpacing = math.Max(spacing, 0)
-	return flow
+func (l *Layout) SetVerticalSpacing(spacing float64) *Layout {
+	l.vSpacing = math.Max(spacing, 0)
+	return l
 }
 
-// VerticallyCentered returns true if the widgets should be vertically centered in their row.
-func (flow *Flow) VerticallyCentered() bool {
-	return flow.vCenter
+// VerticallyCentered returns true if the widgets should be vertically
+// centered in their row.
+func (l *Layout) VerticallyCentered() bool {
+	return l.vCenter
 }
 
-// SetVerticallyCentered sets whether the widgets should be vertically centered in their row.
-func (flow *Flow) SetVerticallyCentered(center bool) *Flow {
-	flow.vCenter = center
-	return flow
+// SetVerticallyCentered sets whether the widgets should be vertically
+// centered in their row.
+func (l *Layout) SetVerticallyCentered(center bool) *Layout {
+	l.vCenter = center
+	return l
 }
 
 // Sizes implements the Layout interface.
-func (flow *Flow) Sizes(hint geom.Size) (min, pref, max geom.Size) {
+func (l *Layout) Sizes(hint geom.Size) (min, pref, max geom.Size) {
 	var insets geom.Insets
-	if border := flow.widget.Border(); border != nil {
+	if border := l.widget.Border(); border != nil {
 		insets = border.Insets()
 	}
 	if hint.Width < 0 {
@@ -77,7 +79,7 @@ func (flow *Flow) Sizes(hint geom.Size) (min, pref, max geom.Size) {
 	var maxHeight float64
 	var largestChildMin geom.Size
 	noHint := geom.Size{Width: layout.NoHint, Height: layout.NoHint}
-	for _, child := range flow.widget.Children() {
+	for _, child := range l.widget.Children() {
 		min, pref, _ := ui.Sizes(child, noHint)
 		if largestChildMin.Width < min.Width {
 			largestChildMin.Width = min.Width
@@ -92,9 +94,9 @@ func (flow *Flow) Sizes(hint geom.Size) (min, pref, max geom.Size) {
 				pref.Width = min.Width
 			} else {
 				pt.X = insets.Left
-				pt.Y += maxHeight + flow.vSpacing
+				pt.Y += maxHeight + l.vSpacing
 				availWidth = width
-				availHeight -= maxHeight + flow.vSpacing
+				availHeight -= maxHeight + l.vSpacing
 				maxHeight = 0
 				if pref.Width > availWidth {
 					if min.Width <= availWidth {
@@ -126,15 +128,15 @@ func (flow *Flow) Sizes(hint geom.Size) (min, pref, max geom.Size) {
 		if maxHeight < pref.Height {
 			maxHeight = pref.Height
 		}
-		availWidth -= pref.Width + flow.hSpacing
+		availWidth -= pref.Width + l.hSpacing
 		if availWidth <= 0 {
 			pt.X = insets.Left
-			pt.Y += maxHeight + flow.vSpacing
+			pt.Y += maxHeight + l.vSpacing
 			availWidth = width
-			availHeight -= maxHeight + flow.vSpacing
+			availHeight -= maxHeight + l.vSpacing
 			maxHeight = 0
 		} else {
-			pt.X += pref.Width + flow.hSpacing
+			pt.X += pref.Width + l.hSpacing
 		}
 	}
 	result.Width += insets.Right
@@ -145,19 +147,19 @@ func (flow *Flow) Sizes(hint geom.Size) (min, pref, max geom.Size) {
 }
 
 // Layout implements the Layout interface.
-func (flow *Flow) Layout() {
+func (l *Layout) Layout() {
 	var insets geom.Insets
-	if border := flow.widget.Border(); border != nil {
+	if border := l.widget.Border(); border != nil {
 		insets = border.Insets()
 	}
-	size := flow.widget.Bounds().Size
+	size := l.widget.Bounds().Size
 	width := size.Width - (insets.Left + insets.Right)
 	pt := geom.Point{X: insets.Left, Y: insets.Top}
 	availWidth := width
 	availHeight := size.Height - (insets.Top + insets.Bottom)
 	var maxHeight float64
 	noHint := geom.Size{Width: layout.NoHint, Height: layout.NoHint}
-	children := flow.widget.Children()
+	children := l.widget.Children()
 	rects := make([]geom.Rect, len(children))
 	start := 0
 	for i, child := range children {
@@ -169,11 +171,11 @@ func (flow *Flow) Layout() {
 				pref.Width = min.Width
 			} else {
 				pt.X = insets.Left
-				pt.Y += maxHeight + flow.vSpacing
+				pt.Y += maxHeight + l.vSpacing
 				availWidth = width
-				availHeight -= maxHeight + flow.vSpacing
+				availHeight -= maxHeight + l.vSpacing
 				if i > start {
-					flow.applyRects(children[start:i], rects[start:i], maxHeight)
+					l.applyRects(children[start:i], rects[start:i], maxHeight)
 					start = i
 				}
 				maxHeight = 0
@@ -200,30 +202,30 @@ func (flow *Flow) Layout() {
 		if maxHeight < pref.Height {
 			maxHeight = pref.Height
 		}
-		availWidth -= pref.Width + flow.hSpacing
+		availWidth -= pref.Width + l.hSpacing
 		if availWidth <= 0 {
 			pt.X = insets.Left
-			pt.Y += maxHeight + flow.vSpacing
+			pt.Y += maxHeight + l.vSpacing
 			availWidth = width
-			availHeight -= maxHeight + flow.vSpacing
-			flow.applyRects(children[start:i+1], rects[start:i+1], maxHeight)
+			availHeight -= maxHeight + l.vSpacing
+			l.applyRects(children[start:i+1], rects[start:i+1], maxHeight)
 			start = i + 1
 			maxHeight = 0
 		} else {
-			pt.X += pref.Width + flow.hSpacing
+			pt.X += pref.Width + l.hSpacing
 		}
 	}
 	for i, child := range children {
 		// RAW: Implement
-		//if flow.vCenter {
+		//if l.vCenter {
 		//}
 		child.SetBounds(rects[i])
 	}
 }
 
-func (flow *Flow) applyRects(children []ui.Widget, rects []geom.Rect, maxHeight float64) {
+func (l *Layout) applyRects(children []ui.Widget, rects []geom.Rect, maxHeight float64) {
 	for i, child := range children {
-		if flow.vCenter {
+		if l.vCenter {
 			if rects[i].Height < maxHeight {
 				rects[i].Y += (maxHeight - rects[i].Height) / 2
 			}

@@ -10,8 +10,9 @@ import (
 	"github.com/richardwilkes/ui/layout"
 )
 
-// Flex lays out the children of its widget based on the Data assigned to each child.
-type Flex struct {
+// Layout lays out the children of its widget based on the Data assigned to
+// each child.
+type Layout struct {
 	widget   ui.Widget
 	rows     int
 	columns  int
@@ -23,8 +24,8 @@ type Flex struct {
 }
 
 // NewLayout creates a new Flex layout and sets it on the widget.
-func NewLayout(widget ui.Widget) *Flex {
-	layout := &Flex{
+func NewLayout(widget ui.Widget) *Layout {
+	layout := &Layout{
 		widget:   widget,
 		columns:  1,
 		hSpacing: 4,
@@ -37,76 +38,82 @@ func NewLayout(widget ui.Widget) *Flex {
 }
 
 //Columns returns the number of columns.
-func (flex *Flex) Columns() int {
-	return flex.columns
+func (l *Layout) Columns() int {
+	return l.columns
 }
 
 // SetColumns sets the number of columns.
-func (flex *Flex) SetColumns(columns int) *Flex {
-	flex.columns = columns
-	return flex
+func (l *Layout) SetColumns(columns int) *Layout {
+	l.columns = columns
+	return l
 }
 
-// EqualColumns returns true if each column will use the same amount of horizontal space.
-func (flex *Flex) EqualColumns() bool {
-	return flex.equal
+// EqualColumns returns true if each column will use the same amount of
+// horizontal space.
+func (l *Layout) EqualColumns() bool {
+	return l.equal
 }
 
-// SetEqualColumns sets each column to use the same amount of horizontal space if true.
-func (flex *Flex) SetEqualColumns(equal bool) *Flex {
-	flex.equal = equal
-	return flex
+// SetEqualColumns sets each column to use the same amount of horizontal space
+// if true.
+func (l *Layout) SetEqualColumns(equal bool) *Layout {
+	l.equal = equal
+	return l
 }
 
 // HorizontalSpacing returns the horizontal spacing between columns.
-func (flex *Flex) HorizontalSpacing() float64 {
-	return flex.hSpacing
+func (l *Layout) HorizontalSpacing() float64 {
+	return l.hSpacing
 }
 
 // SetHorizontalSpacing sets the horizontal spacing between columns.
-func (flex *Flex) SetHorizontalSpacing(spacing float64) *Flex {
-	flex.hSpacing = spacing
-	return flex
+func (l *Layout) SetHorizontalSpacing(spacing float64) *Layout {
+	l.hSpacing = spacing
+	return l
 }
 
 // VerticalSpacing returns the vertical spacing between rows.
-func (flex *Flex) VerticalSpacing() float64 {
-	return flex.vSpacing
+func (l *Layout) VerticalSpacing() float64 {
+	return l.vSpacing
 }
 
 // SetVerticalSpacing sets the vertical spacing between rows.
-func (flex *Flex) SetVerticalSpacing(spacing float64) *Flex {
-	flex.vSpacing = spacing
-	return flex
+func (l *Layout) SetVerticalSpacing(spacing float64) *Layout {
+	l.vSpacing = spacing
+	return l
 }
 
-// HorizontalAlignment returns the horizontal alignment of the widget within its space.
-func (flex *Flex) HorizontalAlignment() align.Alignment {
-	return flex.hAlign
+// HorizontalAlignment returns the horizontal alignment of the widget within
+// its space.
+func (l *Layout) HorizontalAlignment() align.Alignment {
+	return l.hAlign
 }
 
-// SetHorizontalAlignment sets the horizontal alignment of the widget within its space.
-func (flex *Flex) SetHorizontalAlignment(alignment align.Alignment) *Flex {
-	flex.hAlign = alignment
-	return flex
+// SetHorizontalAlignment sets the horizontal alignment of the widget within
+// its space.
+func (l *Layout) SetHorizontalAlignment(alignment align.Alignment) *Layout {
+	l.hAlign = alignment
+	return l
 }
 
-// VerticalAlignment returns the vertical alignment of the widget within its space.
-func (flex *Flex) VerticalAlignment() align.Alignment {
-	return flex.vAlign
+// VerticalAlignment returns the vertical alignment of the widget within its
+// space.
+func (l *Layout) VerticalAlignment() align.Alignment {
+	return l.vAlign
 }
 
-// SetVerticalAlignment sets the vertical alignment of the widget within its space.
-func (flex *Flex) SetVerticalAlignment(alignment align.Alignment) *Flex {
-	flex.vAlign = alignment
-	return flex
+// SetVerticalAlignment sets the vertical alignment of the widget within its
+// space.
+func (l *Layout) SetVerticalAlignment(alignment align.Alignment) *Layout {
+	l.vAlign = alignment
+	return l
 }
 
 // Sizes implements the Layout interface.
-func (flex *Flex) Sizes(hint geom.Size) (min, pref, max geom.Size) {
-	min = flex.layout(geom.Point{}, layout.NoHintSize, false, true)
-	pref = flex.layout(geom.Point{}, layout.NoHintSize, false, false)
-	if border := flex.widget.Border(); border != nil {
+func (l *Layout) Sizes(hint geom.Size) (min, pref, max geom.Size) {
+	min = l.layout(geom.Point{}, layout.NoHintSize, false, true)
+	pref = l.layout(geom.Point{}, layout.NoHintSize, false, false)
+	if border := l.widget.Border(); border != nil {
 		insets := border.Insets()
 		min.AddInsets(insets)
 		pref.AddInsets(insets)
@@ -115,57 +122,57 @@ func (flex *Flex) Sizes(hint geom.Size) (min, pref, max geom.Size) {
 }
 
 // Layout implements the Layout interface.
-func (flex *Flex) Layout() {
+func (l *Layout) Layout() {
 	var insets geom.Insets
-	if border := flex.widget.Border(); border != nil {
+	if border := l.widget.Border(); border != nil {
 		insets = border.Insets()
 	}
-	hint := flex.widget.Bounds().Size
+	hint := l.widget.Bounds().Size
 	hint.SubtractInsets(insets)
-	flex.layout(geom.Point{X: insets.Left, Y: insets.Top}, hint, true, false)
+	l.layout(geom.Point{X: insets.Left, Y: insets.Top}, hint, true, false)
 }
 
-func (flex *Flex) layout(location geom.Point, hint geom.Size, move, useMinimumSize bool) geom.Size {
+func (l *Layout) layout(location geom.Point, hint geom.Size, move, useMinimumSize bool) geom.Size {
 	var totalSize geom.Size
-	if flex.columns > 0 {
-		children := flex.prepChildren(useMinimumSize)
+	if l.columns > 0 {
+		children := l.prepChildren(useMinimumSize)
 		if len(children) > 0 {
-			grid := flex.buildGrid(children)
-			widths := flex.adjustColumnWidths(hint.Width, grid)
-			flex.wrap(hint.Width, grid, widths, useMinimumSize)
-			heights := flex.adjustRowHeights(hint.Height, grid)
-			totalSize.Width += flex.hSpacing * float64(flex.columns-1)
-			totalSize.Height += flex.vSpacing * float64(flex.rows-1)
-			for i := 0; i < flex.columns; i++ {
+			grid := l.buildGrid(children)
+			widths := l.adjustColumnWidths(hint.Width, grid)
+			l.wrap(hint.Width, grid, widths, useMinimumSize)
+			heights := l.adjustRowHeights(hint.Height, grid)
+			totalSize.Width += l.hSpacing * float64(l.columns-1)
+			totalSize.Height += l.vSpacing * float64(l.rows-1)
+			for i := 0; i < l.columns; i++ {
 				totalSize.Width += widths[i]
 			}
-			for i := 0; i < flex.rows; i++ {
+			for i := 0; i < l.rows; i++ {
 				totalSize.Height += heights[i]
 			}
 			if move {
 				if totalSize.Width < hint.Width {
-					if flex.hAlign == align.Middle {
+					if l.hAlign == align.Middle {
 						location.X += xmath.Round((hint.Width - totalSize.Width) / 2)
-					} else if flex.hAlign == align.End {
+					} else if l.hAlign == align.End {
 						location.X += hint.Width - totalSize.Width
 					}
 				}
 				if totalSize.Height < hint.Height {
-					if flex.vAlign == align.Middle {
+					if l.vAlign == align.Middle {
 						location.Y += xmath.Round((hint.Height - totalSize.Height) / 2)
-					} else if flex.vAlign == align.End {
+					} else if l.vAlign == align.End {
 						location.Y += hint.Height - totalSize.Height
 					}
 				}
-				flex.positionChildren(location, grid, widths, heights)
+				l.positionChildren(location, grid, widths, heights)
 			}
 		}
 	}
 	return totalSize
 }
 
-func (flex *Flex) prepChildren(useMinimumSize bool) []ui.Widget {
-	children := flex.widget.Children()
+func (l *Layout) prepChildren(useMinimumSize bool) []ui.Widget {
+	children := l.widget.Children()
 	for _, child := range children {
 		getDataFromWidget(child).computeCacheSize(child, layout.NoHintSize, useMinimumSize)
 	}
@@ -181,24 +188,24 @@ func getDataFromWidget(w ui.Widget) *Data {
 	return data
 }
 
-func (flex *Flex) buildGrid(children []ui.Widget) [][]ui.Widget {
+func (l *Layout) buildGrid(children []ui.Widget) [][]ui.Widget {
 	var grid [][]ui.Widget
 	var row, column int
-	flex.rows = 0
+	l.rows = 0
 	for _, child := range children {
 		data := getDataFromWidget(child)
-		hSpan := xmath.MaxInt(1, xmath.MinInt(data.hSpan, flex.columns))
+		hSpan := xmath.MaxInt(1, xmath.MinInt(data.hSpan, l.columns))
 		vSpan := xmath.MaxInt(1, data.vSpan)
 		for {
 			lastRow := row + vSpan
 			if lastRow >= len(grid) {
-				grid = append(grid, make([]ui.Widget, flex.columns))
+				grid = append(grid, make([]ui.Widget, l.columns))
 			}
-			for column < flex.columns && grid[row][column] != nil {
+			for column < l.columns && grid[row][column] != nil {
 				column++
 			}
 			endCount := column + hSpan
-			if endCount <= flex.columns {
+			if endCount <= l.columns {
 				index := column
 				for index < endCount && grid[row][index] == nil {
 					index++
@@ -208,7 +215,7 @@ func (flex *Flex) buildGrid(children []ui.Widget) [][]ui.Widget {
 				}
 				column = index
 			}
-			if column+hSpan >= flex.columns {
+			if column+hSpan >= l.columns {
 				column = 0
 				row++
 			}
@@ -219,23 +226,23 @@ func (flex *Flex) buildGrid(children []ui.Widget) [][]ui.Widget {
 				grid[pos][column+k] = child
 			}
 		}
-		flex.rows = xmath.MaxInt(flex.rows, row+vSpan)
+		l.rows = xmath.MaxInt(l.rows, row+vSpan)
 		column += hSpan
 	}
 	return grid
 }
 
-func (flex *Flex) adjustColumnWidths(width float64, grid [][]ui.Widget) []float64 {
-	availableWidth := width - flex.hSpacing*float64(flex.columns-1)
+func (l *Layout) adjustColumnWidths(width float64, grid [][]ui.Widget) []float64 {
+	availableWidth := width - l.hSpacing*float64(l.columns-1)
 	expandCount := 0
-	widths := make([]float64, flex.columns)
-	minWidths := make([]float64, flex.columns)
-	expandColumn := make([]bool, flex.columns)
-	for j := 0; j < flex.columns; j++ {
-		for i := 0; i < flex.rows; i++ {
-			data := flex.getData(grid, i, j, true)
+	widths := make([]float64, l.columns)
+	minWidths := make([]float64, l.columns)
+	expandColumn := make([]bool, l.columns)
+	for j := 0; j < l.columns; j++ {
+		for i := 0; i < l.rows; i++ {
+			data := l.getData(grid, i, j, true)
 			if data != nil {
-				hSpan := xmath.MaxInt(1, xmath.MinInt(data.hSpan, flex.columns))
+				hSpan := xmath.MaxInt(1, xmath.MinInt(data.hSpan, l.columns))
 				if hSpan == 1 {
 					w := data.cacheSize.Width
 					if widths[j] < w {
@@ -261,10 +268,10 @@ func (flex *Flex) adjustColumnWidths(width float64, grid [][]ui.Widget) []float6
 				}
 			}
 		}
-		for i := 0; i < flex.rows; i++ {
-			data := flex.getData(grid, i, j, false)
+		for i := 0; i < l.rows; i++ {
+			data := l.getData(grid, i, j, false)
 			if data != nil {
-				hSpan := xmath.MaxInt(1, xmath.MinInt(data.hSpan, flex.columns))
+				hSpan := xmath.MaxInt(1, xmath.MinInt(data.hSpan, l.columns))
 				if hSpan > 1 {
 					var spanWidth, spanMinWidth float64
 					spanExpandCount := 0
@@ -279,9 +286,9 @@ func (flex *Flex) adjustColumnWidths(width float64, grid [][]ui.Widget) []float6
 						expandCount++
 						expandColumn[j] = true
 					}
-					w := data.cacheSize.Width - spanWidth - float64(hSpan-1)*flex.hSpacing
+					w := data.cacheSize.Width - spanWidth - float64(hSpan-1)*l.hSpacing
 					if w > 0 {
-						if flex.equal {
+						if l.equal {
 							equalWidth := math.Floor((w + spanWidth) / float64(hSpan))
 							for k := 0; k < hSpan; k++ {
 								if widths[j-k] < equalWidth {
@@ -289,7 +296,7 @@ func (flex *Flex) adjustColumnWidths(width float64, grid [][]ui.Widget) []float6
 								}
 							}
 						} else {
-							flex.apportionExtra(w, j, spanExpandCount, hSpan, expandColumn, widths)
+							l.apportionExtra(w, j, spanExpandCount, hSpan, expandColumn, widths)
 						}
 					}
 					minimumWidth := data.minCacheSize.Width
@@ -299,18 +306,18 @@ func (flex *Flex) adjustColumnWidths(width float64, grid [][]ui.Widget) []float6
 						} else {
 							w = minimumWidth
 						}
-						w -= spanMinWidth + float64(hSpan-1)*flex.hSpacing
+						w -= spanMinWidth + float64(hSpan-1)*l.hSpacing
 						if w > 0 {
-							flex.apportionExtra(w, j, spanExpandCount, hSpan, expandColumn, minWidths)
+							l.apportionExtra(w, j, spanExpandCount, hSpan, expandColumn, minWidths)
 						}
 					}
 				}
 			}
 		}
 	}
-	if flex.equal {
+	if l.equal {
 		var minColumnWidth, columnWidth float64
-		for i := 0; i < flex.columns; i++ {
+		for i := 0; i < l.columns; i++ {
 			if minColumnWidth < minWidths[i] {
 				minColumnWidth = minWidths[i]
 			}
@@ -319,22 +326,22 @@ func (flex *Flex) adjustColumnWidths(width float64, grid [][]ui.Widget) []float6
 			}
 		}
 		if width != layout.NoHint && expandCount != 0 {
-			columnWidth = math.Max(minColumnWidth, math.Floor(availableWidth/float64(flex.columns)))
+			columnWidth = math.Max(minColumnWidth, math.Floor(availableWidth/float64(l.columns)))
 		}
-		for i := 0; i < flex.columns; i++ {
+		for i := 0; i < l.columns; i++ {
 			expandColumn[i] = expandCount > 0
 			widths[i] = columnWidth
 		}
 	} else {
 		if width != layout.NoHint && expandCount > 0 {
 			var totalWidth float64
-			for i := 0; i < flex.columns; i++ {
+			for i := 0; i < l.columns; i++ {
 				totalWidth += widths[i]
 			}
 			c := expandCount
 			for math.Abs(totalWidth-availableWidth) > 0.01 {
 				delta := (availableWidth - totalWidth) / float64(c)
-				for j := 0; j < flex.columns; j++ {
+				for j := 0; j < l.columns; j++ {
 					if expandColumn[j] {
 						if widths[j]+delta > minWidths[j] {
 							widths[j] += delta
@@ -345,11 +352,11 @@ func (flex *Flex) adjustColumnWidths(width float64, grid [][]ui.Widget) []float6
 						}
 					}
 				}
-				for j := 0; j < flex.columns; j++ {
-					for i := 0; i < flex.rows; i++ {
-						data := flex.getData(grid, i, j, false)
+				for j := 0; j < l.columns; j++ {
+					for i := 0; i < l.rows; i++ {
+						data := l.getData(grid, i, j, false)
 						if data != nil {
-							hSpan := xmath.MaxInt(1, xmath.MinInt(data.hSpan, flex.columns))
+							hSpan := xmath.MaxInt(1, xmath.MinInt(data.hSpan, l.columns))
 							if hSpan > 1 {
 								minimumWidth := data.minCacheSize.Width
 								if !data.hGrab || minimumWidth != 0 {
@@ -367,9 +374,9 @@ func (flex *Flex) adjustColumnWidths(width float64, grid [][]ui.Widget) []float6
 									} else {
 										w = minimumWidth
 									}
-									w -= spanWidth + float64(hSpan-1)*flex.hSpacing
+									w -= spanWidth + float64(hSpan-1)*l.hSpacing
 									if w > 0 {
-										flex.apportionExtra(w, j, spanExpandCount, hSpan, expandColumn, widths)
+										l.apportionExtra(w, j, spanExpandCount, hSpan, expandColumn, widths)
 									}
 								}
 							}
@@ -380,7 +387,7 @@ func (flex *Flex) adjustColumnWidths(width float64, grid [][]ui.Widget) []float6
 					break
 				}
 				totalWidth = 0
-				for i := 0; i < flex.columns; i++ {
+				for i := 0; i < l.columns; i++ {
 					totalWidth += widths[i]
 				}
 			}
@@ -389,7 +396,7 @@ func (flex *Flex) adjustColumnWidths(width float64, grid [][]ui.Widget) []float6
 	return widths
 }
 
-func (flex *Flex) apportionExtra(extra float64, base, count, span int, expand []bool, values []float64) {
+func (l *Layout) apportionExtra(extra float64, base, count, span int, expand []bool, values []float64) {
 	if count == 0 {
 		values[base] += extra
 	} else {
@@ -417,11 +424,11 @@ func (flex *Flex) apportionExtra(extra float64, base, count, span int, expand []
 	}
 }
 
-func (flex *Flex) getData(grid [][]ui.Widget, row, column int, first bool) *Data {
+func (l *Layout) getData(grid [][]ui.Widget, row, column int, first bool) *Data {
 	block := grid[row][column]
 	if block != nil {
 		data := getDataFromWidget(block)
-		hSpan := xmath.MaxInt(1, xmath.MinInt(data.hSpan, flex.columns))
+		hSpan := xmath.MaxInt(1, xmath.MinInt(data.hSpan, l.columns))
 		vSpan := xmath.MaxInt(1, data.vSpan)
 		var i, j int
 		if first {
@@ -431,8 +438,8 @@ func (flex *Flex) getData(grid [][]ui.Widget, row, column int, first bool) *Data
 			i = row - vSpan + 1
 			j = column - hSpan + 1
 		}
-		if i >= 0 && i < flex.rows {
-			if j >= 0 && j < flex.columns {
+		if i >= 0 && i < l.rows {
+			if j >= 0 && j < l.columns {
 				if block == grid[i][j] {
 					return data
 				}
@@ -442,19 +449,19 @@ func (flex *Flex) getData(grid [][]ui.Widget, row, column int, first bool) *Data
 	return nil
 }
 
-func (flex *Flex) wrap(width float64, grid [][]ui.Widget, widths []float64, useMinimumSize bool) {
+func (l *Layout) wrap(width float64, grid [][]ui.Widget, widths []float64, useMinimumSize bool) {
 	if width != layout.NoHint {
-		for j := 0; j < flex.columns; j++ {
-			for i := 0; i < flex.rows; i++ {
-				data := flex.getData(grid, i, j, false)
+		for j := 0; j < l.columns; j++ {
+			for i := 0; i < l.rows; i++ {
+				data := l.getData(grid, i, j, false)
 				if data != nil {
 					if data.sizeHint.Height == layout.NoHint {
-						hSpan := xmath.MaxInt(1, xmath.MinInt(data.hSpan, flex.columns))
+						hSpan := xmath.MaxInt(1, xmath.MinInt(data.hSpan, l.columns))
 						var currentWidth float64
 						for k := 0; k < hSpan; k++ {
 							currentWidth += widths[j-k]
 						}
-						currentWidth += float64(hSpan-1) * flex.hSpacing
+						currentWidth += float64(hSpan-1) * l.hSpacing
 						if currentWidth != data.cacheSize.Width && data.hAlign == align.Fill || data.cacheSize.Width > currentWidth {
 							data.computeCacheSize(grid[i][j], geom.Size{Width: math.Max(data.minCacheSize.Width, currentWidth), Height: layout.NoHint}, useMinimumSize)
 							minimumHeight := data.minSize.Height
@@ -469,17 +476,17 @@ func (flex *Flex) wrap(width float64, grid [][]ui.Widget, widths []float64, useM
 	}
 }
 
-func (flex *Flex) adjustRowHeights(height float64, grid [][]ui.Widget) []float64 {
-	availableHeight := height - flex.vSpacing*float64(flex.rows-1)
+func (l *Layout) adjustRowHeights(height float64, grid [][]ui.Widget) []float64 {
+	availableHeight := height - l.vSpacing*float64(l.rows-1)
 	expandCount := 0
-	heights := make([]float64, flex.rows)
-	minHeights := make([]float64, flex.rows)
-	expandRow := make([]bool, flex.rows)
-	for i := 0; i < flex.rows; i++ {
-		for j := 0; j < flex.columns; j++ {
-			data := flex.getData(grid, i, j, true)
+	heights := make([]float64, l.rows)
+	minHeights := make([]float64, l.rows)
+	expandRow := make([]bool, l.rows)
+	for i := 0; i < l.rows; i++ {
+		for j := 0; j < l.columns; j++ {
+			data := l.getData(grid, i, j, true)
 			if data != nil {
-				vSpan := xmath.MaxInt(1, xmath.MinInt(data.vSpan, flex.rows))
+				vSpan := xmath.MaxInt(1, xmath.MinInt(data.vSpan, l.rows))
 				if vSpan == 1 {
 					h := data.cacheSize.Height
 					if heights[i] < h {
@@ -506,10 +513,10 @@ func (flex *Flex) adjustRowHeights(height float64, grid [][]ui.Widget) []float64
 				}
 			}
 		}
-		for j := 0; j < flex.columns; j++ {
-			data := flex.getData(grid, i, j, false)
+		for j := 0; j < l.columns; j++ {
+			data := l.getData(grid, i, j, false)
 			if data != nil {
-				vSpan := xmath.MaxInt(1, xmath.MinInt(data.vSpan, flex.rows))
+				vSpan := xmath.MaxInt(1, xmath.MinInt(data.vSpan, l.rows))
 				if vSpan > 1 {
 					var spanHeight, spanMinHeight float64
 					spanExpandCount := 0
@@ -524,7 +531,7 @@ func (flex *Flex) adjustRowHeights(height float64, grid [][]ui.Widget) []float64
 						expandCount++
 						expandRow[i] = true
 					}
-					h := data.cacheSize.Height - spanHeight - float64(vSpan-1)*flex.vSpacing
+					h := data.cacheSize.Height - spanHeight - float64(vSpan-1)*l.vSpacing
 					if h > 0 {
 						if spanExpandCount == 0 {
 							heights[i] += h
@@ -545,9 +552,9 @@ func (flex *Flex) adjustRowHeights(height float64, grid [][]ui.Widget) []float64
 						} else {
 							h = minimumHeight
 						}
-						h -= spanMinHeight + float64(vSpan-1)*flex.vSpacing
+						h -= spanMinHeight + float64(vSpan-1)*l.vSpacing
 						if h > 0 {
-							flex.apportionExtra(h, i, spanExpandCount, vSpan, expandRow, minHeights)
+							l.apportionExtra(h, i, spanExpandCount, vSpan, expandRow, minHeights)
 						}
 					}
 				}
@@ -556,13 +563,13 @@ func (flex *Flex) adjustRowHeights(height float64, grid [][]ui.Widget) []float64
 	}
 	if height != layout.NoHint && expandCount > 0 {
 		var totalHeight float64
-		for i := 0; i < flex.rows; i++ {
+		for i := 0; i < l.rows; i++ {
 			totalHeight += heights[i]
 		}
 		c := expandCount
 		delta := (availableHeight - totalHeight) / float64(c)
 		for math.Abs(totalHeight-availableHeight) > 0.01 {
-			for i := 0; i < flex.rows; i++ {
+			for i := 0; i < l.rows; i++ {
 				if expandRow[i] {
 					if heights[i]+delta > minHeights[i] {
 						heights[i] += delta
@@ -573,11 +580,11 @@ func (flex *Flex) adjustRowHeights(height float64, grid [][]ui.Widget) []float64
 					}
 				}
 			}
-			for i := 0; i < flex.rows; i++ {
-				for j := 0; j < flex.columns; j++ {
-					data := flex.getData(grid, i, j, false)
+			for i := 0; i < l.rows; i++ {
+				for j := 0; j < l.columns; j++ {
+					data := l.getData(grid, i, j, false)
 					if data != nil {
-						vSpan := xmath.MaxInt(1, xmath.MinInt(data.vSpan, flex.rows))
+						vSpan := xmath.MaxInt(1, xmath.MinInt(data.vSpan, l.rows))
 						if vSpan > 1 {
 							minimumHeight := data.minSize.Height
 							if !data.vGrab || minimumHeight != 0 {
@@ -595,9 +602,9 @@ func (flex *Flex) adjustRowHeights(height float64, grid [][]ui.Widget) []float64
 								} else {
 									h = minimumHeight
 								}
-								h -= spanHeight + float64(vSpan-1)*flex.vSpacing
+								h -= spanHeight + float64(vSpan-1)*l.vSpacing
 								if h > 0 {
-									flex.apportionExtra(h, i, spanExpandCount, vSpan, expandRow, heights)
+									l.apportionExtra(h, i, spanExpandCount, vSpan, expandRow, heights)
 								}
 							}
 						}
@@ -608,7 +615,7 @@ func (flex *Flex) adjustRowHeights(height float64, grid [][]ui.Widget) []float64
 				break
 			}
 			totalHeight = 0
-			for i := 0; i < flex.rows; i++ {
+			for i := 0; i < l.rows; i++ {
 				totalHeight += heights[i]
 			}
 			delta = (availableHeight - totalHeight) / float64(c)
@@ -617,14 +624,14 @@ func (flex *Flex) adjustRowHeights(height float64, grid [][]ui.Widget) []float64
 	return heights
 }
 
-func (flex *Flex) positionChildren(location geom.Point, grid [][]ui.Widget, widths []float64, heights []float64) {
+func (l *Layout) positionChildren(location geom.Point, grid [][]ui.Widget, widths []float64, heights []float64) {
 	gridY := location.Y
-	for i := 0; i < flex.rows; i++ {
+	for i := 0; i < l.rows; i++ {
 		gridX := location.X
-		for j := 0; j < flex.columns; j++ {
-			data := flex.getData(grid, i, j, true)
+		for j := 0; j < l.columns; j++ {
+			data := l.getData(grid, i, j, true)
 			if data != nil {
-				hSpan := xmath.MaxInt(1, xmath.MinInt(data.hSpan, flex.columns))
+				hSpan := xmath.MaxInt(1, xmath.MinInt(data.hSpan, l.columns))
 				vSpan := xmath.MaxInt(1, data.vSpan)
 				var cellWidth, cellHeight float64
 				for k := 0; k < hSpan; k++ {
@@ -633,7 +640,7 @@ func (flex *Flex) positionChildren(location geom.Point, grid [][]ui.Widget, widt
 				for k := 0; k < vSpan; k++ {
 					cellHeight += heights[i+k]
 				}
-				cellWidth += flex.hSpacing * float64(hSpan-1)
+				cellWidth += l.hSpacing * float64(hSpan-1)
 				childX := gridX
 				childWidth := math.Min(data.cacheSize.Width, cellWidth)
 				switch data.hAlign {
@@ -645,7 +652,7 @@ func (flex *Flex) positionChildren(location geom.Point, grid [][]ui.Widget, widt
 					childWidth = cellWidth
 				default:
 				}
-				cellHeight += flex.vSpacing * float64(vSpan-1)
+				cellHeight += l.vSpacing * float64(vSpan-1)
 				childY := gridY
 				childHeight := math.Min(data.cacheSize.Height, cellHeight)
 				switch data.vAlign {
@@ -662,8 +669,8 @@ func (flex *Flex) positionChildren(location geom.Point, grid [][]ui.Widget, widt
 					child.SetBounds(geom.Rect{Point: geom.Point{X: childX, Y: childY}, Size: geom.Size{Width: childWidth, Height: childHeight}})
 				}
 			}
-			gridX += widths[j] + flex.hSpacing
+			gridX += widths[j] + l.hSpacing
 		}
-		gridY += heights[i] + flex.vSpacing
+		gridY += heights[i] + l.vSpacing
 	}
 }
