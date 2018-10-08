@@ -1,17 +1,22 @@
 # go-ui
 A user interface for Go.
 
-C Dependencies:
+### C Dependencies:
 - [Cairo](https://www.cairographics.org)
 - [Pango](http://www.pango.org)
 - X11 (linux only)
 
-On Linux, you'll likely need to do the following:
+#### On macOS:
+```
+brew install cairo pango
+```
+
+#### On Linux:
 ```
 sudo apt install pkg-config libcairo2-dev libpango1.0-dev libx11-dev libxcursor-dev
 ```
 
-Go Dependencies:
+### Go Dependencies:
 ```
 go get -u github.com/richardwilkes/toolbox
 ```
@@ -47,5 +52,3 @@ Top-level windows and dialogs:
 - [ ] Dialog
 - [ ] FileDialog
 - [x] Window
-
-To run the Demo, you'll need to [follow the directions in the images folder](https://github.com/richardwilkes/ui/blob/master/Demo/images/README.md) to build the image resources.
