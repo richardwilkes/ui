@@ -1,12 +1,10 @@
 package draw
 
 import (
-	"unsafe"
-
 	"github.com/richardwilkes/toolbox/xmath/geom"
 
-	// #cgo pkg-config: cairo
-	// #include <cairo.h>
+	// #cgo pkg-config: pangocairo
+	// #include <pango/pangocairo.h>
 	"C"
 )
 
@@ -36,9 +34,9 @@ func (surface *Surface) Destroy() {
 	C.cairo_surface_destroy(surface.surface)
 }
 
-// NewCairoContext creates a new CairoContext with the specified bounds.
-func (surface *Surface) NewCairoContext(bounds geom.Rect) CairoContext {
-	return CairoContext(unsafe.Pointer(C.cairo_create(surface.surface)))
+// NewCairoContext creates a new CairoContext.
+func (surface *Surface) NewCairoContext() CairoContext {
+	return CairoContext(C.cairo_create(surface.surface))
 }
 
 // CreateSimilar creates a new surface similar to this surface, but with the specified

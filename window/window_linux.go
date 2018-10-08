@@ -142,13 +142,13 @@ func (window *Window) platformRepaint(bounds geom.Rect) {
 
 func (window *Window) draw(bounds geom.Rect) {
 	buffer := window.surface.CreateSimilar(draw.ColorContent, window.surface.Size())
-	gc := draw.NewGraphics(buffer.NewCairoContext(bounds))
+	gc := draw.NewGraphics(buffer.NewCairoContext())
 	gc.Rect(bounds)
 	gc.Clip()
 	window.paint(gc, bounds)
 	gc.Dispose()
 
-	gc = draw.NewGraphics(window.surface.NewCairoContext(bounds))
+	gc = draw.NewGraphics(window.surface.NewCairoContext())
 	gc.Rect(bounds)
 	gc.Clip()
 	gc.SetSurface(buffer, 0, 0)

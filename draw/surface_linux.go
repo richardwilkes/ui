@@ -5,8 +5,8 @@ import (
 
 	"github.com/richardwilkes/toolbox/xmath/geom"
 
-	// #cgo pkg-config: cairo
-	// #include <cairo/cairo-xlib.h>
+	// #cgo pkg-config: pangocairo
+	// #include <pango/pangocairo.h>
 	"C"
 )
 
