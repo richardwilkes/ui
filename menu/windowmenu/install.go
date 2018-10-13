@@ -26,7 +26,7 @@ func Install(bar menu.Bar) {
 	})
 	windowMenu.AppendItem(item)
 
-	item = menu.NewItemWithKey(i18n.Text("Zoom"), keys.VirtualKeyBackSlash, func(evt event.Event) {
+	item = menu.NewItemWithKeyAndModifiers(i18n.Text("Zoom"), keys.VirtualKeyZ, keys.ShiftModifier|keys.PlatformMenuModifier(), func(evt event.Event) {
 		wnd := window.KeyWindow()
 		if wnd != nil {
 			wnd.Zoom()
