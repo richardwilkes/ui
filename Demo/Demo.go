@@ -24,6 +24,7 @@ import (
 	"github.com/richardwilkes/ui/menu"
 	"github.com/richardwilkes/ui/menu/appmenu"
 	"github.com/richardwilkes/ui/menu/editmenu"
+	"github.com/richardwilkes/ui/menu/filemenu"
 	"github.com/richardwilkes/ui/menu/helpmenu"
 	"github.com/richardwilkes/ui/menu/windowmenu"
 	"github.com/richardwilkes/ui/widget"
@@ -50,44 +51,34 @@ var (
 func main() {
 	// event.TraceAllEvents = true
 	// event.TraceEventTypes = append(event.TraceEventTypes, event.MouseDownType, event.MouseDraggedType, event.MouseUpType)
-	handlers := app.App.EventHandlers()
-	handlers.Add(event.AppPopulateMenuBarType, func(evt event.Event) {
-		bar := menu.AppBar(evt.(*event.AppPopulateMenuBar).ID())
-		_, aboutItem, prefsItem := appmenu.Install(bar)
-		aboutItem.EventHandlers().Add(event.SelectionType, createAboutWindow)
-		prefsItem.EventHandlers().Add(event.SelectionType, createPreferencesWindow)
-		bar.AppendMenu(newFileMenu())
-		editmenu.Install(bar)
-		windowmenu.Install(bar)
-		helpmenu.Install(bar)
-	})
-	handlers.Add(event.AppWillFinishStartupType, func(evt event.Event) {
-		w1 := createButtonsWindow("Demo #1", geom.Point{})
-		frame1 := w1.Frame()
-		createButtonsWindow("Demo #2", geom.Point{X: frame1.X + frame1.Width + 5, Y: frame1.Y})
-	})
+	handlers := app.EventHandlers()
+	handlers.Add(event.AppPopulateMenuBarType, createMenus)
+	handlers.Add(event.AppWillFinishStartupType, finishStartup)
 	app.Start()
+}
+
+func finishStartup(_ event.Event) {
+	w1 := createButtonsWindow("Demo #1", geom.Point{})
+	frame1 := w1.Frame()
+	createButtonsWindow("Demo #2", geom.Point{X: frame1.X + frame1.Width + 5, Y: frame1.Y})
+}
+
+func createMenus(evt event.Event) {
+	bar := menu.AppBar(evt.(*event.AppPopulateMenuBar).ID())
+	_, aboutItem, prefsItem := appmenu.Install(bar)
+	aboutItem.EventHandlers().Add(event.SelectionType, createAboutWindow)
+	prefsItem.EventHandlers().Add(event.SelectionType, createPreferencesWindow)
+	bar.AppendMenu(newFileMenu())
+	editmenu.Install(bar)
+	windowmenu.Install(bar)
+	helpmenu.Install(bar)
 }
 
 func newFileMenu() menu.Menu {
 	fileMenu := menu.NewMenu("File")
-
 	fileMenu.AppendItem(menu.NewItemWithKey("Open", keys.VirtualKeyO, nil))
 	fileMenu.AppendItem(menu.NewSeparator())
-
-	item := menu.NewItemWithKey("Close", keys.VirtualKeyW, func(evt event.Event) {
-		wnd := window.KeyWindow()
-		if wnd != nil && wnd.Closable() {
-			wnd.AttemptClose()
-		}
-	})
-	item.EventHandlers().Add(event.ValidateType, func(evt event.Event) {
-		wnd := window.KeyWindow()
-		if wnd == nil || !wnd.Closable() {
-			evt.(*event.Validate).MarkInvalid()
-		}
-	})
-	fileMenu.AppendItem(item)
+	fileMenu.AppendItem(filemenu.NewCloseKeyWindowItem())
 	return fileMenu
 }
 
