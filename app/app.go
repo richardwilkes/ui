@@ -65,3 +65,8 @@ func HideOthers() {
 func ShowAll() {
 	platformShowAllApps()
 }
+
+// EventHandlers is a shortcut for calling app.App.EventHandlers().
+func EventHandlers() *event.Handlers {
+	return App.EventHandlers()
+}
