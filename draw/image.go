@@ -126,7 +126,7 @@ func AcquireImageFromID(id uint64) *Image {
 }
 
 // AcquireImageFromData creates a new image from the specified data.
-func AcquireImageFromData(data *ImageData) (img *Image, err error) {
+func AcquireImageFromData(data *ImageData) *Image {
 	surface := C.cairo_image_surface_create(C.CAIRO_FORMAT_ARGB32, C.int(data.Width), C.int(data.Height))
 	stride := int(C.cairo_image_surface_get_stride(surface)) / 4
 	pixels := (*[1 << 30]color.Color)(unsafe.Pointer(C.cairo_image_surface_get_data(surface)))
@@ -136,27 +136,39 @@ func AcquireImageFromData(data *ImageData) (img *Image, err error) {
 		}
 	}
 	C.cairo_surface_mark_dirty(surface)
-	imageRegistryLock.Lock()
-	defer imageRegistryLock.Unlock()
-	img = &Image{width: data.Width, height: data.Height, surface: surface}
+	img := &Image{width: data.Width, height: data.Height, surface: surface}
 	img.InitTypeAndID(img)
 	img.key = img.ID()
 	ref := &imgRef{img: img, count: 1}
+	imageRegistryLock.Lock()
 	imageRegistry[img.ID()] = ref
-	return img, nil
+	imageRegistryLock.Unlock()
+	return img
+}
+
+// NewImage creates a new image.
+func NewImage(width, height int) *Image {
+	img := &Image{width: width, height: height, surface: C.cairo_image_surface_create(C.CAIRO_FORMAT_ARGB32, C.int(width), C.int(height))}
+	img.InitTypeAndID(img)
+	img.key = img.ID()
+	ref := &imgRef{img: img, count: 1}
+	imageRegistryLock.Lock()
+	imageRegistry[img.ID()] = ref
+	imageRegistryLock.Unlock()
+	return img
 }
 
 // AcquireImageArea creates a new image from an area within this image.
-func (img *Image) AcquireImageArea(bounds geom.Rect) (image *Image, err error) {
+func (img *Image) AcquireImageArea(bounds geom.Rect) *Image {
 	return AcquireImageFromData(img.DataFromArea(bounds))
 }
 
 // AcquireDisabled returns an image based on this image which is desaturated and ghosted to
 // represent a disabled state.
-func (img *Image) AcquireDisabled() (image *Image, e error) {
-	image = AcquireImageFromID(img.disabledID)
+func (img *Image) AcquireDisabled() *Image {
+	image := AcquireImageFromID(img.disabledID)
 	if image != nil {
-		return image, nil
+		return image
 	}
 	data := img.Data()
 	for i := range data.Pixels {
@@ -164,10 +176,9 @@ func (img *Image) AcquireDisabled() (image *Image, e error) {
 		v := int((p.Luminance() * 255) + 0.5)
 		data.Pixels[i] = color.RGBA(v, v, v, p.AlphaIntensity()*0.4)
 	}
-	if image, e = AcquireImageFromData(data); e == nil {
-		img.disabledID = image.ID()
-	}
-	return image, e
+	image = AcquireImageFromData(data)
+	img.disabledID = image.ID()
+	return image
 }
 
 // Size returns the size of the image.
@@ -212,6 +223,11 @@ func (img *Image) DataFromArea(bounds geom.Rect) *ImageData {
 		}
 	}
 	return data
+}
+
+// NewCairoContext creates a new CairoContext.
+func (img *Image) NewCairoContext() CairoContext {
+	return CairoContext(C.cairo_create(img.surface))
 }
 
 // Release releases the image. If no other client is using the image, then the underlying OS
