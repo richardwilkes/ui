@@ -1,6 +1,10 @@
 package macmenus
 
 import (
+	// #cgo CFLAGS: -x objective-c
+	// #cgo LDFLAGS: -framework Cocoa
+	// #include "menus_darwin.h"
+	"C"
 	"strings"
 	"unsafe"
 
@@ -10,11 +14,6 @@ import (
 	"github.com/richardwilkes/ui/keys"
 	"github.com/richardwilkes/ui/menu"
 	"github.com/richardwilkes/ui/object"
-
-	// #cgo CFLAGS: -x objective-c
-	// #cgo LDFLAGS: -framework Cocoa
-	// #include "menus_darwin.h"
-	"C"
 )
 
 type platformMenu struct {

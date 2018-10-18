@@ -1,11 +1,11 @@
 package draw
 
 import (
-	"github.com/richardwilkes/toolbox/xmath/geom"
-
 	// #cgo pkg-config: pangocairo
 	// #include <pango/pangocairo.h>
 	"C"
+
+	"github.com/richardwilkes/toolbox/xmath/geom"
 )
 
 // CairoContentType holds the type of content for a surface.

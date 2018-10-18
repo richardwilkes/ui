@@ -1,12 +1,11 @@
 package x11
 
 import (
-	"unsafe"
-
 	// #cgo pkg-config: x11
 	// #include <stdlib.h>
 	// #include <X11/Xlib.h>
 	"C"
+	"unsafe"
 )
 
 type Atom C.Atom

@@ -1,13 +1,12 @@
 package font
 
 import (
-	"sort"
-	"sync"
-	"unsafe"
-
 	// #cgo pkg-config: pangocairo
 	// #include <pango/pangocairo.h>
 	"C"
+	"sort"
+	"sync"
+	"unsafe"
 )
 
 var (

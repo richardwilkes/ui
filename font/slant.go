@@ -1,11 +1,11 @@
 package font
 
 import (
-	"github.com/richardwilkes/toolbox/i18n"
-
 	// #cgo pkg-config: pangocairo
 	// #include <pango/pangocairo.h>
 	"C"
+
+	"github.com/richardwilkes/toolbox/i18n"
 )
 
 // Possible font slant variants.

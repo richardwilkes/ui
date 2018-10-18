@@ -1,11 +1,10 @@
 package x11
 
 import (
-	"unsafe"
-
 	// #cgo pkg-config: x11
 	// #include <X11/Xlib.h>
 	"C"
+	"unsafe"
 )
 
 type FocusChangeEvent C.XFocusChangeEvent

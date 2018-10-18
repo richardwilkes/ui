@@ -1,13 +1,6 @@
 package x11
 
 import (
-	"math"
-	"os"
-	"unsafe"
-
-	"github.com/richardwilkes/toolbox/xmath/geom"
-	"github.com/richardwilkes/ui/draw"
-
 	// #cgo pkg-config: x11 cairo
 	// #include <stdlib.h>
 	// #include <X11/Xlib.h>
@@ -15,6 +8,12 @@ import (
 	// #include <X11/Xutil.h>
 	// #include <cairo/cairo-xlib.h>
 	"C"
+	"math"
+	"os"
+	"unsafe"
+
+	"github.com/richardwilkes/toolbox/xmath/geom"
+	"github.com/richardwilkes/ui/draw"
 )
 
 const (

@@ -1,12 +1,12 @@
 package draw
 
 import (
-	"github.com/richardwilkes/toolbox/xmath"
-	"github.com/richardwilkes/ui/color"
-
 	// #cgo pkg-config: pangocairo
 	// #include <pango/pangocairo.h>
 	"C"
+
+	"github.com/richardwilkes/toolbox/xmath"
+	"github.com/richardwilkes/ui/color"
 )
 
 // PaintKind possibilities.

@@ -1,14 +1,13 @@
 package clipboard
 
 import (
-	"unsafe"
-
-	"github.com/richardwilkes/ui/clipboard/datatypes"
-
 	// #cgo CFLAGS: -x objective-c
 	// #cgo LDFLAGS: -framework Cocoa
 	// #include "clip_darwin.h"
 	"C"
+	"unsafe"
+
+	"github.com/richardwilkes/ui/clipboard/datatypes"
 )
 
 const (

@@ -1,20 +1,17 @@
 package window
 
 import (
+	// #cgo CFLAGS: -x objective-c
+	// #cgo LDFLAGS: -framework Cocoa -framework Quartz
+	// #cgo pkg-config: pangocairo
+	// #include "window_darwin.h"
+	"C"
 	"time"
 	"unsafe"
 
 	"github.com/richardwilkes/toolbox/xmath/geom"
 	"github.com/richardwilkes/ui"
 	"github.com/richardwilkes/ui/cursor"
-
-	// #cgo CFLAGS: -x objective-c
-	// #cgo LDFLAGS: -framework Cocoa -framework Quartz
-	// #cgo pkg-config: pangocairo
-	// #include "window_darwin.h"
-	"C"
-)
-import (
 	"github.com/richardwilkes/ui/draw"
 	"github.com/richardwilkes/ui/event"
 	"github.com/richardwilkes/ui/internal/task"

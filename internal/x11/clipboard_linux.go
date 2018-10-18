@@ -1,14 +1,13 @@
 package x11
 
 import (
-	"unsafe"
-
-	"github.com/richardwilkes/ui/clipboard/datatypes"
-
 	// #cgo pkg-config: x11
 	// #include <X11/Xlib.h>
 	// #include <X11/Xatom.h>
 	"C"
+	"unsafe"
+
+	"github.com/richardwilkes/ui/clipboard/datatypes"
 )
 
 var (

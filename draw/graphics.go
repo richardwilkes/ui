@@ -1,6 +1,11 @@
 package draw
 
 import (
+	// #cgo darwin LDFLAGS: -framework Cocoa -framework Quartz
+	// #cgo linux LDFLAGS: -lX11
+	// #cgo pkg-config: pangocairo
+	// #include <pango/pangocairo.h>
+	"C"
 	"math"
 
 	"github.com/richardwilkes/toolbox/xmath"
@@ -8,12 +13,6 @@ import (
 	"github.com/richardwilkes/ui/color"
 	"github.com/richardwilkes/ui/draw/compositing"
 	"github.com/richardwilkes/ui/font"
-
-	// #cgo darwin LDFLAGS: -framework Cocoa -framework Quartz
-	// #cgo linux LDFLAGS: -lX11
-	// #cgo pkg-config: pangocairo
-	// #include <pango/pangocairo.h>
-	"C"
 )
 
 const (

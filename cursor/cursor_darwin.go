@@ -1,17 +1,16 @@
 package cursor
 
 import (
+	// #cgo CFLAGS: -x objective-c
+	// #cgo LDFLAGS: -framework Cocoa
+	// #include "cursor_darwin.h"
+	"C"
 	"fmt"
 	"unsafe"
 
 	"github.com/richardwilkes/toolbox/xmath/geom"
 	"github.com/richardwilkes/ui/color"
 	"github.com/richardwilkes/ui/draw"
-
-	// #cgo CFLAGS: -x objective-c
-	// #cgo LDFLAGS: -framework Cocoa
-	// #include "cursor_darwin.h"
-	"C"
 )
 
 func platformSystemCursor(id int) unsafe.Pointer {

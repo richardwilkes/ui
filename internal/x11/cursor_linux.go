@@ -1,11 +1,6 @@
 package x11
 
 import (
-	"unsafe"
-
-	"github.com/richardwilkes/toolbox/xmath/geom"
-	"github.com/richardwilkes/ui/draw"
-
 	// #cgo LDFLAGS: -lXcursor
 	// #cgo pkg-config: x11
 	// #include <stdlib.h>
@@ -13,6 +8,10 @@ import (
 	// #include <X11/cursorfont.h>
 	// #include <X11/Xcursor/Xcursor.h>
 	"C"
+	"unsafe"
+
+	"github.com/richardwilkes/toolbox/xmath/geom"
+	"github.com/richardwilkes/ui/draw"
 )
 
 type SystemCursorID int

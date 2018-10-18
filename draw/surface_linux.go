@@ -1,13 +1,13 @@
 package draw
 
 import (
+	// #cgo pkg-config: pangocairo
+	// #include <pango/pangocairo.h>
+	"C"
 	"unsafe"
 
 	"github.com/richardwilkes/toolbox/xmath/geom"
 
-	// #cgo pkg-config: pangocairo
-	// #include <pango/pangocairo.h>
-	"C"
 )
 
 func NewSurface(surface unsafe.Pointer, size geom.Size) *Surface {

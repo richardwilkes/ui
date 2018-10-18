@@ -1,6 +1,9 @@
 package draw
 
 import (
+	// #cgo pkg-config: pangocairo
+	// #include <pango/pangocairo.h>
+	"C"
 	"fmt"
 	"image"
 	_ "image/gif"  // Support loading of GIF
@@ -15,10 +18,6 @@ import (
 	"github.com/richardwilkes/toolbox/xmath/geom"
 	"github.com/richardwilkes/ui/color"
 	"github.com/richardwilkes/ui/object"
-
-	// #cgo pkg-config: pangocairo
-	// #include <pango/pangocairo.h>
-	"C"
 )
 
 type imgRef struct {
