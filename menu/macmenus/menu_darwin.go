@@ -1,6 +1,11 @@
 package macmenus
 
 import (
+	// #cgo CFLAGS: -x objective-c
+	// #cgo LDFLAGS: -framework Cocoa
+	// #include "menus_darwin.h"
+	"C"
+
 	"github.com/richardwilkes/toolbox/xmath/geom"
 	"github.com/richardwilkes/ui/menu"
 	"github.com/richardwilkes/ui/window"
@@ -90,6 +95,10 @@ func (mnu *platformMenu) Menu(index int) menu.Menu {
 func (mnu *platformMenu) Popup(windowID uint64, where geom.Point, width float64, item menu.Item) {
 	wnd := window.ByID(windowID)
 	if wnd != nil {
-		mnu.platformPopup(wnd, where, item.(*platformItem).item)
+		var it C.Item
+		if item != nil {
+			it = item.(*platformItem).item
+		}
+		mnu.platformPopup(wnd, where, it)
 	}
 }
