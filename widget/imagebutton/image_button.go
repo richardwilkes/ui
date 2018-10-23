@@ -32,10 +32,7 @@ func NewImageButton(img *draw.Image) *ImageButton {
 func NewImageButtonWithImageSize(img *draw.Image, size geom.Size) *ImageButton {
 	button := &ImageButton{image: img, Theme: StdImageButton}
 	button.InitTypeAndID(button)
-	var err error
-	if button.disabledImage, err = img.AcquireDisabled(); err != nil {
-		button.disabledImage = img
-	}
+	button.disabledImage = img.AcquireDisabled()
 	button.Describer = func() string { return fmt.Sprintf("ImageButton #%d (%v)", button.ID(), button.Image()) }
 	button.SetFocusable(true)
 	if size.Width <= 0 || size.Height <= 0 {
