@@ -30,6 +30,7 @@ func NewWebView(wnd ui.Window) *WebView {
 	w.InitTypeAndID(w)
 	w.Describer = func() string { return fmt.Sprintf("WebView #%d", w.ID()) }
 	w.webview = platformNewWebView(wnd)
+	w.SetFocusable(true)
 	return w
 }
 
