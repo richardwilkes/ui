@@ -46,6 +46,7 @@ Widgets that have been implemented:
 - [x] TextField
 - [ ] ToolBar
 - [ ] Tree
+- [-] Web View (macOS-only at the moment)
 
 Top-level windows and dialogs:
 
