@@ -315,10 +315,13 @@ func (b *Block) Window() ui.Window {
 	return nil
 }
 
-// SetWindow sets the window of this Block and the Block's bounds to the window's ContentLocalFrame().
+// SetWindow sets the window of this Block and the Block's bounds to the
+// window's ContentLocalFrame().
 func (b *Block) SetWindow(wnd ui.Window) {
 	b.window = wnd
-	b.bounds = wnd.ContentLocalFrame()
+	if wnd != nil {
+		b.bounds = wnd.ContentLocalFrame()
+	}
 }
 
 // RootOfWindow implements the Widget interface.
