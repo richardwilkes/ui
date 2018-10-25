@@ -2,9 +2,9 @@ package window
 
 import (
 	"math"
-	"syscall"
 	"time"
 
+	"github.com/richardwilkes/toolbox/atexit"
 	"github.com/richardwilkes/toolbox/xmath/geom"
 	"github.com/richardwilkes/ui/event"
 	"github.com/richardwilkes/ui/internal/task"
@@ -265,6 +265,6 @@ func ResumeQuit(quit bool) {
 func finishQuit() {
 	if quitting {
 		x11.CloseDisplay()
-		syscall.Exit(0)
+		atexit.Exit(0)
 	}
 }

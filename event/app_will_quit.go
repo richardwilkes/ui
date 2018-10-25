@@ -2,6 +2,8 @@ package event
 
 import (
 	"bytes"
+
+	"github.com/richardwilkes/toolbox/atexit"
 )
 
 // AppWillQuit is generated immediately prior to the application quitting.
@@ -13,6 +15,7 @@ type AppWillQuit struct {
 // SendAppWillQuit sends a new AppWillQuit event.
 func SendAppWillQuit() {
 	Dispatch(&AppWillQuit{target: GlobalTarget()})
+	atexit.Exit(0)
 }
 
 // Type returns the event type ID.
