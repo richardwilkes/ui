@@ -40,6 +40,7 @@ import (
 	"github.com/richardwilkes/ui/widget/separator"
 	"github.com/richardwilkes/ui/widget/textfield"
 	"github.com/richardwilkes/ui/widget/tooltip"
+	"github.com/richardwilkes/ui/widget/webview"
 	"github.com/richardwilkes/ui/window"
 )
 
@@ -133,42 +134,55 @@ func createButtonsWindow(title string, where geom.Point) ui.Window {
 
 	addSeparator(content)
 
-	img, err := draw.AcquireImageFromFile(imagesFS, "/mountains.jpg")
-	if err == nil {
-		imgPanel := imagelabel.New(img)
-		imgPanel.SetFocusable(true)
-		_, prefSize, _ := ui.Sizes(imgPanel, layout.NoHintSize)
-		imgPanel.SetSize(prefSize)
-		tooltip.SetText(imgPanel, "mountains.jpg")
-		scrollArea := scrollarea.New(imgPanel, scrollarea.Unmodified)
+	if title == "Demo #1" {
+		wv := webview.NewWebView(wnd)
 		flexData = flex.NewData()
 		flexData.HAlign = align.Fill
 		flexData.VAlign = align.Fill
 		flexData.HGrab = true
 		flexData.VGrab = true
-		scrollArea.SetLayoutData(flexData)
-		content.AddChild(scrollArea)
-
-		wnd.EventHandlers().Add(event.FocusGainedType, func(evt event.Event) {
-			if !installedMap[wnd] {
-				crsr := getAppleCursor()
-				if crsr != nil {
-					imgPanel.EventHandlers().Add(event.UpdateCursorType, func(evt event.Event) {
-						wnd.SetCursor(crsr)
-						evt.Finish()
-					})
-					installedMap[wnd] = true
-				}
-			}
-		})
+		flexData.SizeHint.Width = 1024
+		flexData.SizeHint.Height = 768
+		wv.SetLayoutData(flexData)
+		wv.LoadURL("https://gurpscharactersheet.com")
+		content.AddChild(wv)
 	} else {
-		fmt.Println(err)
+		img, err := draw.AcquireImageFromFile(imagesFS, "/mountains.jpg")
+		if err == nil {
+			imgPanel := imagelabel.New(img)
+			imgPanel.SetFocusable(true)
+			_, prefSize, _ := ui.Sizes(imgPanel, layout.NoHintSize)
+			imgPanel.SetSize(prefSize)
+			tooltip.SetText(imgPanel, "mountains.jpg")
+			scrollArea := scrollarea.New(imgPanel, scrollarea.Unmodified)
+			flexData = flex.NewData()
+			flexData.HAlign = align.Fill
+			flexData.VAlign = align.Fill
+			flexData.HGrab = true
+			flexData.VGrab = true
+			scrollArea.SetLayoutData(flexData)
+			content.AddChild(scrollArea)
+
+			wnd.EventHandlers().Add(event.FocusGainedType, func(evt event.Event) {
+				if !installedMap[wnd] {
+					crsr := getAppleCursor()
+					if crsr != nil {
+						imgPanel.EventHandlers().Add(event.UpdateCursorType, func(evt event.Event) {
+							wnd.SetCursor(crsr)
+							evt.Finish()
+						})
+						installedMap[wnd] = true
+					}
+				}
+			})
+		} else {
+			fmt.Println(err)
+		}
 	}
 
 	wnd.SetFocus(textFieldsPanel.Children()[0])
 	wnd.Pack()
 	wnd.ToFront()
-
 	return wnd
 }
 
