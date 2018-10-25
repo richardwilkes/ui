@@ -50,6 +50,7 @@ var (
 )
 
 func main() {
+	// event.TraceLogger = &jot.Logger{}
 	// event.TraceAllEvents = true
 	// event.TraceEventTypes = append(event.TraceEventTypes, event.MouseDownType, event.MouseDraggedType, event.MouseUpType)
 	handlers := app.EventHandlers()
