@@ -391,7 +391,7 @@ func (window *Window) Minimize() {
 	window.platformMinimize()
 }
 
-// Zoom performs the platform's zoom funcion on the window.
+// Zoom performs the platform's zoom function on the window.
 func (window *Window) Zoom() {
 	window.platformZoom()
 }
