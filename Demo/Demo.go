@@ -7,6 +7,7 @@ import (
 	"sync"
 	"unicode"
 
+	"github.com/richardwilkes/toolbox/cmdline"
 	"github.com/richardwilkes/toolbox/xmath/geom"
 	"github.com/richardwilkes/ui"
 	"github.com/richardwilkes/ui/Demo/images"
@@ -408,11 +409,11 @@ func createAboutWindow(evt event.Event) {
 	if aboutWindow == nil {
 		aboutWindow = window.NewWindow(geom.Point{}, window.TitledWindowMask|window.ClosableWindowMask)
 		aboutWindow.EventHandlers().Add(event.ClosedType, func(evt event.Event) { aboutWindow = nil })
-		aboutWindow.SetTitle("About " + app.Name())
+		aboutWindow.SetTitle("About " + cmdline.AppName)
 		content := aboutWindow.Content()
 		content.SetBorder(border.NewEmpty(geom.NewUniformInsets(10)))
 		flex.NewLayout(content)
-		title := label.NewWithFont(app.Name(), font.EmphasizedSystem)
+		title := label.NewWithFont(cmdline.AppName, font.EmphasizedSystem)
 		flexData := flex.NewData()
 		flexData.HAlign = align.Middle
 		flexData.HGrab = true

@@ -3,6 +3,7 @@ package appmenu
 import (
 	"runtime"
 
+	"github.com/richardwilkes/toolbox/cmdline"
 	"github.com/richardwilkes/toolbox/i18n"
 	"github.com/richardwilkes/ui/app"
 	"github.com/richardwilkes/ui/event"
@@ -12,10 +13,10 @@ import (
 
 // Install adds a standard 'application' menu to the front of the menu bar.
 func Install(bar menu.Bar) (appMenu menu.Menu, aboutItem menu.Item, prefsItem menu.Item) {
-	name := app.Name()
+	name := cmdline.AppName
 	appMenu = menu.NewMenu(name)
 
-	aboutItem = menu.NewItem(i18n.Text("About ")+name, nil)
+	aboutItem = menu.NewItem(i18n.Text("About ")+cmdline.AppName, nil)
 	appMenu.AppendItem(aboutItem)
 
 	appMenu.AppendItem(menu.NewSeparator())
