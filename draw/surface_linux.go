@@ -7,7 +7,6 @@ import (
 	"unsafe"
 
 	"github.com/richardwilkes/toolbox/xmath/geom"
-
 )
 
 func NewSurface(surface unsafe.Pointer, size geom.Size) *Surface {
