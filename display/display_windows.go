@@ -7,7 +7,7 @@ func platformMainDisplayBounds() geom.Rect {
 	return geom.Rect{
 		Size: geom.Size{
 			Width: 1024,
-			Height; 768,
+			Height: 768,
 		},
 	}
 }

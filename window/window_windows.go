@@ -2,6 +2,7 @@ package window
 
 import (
 	"time"
+	"unsafe"
 
 	"github.com/richardwilkes/toolbox/xmath/geom"
 	"github.com/richardwilkes/ui"
@@ -10,6 +11,8 @@ import (
 
 // Window represents a window on the display.
 type Window commonWindow
+
+type platformWindow unsafe.Pointer
 
 func platformGetKeyWindow() platformWindow {
 	// RAW: Implement for Windows

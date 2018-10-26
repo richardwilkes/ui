@@ -16,6 +16,12 @@ brew install cairo pango
 sudo apt install pkg-config libcairo2-dev libpango1.0-dev libx11-dev libxcursor-dev
 ```
 
+#### On Windows:
+Install [MSYS2](http://www.msys2.org/) then install pkg-config and gtk3
+```
+pacman -S mingw64/mingw-w64-x86_64-pkg-config mingw64/mingw-w64-x86_64-gtk3
+```
+
 ### Go Dependencies:
 ```
 go get -u github.com/richardwilkes/toolbox
