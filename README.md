@@ -1,5 +1,4 @@
-# go-ui
-A user interface for Go.
+## A user interface for Go.
 
 ### C Dependencies:
 - [Cairo](https://www.cairographics.org)
