@@ -66,7 +66,7 @@ func platformNewCursor(imgData *draw.ImageData, hotSpot geom.Point) unsafe.Point
 	}
 	provider := C.CGDataProviderCreateWithData(nil, unsafe.Pointer(&buffer[0]), C.size_t(len(buffer)*4), nil)
 	defer C.CGDataProviderRelease(provider)
-	image := C.CGImageCreate(C.size_t(imgData.Width), C.size_t(imgData.Height), 8, 32, C.size_t(imgData.Width*4), colorspace, C.kCGBitmapByteOrder32Host|C.kCGImageAlphaPremultipliedFirst, provider, nil, false, C.kCGRenderingIntentDefault)
+	image := C.CGImageCreate(C.size_t(imgData.Width), C.size_t(imgData.Height), 8, 32, C.size_t(imgData.Width*4), colorspace, C.kCGBitmapByteOrder32Host|C.kCGImageAlphaPremultipliedFirst, provider, nil, C.bool(false), C.kCGRenderingIntentDefault)
 
 	return C.NewCursor(unsafe.Pointer(image), C.float(hotSpot.X), C.float(hotSpot.Y))
 }
