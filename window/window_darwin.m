@@ -11,9 +11,12 @@
 	CGRect rect = [self bounds];
 	cairo_surface_t *surface = cairo_quartz_surface_create_for_cg_context([[NSGraphicsContext currentContext] CGContext], (unsigned int)rect.size.width, (unsigned int)rect.size.height);
 	cairo_t *gc = cairo_create(surface);
-	cairo_surface_destroy(surface); // surface won't actually be destroyed until the gc is destroyed
+	cairo_push_group(gc);
 	drawWindow(wnd, gc, dirtyRect.origin.x, dirtyRect.origin.y, dirtyRect.size.width, dirtyRect.size.height);
+	cairo_pop_group_to_source(gc);
+	cairo_paint(gc);
 	cairo_destroy(gc);
+	cairo_surface_destroy(surface);
 }
 
 -(void)mouseDown:(NSEvent *)theEvent {
