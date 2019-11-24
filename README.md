@@ -1,3 +1,5 @@
+## Deprecated. Future work moved to github.com/richardwilkes/ux
+
 ## A user interface for Go.
 
 ### C Dependencies:
